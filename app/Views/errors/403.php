@@ -1,0 +1,1 @@
+<main id="conteudo" class="auth-page"><section class="auth-card"><span class="eyebrow">403</span><h1>Acesso negado</h1><p>Seu perfil nao possui permissao para acessar esta pagina.</p><a class="button primary" href="/admin">Voltar ao painel</a></section></main>

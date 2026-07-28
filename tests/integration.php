@@ -1,0 +1,85 @@
+<?php
+declare(strict_types=1);
+require dirname(__DIR__).'/app/bootstrap.php';
+
+use App\Support\Database;
+use App\Support\Repository;
+use App\Validators\EntityValidator;
+use App\Services\UploadService;
+use App\Services\PasswordResetService;
+use App\Services\ScopeService;
+use App\Services\AuditService;
+use App\Services\RuleConfigurationService;
+use App\Services\ScheduleGenerationService;
+use App\Services\MatchReportService;
+use App\Services\PdfReportService;
+
+$repository = new Repository(Database::connection());
+$slug = 'integration-'.bin2hex(random_bytes(4));
+$id = $repository->save('organizations', ['name'=>'Organização de teste','slug'=>$slug]);
+$created = $repository->find('organizations', $id);
+if (!$created || $created['slug'] !== $slug) throw new RuntimeException('Create failed.');
+$repository->save('organizations', ['name'=>'Organização atualizada'], $id);
+$updated = $repository->find('organizations', $id);
+if (!$updated || $updated['name'] !== 'Organização atualizada') throw new RuntimeException('Update failed.');
+$repository->softDelete('organizations', $id);
+if ($repository->find('organizations', $id) !== null) throw new RuntimeException('Soft delete failed.');
+try {
+    EntityValidator::validate('organizations', ['name'=>'Teste','slug'=>'Slug inválido'], ['name','slug']);
+    throw new RuntimeException('Invalid slug accepted.');
+} catch (InvalidArgumentException) {
+}
+if (EntityValidator::validate('organizations', ['name'=>'Teste','slug'=>'teste-valido'], ['name','slug'])['slug'] !== 'teste-valido') throw new RuntimeException('Validation failed.');
+$page = $repository->paginate('organizations', ['name','slug'], 'demo', 1, 5);
+if ($page['total'] < 1 || $page['rows'] === []) throw new RuntimeException('Pagination/search failed.');
+$temp = tempnam(sys_get_temp_dir(), 'upload-');
+file_put_contents($temp, base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Y9JzW8AAAAASUVORK5CYII='));
+$stored = (new UploadService())->store(['error'=>UPLOAD_ERR_OK,'tmp_name'=>$temp,'size'=>filesize($temp)], 'private');
+$storedPath = dirname(__DIR__).'/storage/'.$stored;
+if (!is_file($storedPath)) throw new RuntimeException('Secure upload failed.');
+unlink($storedPath);
+$resetEmail = 'reset-'.bin2hex(random_bytes(4)).'@example.test';
+$resetUserId = $repository->save('users', ['name'=>'Reset test','email'=>$resetEmail,'password_hash'=>password_hash('Original@12345', PASSWORD_DEFAULT)]);
+$resetService = new PasswordResetService(Database::connection());
+$resetToken = $resetService->request($resetEmail);
+if (!$resetToken || $resetService->reset($resetToken, 'Updated@12345') !== $resetUserId) throw new RuntimeException('Password reset failed.');
+$resetUser = $repository->find('users', $resetUserId);
+if (!$resetUser || !password_verify('Updated@12345', $resetUser['password_hash'])) throw new RuntimeException('Password was not updated.');
+$repository->softDelete('users', $resetUserId);
+$suffix = bin2hex(random_bytes(3));
+$orgA=$repository->save('organizations',['name'=>'Scope A','slug'=>'scope-a-'.$suffix]);
+$orgB=$repository->save('organizations',['name'=>'Scope B','slug'=>'scope-b-'.$suffix]);
+$projectA=$repository->save('projects',['organization_id'=>$orgA,'name'=>'Project A','slug'=>'project-a-'.$suffix]);
+$projectB=$repository->save('projects',['organization_id'=>$orgB,'name'=>'Project B','slug'=>'project-b-'.$suffix]);
+$tournamentA=$repository->save('tournaments',['project_id'=>$projectA,'name'=>'Tournament A','slug'=>'tournament-a-'.$suffix]);
+$tournamentB=$repository->save('tournaments',['project_id'=>$projectB,'name'=>'Tournament B','slug'=>'tournament-b-'.$suffix]);
+$documentA=$repository->save('documents',['tournament_id'=>$tournamentA,'title'=>'Private A','file_path'=>'private/not-present.pdf','visibility'=>'private']);
+$documentB=$repository->save('documents',['tournament_id'=>$tournamentB,'title'=>'Private B','file_path'=>'private/not-present.pdf','visibility'=>'private']);
+$scopedUser=$repository->save('users',['name'=>'Scoped user','email'=>'scope-'.$suffix.'@example.test','password_hash'=>password_hash('Scoped@12345',PASSWORD_DEFAULT)]);
+$role=Database::connection()->query("SELECT id FROM roles WHERE role_key='tournament_organizer'")->fetchColumn();
+$repository->save('user_role_assignments',['user_id'=>$scopedUser,'role_id'=>$role,'tournament_id'=>$tournamentA,'status'=>'active']);
+$scopes=new ScopeService(Database::connection());
+if(!$scopes->allows($scopedUser,'download_private_document',$scopes->context('documents',$documentA))) throw new RuntimeException('Scoped user denied own tournament.');
+if($scopes->allows($scopedUser,'download_private_document',$scopes->context('documents',$documentB))) throw new RuntimeException('Cross-tournament access allowed.');
+$super=(int)Database::connection()->query("SELECT u.id FROM users u JOIN user_role_assignments a ON a.user_id=u.id JOIN roles r ON r.id=a.role_id WHERE r.role_key='superadmin' LIMIT 1")->fetchColumn();
+if(!$scopes->allows($super,'download_private_document',$scopes->context('documents',$documentB))) throw new RuntimeException('Superadmin denied.');
+AuditService::record('permission_change','user_role_assignments',null,[],['user_id'=>$scopedUser,'tournament_id'=>$tournamentA],$scopes->context('tournaments',$tournamentA));
+$audit=Database::connection()->prepare("SELECT COUNT(*) FROM audit_logs WHERE action='permission_change' AND tournament_id=?");$audit->execute([$tournamentA]);if((int)$audit->fetchColumn()<1)throw new RuntimeException('Scoped audit missing.');
+$teamOne=$repository->save('teams',['project_id'=>$projectA,'name'=>'Audit One']);
+$teamTwo=$repository->save('teams',['project_id'=>$projectA,'name'=>'Audit Two']);
+$match=$repository->save('matches',['tournament_id'=>$tournamentA,'home_team_id'=>$teamOne,'away_team_id'=>$teamTwo,'status'=>'scheduled']);
+$matchContext=$scopes->context('matches',$match);
+AuditService::record('homologate','matches',$match,['status'=>'scheduled'],['status'=>'homologated'],$matchContext);
+AuditService::record('rectify','matches',$match,['home_score'=>1],['home_score'=>2],$matchContext);
+$audit=Database::connection()->prepare("SELECT COUNT(*) FROM audit_logs WHERE entity_type='matches' AND entity_id=? AND action IN ('homologate','rectify')");$audit->execute([$match]);if((int)$audit->fetchColumn()!==2)throw new RuntimeException('Match audit missing.');
+$rules=new RuleConfigurationService(Database::connection());
+$preset=RuleConfigurationService::copaBrasilPreset();
+if($preset['format']['groups_count']!==2 || $preset['format']['teams_per_group']!==5)throw new RuntimeException('Preset failed.');
+$version=$rules->save($tournamentA,$preset,'Teste de regulamento',$super);
+if($version<1 || $rules->active($tournamentA)['tiebreakers'][0]!=='points')throw new RuntimeException('Rule persistence failed.');
+Database::connection()->prepare("UPDATE matches SET status='in_progress' WHERE id=?")->execute([$match]);
+try{$rules->save($tournamentA,$preset,'Deve bloquear',$super);throw new RuntimeException('Rule lock failed.');}catch(RuntimeException $e){if($e->getMessage()!=='Regulamento bloqueado após início de partida.')throw $e;}
+$next=$rules->save($tournamentA,$preset,'Versão autorizada',$super,true);if($next!==$version+1)throw new RuntimeException('Authorized rule version failed.');
+$schedule=(new ScheduleGenerationService())->roundRobin([1,2,3,4,5]);if(count($schedule)!==5||array_sum(array_map('count',$schedule))!==10)throw new RuntimeException('Odd round robin failed.');$double=(new ScheduleGenerationService())->roundRobin([1,2,3,4],true);if(count($double)!==6)throw new RuntimeException('Double round robin failed.');
+$report=new MatchReportService(Database::connection());$goal=$report->addEvent($match,['team_id'=>$teamOne,'event_type'=>'goal','minute'=>10,'period'=>'first'], $super);if($report->score($match)['home']!==1)throw new RuntimeException('Goal score failed.');$report->cancelEvent($goal,'Correção',$super);if($report->score($match)['home']!==0)throw new RuntimeException('Goal cancellation failed.');$pdf=(new PdfReportService())->create('Súmula',['Teste']);if(!str_starts_with($pdf, '%PDF-1.4') || substr_count($pdf,'BT ')!==substr_count($pdf,' ET'))throw new RuntimeException('PDF stream is invalid.');
+echo "REPOSITORY_CRUD_OK\n";

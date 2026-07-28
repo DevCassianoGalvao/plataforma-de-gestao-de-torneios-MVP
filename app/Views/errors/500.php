@@ -1,0 +1,1 @@
+<main class="center"><span class="eyebrow">500</span><h1>Falha inesperada</h1><p>O sistema não conseguiu concluir a operação.</p><?php if(!empty($debug)): ?><pre><?=View::e($debug)?></pre><?php endif; ?></main>
