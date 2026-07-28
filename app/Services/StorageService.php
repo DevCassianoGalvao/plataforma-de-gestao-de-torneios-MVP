@@ -60,6 +60,12 @@ final class StorageService
         return ['body' => (string) file_get_contents($path), 'mime' => $mime, 'name' => basename($path)];
     }
 
+    public function delete(string $relativePath): void
+    {
+        $path = $this->absolutePath($relativePath);
+        if ($path && is_file($path)) unlink($path);
+    }
+
     private function absolutePath(string $relativePath): ?string
     {
         $relativePath = ltrim(str_replace(['\\', '..'], ['/', ''], $relativePath), '/');

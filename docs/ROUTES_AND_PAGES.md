@@ -43,3 +43,36 @@ Todas as URLs respeitam `APP_BASE_PATH=/copa-online`.
 | GET | `/admin/campeonatos/{slug}/regulamento/versoes/{version}` | consultar versao |
 
 Nenhum formulario solicita JSON, nome de tabela ou ID digitado livremente. Selects exibem nomes e os IDs ficam apenas como valores internos.
+
+## Equipes
+
+| Metodo | Rota | Funcao |
+|---|---|---|
+| GET | `/admin/equipes` | listar, buscar e filtrar equipes |
+| GET/POST | `/admin/equipes/nova`, `/admin/equipes` | criar equipe |
+| GET | `/admin/equipes/{slug}` | visao geral da equipe |
+| GET/POST | `/admin/equipes/{slug}/editar`, `/admin/equipes/{slug}` | editar dados gerais |
+| GET/POST | `/admin/equipes/{slug}/identidade` | cores e escudo |
+| GET | `/admin/equipes/{slug}/assets/{field}` | asset privado autorizado |
+| POST | `/admin/equipes/{slug}/status` | alterar status com transicao validada |
+| POST | `/admin/equipes/{slug}/restaurar` | restaurar equipe arquivada |
+
+## Responsaveis e comissao
+
+| Metodo | Rota | Funcao |
+|---|---|---|
+| GET/POST | `/admin/equipes/{slug}/responsaveis` | consultar e atribuir usuarios |
+| POST | `/admin/equipes/{slug}/responsaveis/{assignment}/encerrar` | encerrar vinculo |
+| GET | `/admin/equipes/{slug}/comissao` | listar membros |
+| GET | `/admin/equipes/{slug}/comissao/nova` | formulario de membro |
+| POST | `/admin/equipes/{slug}/comissao` | cadastrar membro |
+| GET/POST | `/admin/equipes/{slug}/comissao/{staff}/editar`, `/admin/equipes/{slug}/comissao/{staff}` | editar membro |
+| POST | `/admin/equipes/{slug}/comissao/{staff}/status` | inativar ou reativar membro |
+
+## Formacao padrao
+
+| Metodo | Rota | Funcao |
+|---|---|---|
+| GET/POST | `/admin/equipes/{slug}/formacao` | consultar slots e selecionar formacao padrao |
+
+As telas exibem nomes, funcoes e formacoes; IDs permanecem apenas nos valores internos dos formularios. Atletas, inscricoes e partidas aparecem como modulos ainda nao disponiveis na pagina da equipe.

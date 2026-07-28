@@ -17,12 +17,15 @@ require dirname(__DIR__) . '/tests/bootstrap.php';
 require dirname(__DIR__) . '/tests/Unit/FoundationTest.php';
 require dirname(__DIR__) . '/tests/Unit/AuthTest.php';
 require dirname(__DIR__) . '/tests/Unit/ChampionshipTest.php';
+require dirname(__DIR__) . '/tests/Unit/TeamTest.php';
 require dirname(__DIR__) . '/tests/Integration/MigrationTest.php';
 require dirname(__DIR__) . '/tests/Integration/AuthIntegrationTest.php';
 require dirname(__DIR__) . '/tests/Integration/ChampionshipIntegrationTest.php';
+require dirname(__DIR__) . '/tests/Integration/TeamIntegrationTest.php';
 require dirname(__DIR__) . '/tests/Http/FoundationHttpTest.php';
 require dirname(__DIR__) . '/tests/Http/AuthenticationHttpTest.php';
 require dirname(__DIR__) . '/tests/Http/ChampionshipHttpTest.php';
+require dirname(__DIR__) . '/tests/Http/TeamHttpTest.php';
 
 use App\Core\Database;
 use Tests\Http\FoundationHttpTest;
@@ -30,10 +33,13 @@ use Tests\Integration\MigrationTest;
 use Tests\Unit\FoundationTest;
 use Tests\Unit\AuthTest;
 use Tests\Unit\ChampionshipTest;
+use Tests\Unit\TeamTest;
 use Tests\Integration\AuthIntegrationTest;
 use Tests\Integration\ChampionshipIntegrationTest;
+use Tests\Integration\TeamIntegrationTest;
 use Tests\Http\AuthenticationHttpTest;
 use Tests\Http\ChampionshipHttpTest;
+use Tests\Http\TeamHttpTest;
 
 $server = Database::serverConnection();
 $quoted = '`' . str_replace('`', '``', $dbName) . '`';
@@ -43,13 +49,16 @@ try {
     FoundationTest::run();
     AuthTest::run();
     ChampionshipTest::run();
+    TeamTest::run();
     MigrationTest::run();
     AuthIntegrationTest::run();
     ChampionshipIntegrationTest::run();
+    TeamIntegrationTest::run();
     FoundationHttpTest::run();
     AuthenticationHttpTest::run();
     ChampionshipHttpTest::run();
-    echo "CHAMPIONSHIP_TESTS_OK unit=3 integration=3 http=3\n";
+    TeamHttpTest::run();
+    echo "TEAM_TESTS_OK unit=4 integration=4 http=4\n";
 } finally {
     Database::disconnect();
     $server->exec('DROP DATABASE IF EXISTS ' . $quoted);

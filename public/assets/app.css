@@ -56,6 +56,9 @@ fieldset { display: grid; gap: .5rem; border: 1px solid #d9e0e6; padding: 1rem; 
 .link-card { display: grid; gap: .35rem; padding: 1rem; border: 1px solid #cfe0d8; color: #1f2933; text-decoration: none; }
 .link-card strong { color: #245c4a; }
 .link-card span { color: #52606d; font-size: .9rem; }
+.team-shield { display: block; width: 6rem; height: 6rem; object-fit: contain; margin: 1rem 0; }
+.formation-slots { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .45rem 1.5rem; padding-left: 1.25rem; }
+.formation-slots small { color: #52606d; }
 @media (max-width: 700px) {
     .site-header, .section-heading { align-items: flex-start; flex-direction: column; }
     .site-header nav { align-items: flex-start; }
@@ -63,4 +66,5 @@ fieldset { display: grid; gap: .5rem; border: 1px solid #d9e0e6; padding: 1rem; 
     section { padding: 1.25rem; }
     .grid-links { grid-template-columns: 1fr; }
     .summary-list { grid-template-columns: 1fr; }
+    .formation-slots { grid-template-columns: 1fr; }
 }

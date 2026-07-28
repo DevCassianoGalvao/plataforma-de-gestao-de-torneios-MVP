@@ -33,9 +33,15 @@ try {
     check($championships['status'] === 200 && str_contains($championships['body'], 'Campeonatos'), 'Rota de campeonatos nao abriu para administrador');
     $regulation = request('GET', '/admin/campeonatos/copa-brasil-de-talentos-2026/regulamento');
     check($regulation['status'] === 200 && str_contains($regulation['body'], 'Regulamento'), 'Rota de regulamento nao abriu para administrador');
+    $teams = request('GET', '/admin/equipes');
+    check($teams['status'] === 200 && str_contains($teams['body'], 'Equipes'), 'Rota de equipes nao abriu para administrador');
+    $team = request('GET', '/admin/equipes/estrela-norte-fc');
+    check($team['status'] === 200 && str_contains($team['body'], 'Estrela Norte FC'), 'Pagina da equipe nao abriu');
+    $formation = request('GET', '/admin/equipes/estrela-norte-fc/formacao');
+    check($formation['status'] === 200 && str_contains($formation['body'], 'Formacao padrao'), 'Pagina de formacao nao abriu');
     $logout = request('POST', '/logout', ['_csrf' => csrf($admin['body'])]);
     check($logout['status'] === 302, 'Logout nao redirecionou');
-    echo "REAL_HTTP_TESTS_OK checks=8\n";
+    echo "REAL_HTTP_TESTS_OK checks=11\n";
 } finally {
     if (is_string($jar) && is_file($jar)) {
         unlink($jar);

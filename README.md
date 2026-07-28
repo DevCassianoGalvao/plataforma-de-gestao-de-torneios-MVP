@@ -4,9 +4,9 @@ Sistema web planejado para administrar campeonatos de futebol e publicar informa
 
 ## Estado atual
 
-As Etapas 1, 2 e 3 estao implementadas na branch `feat/championships-and-regulations`. O projeto possui fundacao tecnica, autenticacao, acesso por campeonato, temporadas, categorias, campeonamentos, identidade basica e regulamentos configuraveis.
+As Etapas 1, 2, 3 e 4 estao implementadas nesta branch de trabalho. O projeto possui fundacao tecnica, autenticacao, acesso por campeonato, temporadas, categorias, campeonamentos, identidade basica, regulamentos configuraveis, equipes, responsaveis, comissao tecnica e formacao tatica padrao.
 
-Ainda nao existem equipes, atletas, inscricoes, partidas, classificacao, mata-mata, sumula, noticias, Vai e Vem ou portal publico.
+Ainda nao existem atletas, documentos de atletas, inscricoes, grupos, rodadas, partidas, escalacoes, classificacao, mata-mata, sumula operacional, noticias, Vai e Vem ou portal publico. O layout definitivo e o campo visual completo continuam planejados para rodadas posteriores.
 
 ## Stack prevista
 
@@ -38,6 +38,8 @@ No Windows PowerShell, defina variaveis com `$env:NOME='valor'` e use `C:\xampp\
 - [PRD](docs/PRD_PLATAFORMA_TORNEIOS.md)
 - [Autenticacao](docs/AUTHENTICATION.md)
 - [Campeonamentos e regulamentos](docs/CHAMPIONSHIPS_AND_REGULATIONS.md)
+- [Equipes e comissao tecnica](docs/TEAMS_AND_STAFF.md)
+- [Formacoes taticas](docs/TACTICAL_FORMATIONS.md)
 - [Arquitetura](docs/ARCHITECTURE.md)
 - [Schema](docs/DATABASE_SCHEMA.md)
 - [Rotas](docs/ROUTES_AND_PAGES.md)
@@ -48,4 +50,4 @@ No Windows PowerShell, defina variaveis com `$env:NOME='valor'` e use `C:\xampp\
 
 ## Proxima etapa
 
-A Etapa 4 deve implementar equipes, treinadores e comissao tecnica, conectados aos campeonamentos por vinculos autorizados. O layout definitivo continua separado da rodada estrutural.
+A Etapa 5 deve tratar atletas e documentos privados de atletas. O layout definitivo continua separado da rodada estrutural.

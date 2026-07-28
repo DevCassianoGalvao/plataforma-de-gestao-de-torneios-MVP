@@ -21,6 +21,9 @@ No Windows, use `$env:NOME='valor'` e `C:\xampp\php\php.exe` quando o PHP nao es
 | HTTP de contrato | `tests/Http/ChampionshipHttpTest.php` | administrador, organizador atribuido, organizador externo, treinador e CSRF |
 | HTTP real | `bin/http-test.php` | servidor PHP, cookies, base path, campeonamentos e regulamento |
 | Lint | `bin/lint.php` | sintaxe de todos os PHP versionados |
+| Unitario Etapa 4 | `tests/Unit/TeamTest.php` | slug, cores, status, equipe, comissao e regras de upload |
+| Integracao Etapa 4 | `tests/Integration/TeamIntegrationTest.php` | migration, seed idempotente, escopo, vinculos, comissao, formacoes, slots, status e upload |
+| HTTP de contrato Etapa 4 | `tests/Http/TeamHttpTest.php` | perfis, IDOR, CRUD, status, comissao, formacao, upload, CSRF e base path |
 
 ## Resultado da Etapa 3
 
@@ -30,6 +33,16 @@ No Windows, use `$env:NOME='valor'` e `C:\xampp\php\php.exe` quando o PHP nao es
 
 Migrations, seed duplo, banco descartavel, servidor HTTP, uploads validos e invalidos foram validados. Bancos e arquivos temporarios foram removidos.
 
+## Resultado da Etapa 4
+
+- `LINT_OK files=114`
+- `TEAM_TESTS_OK unit=4 integration=4 http=4`
+- `REAL_HTTP_TESTS_OK checks=11`
+- migration `0004` aplicada em banco descartavel;
+- seed executado duas vezes sem duplicar 9 formacoes, 99 slots, 10 equipes, 10 vinculos e 20 membros;
+- uploads validos e invalidos, escopo por perfil e `APP_BASE_PATH=/copa-online` validados;
+- banco, servidor temporario e arquivos de teste removidos apos a validacao.
+
 ## Limites
 
-Nao existem testes nem implementacao de equipes, atletas, partidas, sumula, portal, noticias ou Vai e Vem.
+Nao existem atletas, documentos de atletas, inscricoes, partidas, escalacoes, sumula operacional, portal, noticias ou Vai e Vem. O teste HTTP real cobre as rotas principais de equipes e formacao, mas nao substitui a UI/UX definitiva.

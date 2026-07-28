@@ -7,7 +7,7 @@ Legenda: `[ ]` pendente, `[x]` concluido com evidencia. Nenhuma etapa futura dev
 | 1 | Fundacao tecnica | [x] | bootstrap, PDO, router, health, migration base, lint e HTTP |
 | 2 | Autenticacao e acesso | [x] | login, sessao, recuperacao, perfis, permissoes, usuarios, auditoria, seed e testes |
 | 3 | Campeonatos e regulamentos | [x] | catalogos, campeonato, identidade, escopo, editor estruturado, preset, versoes, uploads e testes |
-| 4 | Equipes e comissao | [ ] | equipes e vinculos autorizados |
+| 4 | Equipes e comissao | [x] | equipes, vinculos autorizados, comissao, uploads, status, formacoes e testes |
 | 5 | Atletas e documentos | [ ] | privacidade, posicoes e arquivos privados |
 | 6 | Inscricoes | [ ] | envio, analise e aprovacao |
 | 7 | Grupos, rodadas e tabela | [ ] | calendario e classificacao inicial |
@@ -21,6 +21,12 @@ Legenda: `[ ]` pendente, `[x]` concluido com evidencia. Nenhuma etapa futura dev
 | 15 | Portal publico | [ ] | dados publicados por slug |
 | 16 | Preparacao para producao | [ ] | cPanel, instalacao limpa e observabilidade |
 | 17 | UI/UX definitiva | [ ] | design system, temas, responsividade e acessibilidade |
+
+## Estado da Etapa 4
+
+Implementada em `feat/teams-and-staff`, a partir do commit `1520839` da Etapa 3. A etapa entrega cadastro e escopo de equipes, responsaveis, comissao tecnica, identidade, status, nove formacoes taticas com slots estruturados, uploads privados e auditoria. Atletas, inscricoes, partidas e o campo visual definitivo continuam fora do escopo.
+
+Evidencias: migration `0004_teams_staff_and_formations.sql`, seed idempotente, `TEAM_TESTS_OK unit=4 integration=4 http=4`, `REAL_HTTP_TESTS_OK checks=11` e `LINT_OK files=114`.
 
 ## Estado da Etapa 3
 

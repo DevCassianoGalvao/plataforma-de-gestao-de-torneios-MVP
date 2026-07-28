@@ -7,6 +7,8 @@ use App\Core\Database;
 use App\Core\MigrationRunner;
 use App\Database\AuthSeed;
 use App\Database\ChampionshipSeed;
+use App\Database\TacticalFormationSeed;
+use App\Database\TeamSeed;
 
 $command = $argv[1] ?? 'help';
 $runner = new MigrationRunner(Database::connection(), dirname(__DIR__) . '/database/migrations');
@@ -34,6 +36,8 @@ if ($command === 'db:seed') {
     }
     AuthSeed::run(Database::connection(), $password);
     ChampionshipSeed::run(Database::connection());
+    TacticalFormationSeed::run(Database::connection());
+    TeamSeed::run(Database::connection());
     echo "Seed de autenticacao concluido.\n";
     exit(0);
 }

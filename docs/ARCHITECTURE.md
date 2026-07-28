@@ -13,7 +13,19 @@
 
 Os papeis continuam globais, mas campeonamentos agora possuem `championship_user_assignments`. Administradores acessam todos os campeonatos. Organizadores precisam de permissao esportiva e vinculo `organizer` para listar, abrir ou alterar um campeonato. A busca ja aplica o vinculo no SQL, antes de exibir dados.
 
-Treinadores, operadores e comunicacao ainda nao recebem acesso funcional aos modulos esportivos desta etapa.
+Treinadores e gestores recebem escopo explicito por equipe quando possuem vinculo ativo. Operadores e comunicacao continuam sem acesso administrativo a equipes, salvo permissao de visualizacao adicionada futuramente.
+
+## Equipes e comissao
+
+`TeamRepository` aplica o escopo na consulta: administrador ve todas as equipes, organizador ve apenas equipes de campeonamentos aos quais esta vinculado e treinador/gestor ve somente equipes com vinculo ativo. `TeamAccessService` centraliza essas decisoes; as views recebem capacidades ja calculadas e nao verificam perfis diretamente.
+
+`TeamStatusService` valida transicoes entre `draft`, `active`, `inactive`, `withdrawn` e `archived`. Responsaveis sao registrados em `team_user_assignments` com inicio, fim e historico; um treinador pode ter mais de uma equipe porque o acesso e concedido por vinculo explicito. A comissao usa `staff_roles` e `team_staff`, permitindo membros sem login.
+
+Escudos de equipes e fotos de comissao passam pelo `StorageService`, ficam fora da area publica, usam nome aleatorio e sao servidos somente depois de autorizacao. O campo `document_number` existe na estrutura para uma futura implementacao protegida, mas nao e coletado nem armazenado nesta etapa.
+
+## Formacoes taticas
+
+`TacticalFormationRepository` e `TacticalFormationService` carregam formacoes e slots estruturados. Cada formacao ativa possui exatamente 11 slots, um goleiro e coordenadas normalizadas de 0 a 100. A equipe guarda uma formacao padrao e registra autor e data da alteracao. Nao ha atletas, escalaacoes por partida, arrastar-e-soltar ou campo visual definitivo.
 
 ## Campeonamentos e regulamentos
 
@@ -29,4 +41,4 @@ O campo `metadata` de auditoria continua sendo JSON por conter atributos pequeno
 
 ## Limites atuais
 
-Nao existem equipes, atletas, inscricoes, grupos, rodadas, partidas, escalacoes, cartoes operacionais, suspensoes, classificacao, mata-mata, sumula, noticias, Vai e Vem ou portal publico. Identidade e regulamento existem apenas no painel administrativo.
+Nao existem atletas, inscricoes, grupos, rodadas, partidas, escalacoes, cartoes operacionais, suspensoes, classificacao, mata-mata, sumula operacional, noticias, Vai e Vem ou portal publico. Equipes, identidade, comissao e formacao padrao existem apenas no painel administrativo; a UI/UX definitiva continua para uma rodada posterior.
