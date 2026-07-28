@@ -4,9 +4,9 @@ Sistema web planejado para administrar campeonatos de futebol e publicar informa
 
 ## Estado atual
 
-As Etapas 1, 2, 3, 4, 5, 6 e 7 estao implementadas nesta branch de trabalho. O projeto possui fundacao tecnica, autenticacao, acesso por campeonato, temporadas, categorias, campeonamentos, identidade basica, regulamentos configuraveis, equipes, responsaveis, comissao tecnica, formacao tatica padrao, atletas, posicoes, documentos privados, inscricoes, elenco oficial, grupos, rodadas, locais e geracao de tabela.
+As Etapas 1, 2, 3, 4, 5, 6, 7 e 8 estao implementadas nesta branch de trabalho. O projeto possui fundacao tecnica, autenticacao, acesso por campeonato, temporadas, categorias, campeonamentos, identidade basica, regulamentos configuraveis, equipes, responsaveis, comissao tecnica, formacao tatica padrao, atletas, posicoes, documentos privados, inscricoes, elenco oficial, grupos, rodadas, locais, geracao de tabela e escalacoes taticas por partida.
 
-Ainda nao existem escalacoes, operacao da partida, cartoes, classificacao, mata-mata, sumula operacional, noticias, Vai e Vem ou portal publico. O layout definitivo e o campo visual completo continuam planejados para rodadas posteriores.
+Ainda nao existem operacao da partida, gols, cartoes, classificacao, mata-mata, sumula operacional, noticias, Vai e Vem ou portal publico. A UI/UX definitiva continua planejada para rodada posterior; o campo funcional da escalacao ja existe em estrutura responsiva.
 
 ## Stack prevista
 
@@ -43,6 +43,7 @@ No Windows PowerShell, defina variaveis com `$env:NOME='valor'` e use `C:\xampp\
 - [Atletas, responsaveis e documentos](docs/ATHLETES_AND_DOCUMENTS.md)
 - [Inscricoes e elenco oficial](docs/REGISTRATIONS_AND_ROSTERS.md)
 - [Grupos, rodadas e tabela](docs/GROUPS_ROUNDS_AND_SCHEDULE.md)
+- [Formacoes e escalacoes taticas](docs/TACTICAL_LINEUPS.md)
 - [Arquitetura](docs/ARCHITECTURE.md)
 - [Schema](docs/DATABASE_SCHEMA.md)
 - [Rotas](docs/ROUTES_AND_PAGES.md)
@@ -53,4 +54,4 @@ No Windows PowerShell, defina variaveis com `$env:NOME='valor'` e use `C:\xampp\
 
 ## Proxima etapa
 
-A Etapa 8 deve tratar escalacoes e campo visual. O layout definitivo continua separado da rodada estrutural.
+A Etapa 9 deve tratar a central da partida. Gols, cartoes, classificacao, sumula operacional, noticias, Vai e Vem e portal publico continuam fora desta branch.

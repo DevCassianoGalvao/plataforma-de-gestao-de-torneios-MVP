@@ -217,7 +217,7 @@ final class ScheduleController extends Controller
         if ($guard instanceof Response) return $guard;
         $item = $this->access->findMatch($guard, (int) ($params[0] ?? 0));
         if (!$item) return Response::forbidden();
-        return $this->page('Partida e agenda', 'admin/schedule/match', ['user' => $guard, 'item' => $item, 'venues' => $this->schedules->listVenues((int) $item['championship_id']), 'changes' => $this->schedules->scheduleChanges((int) $item['id']), 'decisions' => $this->schedules->decisions((int) $item['id']), 'canManage' => $this->access->canManage($guard, (int) $item['championship_id']), 'message' => Session::consumeFlash('schedule_message')]);
+        return $this->page('Partida e agenda', 'admin/schedule/match', ['user' => $guard, 'item' => $item, 'venues' => $this->schedules->listVenues((int) $item['championship_id']), 'changes' => $this->schedules->scheduleChanges((int) $item['id']), 'decisions' => $this->schedules->decisions((int) $item['id']), 'canManage' => $this->access->canManage($guard, (int) $item['championship_id']), 'canLineups' => $this->authorization->can($guard, 'lineups.view'), 'message' => Session::consumeFlash('schedule_message')]);
     }
 
     public function agenda(Request $request, array $params = []): Response

@@ -59,6 +59,31 @@ fieldset { display: grid; gap: .5rem; border: 1px solid #d9e0e6; padding: 1rem; 
 .team-shield { display: block; width: 6rem; height: 6rem; object-fit: contain; margin: 1rem 0; }
 .formation-slots { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .45rem 1.5rem; padding-left: 1.25rem; }
 .formation-slots small { color: #52606d; }
+.lineup-summary-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.choice-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem 1rem; }
+.choice-grid label { display: flex; align-items: center; gap: .45rem; }
+.choice-grid input { width: auto; }
+.lineup-field { position: relative; width: 100%; max-width: 68rem; aspect-ratio: 1.55; overflow: hidden; border: .45rem solid #fff; outline: 2px solid #2d6a4f; background: #4f9d69; background-image: linear-gradient(90deg, transparent 49.7%, rgba(255,255,255,.8) 49.7%, rgba(255,255,255,.8) 50.3%, transparent 50.3%); }
+.lineup-field::before { content: ''; position: absolute; inset: 8% 5%; border: 2px solid rgba(255,255,255,.8); border-radius: 50%; }
+.lineup-field::after { content: ''; position: absolute; left: 5%; right: 5%; top: 50%; border-top: 2px solid rgba(255,255,255,.8); }
+.field-half-line { position: absolute; z-index: 1; left: 5%; top: 24%; width: 10%; height: 52%; border: 2px solid rgba(255,255,255,.8); border-left: 0; }
+.lineup-slot { position: absolute; z-index: 2; width: clamp(7rem, 15%, 11rem); transform: translate(-50%, -50%); }
+.lineup-slot label { display: grid; gap: .2rem; color: #fff; font-size: .72rem; text-align: center; text-shadow: 0 1px 2px #183b29; }
+.lineup-slot select { min-width: 0; padding: .35rem; font-size: .72rem; }
+.lineup-player-card { display: grid; justify-items: center; gap: .15rem; min-height: 4.2rem; padding: .3rem; color: #fff; background: rgba(24, 59, 41, .88); border: 1px solid rgba(255,255,255,.8); border-radius: .35rem; text-shadow: 0 1px 2px #183b29; }
+.lineup-player-card strong, .lineup-player-card small, .lineup-player-card em { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lineup-player-card strong { font-size: .72rem; }
+.lineup-player-card small, .lineup-player-card em { font-size: .62rem; }
+.lineup-player-card em { color: #ffd166; font-style: normal; font-weight: 700; }
+.lineup-player-card.out-of-position { border-color: #ffd166; }
+.lineup-player-photo { width: 2rem; height: 2rem; object-fit: cover; border-radius: 50%; background: #d9eee2; }
+.lineup-player-placeholder { display: block; }
+@media (max-width: 700px) {
+    .lineup-summary-grid, .choice-grid { grid-template-columns: 1fr; }
+    .lineup-field { aspect-ratio: .78; background-image: linear-gradient(90deg, transparent 49.7%, rgba(255,255,255,.8) 49.7%, rgba(255,255,255,.8) 50.3%, transparent 50.3%); }
+    .lineup-slot { width: 7rem; }
+    .lineup-slot select { font-size: .65rem; }
+}
 @media (max-width: 700px) {
     .site-header, .section-heading { align-items: flex-start; flex-direction: column; }
     .site-header nav { align-items: flex-start; }

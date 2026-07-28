@@ -33,6 +33,9 @@ No Windows, use `$env:NOME='valor'` e `C:\xampp\php\php.exe` quando o PHP nao es
 | Unitario Etapa 7 | `tests/Unit/ScheduleTest.php` | round-robin par/impar, folgas, ida e volta, status e agenda |
 | Integracao Etapa 7 | `tests/Integration/ScheduleIntegrationTest.php` | migration, seed duplo, limites, idempotencia, conflitos, agenda, escopo e IDOR |
 | HTTP de contrato Etapa 7 | `tests/Http/ScheduleHttpTest.php` | fases, grupos, locais, assistente, partida, CSRF, escopo, IDOR, 403 e base path |
+| Unitario Etapa 8 | `tests/Unit/LineupTest.php` | status de rascunho/confirmacao e papeis de jogador |
+| Integracao Etapa 8 | `tests/Integration/LineupIntegrationTest.php` | seed duplo, onze titulares, reservas, goleiro, capitao, posicoes, fora de posicao, equipe, duplicidade, confirmacao, reabertura, escopo e IDOR |
+| HTTP de contrato Etapa 8 | `tests/Http/LineupHttpTest.php` | central, campo funcional, distribuicao automatica, confirmacao, CSRF, perfis, IDOR e base path |
 
 ## Resultado da Etapa 3
 
@@ -62,9 +65,19 @@ Migrations, seed duplo, banco descartavel, servidor HTTP, uploads validos e inva
 - testes HTTP reais mantem `APP_BASE_PATH=/copa-online`;
 - banco, servidor temporario, uploads e arquivos de teste removidos apos a validacao.
 
+## Resultado da Etapa 8
+
+- lint PHP dos arquivos alterados;
+- `MVP_TESTS_OK unit=8 integration=8 http=8`;
+- migration `0008` aplicada em banco descartavel;
+- seed de atletas elegiveis executado duas vezes sem duplicar 120 registros ficticios;
+- distribuicao automatica, onze titulares, reservas, goleiro, capitao, posicao secundaria, fora de posicao e ajuste manual validados;
+- confirmacao, bloqueio de edicao, reabertura autorizada, historico, escopo, IDOR, CSRF e `APP_BASE_PATH=/copa-online` validados;
+- banco descartavel e artefatos temporarios removidos apos a validacao.
+
 ## Limites
 
-Nao existem escalacoes, operacao de partida, cartoes, classificacao final, sumula operacional, portal, noticias ou Vai e Vem. O teste HTTP real cobre as rotas principais de inscricoes, elenco e tabela, mas nao substitui a UI/UX definitiva.
+Nao existem operacao de partida, gols, cartoes, classificacao final, sumula operacional, portal, noticias ou Vai e Vem. O teste HTTP real cobre as rotas principais de inscricoes, elenco, tabela e central de escalacoes, mas nao substitui a UI/UX definitiva.
 
 ## Resultado da Etapa 7
 

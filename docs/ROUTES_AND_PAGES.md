@@ -142,4 +142,16 @@ As telas exibem nomes, funcoes e formacoes; IDs permanecem apenas nos valores in
 | POST | `/admin/partidas/{id}/wo` | preparar status W.O. |
 | POST | `/admin/partidas/{id}/decisao` | registrar decisao administrativa |
 
-Nao existem nesta etapa rotas de escalacao, operacao de partida, cartoes, classificacao final ou portal publico.
+## Escalacoes taticas
+
+| Metodo | Rota | Funcao |
+|---|---|---|
+| GET | `/admin/partidas/{id}/escalacoes` | central da partida com escalacoes por equipe |
+| GET | `/admin/partidas/{id}/escalacao/{teamId}` | campo funcional, titulares, reservas e historico |
+| POST | `/admin/partidas/{id}/escalacao/{teamId}` | salvar rascunho ou confirmar |
+| POST | `/admin/partidas/{id}/escalacao/{teamId}/automatico` | gerar distribuicao sugerida |
+| POST | `/admin/partidas/{id}/escalacao/{teamId}/reabrir` | reabrir confirmada com motivo autorizado |
+
+Treinador gerencia somente a propria equipe. Organizador visualiza campeonatos autorizados, operador visualiza apenas escalacoes confirmadas e comunicacao recebe `403`. Nenhuma rota publica serve atletas, fotos ou dados privados.
+
+Nao existem nesta etapa rotas de operacao de partida, gols, cartoes, classificacao final ou portal publico.

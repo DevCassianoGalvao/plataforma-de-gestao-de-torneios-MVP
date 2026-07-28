@@ -11,7 +11,7 @@ Legenda: `[ ]` pendente, `[x]` concluido com evidencia. Nenhuma etapa futura dev
 | 5 | Atletas e documentos | [x] | cadastro, privacidade, posicoes, responsaveis e arquivos privados |
 | 6 | Inscricoes e elenco oficial | [x] | envio, analise, correcoes, aprovacao e roster aprovado |
 | 7 | Grupos, rodadas e tabela | [x] | grupos, locais, round-robin, agenda e proximos confrontos |
-| 8 | Formacoes e escalacoes | [ ] | campo visual e distribuicao automatica |
+| 8 | Formacoes e escalacoes | [x] | campo funcional, distribuicao automatica, titulares, reservas e confirmacao |
 | 9 | Central da partida | [ ] | placar, gols, cartoes e ocorrencias |
 | 10 | Disciplina | [ ] | cartoes, suspensoes e proximos confrontos |
 | 11 | Classificacao e mata-mata | [ ] | criterios, cruzamentos e campeao |
@@ -45,6 +45,14 @@ Evidencias: migration `0006_registration_roster_settings.sql`, `docs/REGISTRATIO
 Implementada em `feat/groups-rounds-and-schedule`, partindo de `feat/registrations-and-rosters`. A etapa entrega locais, fases, grupos com distribuicao e bloqueio apos inicio, rodadas, partidas sem placar, agenda com historico, decisoes administrativas, proximos confrontos e assistente round-robin de turno unico ou ida e volta. O preset possui Grupo A e Grupo B com cinco equipes e quatro classificados por grupo.
 
 Evidencias: migration `0007_groups_rounds_schedule.sql`, `docs/GROUPS_ROUNDS_AND_SCHEDULE.md`, seed idempotente, `MVP_TESTS_OK unit=7 integration=7 http=7`, `REAL_HTTP_TESTS_OK checks=23`, `LINT_OK files=165` e `APP_BASE_PATH=/copa-online`.
+
+## Estado da Etapa 8
+
+Implementada em `feat/tactical-lineups`, partindo de `feat/groups-rounds-and-schedule`. A etapa entrega escalacao por partida e equipe, formacao escolhida, titulares, reservas, slots coordenados, capitao, goleiro, comissao presente, rascunho, confirmacao, reabertura autorizada, historico minimo, distribuicao automatica por compatibilidade posicional e campo funcional responsivo com controles por selecao.
+
+Nao foram implementados gols, operacao da partida, cartoes, classificacao ou portal publico.
+
+Evidencias: migration `0008_tactical_lineups.sql`, `docs/TACTICAL_LINEUPS.md`, `MVP_TESTS_OK unit=8 integration=8 http=8`, lint PHP e `APP_BASE_PATH=/copa-online`.
 
 ## Estado da Etapa 3
 

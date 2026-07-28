@@ -33,7 +33,9 @@ Dados de documento do responsavel sao cifrados com AES-256-GCM em `SensitiveData
 
 ## Formacoes taticas
 
-`TacticalFormationRepository` e `TacticalFormationService` carregam formacoes e slots estruturados. Cada formacao ativa possui exatamente 11 slots, um goleiro e coordenadas normalizadas de 0 a 100. A equipe guarda uma formacao padrao e registra autor e data da alteracao. Nao ha atletas, escalaacoes por partida, arrastar-e-soltar ou campo visual definitivo.
+`TacticalFormationRepository` e `TacticalFormationService` carregam formacoes e slots estruturados. Cada formacao ativa possui exatamente 11 slots, um goleiro e coordenadas normalizadas de 0 a 100. A equipe guarda uma formacao padrao e registra autor e data da alteracao.
+
+`LineupRepository`, `LineupAccessService` e `LineupService` persistem uma escalacao por partida e equipe, com titulares, reservas, comissao presente, capitao, goleiro, status, versao e historico. A sugestao automatica usa posicao principal, secundaria e grupo posicional; a incompatibilidade gera aviso, mas nao impede o ajuste manual. Confirmacao exige onze titulares, capitao titular e goleiro valido. Operadores veem apenas confirmadas e dados privados nao saem por rotas publicas.
 
 ## Campeonamentos e regulamentos
 
@@ -57,4 +59,4 @@ O assistente recebe grupos, turno, periodo, dias, horarios e locais em campos es
 
 Inscricoes usam `RegistrationAccessService`, `RegistrationRules` e `RegistrationService`. O repositorio aplica escopo por administrador, organizador vinculado ou equipe do treinador. O regulamento define tamanho de elenco, goleiros minimos, documentos obrigatorios e inscricao por multiplas equipes em tabelas normalizadas. Somente `approved` aparece no elenco oficial; toda transicao e correcao gera historico e auditoria.
 
-Nao existem escalacoes, operacao de partida, cartoes operacionais, suspensoes disciplinares, classificacao, mata-mata, sumula operacional, noticias, Vai e Vem ou portal publico. Equipes, atletas, documentos, inscricoes, elenco, grupos e tabela existem apenas no painel administrativo; a UI/UX definitiva continua para uma rodada posterior.
+Nao existem operacao de partida, gols, cartoes operacionais, suspensoes disciplinares, classificacao, mata-mata, sumula operacional, noticias, Vai e Vem ou portal publico. Equipes, atletas, documentos, inscricoes, elenco, grupos, tabela e escalacoes existem apenas no painel administrativo; a UI/UX definitiva continua para uma rodada posterior.

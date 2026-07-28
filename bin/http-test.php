@@ -63,9 +63,11 @@ try {
     check($assistant['status'] === 200 && str_contains($assistant['body'], 'Assistente de tabela'), 'Rota de assistente nao abriu');
     $match = request('GET', '/admin/partidas/1');
     check($match['status'] === 200 && str_contains($match['body'], 'Agenda'), 'Rota de partida nao abriu');
+    $lineups = request('GET', '/admin/partidas/1/escalacoes');
+    check($lineups['status'] === 200 && str_contains($lineups['body'], 'Escalacoes da partida'), 'Rota de escalacoes nao abriu');
     $logout = request('POST', '/logout', ['_csrf' => csrf($admin['body'])]);
     check($logout['status'] === 302, 'Logout nao redirecionou');
-    echo "REAL_HTTP_TESTS_OK checks=23\n";
+    echo "REAL_HTTP_TESTS_OK checks=24\n";
 } finally {
     if (is_string($jar) && is_file($jar)) {
         unlink($jar);

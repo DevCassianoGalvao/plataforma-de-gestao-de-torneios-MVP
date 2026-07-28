@@ -26,7 +26,7 @@ final class AuthIntegrationTest
         AuthSeed::run($pdo, $password);
         assert_same(8, (int) $pdo->query('SELECT COUNT(*) FROM users')->fetchColumn(), 'Seed duplicou usuarios');
         assert_same(5, (int) $pdo->query('SELECT COUNT(*) FROM roles')->fetchColumn(), 'Seed duplicou perfis');
-        assert_same(93, (int) $pdo->query('SELECT COUNT(*) FROM permissions')->fetchColumn(), 'Seed duplicou permissoes');
+        assert_same(99, (int) $pdo->query('SELECT COUNT(*) FROM permissions')->fetchColumn(), 'Seed duplicou permissoes');
         $users = new UserRepository($pdo);
         $admin = $users->findByEmail('admin@torneios.local');
         assert_true($admin !== null && password_verify($password, $admin['password_hash']), 'Senha seed nao pode ser verificada');

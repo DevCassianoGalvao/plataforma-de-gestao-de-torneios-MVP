@@ -2,7 +2,7 @@
 
 Papeis sao globais. Acesso esportivo exige tambem vinculo ao campeonato.
 
-## Matriz das Etapas 3, 4, 5 e 6
+## Matriz das Etapas 3 a 8
 
 | Perfil | Modulo | Acao | Permitido | Negado | Escopo | Observacao |
 |---|---|---|---|---|---|---|
@@ -63,3 +63,15 @@ Permissoes: `registrations.view`, `registrations.create`, `registrations.update`
 | Comunicacao | `403` nesta etapa | sem acesso |
 
 Permissoes adicionadas: `venues.view`, `venues.create`, `venues.update`, `phases.view`, `phases.create`, `phases.update`, `phases.publish`, `groups.view`, `groups.create`, `groups.update`, `groups.distribute`, `groups.publish`, `schedule.view`, `schedule.generate`, `schedule.update`, `schedule.postpone`, `schedule.cancel`. Acoes de agenda exigem CSRF, permissao de escrita e escopo do campeonato; consulta de partida de treinador aplica escopo por equipe no SQL.
+
+## Etapa 8: escalacoes
+
+| Perfil | Acesso | Escopo |
+|---|---|---|
+| Administrador | cria, edita, confirma, visualiza e reabre | todos |
+| Organizador | visualiza escalacoes | campeonatos autorizados |
+| Treinador/gestor | cria, edita e confirma | propria equipe em partida autorizada |
+| Operador | visualiza escalacoes confirmadas | partidas autorizadas pelo modulo |
+| Comunicacao | `403` | sem acesso |
+
+Permissoes adicionadas: `lineups.view`, `lineups.create`, `lineups.update`, `lineups.confirm`, `lineups.reopen`, `lineups.manage_own`. A confirmacao revalida equipe, elenco aprovado e ativo, onze titulares, capitao titular e goleiro com posicao valida. A incompatibilidade posicional gera apenas alerta. Depois da confirmacao, edicao comum fica bloqueada; reabertura exige administrador, permissao e motivo.

@@ -198,6 +198,14 @@ final class ScheduleRepository
         return $row ?: null;
     }
 
+    public function matchById(int $id): ?array
+    {
+        $statement = $this->pdo->prepare($this->matchSelect() . ' WHERE m.id = ? LIMIT 1');
+        $statement->execute([$id]);
+        $row = $statement->fetch();
+        return $row ?: null;
+    }
+
     public function createMatch(array $data, int $userId): int
     {
         $now = date('Y-m-d H:i:s');

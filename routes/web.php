@@ -16,6 +16,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RegulationController;
 use App\Http\Controllers\RegistrationController;
 use App\Http\Controllers\ScheduleController;
+use App\Http\Controllers\LineupController;
 use App\Http\Controllers\TeamController;
 use App\Http\Controllers\UserController;
 use App\Repositories\CategoryRepository;
@@ -28,6 +29,7 @@ use App\Repositories\PositionRepository;
 use App\Repositories\RegulationRepository;
 use App\Repositories\RegistrationRepository;
 use App\Repositories\ScheduleRepository;
+use App\Repositories\LineupRepository;
 use App\Repositories\SeasonRepository;
 use App\Repositories\StaffRoleRepository;
 use App\Repositories\TeamRepository;
@@ -47,6 +49,8 @@ use App\Services\RegistrationAccessService;
 use App\Services\RegistrationService;
 use App\Services\ScheduleAccessService;
 use App\Services\ScheduleService;
+use App\Services\LineupAccessService;
+use App\Services\LineupService;
 use App\Services\StorageService;
 use App\Services\TacticalFormationService;
 use App\Services\TeamAccessService;
@@ -87,6 +91,9 @@ $registrationService = new RegistrationService($registrations, $championships, $
 $schedules = new ScheduleRepository($pdo);
 $scheduleAccess = new ScheduleAccessService($schedules, $championships, $teams, $authorization);
 $scheduleService = new ScheduleService($schedules, $championships, $teams, $audit);
+$lineups = new LineupRepository($pdo);
+$lineupAccess = new LineupAccessService($lineups, $schedules, $teams, $authorization);
+$lineupService = new LineupService($lineups, $tacticalFormations, $teams, $authorization, $audit);
 
 $router->get('/', [new HomeController(), 'index']);
 $router->get('/health', [new HealthController(), 'show']);
@@ -214,6 +221,13 @@ $router->post('/admin/partidas/{id}/cancelar', [$schedule, 'cancel']);
 $router->post('/admin/partidas/{id}/confirmar', [$schedule, 'confirmMatch']);
 $router->post('/admin/partidas/{id}/wo', [$schedule, 'wo']);
 $router->post('/admin/partidas/{id}/decisao', [$schedule, 'decision']);
+
+$lineup = new LineupController($users, $authorization, $audit, $lineupAccess, $lineupService, $lineups, $tacticalFormations);
+$router->get('/admin/partidas/{id}/escalacoes', [$lineup, 'match']);
+$router->get('/admin/partidas/{id}/escalacao/{teamId}', [$lineup, 'edit']);
+$router->post('/admin/partidas/{id}/escalacao/{teamId}', [$lineup, 'save']);
+$router->post('/admin/partidas/{id}/escalacao/{teamId}/automatico', [$lineup, 'automatic']);
+$router->post('/admin/partidas/{id}/escalacao/{teamId}/reabrir', [$lineup, 'reopen']);
 
 $championship = new ChampionshipController($users, $authorization, $audit, $championships, $seasons, $categories, $access, $statusService, $regulationService, $storage, $users);
 $router->get('/admin/campeonatos', [$championship, 'index']);

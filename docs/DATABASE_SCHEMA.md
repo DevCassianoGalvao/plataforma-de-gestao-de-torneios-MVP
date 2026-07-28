@@ -11,6 +11,7 @@
 | `0005_athletes_guardians_and_documents.sql` | atletas, posicoes, responsaveis legais e documentos privados | implementada |
 | `0006_registration_roster_settings.sql` | regras de elenco, documentos obrigatorios, inscricoes e historico | implementada |
 | `0007_groups_rounds_schedule.sql` | locais, fases, grupos, rodadas, partidas, agenda e decisoes | implementada |
+| `0008_tactical_lineups.sql` | escalacoes, titulares, reservas, comissao e historico | implementada |
 
 ## Tabelas da Etapa 3
 
@@ -41,7 +42,7 @@
 
 `teams` referencia `championships`, `users` e, opcionalmente, `tactical_formations`. Slug e nome sao unicos dentro do campeonato. `team_user_assignments` preserva datas e encerramento do vinculo, evitando duplicidade do mesmo historico. `team_staff` referencia uma funcao do catalogo e aceita `user_id` nulo.
 
-As coordenadas de `tactical_formation_slots` usam `DECIMAL(5,2)` entre 0 e 100: `horizontal_position` cresce da esquerda para a direita e `vertical_position` cresce da defesa para o ataque. Elas servem para uma futura representacao de campo, sem armazenar atletas ou escalacoes nesta etapa.
+As coordenadas de `tactical_formation_slots` usam `DECIMAL(5,2)` entre 0 e 100: `horizontal_position` cresce da esquerda para a direita e `vertical_position` cresce da defesa para o ataque. A Etapa 8 usa essas coordenadas no campo funcional, sem alterar a formacao padrao da equipe.
 
 ## Tabelas da Etapa 5
 
@@ -81,7 +82,18 @@ As coordenadas de `tactical_formation_slots` usam `DECIMAL(5,2)` entre 0 e 100: 
 | `match_schedule_changes` | historico de adiamentos, cancelamentos e alteracoes |
 | `administrative_decisions` | decisoes administrativas ligadas ao calendario |
 
-`matches.fixture_key` garante geracao idempotente. Nao ha colunas de placar, gols, cartoes ou escalacao. O round-robin cria folga para grupos impares e pode gerar turno unico ou ida e volta.
+`matches.fixture_key` garante geracao idempotente. Nao ha colunas de placar, gols ou cartoes. O round-robin cria folga para grupos impares e pode gerar turno unico ou ida e volta.
+
+## Tabelas da Etapa 8
+
+| Tabela | Finalidade |
+|---|---|
+| `match_lineups` | uma escalacao por partida e equipe, status, formacao, capitao, goleiro e versao |
+| `match_lineup_players` | titulares e reservas, slots, numero e alertas posicionais |
+| `match_lineup_staff` | comissao presente vinculada a equipe |
+| `match_lineup_history` | criacao, salvamento, confirmacao e reabertura com motivo |
+
+`match_lineups` nao armazena placar, gols, cartoes ou classificacao. A confirmacao exige onze titulares, capitao titular e goleiro com posicao valida; alteracoes comuns ficam bloqueadas depois da confirmacao.
 
 ## Regras
 
