@@ -24,6 +24,9 @@ No Windows, use `$env:NOME='valor'` e `C:\xampp\php\php.exe` quando o PHP nao es
 | Unitario Etapa 4 | `tests/Unit/TeamTest.php` | slug, cores, status, equipe, comissao e regras de upload |
 | Integracao Etapa 4 | `tests/Integration/TeamIntegrationTest.php` | migration, seed idempotente, escopo, vinculos, comissao, formacoes, slots, status e upload |
 | HTTP de contrato Etapa 4 | `tests/Http/TeamHttpTest.php` | perfis, IDOR, CRUD, status, comissao, formacao, upload, CSRF e base path |
+| Unitario Etapa 5 | `tests/Unit/AthleteTest.php` | idade, categoria, status, responsavel e MIME |
+| Integracao Etapa 5 | `tests/Integration/AthleteIntegrationTest.php` | migration, seed duplo, posicoes, duplicidade, responsavel, cifragem, escopo e arquivos |
+| HTTP de contrato Etapa 5 | `tests/Http/AthleteHttpTest.php` | CRUD, menor, documentos, upload, privacidade, IDOR, CSRF e exclusao logica |
 
 ## Resultado da Etapa 3
 
@@ -45,4 +48,14 @@ Migrations, seed duplo, banco descartavel, servidor HTTP, uploads validos e inva
 
 ## Limites
 
-Nao existem atletas, documentos de atletas, inscricoes, partidas, escalacoes, sumula operacional, portal, noticias ou Vai e Vem. O teste HTTP real cobre as rotas principais de equipes e formacao, mas nao substitui a UI/UX definitiva.
+Nao existem inscricoes, partidas, escalacoes, sumula operacional, portal, noticias ou Vai e Vem. O teste HTTP real cobre as rotas principais de equipes, formacao e atletas, mas nao substitui a UI/UX definitiva.
+
+## Resultado da Etapa 5
+
+- `LINT_OK files=136`;
+- `MVP_TESTS_OK unit=5 integration=5 http=5`;
+- `REAL_HTTP_TESTS_OK checks=16`;
+- migration `0005` aplicada em banco descartavel;
+- seed executado duas vezes sem duplicar 13 posicoes, 6 tipos, 20 atletas, 20 responsaveis, 20 vinculos, 20 documentos e 20 posicoes secundarias;
+- uploads validos, MIME real, limite, executavel bloqueado, escopo, IDOR, CSRF, privacidade e `APP_BASE_PATH=/copa-online` validados;
+- banco, servidor temporario e arquivos de teste removidos apos a validacao.

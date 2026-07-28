@@ -27,7 +27,7 @@ final class TeamRepository
                 $params[] = $filters[$key];
             }
         }
-        $sql = 'SELECT t.*, c.name AS championship_name, c.slug AS championship_slug, cat.name AS category_name, s.name AS season_name, f.name AS formation_name, '
+        $sql = 'SELECT t.*, c.name AS championship_name, c.slug AS championship_slug, cat.name AS category_name, cat.minimum_age, cat.maximum_age, cat.gender_rule, s.name AS season_name, f.name AS formation_name, '
             . '(SELECT u.name FROM team_user_assignments a INNER JOIN users u ON u.id = a.user_id WHERE a.team_id = t.id AND a.assignment_type = \'head_coach\' AND a.status = \'active\' ORDER BY a.starts_at DESC LIMIT 1) AS coach_name, '
             . '(SELECT u.name FROM team_user_assignments a INNER JOIN users u ON u.id = a.user_id WHERE a.team_id = t.id AND a.assignment_type = \'manager\' AND a.status = \'active\' ORDER BY a.starts_at DESC LIMIT 1) AS manager_name '
             . 'FROM teams t INNER JOIN championships c ON c.id = t.championship_id INNER JOIN categories cat ON cat.id = c.category_id INNER JOIN seasons s ON s.id = c.season_id LEFT JOIN tactical_formations f ON f.id = t.default_tactical_formation_id WHERE '
@@ -40,7 +40,7 @@ final class TeamRepository
     public function findForUser(int $id, int $userId, string $scope, bool $mutation = false): ?array
     {
         [$scopeSql, $scopeParams] = $this->scopeSql($userId, $scope, $mutation);
-        $statement = $this->pdo->prepare('SELECT t.*, c.name AS championship_name, c.slug AS championship_slug, c.status AS championship_status, cat.name AS category_name, s.name AS season_name, s.year AS season_year, f.name AS formation_name FROM teams t INNER JOIN championships c ON c.id = t.championship_id INNER JOIN categories cat ON cat.id = c.category_id INNER JOIN seasons s ON s.id = c.season_id LEFT JOIN tactical_formations f ON f.id = t.default_tactical_formation_id WHERE t.id = ? AND t.deleted_at IS NULL AND ' . $scopeSql . ' LIMIT 1');
+        $statement = $this->pdo->prepare('SELECT t.*, c.name AS championship_name, c.slug AS championship_slug, c.status AS championship_status, cat.name AS category_name, cat.minimum_age, cat.maximum_age, cat.gender_rule, s.name AS season_name, s.year AS season_year, f.name AS formation_name FROM teams t INNER JOIN championships c ON c.id = t.championship_id INNER JOIN categories cat ON cat.id = c.category_id INNER JOIN seasons s ON s.id = c.season_id LEFT JOIN tactical_formations f ON f.id = t.default_tactical_formation_id WHERE t.id = ? AND t.deleted_at IS NULL AND ' . $scopeSql . ' LIMIT 1');
         $statement->execute(array_merge([$id], $scopeParams));
         $row = $statement->fetch();
         return $row ?: null;
@@ -49,7 +49,7 @@ final class TeamRepository
     public function findForUserBySlug(string $slug, int $userId, string $scope, bool $mutation = false): ?array
     {
         [$scopeSql, $scopeParams] = $this->scopeSql($userId, $scope, $mutation);
-        $statement = $this->pdo->prepare('SELECT t.*, c.name AS championship_name, c.slug AS championship_slug, c.status AS championship_status, cat.name AS category_name, s.name AS season_name, s.year AS season_year, f.name AS formation_name FROM teams t INNER JOIN championships c ON c.id = t.championship_id INNER JOIN categories cat ON cat.id = c.category_id INNER JOIN seasons s ON s.id = c.season_id LEFT JOIN tactical_formations f ON f.id = t.default_tactical_formation_id WHERE t.slug = ? AND t.deleted_at IS NULL AND ' . $scopeSql . ' LIMIT 1');
+        $statement = $this->pdo->prepare('SELECT t.*, c.name AS championship_name, c.slug AS championship_slug, c.status AS championship_status, cat.name AS category_name, cat.minimum_age, cat.maximum_age, cat.gender_rule, s.name AS season_name, s.year AS season_year, f.name AS formation_name FROM teams t INNER JOIN championships c ON c.id = t.championship_id INNER JOIN categories cat ON cat.id = c.category_id INNER JOIN seasons s ON s.id = c.season_id LEFT JOIN tactical_formations f ON f.id = t.default_tactical_formation_id WHERE t.slug = ? AND t.deleted_at IS NULL AND ' . $scopeSql . ' LIMIT 1');
         $statement->execute(array_merge([$slug], $scopeParams));
         $row = $statement->fetch();
         return $row ?: null;

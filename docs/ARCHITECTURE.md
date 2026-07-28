@@ -23,6 +23,14 @@ Treinadores e gestores recebem escopo explicito por equipe quando possuem vincul
 
 Escudos de equipes e fotos de comissao passam pelo `StorageService`, ficam fora da area publica, usam nome aleatorio e sao servidos somente depois de autorizacao. O campo `document_number` existe na estrutura para uma futura implementacao protegida, mas nao e coletado nem armazenado nesta etapa.
 
+## Atletas, responsaveis e documentos
+
+`AthleteAccessService` e `AthleteRepository` aplicam o mesmo escopo no SQL: administrador ve todos, organizador ve equipes de campeonamentos autorizados e treinador/gestor ve somente equipes com vinculo ativo. Operador e comunicacao recebem `403`. O cadastro do atleta nao depende de inscricao.
+
+`AthleteRules` calcula idade por aniversario, valida categoria e genero contra a equipe/campeonato, limita posicoes ao catalogo ativo, impede duplicidade suficiente por equipe, nome e nascimento e exige responsavel para menor. A exclusao e logica por `deleted_at` e status `archived`.
+
+Dados de documento do responsavel sao cifrados com AES-256-GCM em `SensitiveData`; a interface exibe apenas uma mascara. Documentos usam `UploadRules` com MIME real via `finfo`, extensao coerente, limite de 10 MB e bloqueio de executaveis. O `StorageService` mantem os arquivos fora da area publica; cada leitura exige autenticacao, permissao e escopo do atleta.
+
 ## Formacoes taticas
 
 `TacticalFormationRepository` e `TacticalFormationService` carregam formacoes e slots estruturados. Cada formacao ativa possui exatamente 11 slots, um goleiro e coordenadas normalizadas de 0 a 100. A equipe guarda uma formacao padrao e registra autor e data da alteracao. Nao ha atletas, escalaacoes por partida, arrastar-e-soltar ou campo visual definitivo.
@@ -41,4 +49,4 @@ O campo `metadata` de auditoria continua sendo JSON por conter atributos pequeno
 
 ## Limites atuais
 
-Nao existem atletas, inscricoes, grupos, rodadas, partidas, escalacoes, cartoes operacionais, suspensoes, classificacao, mata-mata, sumula operacional, noticias, Vai e Vem ou portal publico. Equipes, identidade, comissao e formacao padrao existem apenas no painel administrativo; a UI/UX definitiva continua para uma rodada posterior.
+Nao existem inscricoes, grupos, rodadas, partidas, escalacoes, cartoes operacionais, suspensoes, classificacao, mata-mata, sumula operacional, noticias, Vai e Vem ou portal publico. Equipes, atletas, documentos, identidade, comissao e formacao padrao existem apenas no painel administrativo; a UI/UX definitiva continua para uma rodada posterior.

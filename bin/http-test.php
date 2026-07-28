@@ -39,9 +39,19 @@ try {
     check($team['status'] === 200 && str_contains($team['body'], 'Estrela Norte FC'), 'Pagina da equipe nao abriu');
     $formation = request('GET', '/admin/equipes/estrela-norte-fc/formacao');
     check($formation['status'] === 200 && str_contains($formation['body'], 'Formacao padrao'), 'Pagina de formacao nao abriu');
+    $athletes = request('GET', '/admin/atletas');
+    check($athletes['status'] === 200 && str_contains($athletes['body'], 'Atletas'), 'Rota de atletas nao abriu para administrador');
+    $positions = request('GET', '/admin/posicoes');
+    check($positions['status'] === 200 && str_contains($positions['body'], 'Posicoes'), 'Catalogo de posicoes nao abriu');
+    $athlete = request('GET', '/admin/atletas/1');
+    check($athlete['status'] === 200 && str_contains($athlete['body'], 'Atleta'), 'Detalhe de atleta nao abriu');
+    $guardians = request('GET', '/admin/atletas/1/responsaveis');
+    check($guardians['status'] === 200 && str_contains($guardians['body'], 'Responsaveis legais'), 'Rota de responsaveis nao abriu');
+    $documents = request('GET', '/admin/atletas/1/documentos');
+    check($documents['status'] === 200 && str_contains($documents['body'], 'Documentos'), 'Rota de documentos nao abriu');
     $logout = request('POST', '/logout', ['_csrf' => csrf($admin['body'])]);
     check($logout['status'] === 302, 'Logout nao redirecionou');
-    echo "REAL_HTTP_TESTS_OK checks=11\n";
+    echo "REAL_HTTP_TESTS_OK checks=16\n";
 } finally {
     if (is_string($jar) && is_file($jar)) {
         unlink($jar);

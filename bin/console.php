@@ -6,7 +6,10 @@ require dirname(__DIR__) . '/app/bootstrap.php';
 use App\Core\Database;
 use App\Core\MigrationRunner;
 use App\Database\AuthSeed;
+use App\Database\AthleteDocumentTypeSeed;
+use App\Database\AthleteSeed;
 use App\Database\ChampionshipSeed;
+use App\Database\PositionSeed;
 use App\Database\TacticalFormationSeed;
 use App\Database\TeamSeed;
 
@@ -38,6 +41,9 @@ if ($command === 'db:seed') {
     ChampionshipSeed::run(Database::connection());
     TacticalFormationSeed::run(Database::connection());
     TeamSeed::run(Database::connection());
+    PositionSeed::run(Database::connection());
+    AthleteDocumentTypeSeed::run(Database::connection());
+    AthleteSeed::run(Database::connection());
     echo "Seed de autenticacao concluido.\n";
     exit(0);
 }

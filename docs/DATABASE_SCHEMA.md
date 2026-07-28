@@ -8,6 +8,7 @@
 | `0002_authentication.sql` | usuarios, papeis, permissoes, tokens e auditoria | implementada |
 | `0003_championships_and_regulations.sql` | catalogos, campeonatos, escopo e regulamentos | implementada |
 | `0004_teams_staff_and_formations.sql` | equipes, responsaveis, comissao e formacoes taticas | implementada |
+| `0005_athletes_guardians_and_documents.sql` | atletas, posicoes, responsaveis legais e documentos privados | implementada |
 
 ## Tabelas da Etapa 3
 
@@ -39,6 +40,20 @@
 `teams` referencia `championships`, `users` e, opcionalmente, `tactical_formations`. Slug e nome sao unicos dentro do campeonato. `team_user_assignments` preserva datas e encerramento do vinculo, evitando duplicidade do mesmo historico. `team_staff` referencia uma funcao do catalogo e aceita `user_id` nulo.
 
 As coordenadas de `tactical_formation_slots` usam `DECIMAL(5,2)` entre 0 e 100: `horizontal_position` cresce da esquerda para a direita e `vertical_position` cresce da defesa para o ataque. Elas servem para uma futura representacao de campo, sem armazenar atletas ou escalacoes nesta etapa.
+
+## Tabelas da Etapa 5
+
+| Tabela | Finalidade |
+|---|---|
+| `positions` | catalogo de 13 posicoes, grupo, ordem e status |
+| `athletes` | cadastro esportivo, equipe, categoria derivada, status e exclusao logica |
+| `athlete_secondary_positions` | varias posicoes alternativas por atleta |
+| `legal_guardians` | dados privados cifrados de responsaveis legais |
+| `athlete_guardians` | vinculo, parentesco, autorizacao e primariedade |
+| `athlete_document_types` | tipos configuraveis de documento |
+| `athlete_documents` | arquivo privado, validade, status e revisao |
+
+`athletes.team_id` mantem o atleta dentro do escopo da equipe. `athletes.primary_position_id` e `athlete_secondary_positions.position_id` referenciam o catalogo ativo. Documentos podem apontar para um responsavel quando aplicavel; `reviewed_by` e `reviewed_at` preservam a analise.
 
 ## Regras
 

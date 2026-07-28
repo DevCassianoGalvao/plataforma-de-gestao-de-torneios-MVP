@@ -75,4 +75,26 @@ Nenhum formulario solicita JSON, nome de tabela ou ID digitado livremente. Selec
 |---|---|---|
 | GET/POST | `/admin/equipes/{slug}/formacao` | consultar slots e selecionar formacao padrao |
 
-As telas exibem nomes, funcoes e formacoes; IDs permanecem apenas nos valores internos dos formularios. Atletas, inscricoes e partidas aparecem como modulos ainda nao disponiveis na pagina da equipe.
+## Atletas
+
+| Metodo | Rota | Funcao |
+|---|---|---|
+| GET | `/admin/atletas` | listar, buscar e filtrar por equipe, posicao, idade e status |
+| GET/POST | `/admin/atletas/nova`, `/admin/atletas` | cadastrar atleta e responsavel de menor |
+| GET/POST | `/admin/atletas/{id}/editar`, `/admin/atletas/{id}` | editar dados esportivos |
+| GET | `/admin/atletas/{id}` | detalhe com dados esportivos, equipe, posicoes, responsavel e documentos |
+| POST | `/admin/atletas/{id}/status` | alterar status validado |
+| POST | `/admin/atletas/{id}/excluir` | exclusao logica |
+| GET | `/admin/posicoes` | consultar catalogo estruturado de posicoes |
+
+## Responsaveis e documentos de atletas
+
+| Metodo | Rota | Funcao |
+|---|---|---|
+| GET/POST | `/admin/atletas/{id}/responsaveis` | listar e vincular responsavel legal |
+| GET/POST | `/admin/atletas/{id}/documentos` | listar e enviar documento privado |
+| GET | `/admin/atletas/{id}/documentos/{documentId}` | servir arquivo somente apos autorizacao |
+| POST | `/admin/atletas/{id}/documentos/{documentId}/status` | revisar documento |
+| GET | `/admin/atletas/{id}/assets/photo` | servir foto privada autorizada |
+
+As telas exibem nomes, funcoes e formacoes; IDs permanecem apenas nos valores internos dos formularios. Inscricoes, partidas e disciplina aparecem como modulos futuros na pagina do atleta.
