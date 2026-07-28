@@ -1,31 +1,35 @@
 # Schema de Banco
 
-## Migrations implementadas
+## Migrations
 
 | Migration | Conteudo | Estado |
 |---|---|---|
-| `0001_foundation.sql` | `schema_migrations`, `foundation_health` | implementada |
-| `0002_authentication.sql` | usuarios, papeis, permissoes, tokens, tentativas e auditoria | implementada |
+| `0001_foundation.sql` | controle de migrations e health | implementada |
+| `0002_authentication.sql` | usuarios, papeis, permissoes, tokens e auditoria | implementada |
+| `0003_championships_and_regulations.sql` | catalogos, campeonatos, escopo e regulamentos | implementada |
 
-## Tabelas da Etapa 2
+## Tabelas da Etapa 3
 
 | Tabela | Finalidade |
 |---|---|
-| `users` | identidade, status, hash de senha, login e timestamps |
-| `roles` | catalogo global de perfis |
-| `permissions` | catalogo nomeado por modulo |
-| `role_permissions` | relacionamento sem duplicidade entre perfis e permissoes |
-| `user_roles` | relacionamento global entre usuario e perfil |
-| `password_reset_tokens` | hash, expiracao e uso unico de recuperacao |
-| `login_attempts` | tentativa, e-mail anonimizado, IP, user agent e resultado |
-| `audit_logs` | eventos de seguranca e gestao |
+| `seasons` | temporadas e status do catalogo |
+| `categories` | categorias, slug, idades e regra de genero |
+| `championships` | dados gerais, identidade, datas, status e visibilidade |
+| `championship_user_assignments` | vinculo de usuario ao campeonato, sem duplicidade |
+| `regulations` | versoes, autor, status e publicacao |
+| `regulation_format_settings` | grupos, classificados, fases e formato |
+| `regulation_points_settings` | pontuacao e W.O. |
+| `regulation_tiebreakers` | criterios ordenados e habilitados |
+| `regulation_discipline_settings` | amarelos, vermelhos e limpeza de cartoes |
+| `regulation_match_settings` | duracao, substituicoes, prorrogacao e penaltis |
+| `regulation_documents` | PDFs privados ligados a uma versao |
 
-O e-mail de `users` e unico. Nenhuma senha, token original ou credencial real e armazenada no repositorio.
+## Regras
 
-## Preparacao para escopos
-
-`user_roles` e global nesta etapa. Quando campeonamentos, equipes e partidas existirem, o relacionamento devera receber um contexto de escopo em tabela propria ou colunas explicitamente validadas. Nao declarar isolamento por campeonato ou equipe antes dessa implementacao.
-
-## Entidades futuras
-
-Campeonatos, regulamentos, equipes, atletas, inscricoes, grupos, rodadas, partidas, escalacoes, eventos, classificacao, suspensoes, sumulas, noticias, transferencias e portal publico continuam pendentes conforme o plano.
+- slugs de categorias e campeonamentos sao unicos;
+- um campeonato referencia temporada e categoria reais;
+- um vinculo de usuario usa `championship_id`, `user_id` e `assignment_type` como chave de negocio;
+- somente uma versao de regulamento pode ficar `published`, garantido pelo service em transacao;
+- rascunhos, versoes superseded e versoes anteriores nao sao excluidos;
+- uploads usam caminho privado e nome aleatorio;
+- nenhuma regra e editada por JSON.

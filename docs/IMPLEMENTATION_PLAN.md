@@ -5,8 +5,8 @@ Legenda: `[ ]` pendente, `[x]` concluido com evidencia. Nenhuma etapa futura dev
 | Etapa | Objetivo | Estado | Evidencia |
 |---|---|---|---|
 | 1 | Fundacao tecnica | [x] | bootstrap, PDO, router, health, migration base, lint e HTTP |
-| 2 | Autenticacao e acesso | [x] | migration 0002, login, sessao, recuperacao, perfis, permissoes, usuarios, auditoria, seed e testes |
-| 3 | Campeonatos e regulamentos | [ ] | criar campeonato e regras sem JSON |
+| 2 | Autenticacao e acesso | [x] | login, sessao, recuperacao, perfis, permissoes, usuarios, auditoria, seed e testes |
+| 3 | Campeonatos e regulamentos | [x] | catalogos, campeonato, identidade, escopo, editor estruturado, preset, versoes, uploads e testes |
 | 4 | Equipes e comissao | [ ] | equipes e vinculos autorizados |
 | 5 | Atletas e documentos | [ ] | privacidade, posicoes e arquivos privados |
 | 6 | Inscricoes | [ ] | envio, analise e aprovacao |
@@ -22,6 +22,6 @@ Legenda: `[ ]` pendente, `[x]` concluido com evidencia. Nenhuma etapa futura dev
 | 16 | Preparacao para producao | [ ] | cPanel, instalacao limpa e observabilidade |
 | 17 | UI/UX definitiva | [ ] | design system, temas, responsividade e acessibilidade |
 
-## Estado da Etapa 2
+## Estado da Etapa 3
 
-Implementada em `feat/authentication-and-access`. O isolamento por campeonato/equipe, os modulos esportivos e o layout definitivo continuam pendentes.
+Implementada em `feat/championships-and-regulations`. Equipes, partidas, portal e demais modulos esportivos continuam fora desta etapa.

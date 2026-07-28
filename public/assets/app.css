@@ -18,6 +18,7 @@ nav, form { display: grid; gap: 1rem; margin-top: 1rem; }
 label { display: grid; gap: .35rem; }
 input, select, button { box-sizing: border-box; font: inherit; padding: .65rem .75rem; }
 input, select { width: 100%; border: 1px solid #aab7c2; border-radius: 4px; background: #fff; }
+textarea { width: 100%; box-sizing: border-box; resize: vertical; border: 1px solid #aab7c2; border-radius: 4px; padding: .65rem .75rem; font: inherit; }
 button, .button { width: fit-content; cursor: pointer; border: 1px solid #245c4a; border-radius: 4px; background: #245c4a; color: #fff; padding: .65rem .85rem; text-decoration: none; }
 a { color: #245c4a; }
 .alert, .success { padding: .75rem 1rem; border-left: 4px solid #b42318; background: #fff1f0; }
@@ -41,6 +42,17 @@ fieldset { display: grid; gap: .5rem; border: 1px solid #d9e0e6; padding: 1rem; 
 .check { display: flex; grid-template-columns: auto 1fr; align-items: center; gap: .5rem; }
 .check input { width: auto; }
 .grid-links { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 2rem; }
+.inline-form { display: flex; align-items: end; flex-wrap: wrap; gap: 1rem; }
+.inline-form label { min-width: 16rem; }
+.inline-form button { align-self: end; }
+.action-nav { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; margin: 1rem 0; }
+.muted { color: #52606d; font-size: .9rem; }
+.checklist { display: grid; gap: .5rem; padding-left: 1.25rem; }
+.checklist .done { color: #176b38; }
+.checklist .pending { color: #52606d; }
+.summary-list { display: grid; grid-template-columns: minmax(10rem, 18rem) 1fr; gap: .75rem 1rem; }
+.summary-list dt { font-weight: 700; }
+.summary-list dd { margin: 0; }
 .link-card { display: grid; gap: .35rem; padding: 1rem; border: 1px solid #cfe0d8; color: #1f2933; text-decoration: none; }
 .link-card strong { color: #245c4a; }
 .link-card span { color: #52606d; font-size: .9rem; }
@@ -50,4 +62,5 @@ fieldset { display: grid; gap: .5rem; border: 1px solid #d9e0e6; padding: 1rem; 
     .page-shell { width: min(100% - 1rem, 72rem); padding-top: 1rem; }
     section { padding: 1.25rem; }
     .grid-links { grid-template-columns: 1fr; }
+    .summary-list { grid-template-columns: 1fr; }
 }

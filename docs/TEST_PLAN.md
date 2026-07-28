@@ -7,25 +7,29 @@ php bin/lint.php
 APP_ENV=test DB_NAME=torneios_mvp_test php bin/test.php
 APP_ENV=test DB_NAME=torneios_mvp_http_test SEED_DEMO_PASSWORD=... php bin/console.php migrate
 APP_ENV=test DB_NAME=torneios_mvp_http_test SEED_DEMO_PASSWORD=... php bin/console.php db:seed
-HTTP_TEST_BASE_URL=http://127.0.0.1:18080/copa-online TEST_PASSWORD=... php bin/http-test.php
+HTTP_TEST_BASE_URL=http://127.0.0.1:18081/copa-online TEST_PASSWORD=... php bin/http-test.php
 ```
 
-No Windows, os comandos acima usam variaveis de ambiente do PowerShell e `C:\xampp\php\php.exe` quando o PHP nao esta no PATH.
+No Windows, use `$env:NOME='valor'` e `C:\xampp\php\php.exe` quando o PHP nao estiver no PATH.
 
-## Cobertura implementada
+## Cobertura
 
 | Camada | Arquivos | Cobertura |
 |---|---|---|
-| Unitario | `tests/Unit/FoundationTest.php`, `tests/Unit/AuthTest.php` | base path, escape, CSRF, senha, token e hash |
-| Integracao | `tests/Integration/MigrationTest.php`, `tests/Integration/AuthIntegrationTest.php` | migrations, tabelas, seed idempotente, usuarios, papeis, permissoes, token, uso unico e auditoria |
-| HTTP de contrato | `tests/Http/FoundationHttpTest.php`, `tests/Http/AuthenticationHttpTest.php` | login valido/invalido, sessao, logout, protecao, 403 e redirecionamento por perfil |
-| HTTP real | `bin/http-test.php` | servidor PHP, cookies, CSRF, login, redirect, rota protegida, logout e base path |
+| Unitario | `tests/Unit/ChampionshipTest.php` | slug, datas, cores, preset e regras estruturadas |
+| Integracao | `tests/Integration/ChampionshipIntegrationTest.php` | seed, escopo, versionamento, publicacao, status e uploads |
+| HTTP de contrato | `tests/Http/ChampionshipHttpTest.php` | administrador, organizador atribuido, organizador externo, treinador e CSRF |
+| HTTP real | `bin/http-test.php` | servidor PHP, cookies, base path, campeonamentos e regulamento |
 | Lint | `bin/lint.php` | sintaxe de todos os PHP versionados |
 
-## Resultado atual
+## Resultado da Etapa 3
 
-Os testes executados na Etapa 2 passaram: `LINT_OK files=58`, `AUTH_TESTS_OK unit=2 integration=2 http=2` e `REAL_HTTP_TESTS_OK checks=6`. O banco descartavel foi removido depois da validacao.
+- `LINT_OK files=92`
+- `CHAMPIONSHIP_TESTS_OK unit=3 integration=3 http=3`
+- `REAL_HTTP_TESTS_OK checks=8`
+
+Migrations, seed duplo, banco descartavel, servidor HTTP, uploads validos e invalidos foram validados. Bancos e arquivos temporarios foram removidos.
 
 ## Limites
 
-Ainda nao ha testes de campeonatos, equipes, atletas, partidas, sumula, portal ou UI/UX definitiva. Eles entram com as etapas correspondentes.
+Nao existem testes nem implementacao de equipes, atletas, partidas, sumula, portal, noticias ou Vai e Vem.

@@ -29,9 +29,13 @@ try {
 
     $admin = request('GET', '/admin/usuarios');
     check($admin['status'] === 200 && str_contains($admin['body'], 'Usuarios'), 'Rota protegida nao abriu para administrador');
+    $championships = request('GET', '/admin/campeonatos');
+    check($championships['status'] === 200 && str_contains($championships['body'], 'Campeonatos'), 'Rota de campeonatos nao abriu para administrador');
+    $regulation = request('GET', '/admin/campeonatos/copa-brasil-de-talentos-2026/regulamento');
+    check($regulation['status'] === 200 && str_contains($regulation['body'], 'Regulamento'), 'Rota de regulamento nao abriu para administrador');
     $logout = request('POST', '/logout', ['_csrf' => csrf($admin['body'])]);
     check($logout['status'] === 302, 'Logout nao redirecionou');
-    echo "REAL_HTTP_TESTS_OK checks=6\n";
+    echo "REAL_HTTP_TESTS_OK checks=8\n";
 } finally {
     if (is_string($jar) && is_file($jar)) {
         unlink($jar);

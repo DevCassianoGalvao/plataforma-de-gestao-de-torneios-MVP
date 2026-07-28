@@ -1,35 +1,23 @@
-# Perfis e Permissoes
+# Perfis, Permissoes e Escopo
 
-Os perfis sao globais nesta etapa. Escopo por campeonato, equipe ou partida sera adicionado quando essas entidades existirem.
+Papeis sao globais. Acesso esportivo exige tambem vinculo ao campeonato.
 
-## Perfis
+## Matriz da Etapa 3
 
-| Perfil | Chave | Escopo futuro | Observacao |
-|---|---|---|---|
-| Administrador | `administrator` | global | acesso total da plataforma |
-| Organizador | `organizer` | campeonamentos autorizados | opera competicoes |
-| Treinador ou gestor de equipe | `team_manager` | equipe e campeonato autorizados | opera somente a equipe |
-| Operador de partida | `match_operator` | partidas atribuidas | nao homologa a propria partida |
-| Comunicacao | `communication` | conteudo autorizado | noticias e Vai e Vem |
-
-## Matriz
-
-| Perfil | Modulo | Acao | Permitido | Negado | Escopo futuro | Observacoes |
+| Perfil | Modulo | Acao | Permitido | Negado | Escopo | Observacao |
 |---|---|---|---|---|---|---|
-| Administrador | sistema | `system.access`, `system.configure` | sim | - | global | acesso global |
-| Administrador | usuarios | `users.view/create/update/deactivate/manage_roles` | sim | - | global | somente administrador |
-| Administrador | auditoria | `audit.view` | sim | - | global | sem JSON bruto |
-| Administrador | todos | permissoes esportivas | sim | - | global | preparacao administrativa |
-| Organizador | campeonamentos | `championships.view/manage` | sim | `system.configure` | campeonamentos autorizados | modulo futuro |
-| Organizador | equipes | `teams.view/manage` | sim | `teams.manage_own` | campeonamentos autorizados | modulo futuro |
-| Organizador | inscricoes | `registrations.review` | sim | - | campeonamentos autorizados | modulo futuro |
-| Organizador | partidas | `matches.view/homologate` | sim | `matches.operate` | campeonamentos autorizados | nao opera como operador |
-| Organizador | conteudo | `content.manage/publish`, `transfers.manage` | sim | - | campeonamentos autorizados | modulo futuro |
-| Treinador/gestor | equipe | `teams.view/manage_own` | sim | `teams.manage` | propria equipe | modulo futuro |
-| Treinador/gestor | atletas | `athletes.view/manage_own` | sim | `athletes.manage` | propria equipe | modulo futuro |
-| Treinador/gestor | partidas | `matches.view` | sim | `matches.operate` | equipe autorizada | modulo futuro |
-| Operador | partidas | `matches.view/operate` | sim | `matches.homologate` | partidas atribuidas | nao homologa propria partida |
-| Comunicacao | conteudo | `content.manage/publish` | sim | `users.view` | campeonamentos autorizados | modulo futuro |
-| Comunicacao | Vai e Vem | `transfers.manage` | sim | alteracao esportiva direta | campeonamentos autorizados | aprovacao futura |
+| Administrador | campeonamentos | view/create/update/archive/manage_identity/manage_assignments | sim | - | todos | acesso global |
+| Administrador | temporadas/categorias | view/manage | sim | - | global | catalogos |
+| Administrador | regulamentos | view/create/update/publish/version_history | sim | - | todos | pode administrar versoes |
+| Organizador | campeonamentos | view/create/update/manage_identity | sim | archive/manage_assignments | vinculados como organizer | nao acessa campeonato alheio |
+| Organizador | temporadas/categorias | view | sim | manage | catalogo existente | seleciona no formulario |
+| Organizador | regulamentos | view/create/update/publish/version_history | sim | - | campeonato vinculado | nao usa JSON |
+| Treinador/gestor | campeonamentos | modulo esportivo | nao nesta etapa | sim | futuro | equipes entram depois |
+| Operador | campeonamentos | modulo esportivo | nao nesta etapa | sim | futuro | partidas entram depois |
+| Comunicacao | campeonamentos/regulamentos | configuracao | nao nesta etapa | sim | futuro | conteudo entra depois |
 
-Permissoes nomeadas implementadas no seed: `system.access`, `system.configure`, `users.view`, `users.create`, `users.update`, `users.deactivate`, `users.manage_roles`, `audit.view`, `championships.view`, `championships.manage`, `teams.view`, `teams.manage`, `teams.manage_own`, `athletes.view`, `athletes.manage`, `athletes.manage_own`, `registrations.review`, `matches.view`, `matches.operate`, `matches.homologate`, `content.manage`, `content.publish`, `transfers.manage`.
+## Permissoes adicionadas
+
+`championships.view`, `championships.create`, `championships.update`, `championships.archive`, `championships.manage_identity`, `championships.manage_assignments`, `seasons.view`, `seasons.manage`, `categories.view`, `categories.manage`, `regulations.view`, `regulations.create`, `regulations.update`, `regulations.publish`, `regulations.version_history`.
+
+Permissoes de equipes, atletas, partidas, conteudo e transferencias continuam preparadas para etapas futuras. O service nunca usa somente o papel global para autorizar um campeonato.

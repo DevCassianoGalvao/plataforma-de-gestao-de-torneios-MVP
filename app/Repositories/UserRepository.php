@@ -39,6 +39,13 @@ final class UserRepository
         return $statement->fetchAll();
     }
 
+    public function listByRole(string $roleKey): array
+    {
+        $statement = $this->pdo->prepare('SELECT DISTINCT u.* FROM users u INNER JOIN user_roles ur ON ur.user_id = u.id INNER JOIN roles r ON r.id = ur.role_id WHERE r.`key` = ? AND u.status = \'active\' AND u.deleted_at IS NULL ORDER BY u.name');
+        $statement->execute([$roleKey]);
+        return $statement->fetchAll();
+    }
+
     public function create(string $name, string $email, string $passwordHash, string $status = 'active'): int
     {
         $now = date('Y-m-d H:i:s');

@@ -6,6 +6,7 @@ require dirname(__DIR__) . '/app/bootstrap.php';
 use App\Core\Database;
 use App\Core\MigrationRunner;
 use App\Database\AuthSeed;
+use App\Database\ChampionshipSeed;
 
 $command = $argv[1] ?? 'help';
 $runner = new MigrationRunner(Database::connection(), dirname(__DIR__) . '/database/migrations');
@@ -32,6 +33,7 @@ if ($command === 'db:seed') {
         exit(1);
     }
     AuthSeed::run(Database::connection(), $password);
+    ChampionshipSeed::run(Database::connection());
     echo "Seed de autenticacao concluido.\n";
     exit(0);
 }

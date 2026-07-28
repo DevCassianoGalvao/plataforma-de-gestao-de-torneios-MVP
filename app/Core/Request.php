@@ -11,6 +11,7 @@ final class Request
         public readonly array $query = [],
         public readonly array $body = [],
         public readonly array $headers = [],
+        public readonly array $files = [],
     ) {
     }
 
@@ -24,12 +25,13 @@ final class Request
             $_GET,
             $_POST,
             self::headers(),
+            $_FILES,
         );
     }
 
-    public static function fake(string $method, string $path, array $body = []): self
+    public static function fake(string $method, string $path, array $body = [], array $files = []): self
     {
-        return new self(strtoupper($method), $path, [], $body);
+        return new self(strtoupper($method), $path, [], $body, [], $files);
     }
 
     public function ip(): string

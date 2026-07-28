@@ -7,7 +7,6 @@ use App\Core\Auth;
 use App\Core\Config;
 use App\Core\Request;
 use App\Core\Response;
-use App\Core\Security;
 use App\Core\Session;
 use App\Repositories\UserRepository;
 use App\Services\AuditService;
@@ -174,16 +173,6 @@ final class UserController extends Controller
         $this->audit->record('users.password_reset_generated', (int) $guard['id'], 'user', (int) $record['id'], [], $request);
         Session::flash('admin_message', 'Solicitacao de redefinicao gerada.');
         return Response::redirect(Config::url('/admin/usuarios'));
-    }
-
-    private function validCsrf(Request $request): bool
-    {
-        try {
-            Security::verifyCsrf($request->body['_csrf'] ?? null);
-            return true;
-        } catch (\Throwable) {
-            return false;
-        }
     }
 
     private function validateRecord(array $record, ?string $password = null, ?string $confirmation = null): array

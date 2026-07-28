@@ -36,6 +36,15 @@ final class Response
         return self::html(View::page('Acesso negado', View::render('errors/403', ['message' => $message])), 403);
     }
 
+    public static function binary(string $body, string $contentType, string $downloadName = ''): self
+    {
+        $headers = ['Content-Type' => $contentType, 'Cache-Control' => 'private, max-age=3600'];
+        if ($downloadName !== '') {
+            $headers['Content-Disposition'] = 'inline; filename="' . addcslashes($downloadName, '"\\') . '"';
+        }
+        return new self($body, 200, $headers);
+    }
+
     public function send(): never
     {
         http_response_code($this->status);

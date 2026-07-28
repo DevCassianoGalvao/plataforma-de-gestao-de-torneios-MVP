@@ -7,6 +7,7 @@ use App\Core\Auth;
 use App\Core\Config;
 use App\Core\Request;
 use App\Core\Response;
+use App\Core\Security;
 use App\Core\View;
 use App\Repositories\UserRepository;
 use App\Services\AuditService;
@@ -39,5 +40,15 @@ abstract class Controller
     protected function errorPage(string $title, string $view, array $data, int $status = 422): Response
     {
         return Response::html(View::page($title, View::render($view, $data)), $status);
+    }
+
+    protected function validCsrf(Request $request): bool
+    {
+        try {
+            Security::verifyCsrf($request->body['_csrf'] ?? null);
+            return true;
+        } catch (\Throwable) {
+            return false;
+        }
     }
 }

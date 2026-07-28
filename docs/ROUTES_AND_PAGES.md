@@ -1,38 +1,45 @@
 # Rotas e Paginas
 
-Todas as URLs passam por `Config::url` e respeitam `APP_BASE_PATH=/copa-online`.
+Todas as URLs respeitam `APP_BASE_PATH=/copa-online`.
 
-## Publicas
+## Catalogos
 
 | Metodo | Rota | Funcao |
 |---|---|---|
-| GET | `/` | base tecnica |
-| GET | `/health` | health JSON |
-| GET | `/login` | formulario de login |
-| POST | `/login` | autenticar com CSRF |
-| POST | `/logout` | encerrar sessao com CSRF |
-| GET | `/senha/esqueci` | solicitar recuperacao |
-| POST | `/senha/esqueci` | gerar token sem revelar cadastro |
-| GET | `/senha/redefinir` | formulario de nova senha |
-| POST | `/senha/redefinir` | validar e consumir token |
+| GET | `/admin/temporadas` | listar temporadas |
+| GET/POST | `/admin/temporadas/nova`, `/admin/temporadas` | criar temporada |
+| GET/POST | `/admin/temporadas/{id}/editar`, `/admin/temporadas/{id}` | editar temporada |
+| GET | `/admin/categorias` | listar categorias |
+| GET/POST | `/admin/categorias/nova`, `/admin/categorias` | criar categoria |
+| GET/POST | `/admin/categorias/{id}/editar`, `/admin/categorias/{id}` | editar categoria |
 
-## Protegidas
+## Campeonamentos
 
-| Metodo | Rota | Permissao |
+| Metodo | Rota | Funcao |
 |---|---|---|
-| GET | `/admin` | `system.access` |
-| GET/POST | `/admin/perfil` | usuario autenticado |
-| POST | `/admin/perfil/senha` | usuario autenticado |
-| GET | `/admin/usuarios` | `users.view` |
-| GET | `/admin/usuarios/novo` | `users.create` |
-| POST | `/admin/usuarios` | `users.create` |
-| GET | `/admin/usuarios/{id}/editar` | `users.update` |
-| POST | `/admin/usuarios/{id}` | `users.update` e, quando aplicavel, `users.manage_roles` |
-| POST | `/admin/usuarios/{id}/status` | `users.deactivate` |
-| POST | `/admin/usuarios/{id}/perfis` | `users.manage_roles` |
-| POST | `/admin/usuarios/{id}/reset-password` | `users.update` |
-| GET | `/admin/auditoria` | `audit.view` |
+| GET | `/admin/campeonatos` | listar, buscar e filtrar |
+| GET/POST | `/admin/campeonatos/novo`, `/admin/campeonatos` | criar rascunho |
+| GET | `/admin/campeonatos/{slug}` | dashboard simples |
+| GET/POST | `/admin/campeonatos/{slug}/editar`, `/admin/campeonatos/{slug}` | editar gerais |
+| GET/POST | `/admin/campeonatos/{slug}/identidade` | cores, tema e uploads |
+| GET | `/admin/campeonatos/{slug}/assets/{field}` | asset privado autorizado |
+| POST | `/admin/campeonatos/{slug}/status` | transicao validada |
+| POST | `/admin/campeonatos/{slug}/arquivar` | arquivamento |
+| GET/POST | `/admin/campeonatos/{slug}/organizadores` | listar e vincular organizadores |
+| POST | `/admin/campeonatos/{slug}/organizadores/{userId}/remover` | remover vinculo |
 
-## Placeholders protegidos
+## Regulamentos
 
-`/meus-campeonatos`, `/minha-equipe`, `/minhas-partidas` e `/conteudo` exigem sessao e informam: "Modulo previsto para a proxima etapa." Nenhum dado esportivo falso e criado.
+| Metodo | Rota | Funcao |
+|---|---|---|
+| GET | `/admin/campeonatos/{slug}/regulamento` | resumo e versoes |
+| GET/POST | `/admin/campeonatos/{slug}/regulamento/editar`, `/admin/campeonatos/{slug}/regulamento` | editor estruturado |
+| POST | `/admin/campeonatos/{slug}/regulamento/preset` | aplicar preset sem duplicar |
+| POST | `/admin/campeonatos/{slug}/regulamento/documento` | anexar PDF privado |
+| GET | `/admin/campeonatos/{slug}/regulamento/documentos/{id}` | consultar PDF autorizado |
+| GET | `/admin/campeonatos/{slug}/regulamento/revisar` | revisao antes de publicar |
+| POST | `/admin/campeonatos/{slug}/regulamento/publicar` | publicar versao |
+| GET | `/admin/campeonatos/{slug}/regulamento/versoes` | historico |
+| GET | `/admin/campeonatos/{slug}/regulamento/versoes/{version}` | consultar versao |
+
+Nenhum formulario solicita JSON, nome de tabela ou ID digitado livremente. Selects exibem nomes e os IDs ficam apenas como valores internos.
