@@ -10,6 +10,19 @@ declare(strict_types=1);
     <link rel="stylesheet" href="<?= App\Core\View::e(App\Core\Config::url('/assets/app.css')) ?>">
 </head>
 <body>
+<?php $currentUser = App\Core\Auth::user(); ?>
+<?php if ($currentUser): ?>
+<header class="site-header">
+    <a class="brand" href="<?= App\Core\View::e(App\Core\Config::url('/admin')) ?>">Torneios MVP</a>
+    <nav aria-label="Navegacao principal">
+        <a href="<?= App\Core\View::e(App\Core\Config::url('/admin/perfil')) ?>">Meu perfil</a>
+        <?php $menuAuth = new App\Services\AuthorizationService(new App\Repositories\UserRepository(App\Core\Database::connection())); ?>
+        <?php if ($menuAuth->can($currentUser, 'users.view')): ?><a href="<?= App\Core\View::e(App\Core\Config::url('/admin/usuarios')) ?>">Usuarios</a><?php endif; ?>
+        <?php if ($menuAuth->can($currentUser, 'audit.view')): ?><a href="<?= App\Core\View::e(App\Core\Config::url('/admin/auditoria')) ?>">Auditoria</a><?php endif; ?>
+        <form class="logout-form" method="post" action="<?= App\Core\View::e(App\Core\Config::url('/logout')) ?>"><input type="hidden" name="_csrf" value="<?= App\Core\View::e(App\Core\Security::csrfToken()) ?>"><button type="submit">Sair</button></form>
+    </nav>
+</header>
+<?php endif; ?>
 <main class="page-shell">
     <?= $content ?? '' ?>
 </main>

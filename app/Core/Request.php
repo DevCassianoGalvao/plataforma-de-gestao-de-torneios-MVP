@@ -32,6 +32,16 @@ final class Request
         return new self(strtoupper($method), $path, [], $body);
     }
 
+    public function ip(): string
+    {
+        return (string) ($_SERVER['REMOTE_ADDR'] ?? '127.0.0.1');
+    }
+
+    public function userAgent(): string
+    {
+        return substr($this->headers['USER-AGENT'] ?? (string) ($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 500);
+    }
+
     private static function headers(): array
     {
         $headers = [];

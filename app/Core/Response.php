@@ -26,6 +26,16 @@ final class Response
         );
     }
 
+    public static function redirect(string $location, int $status = 302): self
+    {
+        return new self('', $status, ['Location' => $location]);
+    }
+
+    public static function forbidden(string $message = 'Acesso negado.'): self
+    {
+        return self::html(View::page('Acesso negado', View::render('errors/403', ['message' => $message])), 403);
+    }
+
     public function send(): never
     {
         http_response_code($this->status);

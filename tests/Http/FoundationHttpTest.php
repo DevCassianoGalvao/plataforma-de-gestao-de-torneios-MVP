@@ -21,6 +21,6 @@ final class FoundationHttpTest
         assert_same(404, $notFound->status, '404 HTTP falhou');
         $login = $router->dispatch(Request::fake('GET', '/copa-online/login'));
         assert_same(200, $login->status, 'Placeholder de login falhou');
-        assert_true(str_contains($login->body, 'Autenticacao completa'), 'Placeholder nao identificado');
+        assert_true(str_contains($login->body, 'Esqueci minha senha'), 'Tela de login nao identificada');
     }
 }

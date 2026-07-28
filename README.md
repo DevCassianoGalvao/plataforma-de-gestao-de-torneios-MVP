@@ -1,75 +1,65 @@
 # Plataforma de Gestao de Torneios MVP
 
-## Objetivo
+Sistema web planejado para administrar campeonatos de futebol e publicar informacoes esportivas.
 
-Construir, por etapas, uma plataforma para criar, organizar, operar e publicar campeonatos de futebol.
+## Estado atual
 
-## Stack
+A Etapa 1 (fundacao tecnica) e a Etapa 2 (autenticacao e acesso) estao implementadas na branch `feat/authentication-and-access`. O projeto ainda esta em desenvolvimento estrutural. Campeonatos, equipes, atletas, partidas, sumula, noticias, Vai e Vem e portal publico ainda nao foram implementados.
 
-PHP 8.2, MySQL, HTML, CSS e JavaScript, com Apache/cPanel. A fundacao usa MVC simples, PDO e front controller, sem framework obrigatorio.
+Entregas atuais:
 
-## Requisitos
+- login, logout e sessao com timeout;
+- recuperacao de senha com token hash e expiracao;
+- cinco perfis globais e permissoes verificadas no servidor;
+- gestao administrativa de usuarios e perfis;
+- perfil pessoal e alteracao de senha;
+- auditoria de eventos importantes;
+- seed ficticio idempotente para desenvolvimento;
+- base path `/copa-online`.
+
+## Stack prevista
+
+- PHP 8.2;
+- MySQL;
+- HTML, CSS e JavaScript;
+- PDO com prepared statements;
+- hospedagem alvo em cPanel.
+
+## Requisitos locais
 
 - PHP 8.2 com PDO MySQL;
-- MySQL 8 ou compativel;
-- extensao OpenSSL para CSRF e sessoes seguras;
-- Apache/cPanel ou servidor PHP embutido para desenvolvimento.
+- MySQL;
+- servidor web apontando para `public/`.
 
-## Instalacao local
+## Configuracao
 
-1. Copie `.env.example` para `.env`.
-2. Ajuste `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER` e `DB_PASS` no `.env` local.
-3. Mantenha `APP_BASE_PATH=/copa-online` para simular o subdiretorio de producao.
-4. Crie o banco informado em `DB_NAME`.
-5. Execute `php bin/console.php migrate`.
-6. Inicie `php -S localhost:8000 -t public public/index.php`.
-7. Acesse `http://localhost:8000/copa-online/`.
+Copie `.env.example` para `.env` e preencha apenas os valores do ambiente local. Nunca versione `.env` ou credenciais reais.
 
 ## Comandos disponiveis
 
 ```text
+php bin/lint.php
 php bin/console.php migrate
 php bin/console.php migrate:status
-php bin/lint.php
+SEED_DEMO_PASSWORD=... php bin/console.php db:seed
 APP_ENV=test DB_NAME=torneios_mvp_test php bin/test.php
-php -S localhost:8000 -t public public/index.php
+HTTP_TEST_BASE_URL=http://127.0.0.1:18080/copa-online TEST_PASSWORD=... php bin/http-test.php
 ```
 
-No PowerShell, defina as variaveis de teste antes de executar `php bin/test.php`:
+No Windows PowerShell, defina as variaveis com `$env:NOME='valor'` e use `C:\xampp\php\php.exe` se necessario. O comando de seed exige uma senha ficticia definida no ambiente e e bloqueado em producao.
 
-```powershell
-$env:APP_ENV='test'
-$env:DB_NAME='torneios_mvp_test'
-php bin/test.php
-```
+## Documentacao
 
-O runner de testes cria e remove um banco com nome explicitamente identificado como teste.
-
-## Estrutura
-
-```text
-app/Core/              nucleo tecnico
-app/Http/Controllers/  endpoints finos
-app/Views/             views minimas
-config/                configuracoes futuras
-database/migrations/   migrations versionadas
-docs/                  PRD e contratos tecnicos
-public/                document root
-routes/                rotas tecnicas
-storage/               logs, cache e arquivos privados
-tests/Unit/            testes unitarios
-tests/Integration/     testes de banco
-tests/Http/            contratos HTTP
-```
-
-## Situacao atual
-
-Etapa 1: fundacao tecnica. Existe apenas bootstrap, configuracao, PDO, migration runner, health check, rotas tecnicas, sessao, CSRF, logger e testes da fundacao. Autenticacao completa e todos os modulos esportivos ainda estao pendentes.
+- [PRD](docs/PRD_PLATAFORMA_TORNEIOS.md)
+- [Autenticacao](docs/AUTHENTICATION.md)
+- [Arquitetura](docs/ARCHITECTURE.md)
+- [Schema](docs/DATABASE_SCHEMA.md)
+- [Rotas](docs/ROUTES_AND_PAGES.md)
+- [Perfis e permissoes](docs/ROLES_AND_PERMISSIONS.md)
+- [Plano de implementacao](docs/IMPLEMENTATION_PLAN.md)
+- [Plano de testes](docs/TEST_PLAN.md)
+- [Referencia da sumula](docs/REFERENCIA_SUMULA.xlsx)
 
 ## Proximas etapas
 
-Autenticacao e usuarios; campeonatos e regulamentos; equipes e pessoas; inscricoes; competencia; partida; disciplina; sumula; noticias; Vai e Vem; portal publico; producao e UI/UX definitiva. O detalhamento esta em `docs/IMPLEMENTATION_PLAN.md`.
-
-## Fonte do produto
-
-Leia `docs/PRD_PLATAFORMA_TORNEIOS.md` antes de implementar qualquer modulo. O mapeamento da planilha oficial esta em `docs/MATCH_REPORT_MAPPING.md` e o arquivo original em `docs/REFERENCIA_SUMULA.xlsx`.
+A Etapa 3 deve implementar campeonamentos e regulamentos configuraveis, depois equipes e atletas. A separacao entre estrutura funcional e a segunda rodada de UI/UX sera mantida.

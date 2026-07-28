@@ -1,33 +1,31 @@
 # Schema de Banco
 
-## Fundacao implementada nesta etapa
+## Migrations implementadas
 
-Migration inicial: `database/migrations/0001_foundation.sql`.
-
-| Tabela | Finalidade | Estado |
+| Migration | Conteudo | Estado |
 |---|---|---|
-| `schema_migrations` | Controlar arquivos SQL aplicados | implementada |
-| `foundation_health` | Provar persistencia e health check | implementada |
+| `0001_foundation.sql` | `schema_migrations`, `foundation_health` | implementada |
+| `0002_authentication.sql` | usuarios, papeis, permissoes, tokens, tentativas e auditoria | implementada |
 
-Nao ha tabelas de negocio neste commit.
+## Tabelas da Etapa 2
 
-## Entidades planejadas do MVP
+| Tabela | Finalidade |
+|---|---|
+| `users` | identidade, status, hash de senha, login e timestamps |
+| `roles` | catalogo global de perfis |
+| `permissions` | catalogo nomeado por modulo |
+| `role_permissions` | relacionamento sem duplicidade entre perfis e permissoes |
+| `user_roles` | relacionamento global entre usuario e perfil |
+| `password_reset_tokens` | hash, expiracao e uso unico de recuperacao |
+| `login_attempts` | tentativa, e-mail anonimizado, IP, user agent e resultado |
+| `audit_logs` | eventos de seguranca e gestao |
 
-Estas entidades sao contrato futuro, nao implementacao atual:
+O e-mail de `users` e unico. Nenhuma senha, token original ou credencial real e armazenada no repositorio.
 
-- `organizations`, `projects`, `tournaments`, `tournament_settings`, `tournament_versions`;
-- `users`, `roles`, `permissions`, `user_role_assignments`, `audit_logs`;
-- `teams`, `team_tournament_entries`, `people`, `team_memberships`;
-- `athlete_profiles`, `guardians`, `private_documents`, `registrations`;
-- `stages`, `groups`, `rounds`, `venues`, `matches`;
-- `tactical_formations`, `formation_slots`, `match_lineups`, `lineup_positions`;
-- `match_events`, `discipline_records`, `suspensions`, `standings`, `bracket_nodes`;
-- `match_reports`, `match_report_versions`, `news_posts`, `galleries`, `transfers`.
+## Preparacao para escopos
 
-## Regras de modelagem futuras
+`user_roles` e global nesta etapa. Quando campeonamentos, equipes e partidas existirem, o relacionamento devera receber um contexto de escopo em tabela propria ou colunas explicitamente validadas. Nao declarar isolamento por campeonato ou equipe antes dessa implementacao.
 
-- IDs internos nunca serao digitados em formularios operacionais.
-- Relacoes serao validadas pelo escopo organization/project/tournament/team.
-- Regras esportivas serao dados versionados por campeonato, nao constantes espalhadas no codigo.
-- Documentos pessoais e sumulas privadas terao caminho privado e autorizacao server-side.
-- Resultados homologados terao historico imutavel e retificacao versionada.
+## Entidades futuras
+
+Campeonatos, regulamentos, equipes, atletas, inscricoes, grupos, rodadas, partidas, escalacoes, eventos, classificacao, suspensoes, sumulas, noticias, transferencias e portal publico continuam pendentes conforme o plano.

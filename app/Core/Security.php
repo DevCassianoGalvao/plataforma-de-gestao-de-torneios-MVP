@@ -26,4 +26,14 @@ final class Security
             throw new \RuntimeException('CSRF token invalido.');
         }
     }
+
+    public static function hashToken(string $token): string
+    {
+        return hash('sha256', $token);
+    }
+
+    public static function randomToken(int $bytes = 32): string
+    {
+        return bin2hex(random_bytes($bytes));
+    }
 }

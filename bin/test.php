@@ -15,13 +15,19 @@ if ($dbName === '' || !preg_match('/(^|_)test($|_)/i', $dbName)) {
 require dirname(__DIR__) . '/app/bootstrap.php';
 require dirname(__DIR__) . '/tests/bootstrap.php';
 require dirname(__DIR__) . '/tests/Unit/FoundationTest.php';
+require dirname(__DIR__) . '/tests/Unit/AuthTest.php';
 require dirname(__DIR__) . '/tests/Integration/MigrationTest.php';
+require dirname(__DIR__) . '/tests/Integration/AuthIntegrationTest.php';
 require dirname(__DIR__) . '/tests/Http/FoundationHttpTest.php';
+require dirname(__DIR__) . '/tests/Http/AuthenticationHttpTest.php';
 
 use App\Core\Database;
 use Tests\Http\FoundationHttpTest;
 use Tests\Integration\MigrationTest;
 use Tests\Unit\FoundationTest;
+use Tests\Unit\AuthTest;
+use Tests\Integration\AuthIntegrationTest;
+use Tests\Http\AuthenticationHttpTest;
 
 $server = Database::serverConnection();
 $quoted = '`' . str_replace('`', '``', $dbName) . '`';
@@ -29,9 +35,12 @@ $server->exec('CREATE DATABASE IF NOT EXISTS ' . $quoted . ' CHARACTER SET utf8m
 
 try {
     FoundationTest::run();
+    AuthTest::run();
     MigrationTest::run();
+    AuthIntegrationTest::run();
     FoundationHttpTest::run();
-    echo "FOUNDATION_TESTS_OK unit=1 integration=1 http=1\n";
+    AuthenticationHttpTest::run();
+    echo "AUTH_TESTS_OK unit=2 integration=2 http=2\n";
 } finally {
     Database::disconnect();
     $server->exec('DROP DATABASE IF EXISTS ' . $quoted);

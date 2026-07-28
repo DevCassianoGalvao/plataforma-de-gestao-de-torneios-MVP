@@ -1,24 +1,38 @@
 # Rotas e Paginas
 
-## Rotas tecnicas implementadas
+Todas as URLs passam por `Config::url` e respeitam `APP_BASE_PATH=/copa-online`.
 
-| Metodo | Rota | Funcao | Estado |
-|---|---|---|---|
-| GET | `/` | Mensagem da fundacao | implementada |
-| GET | `/health` | Health JSON da aplicacao e persistencia | implementada |
-| GET | `/login` | Placeholder sem autenticacao | implementada |
-| POST | `/login` | Placeholder protegido por CSRF | retorna 501 |
-| qualquer | demais rotas | 404 sem stack trace | implementada |
+## Publicas
 
-Todas as rotas respeitam `APP_BASE_PATH`, por exemplo `/copa-online/health`.
+| Metodo | Rota | Funcao |
+|---|---|---|
+| GET | `/` | base tecnica |
+| GET | `/health` | health JSON |
+| GET | `/login` | formulario de login |
+| POST | `/login` | autenticar com CSRF |
+| POST | `/logout` | encerrar sessao com CSRF |
+| GET | `/senha/esqueci` | solicitar recuperacao |
+| POST | `/senha/esqueci` | gerar token sem revelar cadastro |
+| GET | `/senha/redefinir` | formulario de nova senha |
+| POST | `/senha/redefinir` | validar e consumir token |
 
-## Rotas futuras
+## Protegidas
 
-Rotas de campeonato, equipes, atletas, inscricoes, partidas, noticias, Vai e Vem e portal so serao adicionadas nas etapas correspondentes do plano. Nenhuma rota vazia deve ser criada para aparentar implementacao.
+| Metodo | Rota | Permissao |
+|---|---|---|
+| GET | `/admin` | `system.access` |
+| GET/POST | `/admin/perfil` | usuario autenticado |
+| POST | `/admin/perfil/senha` | usuario autenticado |
+| GET | `/admin/usuarios` | `users.view` |
+| GET | `/admin/usuarios/novo` | `users.create` |
+| POST | `/admin/usuarios` | `users.create` |
+| GET | `/admin/usuarios/{id}/editar` | `users.update` |
+| POST | `/admin/usuarios/{id}` | `users.update` e, quando aplicavel, `users.manage_roles` |
+| POST | `/admin/usuarios/{id}/status` | `users.deactivate` |
+| POST | `/admin/usuarios/{id}/perfis` | `users.manage_roles` |
+| POST | `/admin/usuarios/{id}/reset-password` | `users.update` |
+| GET | `/admin/auditoria` | `audit.view` |
 
-## Convencoes
+## Placeholders protegidos
 
-- Controllers nao calculam regra esportiva.
-- Views nao recebem IDs sensiveis por texto livre.
-- Endpoints de mutacao exigem CSRF e permissao server-side quando existirem.
-- Respostas de erro usam status HTTP correto e mensagem publica generica.
+`/meus-campeonatos`, `/minha-equipe`, `/minhas-partidas` e `/conteudo` exigem sessao e informam: "Modulo previsto para a proxima etapa." Nenhum dado esportivo falso e criado.
