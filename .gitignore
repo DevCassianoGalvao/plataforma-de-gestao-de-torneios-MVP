@@ -5,9 +5,12 @@
 /vendor/
 /node_modules/
 /storage/logs/*
+!/storage/logs/.gitkeep
 /storage/sessions/*
 /storage/cache/*
+!/storage/cache/.gitkeep
 /storage/private/*
+!/storage/private/.gitkeep
 /storage/exports/*
 /uploads/private/*
 /public/uploads-private/*
