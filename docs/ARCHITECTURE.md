@@ -43,6 +43,12 @@ Dados de documento do responsavel sao cifrados com AES-256-GCM em `SensitiveData
 
 O campo `metadata` de auditoria continua sendo JSON por conter atributos pequenos e variaveis por evento. Ele nunca e usado como formulario e nao e exibido bruto.
 
+## Grupos, rodadas e agenda
+
+`ScheduleRepository` separa fases, grupos, vinculos de equipes, rodadas, locais e partidas. `RoundRobinGenerator` usa algoritmo de circulo, remove folgas de grupos impares e gera segundo turno com mandante/visitante invertidos. `ScheduleService` valida limites, conflito de equipe/local, transicoes de status, bloqueio apos inicio e gera `fixture_key` para idempotencia.
+
+O assistente recebe grupos, turno, periodo, dias, horarios e locais em campos estruturados. A previa mostra confrontos e conflitos antes da confirmacao. Alteracoes de agenda entram em `match_schedule_changes`; decisoes administrativas entram em `administrative_decisions`. O escopo de leitura de partidas e administrador, organizador vinculado ou treinador com vinculo ativo a uma das equipes.
+
 ## Uploads
 
 `StorageService` grava arquivos fora de `public/storage/private`, com nome aleatorio, MIME detectado por `finfo`, limite de tamanho e extensoes derivadas do MIME. SVG nao e aceito nesta etapa. Assets de identidade e PDFs de regulamento so sao servidos depois de autenticacao e autorizacao do campeonato.
@@ -51,4 +57,4 @@ O campo `metadata` de auditoria continua sendo JSON por conter atributos pequeno
 
 Inscricoes usam `RegistrationAccessService`, `RegistrationRules` e `RegistrationService`. O repositorio aplica escopo por administrador, organizador vinculado ou equipe do treinador. O regulamento define tamanho de elenco, goleiros minimos, documentos obrigatorios e inscricao por multiplas equipes em tabelas normalizadas. Somente `approved` aparece no elenco oficial; toda transicao e correcao gera historico e auditoria.
 
-Nao existem grupos, rodadas, partidas, escalacoes, cartoes operacionais, suspensoes disciplinares, classificacao, mata-mata, sumula operacional, noticias, Vai e Vem ou portal publico. Equipes, atletas, documentos, inscricoes e elenco existem apenas no painel administrativo; a UI/UX definitiva continua para uma rodada posterior.
+Nao existem escalacoes, operacao de partida, cartoes operacionais, suspensoes disciplinares, classificacao, mata-mata, sumula operacional, noticias, Vai e Vem ou portal publico. Equipes, atletas, documentos, inscricoes, elenco, grupos e tabela existem apenas no painel administrativo; a UI/UX definitiva continua para uma rodada posterior.

@@ -53,9 +53,19 @@ try {
     check($registrations['status'] === 200 && str_contains($registrations['body'], 'Inscricoes'), 'Rota de inscricoes nao abriu');
     $roster = request('GET', '/admin/inscricoes/elenco');
     check($roster['status'] === 200 && str_contains($roster['body'], 'Elenco oficial'), 'Rota de elenco nao abriu');
+    $schedule = request('GET', '/admin/tabela');
+    check($schedule['status'] === 200 && str_contains($schedule['body'], 'Tabela e partidas'), 'Rota de tabela nao abriu');
+    $phases = request('GET', '/admin/fases');
+    check($phases['status'] === 200 && str_contains($phases['body'], 'Fases'), 'Rota de fases nao abriu');
+    $venues = request('GET', '/admin/locais');
+    check($venues['status'] === 200 && str_contains($venues['body'], 'Locais'), 'Rota de locais nao abriu');
+    $assistant = request('GET', '/admin/tabela/assistente');
+    check($assistant['status'] === 200 && str_contains($assistant['body'], 'Assistente de tabela'), 'Rota de assistente nao abriu');
+    $match = request('GET', '/admin/partidas/1');
+    check($match['status'] === 200 && str_contains($match['body'], 'Agenda'), 'Rota de partida nao abriu');
     $logout = request('POST', '/logout', ['_csrf' => csrf($admin['body'])]);
     check($logout['status'] === 302, 'Logout nao redirecionou');
-    echo "REAL_HTTP_TESTS_OK checks=18\n";
+    echo "REAL_HTTP_TESTS_OK checks=23\n";
 } finally {
     if (is_string($jar) && is_file($jar)) {
         unlink($jar);

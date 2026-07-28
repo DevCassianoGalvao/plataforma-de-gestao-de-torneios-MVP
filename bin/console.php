@@ -11,6 +11,7 @@ use App\Database\AthleteSeed;
 use App\Database\ChampionshipSeed;
 use App\Database\PositionSeed;
 use App\Database\RegistrationSeed;
+use App\Database\ScheduleSeed;
 use App\Database\TacticalFormationSeed;
 use App\Database\TeamSeed;
 
@@ -46,6 +47,7 @@ if ($command === 'db:seed') {
     AthleteDocumentTypeSeed::run(Database::connection());
     AthleteSeed::run(Database::connection());
     RegistrationSeed::run(Database::connection());
+    ScheduleSeed::run(Database::connection());
     echo "Seed de autenticacao concluido.\n";
     exit(0);
 }

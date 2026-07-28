@@ -27,6 +27,7 @@ declare(strict_types=1);
         <?php if ($menuAuth->can($currentUser, 'positions.view')): ?><a href="<?= App\Core\View::e(App\Core\Config::url('/admin/posicoes')) ?>">Posicoes</a><?php endif; ?>
         <?php if ($menuAuth->can($currentUser, 'registrations.view')): ?><a href="<?= App\Core\View::e(App\Core\Config::url('/admin/inscricoes')) ?>">Inscricoes</a><?php endif; ?>
         <?php if ($menuAuth->can($currentUser, 'rosters.view')): ?><a href="<?= App\Core\View::e(App\Core\Config::url('/admin/inscricoes/elenco')) ?>">Elenco oficial</a><?php endif; ?>
+        <?php if ($menuAuth->can($currentUser, 'schedule.view')): ?><a href="<?= App\Core\View::e(App\Core\Config::url('/admin/tabela')) ?>">Tabela</a><?php endif; ?>
         <form class="logout-form" method="post" action="<?= App\Core\View::e(App\Core\Config::url('/logout')) ?>"><input type="hidden" name="_csrf" value="<?= App\Core\View::e(App\Core\Security::csrfToken()) ?>"><button type="submit">Sair</button></form>
     </nav>
 </header>

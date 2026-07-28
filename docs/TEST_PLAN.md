@@ -30,6 +30,9 @@ No Windows, use `$env:NOME='valor'` e `C:\xampp\php\php.exe` quando o PHP nao es
 | Unitario Etapa 6 | `tests/Unit/RegistrationTest.php` | transicoes, numero pretendido e periodo de inscricao |
 | Integracao Etapa 6 | `tests/Integration/RegistrationIntegrationTest.php` | seed duplo, historico, fluxo, regras, elenco, escopo e IDOR |
 | HTTP de contrato Etapa 6 | `tests/Http/RegistrationHttpTest.php` | criar, enviar, analisar, aprovar, elenco, CSRF, IDOR, 403 e base path |
+| Unitario Etapa 7 | `tests/Unit/ScheduleTest.php` | round-robin par/impar, folgas, ida e volta, status e agenda |
+| Integracao Etapa 7 | `tests/Integration/ScheduleIntegrationTest.php` | migration, seed duplo, limites, idempotencia, conflitos, agenda, escopo e IDOR |
+| HTTP de contrato Etapa 7 | `tests/Http/ScheduleHttpTest.php` | fases, grupos, locais, assistente, partida, CSRF, escopo, IDOR, 403 e base path |
 
 ## Resultado da Etapa 3
 
@@ -61,7 +64,18 @@ Migrations, seed duplo, banco descartavel, servidor HTTP, uploads validos e inva
 
 ## Limites
 
-Nao existem grupos, partidas, escalacoes, sumula operacional, portal, noticias ou Vai e Vem. O teste HTTP real cobre as rotas principais de inscricoes e elenco, mas nao substitui a UI/UX definitiva.
+Nao existem escalacoes, operacao de partida, cartoes, classificacao final, sumula operacional, portal, noticias ou Vai e Vem. O teste HTTP real cobre as rotas principais de inscricoes, elenco e tabela, mas nao substitui a UI/UX definitiva.
+
+## Resultado da Etapa 7
+
+- `LINT_OK files=165`;
+- `MVP_TESTS_OK unit=7 integration=7 http=7`;
+- `REAL_HTTP_TESTS_OK checks=23`;
+- migration `0007` aplicada em banco descartavel;
+- seed executado duas vezes sem duplicar 2 grupos, 10 vinculos, 10 rodadas ou 20 partidas;
+- round-robin de grupos pares e impares, folgas, ida e volta, idempotencia, conflitos basicos e historico de agenda validados;
+- escopo, IDOR, CSRF e `APP_BASE_PATH=/copa-online` validados;
+- banco, servidor temporario e arquivos de teste removidos apos a validacao.
 
 ## Resultado da Etapa 5
 

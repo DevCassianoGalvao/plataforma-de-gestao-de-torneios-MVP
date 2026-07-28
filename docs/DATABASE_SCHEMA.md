@@ -10,6 +10,7 @@
 | `0004_teams_staff_and_formations.sql` | equipes, responsaveis, comissao e formacoes taticas | implementada |
 | `0005_athletes_guardians_and_documents.sql` | atletas, posicoes, responsaveis legais e documentos privados | implementada |
 | `0006_registration_roster_settings.sql` | regras de elenco, documentos obrigatorios, inscricoes e historico | implementada |
+| `0007_groups_rounds_schedule.sql` | locais, fases, grupos, rodadas, partidas, agenda e decisoes | implementada |
 
 ## Tabelas da Etapa 3
 
@@ -66,6 +67,21 @@ As coordenadas de `tactical_formation_slots` usam `DECIMAL(5,2)` entre 0 e 100: 
 | `athlete_registration_history` | transicoes, correcoes, pendencias, decisoes e usuario responsavel |
 
 `athlete_registrations` possui unicidade de campeonato, equipe e atleta. O elenco oficial e uma consulta de inscricoes com `status = approved`; nao existe tabela paralela nem limite fixado no codigo.
+
+## Tabelas da Etapa 7
+
+| Tabela | Finalidade |
+|---|---|
+| `venues` | locais vinculados ao campeonato, capacidade e status |
+| `competition_phases` | fases, quantidade de grupos/equipes e publicacao |
+| `competition_groups` | grupos, limites, classificados e bloqueio |
+| `group_teams` | vinculo de equipe com grupo, posicao e retirada |
+| `competition_rounds` | rodadas por fase/grupo e periodo |
+| `matches` | confrontos, agenda, local e status sem placar nesta etapa |
+| `match_schedule_changes` | historico de adiamentos, cancelamentos e alteracoes |
+| `administrative_decisions` | decisoes administrativas ligadas ao calendario |
+
+`matches.fixture_key` garante geracao idempotente. Nao ha colunas de placar, gols, cartoes ou escalacao. O round-robin cria folga para grupos impares e pode gerar turno unico ou ida e volta.
 
 ## Regras
 

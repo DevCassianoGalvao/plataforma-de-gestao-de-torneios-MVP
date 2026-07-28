@@ -10,7 +10,7 @@ Legenda: `[ ]` pendente, `[x]` concluido com evidencia. Nenhuma etapa futura dev
 | 4 | Equipes e comissao | [x] | equipes, vinculos autorizados, comissao, uploads, status, formacoes e testes |
 | 5 | Atletas e documentos | [x] | cadastro, privacidade, posicoes, responsaveis e arquivos privados |
 | 6 | Inscricoes e elenco oficial | [x] | envio, analise, correcoes, aprovacao e roster aprovado |
-| 7 | Grupos, rodadas e tabela | [ ] | calendario e classificacao inicial |
+| 7 | Grupos, rodadas e tabela | [x] | grupos, locais, round-robin, agenda e proximos confrontos |
 | 8 | Formacoes e escalacoes | [ ] | campo visual e distribuicao automatica |
 | 9 | Central da partida | [ ] | placar, gols, cartoes e ocorrencias |
 | 10 | Disciplina | [ ] | cartoes, suspensoes e proximos confrontos |
@@ -39,6 +39,12 @@ Evidencias: migration `0005_athletes_guardians_and_documents.sql`, `MVP_TESTS_OK
 Implementada em `feat/registrations-and-rosters`, partindo de `feat/athletes-and-documents`. A etapa entrega inscricoes por campeonato, equipe e atleta, fluxo com historico, validacoes do regulamento, pendencias, correcao, elenco oficial formado somente por aprovados, escopo por perfil, auditoria e seed idempotente.
 
 Evidencias: migration `0006_registration_roster_settings.sql`, `docs/REGISTRATIONS_AND_ROSTERS.md`, testes unitarios, de integracao e HTTP, lint PHP, banco descartavel e `APP_BASE_PATH=/copa-online`.
+
+## Estado da Etapa 7
+
+Implementada em `feat/groups-rounds-and-schedule`, partindo de `feat/registrations-and-rosters`. A etapa entrega locais, fases, grupos com distribuicao e bloqueio apos inicio, rodadas, partidas sem placar, agenda com historico, decisoes administrativas, proximos confrontos e assistente round-robin de turno unico ou ida e volta. O preset possui Grupo A e Grupo B com cinco equipes e quatro classificados por grupo.
+
+Evidencias: migration `0007_groups_rounds_schedule.sql`, `docs/GROUPS_ROUNDS_AND_SCHEDULE.md`, seed idempotente, `MVP_TESTS_OK unit=7 integration=7 http=7`, `REAL_HTTP_TESTS_OK checks=23`, `LINT_OK files=165` e `APP_BASE_PATH=/copa-online`.
 
 ## Estado da Etapa 3
 

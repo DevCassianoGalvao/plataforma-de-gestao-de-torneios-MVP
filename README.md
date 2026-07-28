@@ -4,9 +4,9 @@ Sistema web planejado para administrar campeonatos de futebol e publicar informa
 
 ## Estado atual
 
-As Etapas 1, 2, 3, 4, 5 e 6 estao implementadas nesta branch de trabalho. O projeto possui fundacao tecnica, autenticacao, acesso por campeonato, temporadas, categorias, campeonamentos, identidade basica, regulamentos configuraveis, equipes, responsaveis, comissao tecnica, formacao tatica padrao, atletas, posicoes, documentos privados, inscricoes e elenco oficial.
+As Etapas 1, 2, 3, 4, 5, 6 e 7 estao implementadas nesta branch de trabalho. O projeto possui fundacao tecnica, autenticacao, acesso por campeonato, temporadas, categorias, campeonamentos, identidade basica, regulamentos configuraveis, equipes, responsaveis, comissao tecnica, formacao tatica padrao, atletas, posicoes, documentos privados, inscricoes, elenco oficial, grupos, rodadas, locais e geracao de tabela.
 
-Ainda nao existem grupos, rodadas, partidas, escalacoes, classificacao, mata-mata, sumula operacional, noticias, Vai e Vem ou portal publico. O layout definitivo e o campo visual completo continuam planejados para rodadas posteriores.
+Ainda nao existem escalacoes, operacao da partida, cartoes, classificacao, mata-mata, sumula operacional, noticias, Vai e Vem ou portal publico. O layout definitivo e o campo visual completo continuam planejados para rodadas posteriores.
 
 ## Stack prevista
 
@@ -42,6 +42,7 @@ No Windows PowerShell, defina variaveis com `$env:NOME='valor'` e use `C:\xampp\
 - [Formacoes taticas](docs/TACTICAL_FORMATIONS.md)
 - [Atletas, responsaveis e documentos](docs/ATHLETES_AND_DOCUMENTS.md)
 - [Inscricoes e elenco oficial](docs/REGISTRATIONS_AND_ROSTERS.md)
+- [Grupos, rodadas e tabela](docs/GROUPS_ROUNDS_AND_SCHEDULE.md)
 - [Arquitetura](docs/ARCHITECTURE.md)
 - [Schema](docs/DATABASE_SCHEMA.md)
 - [Rotas](docs/ROUTES_AND_PAGES.md)
@@ -52,4 +53,4 @@ No Windows PowerShell, defina variaveis com `$env:NOME='valor'` e use `C:\xampp\
 
 ## Proxima etapa
 
-A Etapa 7 deve tratar grupos, rodadas e tabela. O layout definitivo continua separado da rodada estrutural.
+A Etapa 8 deve tratar escalacoes e campo visual. O layout definitivo continua separado da rodada estrutural.

@@ -51,3 +51,15 @@ Nenhum documento, guardian, telefone, e-mail, endereco ou observacao privada e e
 Treinador nunca aprova. O servidor revalida equipe, atleta, categoria, periodo, documentos, numero, duplicidade e limites configurados. Documento e dado privado continuam fora de rotas publicas.
 
 Permissoes: `registrations.view`, `registrations.create`, `registrations.update`, `registrations.submit`, `registrations.correct`, `registrations.approve`, `registrations.reject`, `registrations.cancel`, `registrations.manage_own`, `registrations.review`, `rosters.view`.
+
+## Etapa 7: grupos, rodadas e tabela
+
+| Perfil | Acesso | Escopo |
+|---|---|---|
+| Administrador | fases, grupos, locais, geracao, agenda, decisoes e leitura de partidas | todos os campeonatos |
+| Organizador | mesmas operacoes do calendario | campeonatos autorizados |
+| Treinador/gestor | leitura de tabela e proximos jogos | propria equipe |
+| Operador | `403` nesta etapa | sem acesso |
+| Comunicacao | `403` nesta etapa | sem acesso |
+
+Permissoes adicionadas: `venues.view`, `venues.create`, `venues.update`, `phases.view`, `phases.create`, `phases.update`, `phases.publish`, `groups.view`, `groups.create`, `groups.update`, `groups.distribute`, `groups.publish`, `schedule.view`, `schedule.generate`, `schedule.update`, `schedule.postpone`, `schedule.cancel`. Acoes de agenda exigem CSRF, permissao de escrita e escopo do campeonato; consulta de partida de treinador aplica escopo por equipe no SQL.

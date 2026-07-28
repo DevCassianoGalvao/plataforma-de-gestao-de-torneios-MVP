@@ -115,4 +115,31 @@ As telas exibem nomes, funcoes e formacoes; IDs permanecem apenas nos valores in
 | POST | `/admin/inscricoes/{id}/cancelar` | cancelar conforme transicao valida |
 | GET | `/admin/inscricoes/elenco` | listar somente atletas aprovados |
 
-Nao existem ainda rotas de grupos, partidas, escalacoes, cartoes, classificacao ou portal publico.
+## Grupos, rodadas e tabela
+
+| Metodo | Rota | Funcao |
+|---|---|---|
+| GET | `/admin/tabela` | listar partidas, filtros e proximos confrontos |
+| GET | `/admin/fases` | listar fases por campeonato |
+| POST | `/admin/fases` | criar fase estrutural |
+| POST | `/admin/fases/{id}/publicar` | validar grupos/equipes e publicar fase |
+| POST | `/admin/fases/{id}/iniciar` | iniciar fase e bloquear distribuicao |
+| GET | `/admin/grupos` | listar grupos e equipes da fase |
+| POST | `/admin/grupos` | criar grupo |
+| POST | `/admin/grupos/{id}` | editar limites e dados do grupo |
+| POST | `/admin/grupos/{id}/equipes` | distribuir equipe |
+| POST | `/admin/grupos/{id}/equipes/{teamId}/remover` | retirar equipe antes do inicio |
+| POST | `/admin/grupos/{id}/equipes/{teamId}/mover` | mover equipe antes do inicio |
+| GET/POST | `/admin/locais` | listar e cadastrar locais |
+| GET | `/admin/tabela/assistente` | wizard de geracao |
+| POST | `/admin/tabela/assistente/preview` | gerar previa e conflitos |
+| POST | `/admin/tabela/assistente/confirmar` | confirmar rodadas e partidas |
+| GET | `/admin/partidas/{id}` | detalhe da partida e historico |
+| POST | `/admin/partidas/{id}/agenda` | alterar data, hora ou local |
+| POST | `/admin/partidas/{id}/adiar` | adiar com motivo |
+| POST | `/admin/partidas/{id}/cancelar` | cancelar com motivo |
+| POST | `/admin/partidas/{id}/confirmar` | confirmar agenda |
+| POST | `/admin/partidas/{id}/wo` | preparar status W.O. |
+| POST | `/admin/partidas/{id}/decisao` | registrar decisao administrativa |
+
+Nao existem nesta etapa rotas de escalacao, operacao de partida, cartoes, classificacao final ou portal publico.
