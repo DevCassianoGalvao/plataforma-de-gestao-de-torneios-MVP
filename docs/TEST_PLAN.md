@@ -36,6 +36,9 @@ No Windows, use `$env:NOME='valor'` e `C:\xampp\php\php.exe` quando o PHP nao es
 | Unitario Etapa 8 | `tests/Unit/LineupTest.php` | status de rascunho/confirmacao e papeis de jogador |
 | Integracao Etapa 8 | `tests/Integration/LineupIntegrationTest.php` | seed duplo, onze titulares, reservas, goleiro, capitao, posicoes, fora de posicao, equipe, duplicidade, confirmacao, reabertura, escopo e IDOR |
 | HTTP de contrato Etapa 8 | `tests/Http/LineupHttpTest.php` | central, campo funcional, distribuicao automatica, confirmacao, CSRF, perfis, IDOR e base path |
+| Unitario Etapa 9 | `tests/Unit/MatchOperationTest.php` | tipos de registro, periodos, minutos opcionais e limites |
+| Integracao Etapa 9 | `tests/Integration/MatchOperationIntegrationTest.php` | seed duplo, eventos, placar, penaltis, substituicoes, arbitragem, checklist, finalizacao, homologacao, escopo e IDOR |
+| HTTP de contrato Etapa 9 | `tests/Http/MatchOperationHttpTest.php` | central, perfis, CSRF, IDOR, privacidade e base path |
 
 ## Resultado da Etapa 3
 
@@ -64,6 +67,17 @@ Migrations, seed duplo, banco descartavel, servidor HTTP, uploads validos e inva
 - periodo fechado, idade incompatível, documento ausente/vencido, limite, duplicidade, escopo, IDOR, CSRF e historico validados;
 - testes HTTP reais mantem `APP_BASE_PATH=/copa-online`;
 - banco, servidor temporario, uploads e arquivos de teste removidos apos a validacao.
+
+## Resultado da Etapa 9
+
+- lint PHP dos arquivos alterados;
+- MVP_TESTS_OK unit=9 integration=9 http=9;
+- migration 0009 aplicada em banco descartavel;
+- seed de operacao executado duas vezes sem duplicar operador ou arbitragem;
+- gols, gol contra, assistencias, cartoes, ocorrencias, penaltis e placar administrativo validados;
+- penaltis separados do placar normal, limite e janela de substituicoes validados;
+- checklist, finalizacao do operador, bloqueio posterior, homologacao separada, CSRF, escopo, IDOR e APP_BASE_PATH=/copa-online validados;
+- banco descartavel e artefatos temporarios removidos apos a validacao.
 
 ## Resultado da Etapa 8
 

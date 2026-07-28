@@ -65,9 +65,12 @@ try {
     check($match['status'] === 200 && str_contains($match['body'], 'Agenda'), 'Rota de partida nao abriu');
     $lineups = request('GET', '/admin/partidas/1/escalacoes');
     check($lineups['status'] === 200 && str_contains($lineups['body'], 'Escalacoes da partida'), 'Rota de escalacoes nao abriu');
+    $operation = request('GET', '/admin/partidas/1/operacao');
+    $operationText = strip_tags($operation['body']);
+    check($operation['status'] === 200 && str_contains($operation['body'], 'Central operacional da partida'), 'Central operacional nao abriu status=' . $operation['status'] . ' body=' . substr($operationText, 0, 300) . ' tail=' . substr($operationText, -500));
     $logout = request('POST', '/logout', ['_csrf' => csrf($admin['body'])]);
     check($logout['status'] === 302, 'Logout nao redirecionou');
-    echo "REAL_HTTP_TESTS_OK checks=24\n";
+    echo "REAL_HTTP_TESTS_OK checks=25\n";
 } finally {
     if (is_string($jar) && is_file($jar)) {
         unlink($jar);

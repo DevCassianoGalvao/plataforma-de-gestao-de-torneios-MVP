@@ -154,4 +154,17 @@ As telas exibem nomes, funcoes e formacoes; IDs permanecem apenas nos valores in
 
 Treinador gerencia somente a propria equipe. Organizador visualiza campeonatos autorizados, operador visualiza apenas escalacoes confirmadas e comunicacao recebe `403`. Nenhuma rota publica serve atletas, fotos ou dados privados.
 
-Nao existem nesta etapa rotas de operacao de partida, gols, cartoes, classificacao final ou portal publico.
+## Central operacional e homologacao
+
+| Metodo | Rota | Funcao |
+|---|---|---|
+| GET | /admin/partidas/{id}/operacao | central propria com equipes, escalacoes, placar e checklist |
+| POST | /admin/partidas/{id}/operacao/evento | registrar gol, cartao, ocorrencia ou penalti |
+| POST | /admin/partidas/{id}/operacao/substituicao | registrar troca com janela e periodo |
+| POST | /admin/partidas/{id}/operacao/arbitragem | salvar funcoes da arbitragem |
+| POST | /admin/partidas/{id}/operacao/horarios | salvar inicio e fim dos tempos |
+| POST | /admin/partidas/{id}/operacao/resultado-administrativo | registrar resultado administrativo |
+| POST | /admin/partidas/{id}/operacao/finalizar | operador finaliza e envia para homologacao |
+| POST | /admin/partidas/{id}/operacao/homologar | organizador ou administrador homologa |
+
+Operacao e homologacao sao estados separados. O operador nao homologa a propria partida. A central nao exige cronologia minuto a minuto; o minuto dos registros e opcional.

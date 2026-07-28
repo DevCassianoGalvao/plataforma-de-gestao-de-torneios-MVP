@@ -1,0 +1,122 @@
+CREATE TABLE match_operations (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    match_id BIGINT UNSIGNED NOT NULL UNIQUE,
+    status VARCHAR(30) NOT NULL DEFAULT 'open',
+    first_half_started_at DATETIME NULL,
+    first_half_ended_at DATETIME NULL,
+    second_half_started_at DATETIME NULL,
+    second_half_ended_at DATETIME NULL,
+    extra_time_started_at DATETIME NULL,
+    extra_time_ended_at DATETIME NULL,
+    administrative_home_score SMALLINT UNSIGNED NULL,
+    administrative_away_score SMALLINT UNSIGNED NULL,
+    administrative_result_reason VARCHAR(500) NULL,
+    administrative_result_by BIGINT UNSIGNED NULL,
+    administrative_result_at DATETIME NULL,
+    finalized_by BIGINT UNSIGNED NULL,
+    finalized_at DATETIME NULL,
+    homologated_by BIGINT UNSIGNED NULL,
+    homologated_at DATETIME NULL,
+    created_by BIGINT UNSIGNED NOT NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    CONSTRAINT fk_match_operations_match FOREIGN KEY (match_id) REFERENCES matches (id),
+    CONSTRAINT fk_match_operations_admin_result FOREIGN KEY (administrative_result_by) REFERENCES users (id),
+    CONSTRAINT fk_match_operations_finalized_by FOREIGN KEY (finalized_by) REFERENCES users (id),
+    CONSTRAINT fk_match_operations_homologated_by FOREIGN KEY (homologated_by) REFERENCES users (id),
+    CONSTRAINT fk_match_operations_creator FOREIGN KEY (created_by) REFERENCES users (id),
+    INDEX idx_match_operations_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE match_operator_assignments (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    match_id BIGINT UNSIGNED NOT NULL,
+    user_id BIGINT UNSIGNED NOT NULL,
+    assignment_type VARCHAR(30) NOT NULL DEFAULT 'operator',
+    status VARCHAR(20) NOT NULL DEFAULT 'active',
+    created_by BIGINT UNSIGNED NOT NULL,
+    created_at DATETIME NOT NULL,
+    ended_at DATETIME NULL,
+    UNIQUE KEY uq_match_operator_assignment (match_id, user_id, assignment_type),
+    CONSTRAINT fk_match_operator_match FOREIGN KEY (match_id) REFERENCES matches (id),
+    CONSTRAINT fk_match_operator_user FOREIGN KEY (user_id) REFERENCES users (id),
+    CONSTRAINT fk_match_operator_creator FOREIGN KEY (created_by) REFERENCES users (id),
+    INDEX idx_match_operator_user (user_id, status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE match_officials (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    match_id BIGINT UNSIGNED NOT NULL,
+    role VARCHAR(40) NOT NULL,
+    display_name VARCHAR(160) NOT NULL,
+    user_id BIGINT UNSIGNED NULL,
+    display_order SMALLINT UNSIGNED NOT NULL DEFAULT 1,
+    created_by BIGINT UNSIGNED NOT NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    UNIQUE KEY uq_match_official_role_order (match_id, role, display_order),
+    CONSTRAINT fk_match_official_match FOREIGN KEY (match_id) REFERENCES matches (id),
+    CONSTRAINT fk_match_official_user FOREIGN KEY (user_id) REFERENCES users (id),
+    CONSTRAINT fk_match_official_creator FOREIGN KEY (created_by) REFERENCES users (id),
+    INDEX idx_match_official_match (match_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE match_operation_events (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    match_id BIGINT UNSIGNED NOT NULL,
+    team_id BIGINT UNSIGNED NULL,
+    athlete_id BIGINT UNSIGNED NULL,
+    related_athlete_id BIGINT UNSIGNED NULL,
+    event_type VARCHAR(30) NOT NULL,
+    period VARCHAR(30) NOT NULL DEFAULT 'regular',
+    minute SMALLINT UNSIGNED NULL,
+    notes VARCHAR(500) NULL,
+    valid TINYINT(1) NOT NULL DEFAULT 1,
+    created_by BIGINT UNSIGNED NOT NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    CONSTRAINT fk_match_operation_event_match FOREIGN KEY (match_id) REFERENCES matches (id),
+    CONSTRAINT fk_match_operation_event_team FOREIGN KEY (team_id) REFERENCES teams (id),
+    CONSTRAINT fk_match_operation_event_athlete FOREIGN KEY (athlete_id) REFERENCES athletes (id),
+    CONSTRAINT fk_match_operation_event_related FOREIGN KEY (related_athlete_id) REFERENCES athletes (id),
+    CONSTRAINT fk_match_operation_event_creator FOREIGN KEY (created_by) REFERENCES users (id),
+    INDEX idx_match_operation_event_match (match_id, valid, event_type),
+    INDEX idx_match_operation_event_team (team_id, event_type)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE match_substitutions (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    match_id BIGINT UNSIGNED NOT NULL,
+    team_id BIGINT UNSIGNED NOT NULL,
+    athlete_out_id BIGINT UNSIGNED NOT NULL,
+    athlete_in_id BIGINT UNSIGNED NOT NULL,
+    period VARCHAR(30) NOT NULL DEFAULT 'regular',
+    window_number SMALLINT UNSIGNED NULL,
+    minute SMALLINT UNSIGNED NULL,
+    notes VARCHAR(500) NULL,
+    valid TINYINT(1) NOT NULL DEFAULT 1,
+    created_by BIGINT UNSIGNED NOT NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    CONSTRAINT fk_match_substitution_match FOREIGN KEY (match_id) REFERENCES matches (id),
+    CONSTRAINT fk_match_substitution_team FOREIGN KEY (team_id) REFERENCES teams (id),
+    CONSTRAINT fk_match_substitution_out FOREIGN KEY (athlete_out_id) REFERENCES athletes (id),
+    CONSTRAINT fk_match_substitution_in FOREIGN KEY (athlete_in_id) REFERENCES athletes (id),
+    CONSTRAINT fk_match_substitution_creator FOREIGN KEY (created_by) REFERENCES users (id),
+    INDEX idx_match_substitution_match (match_id, valid),
+    INDEX idx_match_substitution_team (team_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE match_operation_history (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    operation_id BIGINT UNSIGNED NOT NULL,
+    action VARCHAR(40) NOT NULL,
+    from_status VARCHAR(30) NULL,
+    to_status VARCHAR(30) NULL,
+    details VARCHAR(1000) NULL,
+    changed_by BIGINT UNSIGNED NOT NULL,
+    created_at DATETIME NOT NULL,
+    CONSTRAINT fk_match_operation_history_operation FOREIGN KEY (operation_id) REFERENCES match_operations (id),
+    CONSTRAINT fk_match_operation_history_user FOREIGN KEY (changed_by) REFERENCES users (id),
+    INDEX idx_match_operation_history_operation (operation_id, created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

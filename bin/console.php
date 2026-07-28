@@ -13,6 +13,7 @@ use App\Database\PositionSeed;
 use App\Database\RegistrationSeed;
 use App\Database\ScheduleSeed;
 use App\Database\LineupSeed;
+use App\Database\MatchOperationSeed;
 use App\Database\TacticalFormationSeed;
 use App\Database\TeamSeed;
 
@@ -50,6 +51,7 @@ if ($command === 'db:seed') {
     RegistrationSeed::run(Database::connection());
     ScheduleSeed::run(Database::connection());
     LineupSeed::run(Database::connection());
+    MatchOperationSeed::run(Database::connection());
     echo "Seed de autenticacao concluido.\n";
     exit(0);
 }

@@ -75,3 +75,15 @@ Permissoes adicionadas: `venues.view`, `venues.create`, `venues.update`, `phases
 | Comunicacao | `403` | sem acesso |
 
 Permissoes adicionadas: `lineups.view`, `lineups.create`, `lineups.update`, `lineups.confirm`, `lineups.reopen`, `lineups.manage_own`. A confirmacao revalida equipe, elenco aprovado e ativo, onze titulares, capitao titular e goleiro com posicao valida. A incompatibilidade posicional gera apenas alerta. Depois da confirmacao, edicao comum fica bloqueada; reabertura exige administrador, permissao e motivo.
+
+## Etapa 9: operacao e homologacao
+
+| Perfil | Acesso | Escopo |
+|---|---|---|
+| Administrador | visualiza, opera, finaliza e homologa | todos |
+| Organizador | visualiza e homologa | campeonatos autorizados |
+| Operador | visualiza e opera partidas atribuidas | atribuicao explicita por partida |
+| Treinador/gestor | visualiza conforme equipe | partidas da propria equipe |
+| Comunicacao | 403 | sem acesso |
+
+Permissoes adicionadas: match_operation.view, match_operation.operate, match_operation.homologate. Acoes de escrita exigem CSRF. O servidor bloqueia mutacoes depois da finalizacao e separa a homologacao do operador. Nenhuma rota publica expoe documentos, dados privados ou operacao.

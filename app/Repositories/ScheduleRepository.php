@@ -282,7 +282,7 @@ final class ScheduleRepository
 
     private function matchSelect(): string
     {
-        return 'SELECT m.*, c.name AS championship_name, p.name AS phase_name, g.name AS group_name, r.round_number, ht.name AS home_team_name, ht.short_name AS home_team_short_name, at.name AS away_team_name, at.short_name AS away_team_short_name, v.name AS venue_name FROM matches m INNER JOIN championships c ON c.id = m.championship_id INNER JOIN competition_phases p ON p.id = m.phase_id INNER JOIN competition_groups g ON g.id = m.group_id INNER JOIN competition_rounds r ON r.id = m.round_id INNER JOIN teams ht ON ht.id = m.home_team_id INNER JOIN teams at ON at.id = m.away_team_id LEFT JOIN venues v ON v.id = m.venue_id';
+        return 'SELECT m.*, c.name AS championship_name, p.name AS phase_name, g.name AS group_name, r.round_number, ht.name AS home_team_name, ht.short_name AS home_team_short_name, ht.slug AS home_team_slug, ht.shield_path AS home_team_shield_path, at.name AS away_team_name, at.short_name AS away_team_short_name, at.slug AS away_team_slug, at.shield_path AS away_team_shield_path, v.name AS venue_name FROM matches m INNER JOIN championships c ON c.id = m.championship_id INNER JOIN competition_phases p ON p.id = m.phase_id INNER JOIN competition_groups g ON g.id = m.group_id INNER JOIN competition_rounds r ON r.id = m.round_id INNER JOIN teams ht ON ht.id = m.home_team_id INNER JOIN teams at ON at.id = m.away_team_id LEFT JOIN venues v ON v.id = m.venue_id';
     }
 
     private function matchScope(int $userId, string $scope): array

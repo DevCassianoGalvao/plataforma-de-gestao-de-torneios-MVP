@@ -12,7 +12,7 @@ Legenda: `[ ]` pendente, `[x]` concluido com evidencia. Nenhuma etapa futura dev
 | 6 | Inscricoes e elenco oficial | [x] | envio, analise, correcoes, aprovacao e roster aprovado |
 | 7 | Grupos, rodadas e tabela | [x] | grupos, locais, round-robin, agenda e proximos confrontos |
 | 8 | Formacoes e escalacoes | [x] | campo funcional, distribuicao automatica, titulares, reservas e confirmacao |
-| 9 | Central da partida | [ ] | placar, gols, cartoes e ocorrencias |
+| 9 | Central da partida | [x] | registros, placar derivado, arbitragem, finalizacao e homologacao basica |
 | 10 | Disciplina | [ ] | cartoes, suspensoes e proximos confrontos |
 | 11 | Classificacao e mata-mata | [ ] | criterios, cruzamentos e campeao |
 | 12 | Sumula | [ ] | digital e PDF conforme planilha |
@@ -53,6 +53,14 @@ Implementada em `feat/tactical-lineups`, partindo de `feat/groups-rounds-and-sch
 Nao foram implementados gols, operacao da partida, cartoes, classificacao ou portal publico.
 
 Evidencias: migration `0008_tactical_lineups.sql`, `docs/TACTICAL_LINEUPS.md`, `MVP_TESTS_OK unit=8 integration=8 http=8`, lint PHP e `APP_BASE_PATH=/copa-online`.
+
+## Estado da Etapa 9
+
+Implementada em feat/match-operation-center, partindo de feat/tactical-lineups. A etapa entrega central operacional propria, registros de gols, gols contra, assistencias, cartoes, ocorrencias, substituicoes, penaltis separados, horarios, arbitragem, placar calculado ou administrativo, checklist, finalizacao pelo operador e homologacao separada pelo organizador.
+
+Nao foram implementados acumulacao completa de suspensoes, classificacao definitiva, retificacao avancada, sumula PDF, noticias, Vai e Vem ou portal publico.
+
+Evidencias: migration 0009_match_operation.sql, docs/MATCH_OPERATION.md, MVP_TESTS_OK unit=9 integration=9 http=9, lint PHP, banco descartavel e APP_BASE_PATH=/copa-online.
 
 ## Estado da Etapa 3
 

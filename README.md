@@ -4,9 +4,9 @@ Sistema web planejado para administrar campeonatos de futebol e publicar informa
 
 ## Estado atual
 
-As Etapas 1, 2, 3, 4, 5, 6, 7 e 8 estao implementadas nesta branch de trabalho. O projeto possui fundacao tecnica, autenticacao, acesso por campeonato, temporadas, categorias, campeonamentos, identidade basica, regulamentos configuraveis, equipes, responsaveis, comissao tecnica, formacao tatica padrao, atletas, posicoes, documentos privados, inscricoes, elenco oficial, grupos, rodadas, locais, geracao de tabela e escalacoes taticas por partida.
+As Etapas 1, 2, 3, 4, 5, 6, 7, 8 e 9 estao implementadas nesta branch de trabalho. O projeto possui fundacao tecnica, autenticacao, acesso por campeonato, temporadas, categorias, campeonamentos, identidade basica, regulamentos configuraveis, equipes, responsaveis, comissao tecnica, formacao tatica padrao, atletas, posicoes, documentos privados, inscricoes, elenco oficial, grupos, rodadas, locais, geracao de tabela, escalacoes taticas por partida e central operacional com homologacao basica.
 
-Ainda nao existem operacao da partida, gols, cartoes, classificacao, mata-mata, sumula operacional, noticias, Vai e Vem ou portal publico. A UI/UX definitiva continua planejada para rodada posterior; o campo funcional da escalacao ja existe em estrutura responsiva.
+Ainda nao existem acumulacao completa de suspensoes, classificacao, mata-mata, sumula operacional em PDF, noticias, Vai e Vem ou portal publico. A UI/UX definitiva continua planejada para rodada posterior; o campo funcional da escalacao e a central operacional ja existem em estrutura responsiva.
 
 ## Stack prevista
 
@@ -44,6 +44,7 @@ No Windows PowerShell, defina variaveis com `$env:NOME='valor'` e use `C:\xampp\
 - [Inscricoes e elenco oficial](docs/REGISTRATIONS_AND_ROSTERS.md)
 - [Grupos, rodadas e tabela](docs/GROUPS_ROUNDS_AND_SCHEDULE.md)
 - [Formacoes e escalacoes taticas](docs/TACTICAL_LINEUPS.md)
+- [Central operacional e homologacao](docs/MATCH_OPERATION.md)
 - [Arquitetura](docs/ARCHITECTURE.md)
 - [Schema](docs/DATABASE_SCHEMA.md)
 - [Rotas](docs/ROUTES_AND_PAGES.md)
@@ -54,4 +55,4 @@ No Windows PowerShell, defina variaveis com `$env:NOME='valor'` e use `C:\xampp\
 
 ## Proxima etapa
 
-A Etapa 9 deve tratar a central da partida. Gols, cartoes, classificacao, sumula operacional, noticias, Vai e Vem e portal publico continuam fora desta branch.
+A Etapa 10 deve tratar disciplina acumulada e suspensoes. Classificacao, sumula operacional, noticias, Vai e Vem e portal publico continuam fora desta branch.

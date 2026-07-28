@@ -12,6 +12,7 @@
 | `0006_registration_roster_settings.sql` | regras de elenco, documentos obrigatorios, inscricoes e historico | implementada |
 | `0007_groups_rounds_schedule.sql` | locais, fases, grupos, rodadas, partidas, agenda e decisoes | implementada |
 | `0008_tactical_lineups.sql` | escalacoes, titulares, reservas, comissao e historico | implementada |
+| `0009_match_operation.sql` | operacao, eventos, substituicoes, arbitragem e homologacao | implementada |
 
 ## Tabelas da Etapa 3
 
@@ -94,6 +95,19 @@ As coordenadas de `tactical_formation_slots` usam `DECIMAL(5,2)` entre 0 e 100: 
 | `match_lineup_history` | criacao, salvamento, confirmacao e reabertura com motivo |
 
 `match_lineups` nao armazena placar, gols, cartoes ou classificacao. A confirmacao exige onze titulares, capitao titular e goleiro com posicao valida; alteracoes comuns ficam bloqueadas depois da confirmacao.
+
+## Tabelas da Etapa 9
+
+| Tabela | Finalidade |
+|---|---|
+| match_operations | estado operacional, horarios, resultado administrativo e finalizacao/homologacao |
+| match_operator_assignments | atribuicao explicita de operador por partida |
+| match_officials | arbitragem e demais funcoes da sumula |
+| match_operation_events | gols, gols contra, assistencias, cartoes, ocorrencias e penaltis |
+| match_substitutions | atleta que sai, atleta que entra, janela, periodo e minuto |
+| match_operation_history | transicoes de operacao e homologacao |
+
+O placar normal e uma consulta sobre eventos validos de gol e gol contra. Penaltis ficam em colunas de consulta separadas. Resultado administrativo, quando informado, substitui o placar calculado e preserva motivo, usuario e horario.
 
 ## Regras
 
