@@ -1,1 +1,0 @@
-ALTER TABLE documents ADD COLUMN team_id BIGINT UNSIGNED NULL AFTER tournament_id, ADD INDEX documents_team_scope(team_id), ADD CONSTRAINT documents_team_fk FOREIGN KEY (team_id) REFERENCES teams(id) ON DELETE SET NULL;
