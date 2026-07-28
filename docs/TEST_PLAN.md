@@ -27,6 +27,9 @@ No Windows, use `$env:NOME='valor'` e `C:\xampp\php\php.exe` quando o PHP nao es
 | Unitario Etapa 5 | `tests/Unit/AthleteTest.php` | idade, categoria, status, responsavel e MIME |
 | Integracao Etapa 5 | `tests/Integration/AthleteIntegrationTest.php` | migration, seed duplo, posicoes, duplicidade, responsavel, cifragem, escopo e arquivos |
 | HTTP de contrato Etapa 5 | `tests/Http/AthleteHttpTest.php` | CRUD, menor, documentos, upload, privacidade, IDOR, CSRF e exclusao logica |
+| Unitario Etapa 6 | `tests/Unit/RegistrationTest.php` | transicoes, numero pretendido e periodo de inscricao |
+| Integracao Etapa 6 | `tests/Integration/RegistrationIntegrationTest.php` | seed duplo, historico, fluxo, regras, elenco, escopo e IDOR |
+| HTTP de contrato Etapa 6 | `tests/Http/RegistrationHttpTest.php` | criar, enviar, analisar, aprovar, elenco, CSRF, IDOR, 403 e base path |
 
 ## Resultado da Etapa 3
 
@@ -46,9 +49,19 @@ Migrations, seed duplo, banco descartavel, servidor HTTP, uploads validos e inva
 - uploads validos e invalidos, escopo por perfil e `APP_BASE_PATH=/copa-online` validados;
 - banco, servidor temporario e arquivos de teste removidos apos a validacao.
 
+## Resultado da Etapa 6
+
+- `LINT_OK` com todos os PHP versionados;
+- testes unitarios, integracao e HTTP em banco descartavel;
+- seed de inscricoes executado duas vezes sem duplicar registros;
+- fluxo de envio, analise, pendencia, correcao, aprovacao e elenco oficial validado;
+- periodo fechado, idade incompatível, documento ausente/vencido, limite, duplicidade, escopo, IDOR, CSRF e historico validados;
+- testes HTTP reais mantem `APP_BASE_PATH=/copa-online`;
+- banco, servidor temporario, uploads e arquivos de teste removidos apos a validacao.
+
 ## Limites
 
-Nao existem inscricoes, partidas, escalacoes, sumula operacional, portal, noticias ou Vai e Vem. O teste HTTP real cobre as rotas principais de equipes, formacao e atletas, mas nao substitui a UI/UX definitiva.
+Nao existem grupos, partidas, escalacoes, sumula operacional, portal, noticias ou Vai e Vem. O teste HTTP real cobre as rotas principais de inscricoes e elenco, mas nao substitui a UI/UX definitiva.
 
 ## Resultado da Etapa 5
 

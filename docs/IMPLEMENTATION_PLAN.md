@@ -9,7 +9,7 @@ Legenda: `[ ]` pendente, `[x]` concluido com evidencia. Nenhuma etapa futura dev
 | 3 | Campeonatos e regulamentos | [x] | catalogos, campeonato, identidade, escopo, editor estruturado, preset, versoes, uploads e testes |
 | 4 | Equipes e comissao | [x] | equipes, vinculos autorizados, comissao, uploads, status, formacoes e testes |
 | 5 | Atletas e documentos | [x] | cadastro, privacidade, posicoes, responsaveis e arquivos privados |
-| 6 | Inscricoes | [ ] | envio, analise e aprovacao |
+| 6 | Inscricoes e elenco oficial | [x] | envio, analise, correcoes, aprovacao e roster aprovado |
 | 7 | Grupos, rodadas e tabela | [ ] | calendario e classificacao inicial |
 | 8 | Formacoes e escalacoes | [ ] | campo visual e distribuicao automatica |
 | 9 | Central da partida | [ ] | placar, gols, cartoes e ocorrencias |
@@ -33,6 +33,12 @@ Evidencias: migration `0004_teams_staff_and_formations.sql`, seed idempotente, `
 Implementada em `feat/athletes-and-documents`, partindo de `feat/teams-and-staff`. A etapa entrega cadastro independente de inscricao, catalogo de posicoes, responsaveis legais para menores, documentos privados com revisao, escopo por equipe/campeonato, exclusao logica, auditoria e seed idempotente para 10 equipes.
 
 Evidencias: migration `0005_athletes_guardians_and_documents.sql`, `MVP_TESTS_OK unit=5 integration=5 http=5`, `REAL_HTTP_TESTS_OK checks=16` e `LINT_OK files=136`.
+
+## Estado da Etapa 6
+
+Implementada em `feat/registrations-and-rosters`, partindo de `feat/athletes-and-documents`. A etapa entrega inscricoes por campeonato, equipe e atleta, fluxo com historico, validacoes do regulamento, pendencias, correcao, elenco oficial formado somente por aprovados, escopo por perfil, auditoria e seed idempotente.
+
+Evidencias: migration `0006_registration_roster_settings.sql`, `docs/REGISTRATIONS_AND_ROSTERS.md`, testes unitarios, de integracao e HTTP, lint PHP, banco descartavel e `APP_BASE_PATH=/copa-online`.
 
 ## Estado da Etapa 3
 

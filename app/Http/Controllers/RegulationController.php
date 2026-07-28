@@ -8,6 +8,7 @@ use App\Core\Request;
 use App\Core\Response;
 use App\Core\Session;
 use App\Repositories\ChampionshipRepository;
+use App\Repositories\AthleteDocumentTypeRepository;
 use App\Repositories\RegulationRepository;
 use App\Services\AuditService;
 use App\Services\ChampionshipAccessService;
@@ -17,7 +18,7 @@ use App\Services\StorageService;
 
 final class RegulationController extends Controller
 {
-    public function __construct($users, \App\Services\AuthorizationService $authorization, AuditService $audit, private readonly ChampionshipRepository $championships, private readonly RegulationRepository $regulations, private readonly ChampionshipAccessService $access, private readonly RegulationService $regulationService, private readonly StorageService $storage)
+    public function __construct($users, \App\Services\AuthorizationService $authorization, AuditService $audit, private readonly ChampionshipRepository $championships, private readonly RegulationRepository $regulations, private readonly ChampionshipAccessService $access, private readonly RegulationService $regulationService, private readonly StorageService $storage, private readonly AthleteDocumentTypeRepository $documentTypes)
     {
         parent::__construct($users, $authorization, $audit);
     }
@@ -36,7 +37,7 @@ final class RegulationController extends Controller
         if ($guard instanceof Response) return $guard;
         $id = $this->regulationService->ensureDraft((int) $championship['id'], (int) $guard['id'], $request);
         $regulation = $this->regulations->findWithSettings($id);
-        return $this->page('Editar regulamento', 'admin/regulations/form', ['user' => $guard, 'championship' => $championship, 'regulation' => $regulation, 'documents' => $this->regulations->documents((int) $regulation['id']), 'criteria' => RegulationRules::CRITERIA, 'errors' => []]);
+        return $this->page('Editar regulamento', 'admin/regulations/form', ['user' => $guard, 'championship' => $championship, 'regulation' => $regulation, 'documents' => $this->regulations->documents((int) $regulation['id']), 'documentTypes' => $this->documentTypes->list(), 'criteria' => RegulationRules::CRITERIA, 'errors' => []]);
     }
 
     public function save(Request $request, array $params = []): Response
@@ -48,7 +49,7 @@ final class RegulationController extends Controller
         $result = $this->regulationService->save((int) $championship['id'], (int) $guard['id'], $data, $request);
         if (!$result['ok']) {
             $draftId = $this->regulationService->ensureDraft((int) $championship['id'], (int) $guard['id'], $request);
-            return $this->errorPage('Editar regulamento', 'admin/regulations/form', ['user' => $guard, 'championship' => $championship, 'regulation' => array_merge(['name' => $data['name'], 'effective_from' => $data['effective_from']], $data), 'criteria' => RegulationRules::CRITERIA, 'errors' => $result['errors']], 422);
+            return $this->errorPage('Editar regulamento', 'admin/regulations/form', ['user' => $guard, 'championship' => $championship, 'regulation' => array_merge(['name' => $data['name'], 'effective_from' => $data['effective_from']], $data), 'documentTypes' => $this->documentTypes->list(), 'criteria' => RegulationRules::CRITERIA, 'errors' => $result['errors']], 422);
         }
         Session::flash('regulation_message', 'Rascunho do regulamento salvo.');
         return Response::redirect(Config::url('/admin/campeonatos/' . $championship['slug'] . '/regulamento'));
@@ -150,6 +151,6 @@ final class RegulationController extends Controller
         }
         $number = static fn (string $key, int $default = 0): int => (int) ($body[$key] ?? $default);
         $check = static fn (string $key): int => isset($body[$key]) ? 1 : 0;
-        return ['name' => trim((string) ($body['name'] ?? 'Regulamento')), 'effective_from' => $body['effective_from'] ?? '', 'format' => ['group_count' => $number('group_count'), 'teams_per_group' => $number('teams_per_group'), 'qualified_per_group' => $number('qualified_per_group'), 'group_rounds' => (string) ($body['group_rounds'] ?? 'single'), 'home_and_away' => $check('home_and_away'), 'knockout_starts_at' => (string) ($body['knockout_starts_at'] ?? 'quarterfinals'), 'third_place_match' => $check('third_place_match'), 'final_format' => (string) ($body['final_format'] ?? 'single_match')], 'points' => ['points_win' => $number('points_win'), 'points_draw' => $number('points_draw'), 'points_loss' => $number('points_loss'), 'wo_winner_goals' => $number('wo_winner_goals'), 'wo_loser_goals' => $number('wo_loser_goals')], 'discipline' => ['yellow_cards_for_suspension' => $number('yellow_cards_for_suspension'), 'yellow_suspension_matches' => $number('yellow_suspension_matches'), 'red_card_automatic_suspension' => $check('red_card_automatic_suspension'), 'red_card_suspension_matches' => $number('red_card_suspension_matches'), 'reset_cards_enabled' => $check('reset_cards_enabled'), 'reset_cards_stage' => (string) ($body['reset_cards_stage'] ?? '')], 'match' => ['regular_time_minutes' => $number('regular_time_minutes'), 'halftime_minutes' => $number('halftime_minutes'), 'substitutions_allowed' => $number('substitutions_allowed'), 'substitution_windows' => $number('substitution_windows'), 'extra_time_enabled' => $check('extra_time_enabled'), 'extra_time_minutes' => $number('extra_time_minutes'), 'penalty_shootout_enabled' => $check('penalty_shootout_enabled'), 'direct_penalties' => $check('direct_penalties')], 'tiebreakers' => $tiebreakers];
+        return ['name' => trim((string) ($body['name'] ?? 'Regulamento')), 'effective_from' => $body['effective_from'] ?? '', 'format' => ['group_count' => $number('group_count'), 'teams_per_group' => $number('teams_per_group'), 'qualified_per_group' => $number('qualified_per_group'), 'group_rounds' => (string) ($body['group_rounds'] ?? 'single'), 'home_and_away' => $check('home_and_away'), 'knockout_starts_at' => (string) ($body['knockout_starts_at'] ?? 'quarterfinals'), 'third_place_match' => $check('third_place_match'), 'final_format' => (string) ($body['final_format'] ?? 'single_match')], 'points' => ['points_win' => $number('points_win'), 'points_draw' => $number('points_draw'), 'points_loss' => $number('points_loss'), 'wo_winner_goals' => $number('wo_winner_goals'), 'wo_loser_goals' => $number('wo_loser_goals')], 'discipline' => ['yellow_cards_for_suspension' => $number('yellow_cards_for_suspension'), 'yellow_suspension_matches' => $number('yellow_suspension_matches'), 'red_card_automatic_suspension' => $check('red_card_automatic_suspension'), 'red_card_suspension_matches' => $number('red_card_suspension_matches'), 'reset_cards_enabled' => $check('reset_cards_enabled'), 'reset_cards_stage' => (string) ($body['reset_cards_stage'] ?? '')], 'match' => ['regular_time_minutes' => $number('regular_time_minutes'), 'halftime_minutes' => $number('halftime_minutes'), 'substitutions_allowed' => $number('substitutions_allowed'), 'substitution_windows' => $number('substitution_windows'), 'extra_time_enabled' => $check('extra_time_enabled'), 'extra_time_minutes' => $number('extra_time_minutes'), 'penalty_shootout_enabled' => $check('penalty_shootout_enabled'), 'direct_penalties' => $check('direct_penalties')], 'roster' => ['minimum_roster_size' => $number('minimum_roster_size', 1), 'maximum_roster_size' => $number('maximum_roster_size', 25), 'minimum_goalkeepers' => $number('minimum_goalkeepers', 1), 'allow_multiple_team_registration' => $check('allow_multiple_team_registration'), 'required_document_type_ids' => array_values(array_filter(array_map('intval', (array) ($body['required_document_type_ids'] ?? []))))], 'tiebreakers' => $tiebreakers];
     }
 }

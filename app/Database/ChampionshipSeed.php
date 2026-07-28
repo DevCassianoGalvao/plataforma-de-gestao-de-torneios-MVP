@@ -24,6 +24,7 @@ final class ChampionshipSeed
             $statement->execute(['Copa Brasil de Talentos 2026', 'Copa Brasil', 'copa-brasil-de-talentos-2026', 'Campeonato ficticio para validar a configuracao inicial do MVP.', $season, $category, '2026-06-01', '2026-08-30', '2026-04-01', '2026-05-20', 'configured', 'private', 'light', '#123C32', '#245C4A', '#D9A441', $adminId, $now, $now]);
             $championshipId = (int) $pdo->lastInsertId();
         }
+        $pdo->prepare('UPDATE championships SET registration_starts_at = ?, registration_ends_at = ?, updated_at = ? WHERE id = ?')->execute(['2026-01-01', '2026-12-31', $now, $championshipId]);
         $regulation = self::firstOrCreate($pdo, 'SELECT id FROM regulations WHERE championship_id = ? AND version_number = 1 LIMIT 1', [$championshipId], 'INSERT INTO regulations (championship_id, version_number, name, status, effective_from, published_at, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [$championshipId, 1, 'Regulamento base Copa Brasil de Talentos', 'published', '2026-01-01', $now, $adminId, $now, $now]);
         $preset = [
             ['regulation_format_settings', ['group_count' => 2, 'teams_per_group' => 5, 'qualified_per_group' => 4, 'group_rounds' => 'single', 'home_and_away' => 0, 'knockout_starts_at' => 'quarterfinals', 'third_place_match' => 0, 'final_format' => 'single_match']],

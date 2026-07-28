@@ -38,6 +38,12 @@ final class RegulationRepository
             $statement->execute([$id]);
             $regulation[$type . '_settings'] = $statement->fetch() ?: [];
         }
+        $statement = $this->pdo->prepare('SELECT * FROM regulation_roster_settings WHERE regulation_id = ? LIMIT 1');
+        $statement->execute([$id]);
+        $regulation['roster_settings'] = $statement->fetch() ?: [];
+        $statement = $this->pdo->prepare('SELECT rrd.*, adt.`key`, adt.name FROM regulation_required_documents rrd INNER JOIN athlete_document_types adt ON adt.id = rrd.document_type_id WHERE rrd.regulation_id = ? ORDER BY rrd.display_order, adt.name');
+        $statement->execute([$id]);
+        $regulation['required_documents'] = $statement->fetchAll();
         $statement = $this->pdo->prepare('SELECT * FROM regulation_tiebreakers WHERE regulation_id = ? ORDER BY priority');
         $statement->execute([$id]);
         $regulation['tiebreakers'] = $statement->fetchAll();
@@ -124,6 +130,19 @@ final class RegulationRepository
         foreach (array_values($tiebreakers) as $index => $item) {
             $priority = !empty($item['enabled']) ? (int) $item['priority'] : 1000 + $index;
             $insert->execute([$id, $item['criterion'], $priority, $item['enabled'], $now]);
+        }
+    }
+
+    public function saveRosterSettings(int $id, array $roster, array $requiredDocumentTypeIds): void
+    {
+        $now = date('Y-m-d H:i:s');
+        $settings = $this->pdo->prepare('INSERT INTO regulation_roster_settings (regulation_id, minimum_roster_size, maximum_roster_size, minimum_goalkeepers, allow_multiple_team_registration, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE minimum_roster_size = VALUES(minimum_roster_size), maximum_roster_size = VALUES(maximum_roster_size), minimum_goalkeepers = VALUES(minimum_goalkeepers), allow_multiple_team_registration = VALUES(allow_multiple_team_registration), updated_at = VALUES(updated_at)');
+        $settings->execute([$id, (int) ($roster['minimum_roster_size'] ?? 1), (int) ($roster['maximum_roster_size'] ?? 25), (int) ($roster['minimum_goalkeepers'] ?? 1), !empty($roster['allow_multiple_team_registration']) ? 1 : 0, $now, $now]);
+        $delete = $this->pdo->prepare('DELETE FROM regulation_required_documents WHERE regulation_id = ?');
+        $delete->execute([$id]);
+        $insert = $this->pdo->prepare('INSERT INTO regulation_required_documents (regulation_id, document_type_id, required_for_minor, display_order, created_at) VALUES (?, ?, 0, ?, ?)');
+        foreach (array_values(array_unique(array_filter(array_map('intval', $requiredDocumentTypeIds)))) as $order => $documentTypeId) {
+            $insert->execute([$id, $documentTypeId, $order + 1, $now]);
         }
     }
 

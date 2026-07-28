@@ -4,9 +4,9 @@ Sistema web planejado para administrar campeonatos de futebol e publicar informa
 
 ## Estado atual
 
-As Etapas 1, 2, 3, 4 e 5 estao implementadas nesta branch de trabalho. O projeto possui fundacao tecnica, autenticacao, acesso por campeonato, temporadas, categorias, campeonamentos, identidade basica, regulamentos configuraveis, equipes, responsaveis, comissao tecnica, formacao tatica padrao, atletas, posicoes e documentos privados.
+As Etapas 1, 2, 3, 4, 5 e 6 estao implementadas nesta branch de trabalho. O projeto possui fundacao tecnica, autenticacao, acesso por campeonato, temporadas, categorias, campeonamentos, identidade basica, regulamentos configuraveis, equipes, responsaveis, comissao tecnica, formacao tatica padrao, atletas, posicoes, documentos privados, inscricoes e elenco oficial.
 
-Ainda nao existem inscricoes, grupos, rodadas, partidas, escalacoes, classificacao, mata-mata, sumula operacional, noticias, Vai e Vem ou portal publico. O layout definitivo e o campo visual completo continuam planejados para rodadas posteriores.
+Ainda nao existem grupos, rodadas, partidas, escalacoes, classificacao, mata-mata, sumula operacional, noticias, Vai e Vem ou portal publico. O layout definitivo e o campo visual completo continuam planejados para rodadas posteriores.
 
 ## Stack prevista
 
@@ -41,6 +41,7 @@ No Windows PowerShell, defina variaveis com `$env:NOME='valor'` e use `C:\xampp\
 - [Equipes e comissao tecnica](docs/TEAMS_AND_STAFF.md)
 - [Formacoes taticas](docs/TACTICAL_FORMATIONS.md)
 - [Atletas, responsaveis e documentos](docs/ATHLETES_AND_DOCUMENTS.md)
+- [Inscricoes e elenco oficial](docs/REGISTRATIONS_AND_ROSTERS.md)
 - [Arquitetura](docs/ARCHITECTURE.md)
 - [Schema](docs/DATABASE_SCHEMA.md)
 - [Rotas](docs/ROUTES_AND_PAGES.md)
@@ -51,4 +52,4 @@ No Windows PowerShell, defina variaveis com `$env:NOME='valor'` e use `C:\xampp\
 
 ## Proxima etapa
 
-A Etapa 6 deve tratar inscricoes em campeonamentos. O layout definitivo continua separado da rodada estrutural.
+A Etapa 7 deve tratar grupos, rodadas e tabela. O layout definitivo continua separado da rodada estrutural.

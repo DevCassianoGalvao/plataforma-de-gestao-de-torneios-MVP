@@ -49,9 +49,13 @@ try {
     check($guardians['status'] === 200 && str_contains($guardians['body'], 'Responsaveis legais'), 'Rota de responsaveis nao abriu');
     $documents = request('GET', '/admin/atletas/1/documentos');
     check($documents['status'] === 200 && str_contains($documents['body'], 'Documentos'), 'Rota de documentos nao abriu');
+    $registrations = request('GET', '/admin/inscricoes');
+    check($registrations['status'] === 200 && str_contains($registrations['body'], 'Inscricoes'), 'Rota de inscricoes nao abriu');
+    $roster = request('GET', '/admin/inscricoes/elenco');
+    check($roster['status'] === 200 && str_contains($roster['body'], 'Elenco oficial'), 'Rota de elenco nao abriu');
     $logout = request('POST', '/logout', ['_csrf' => csrf($admin['body'])]);
     check($logout['status'] === 302, 'Logout nao redirecionou');
-    echo "REAL_HTTP_TESTS_OK checks=16\n";
+    echo "REAL_HTTP_TESTS_OK checks=18\n";
 } finally {
     if (is_string($jar) && is_file($jar)) {
         unlink($jar);

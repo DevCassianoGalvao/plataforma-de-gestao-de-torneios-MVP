@@ -13,7 +13,7 @@ final class AthleteDocumentRepository
 
     public function listForAthlete(int $athleteId): array
     {
-        $statement = $this->pdo->prepare('SELECT d.*, dt.name AS document_type_name, g.full_name AS guardian_name, u.name AS reviewer_name FROM athlete_documents d INNER JOIN athlete_document_types dt ON dt.id = d.document_type_id LEFT JOIN legal_guardians g ON g.id = d.guardian_id LEFT JOIN users u ON u.id = d.reviewed_by WHERE d.athlete_id = ? AND d.deleted_at IS NULL ORDER BY d.created_at DESC, d.id DESC');
+        $statement = $this->pdo->prepare('SELECT d.*, dt.`key` AS document_type_key, dt.name AS document_type_name, g.full_name AS guardian_name, u.name AS reviewer_name FROM athlete_documents d INNER JOIN athlete_document_types dt ON dt.id = d.document_type_id LEFT JOIN legal_guardians g ON g.id = d.guardian_id LEFT JOIN users u ON u.id = d.reviewed_by WHERE d.athlete_id = ? AND d.deleted_at IS NULL ORDER BY d.created_at DESC, d.id DESC');
         $statement->execute([$athleteId]);
         return $statement->fetchAll();
     }

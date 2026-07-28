@@ -98,3 +98,21 @@ Nenhum formulario solicita JSON, nome de tabela ou ID digitado livremente. Selec
 | GET | `/admin/atletas/{id}/assets/photo` | servir foto privada autorizada |
 
 As telas exibem nomes, funcoes e formacoes; IDs permanecem apenas nos valores internos dos formularios. Inscricoes, partidas e disciplina aparecem como modulos futuros na pagina do atleta.
+
+## Inscricoes e elenco oficial
+
+| Metodo | Rota | Funcao |
+|---|---|---|
+| GET | `/admin/inscricoes` | central com filtros e abas por status |
+| GET/POST | `/admin/inscricoes/nova`, `/admin/inscricoes` | criar rascunho com selects de campeonato, equipe e atleta |
+| GET | `/admin/inscricoes/{id}` | detalhe, pendencias e historico |
+| POST | `/admin/inscricoes/{id}` | corrigir rascunho ou pendencia |
+| POST | `/admin/inscricoes/{id}/enviar` | enviar ou reenviar |
+| POST | `/admin/inscricoes/{id}/iniciar-analise` | iniciar analise do organizador |
+| POST | `/admin/inscricoes/{id}/pendencia` | solicitar correcao |
+| POST | `/admin/inscricoes/{id}/aprovar` | aprovar e incluir no elenco oficial |
+| POST | `/admin/inscricoes/{id}/rejeitar` | rejeitar com motivo |
+| POST | `/admin/inscricoes/{id}/cancelar` | cancelar conforme transicao valida |
+| GET | `/admin/inscricoes/elenco` | listar somente atletas aprovados |
+
+Nao existem ainda rotas de grupos, partidas, escalacoes, cartoes, classificacao ou portal publico.

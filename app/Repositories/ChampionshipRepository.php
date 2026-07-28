@@ -41,7 +41,7 @@ final class ChampionshipRepository
     {
         $join = $administrator ? '' : ' INNER JOIN championship_user_assignments cua ON cua.championship_id = c.id AND cua.user_id = ? AND cua.assignment_type = \'organizer\'';
         $params = $administrator ? [$id] : [$userId, $id];
-        $statement = $this->pdo->prepare('SELECT c.*, s.name AS season_name, s.year AS season_year, cat.name AS category_name, cat.slug AS category_slug FROM championships c INNER JOIN seasons s ON s.id = c.season_id INNER JOIN categories cat ON cat.id = c.category_id' . $join . ' WHERE c.id = ? AND c.deleted_at IS NULL LIMIT 1');
+        $statement = $this->pdo->prepare('SELECT c.*, s.name AS season_name, s.year AS season_year, cat.name AS category_name, cat.slug AS category_slug, cat.minimum_age, cat.maximum_age, cat.gender_rule FROM championships c INNER JOIN seasons s ON s.id = c.season_id INNER JOIN categories cat ON cat.id = c.category_id' . $join . ' WHERE c.id = ? AND c.deleted_at IS NULL LIMIT 1');
         $statement->execute($params);
         $row = $statement->fetch();
         return $row ?: null;
@@ -51,7 +51,7 @@ final class ChampionshipRepository
     {
         $join = $administrator ? '' : ' INNER JOIN championship_user_assignments cua ON cua.championship_id = c.id AND cua.user_id = ? AND cua.assignment_type = \'organizer\'';
         $params = $administrator ? [$slug] : [$userId, $slug];
-        $statement = $this->pdo->prepare('SELECT c.*, s.name AS season_name, s.year AS season_year, cat.name AS category_name, cat.slug AS category_slug FROM championships c INNER JOIN seasons s ON s.id = c.season_id INNER JOIN categories cat ON cat.id = c.category_id' . $join . ' WHERE c.slug = ? AND c.deleted_at IS NULL LIMIT 1');
+        $statement = $this->pdo->prepare('SELECT c.*, s.name AS season_name, s.year AS season_year, cat.name AS category_name, cat.slug AS category_slug, cat.minimum_age, cat.maximum_age, cat.gender_rule FROM championships c INNER JOIN seasons s ON s.id = c.season_id INNER JOIN categories cat ON cat.id = c.category_id' . $join . ' WHERE c.slug = ? AND c.deleted_at IS NULL LIMIT 1');
         $statement->execute($params);
         $row = $statement->fetch();
         return $row ?: null;

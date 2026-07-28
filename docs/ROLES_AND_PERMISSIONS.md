@@ -2,7 +2,7 @@
 
 Papeis sao globais. Acesso esportivo exige tambem vinculo ao campeonato.
 
-## Matriz das Etapas 3, 4 e 5
+## Matriz das Etapas 3, 4, 5 e 6
 
 | Perfil | Modulo | Acao | Permitido | Negado | Escopo | Observacao |
 |---|---|---|---|---|---|---|
@@ -38,3 +38,16 @@ Operador e comunicacao recebem `403` por padrao neste modulo. O service nunca us
 `athletes.view`, `athletes.create`, `athletes.update`, `athletes.deactivate`, `athletes.restore`, `athletes.manage_own`, `positions.view`, `positions.manage`, `athlete_guardians.view`, `athlete_guardians.create`, `athlete_guardians.update`, `athlete_guardians.manage_own`, `athlete_documents.view`, `athlete_documents.create`, `athlete_documents.update`, `athlete_documents.review`, `athlete_documents.manage_own`.
 
 Nenhum documento, guardian, telefone, e-mail, endereco ou observacao privada e exposto por rota publica nesta etapa.
+
+## Etapa 6: inscricoes e elenco
+
+| Perfil | Inscricoes | Elenco oficial | Escopo |
+|---|---|---|---|
+| Administrador | cria, edita, envia, analisa, aprova, rejeita e cancela | consulta todos | global |
+| Organizador | analisa, solicita correcao, aprova, rejeita e cancela | consulta campeonatos autorizados | campeonatos vinculados |
+| Treinador/gestor | cria, edita, envia, corrige e cancela | consulta propria equipe | equipe vinculada |
+| Operador/comunicacao | `403` | `403` | sem permissao |
+
+Treinador nunca aprova. O servidor revalida equipe, atleta, categoria, periodo, documentos, numero, duplicidade e limites configurados. Documento e dado privado continuam fora de rotas publicas.
+
+Permissoes: `registrations.view`, `registrations.create`, `registrations.update`, `registrations.submit`, `registrations.correct`, `registrations.approve`, `registrations.reject`, `registrations.cancel`, `registrations.manage_own`, `registrations.review`, `rosters.view`.

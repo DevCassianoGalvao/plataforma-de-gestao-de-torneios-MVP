@@ -49,4 +49,6 @@ O campo `metadata` de auditoria continua sendo JSON por conter atributos pequeno
 
 ## Limites atuais
 
-Nao existem inscricoes, grupos, rodadas, partidas, escalacoes, cartoes operacionais, suspensoes, classificacao, mata-mata, sumula operacional, noticias, Vai e Vem ou portal publico. Equipes, atletas, documentos, identidade, comissao e formacao padrao existem apenas no painel administrativo; a UI/UX definitiva continua para uma rodada posterior.
+Inscricoes usam `RegistrationAccessService`, `RegistrationRules` e `RegistrationService`. O repositorio aplica escopo por administrador, organizador vinculado ou equipe do treinador. O regulamento define tamanho de elenco, goleiros minimos, documentos obrigatorios e inscricao por multiplas equipes em tabelas normalizadas. Somente `approved` aparece no elenco oficial; toda transicao e correcao gera historico e auditoria.
+
+Nao existem grupos, rodadas, partidas, escalacoes, cartoes operacionais, suspensoes disciplinares, classificacao, mata-mata, sumula operacional, noticias, Vai e Vem ou portal publico. Equipes, atletas, documentos, inscricoes e elenco existem apenas no painel administrativo; a UI/UX definitiva continua para uma rodada posterior.

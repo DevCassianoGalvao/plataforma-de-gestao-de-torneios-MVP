@@ -14,6 +14,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PlaceholderController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RegulationController;
+use App\Http\Controllers\RegistrationController;
 use App\Http\Controllers\TeamController;
 use App\Http\Controllers\UserController;
 use App\Repositories\CategoryRepository;
@@ -24,6 +25,7 @@ use App\Repositories\ChampionshipRepository;
 use App\Repositories\GuardianRepository;
 use App\Repositories\PositionRepository;
 use App\Repositories\RegulationRepository;
+use App\Repositories\RegistrationRepository;
 use App\Repositories\SeasonRepository;
 use App\Repositories\StaffRoleRepository;
 use App\Repositories\TeamRepository;
@@ -39,6 +41,8 @@ use App\Services\ChampionshipStatusService;
 use App\Services\MailService;
 use App\Services\PasswordResetService;
 use App\Services\RegulationService;
+use App\Services\RegistrationAccessService;
+use App\Services\RegistrationService;
 use App\Services\StorageService;
 use App\Services\TacticalFormationService;
 use App\Services\TeamAccessService;
@@ -73,6 +77,9 @@ $guardians = new GuardianRepository($pdo);
 $athleteDocumentTypes = new AthleteDocumentTypeRepository($pdo);
 $athleteDocuments = new AthleteDocumentRepository($pdo);
 $athleteAccess = new AthleteAccessService($athletes, $teams, $championships, $authorization);
+$registrations = new RegistrationRepository($pdo);
+$registrationAccess = new RegistrationAccessService($registrations, $teams, $championships, $authorization);
+$registrationService = new RegistrationService($registrations, $championships, $teams, $athletes, $athleteDocuments, $regulationRepository, $audit);
 
 $router->get('/', [new HomeController(), 'index']);
 $router->get('/health', [new HealthController(), 'show']);
@@ -161,6 +168,20 @@ $router->post('/admin/atletas/{id}/documentos/{documentId}/status', [$athlete, '
 $router->get('/admin/atletas/{id}/assets/{field}', [$athlete, 'documentAsset']);
 $router->get('/admin/posicoes', [$athlete, 'positions']);
 
+$registration = new RegistrationController($users, $authorization, $audit, $registrationAccess, $registrationService, $athletes, $teams);
+$router->get('/admin/inscricoes', [$registration, 'index']);
+$router->get('/admin/inscricoes/nova', [$registration, 'createForm']);
+$router->post('/admin/inscricoes', [$registration, 'create']);
+$router->get('/admin/inscricoes/elenco', [$registration, 'roster']);
+$router->get('/admin/inscricoes/{id}', [$registration, 'show']);
+$router->post('/admin/inscricoes/{id}', [$registration, 'update']);
+$router->post('/admin/inscricoes/{id}/enviar', [$registration, 'submit']);
+$router->post('/admin/inscricoes/{id}/iniciar-analise', [$registration, 'startReview']);
+$router->post('/admin/inscricoes/{id}/pendencia', [$registration, 'requestCorrection']);
+$router->post('/admin/inscricoes/{id}/aprovar', [$registration, 'approve']);
+$router->post('/admin/inscricoes/{id}/rejeitar', [$registration, 'reject']);
+$router->post('/admin/inscricoes/{id}/cancelar', [$registration, 'cancel']);
+
 $championship = new ChampionshipController($users, $authorization, $audit, $championships, $seasons, $categories, $access, $statusService, $regulationService, $storage, $users);
 $router->get('/admin/campeonatos', [$championship, 'index']);
 $router->get('/admin/campeonatos/novo', [$championship, 'createForm']);
@@ -177,7 +198,7 @@ $router->get('/admin/campeonatos/{slug}/organizadores', [$championship, 'assignm
 $router->post('/admin/campeonatos/{slug}/organizadores', [$championship, 'assign']);
 $router->post('/admin/campeonatos/{slug}/organizadores/{userId}/remover', [$championship, 'unassign']);
 
-$regulation = new RegulationController($users, $authorization, $audit, $championships, $regulationRepository, $access, $regulationService, $storage);
+$regulation = new RegulationController($users, $authorization, $audit, $championships, $regulationRepository, $access, $regulationService, $storage, $athleteDocumentTypes);
 $router->get('/admin/campeonatos/{slug}/regulamento', [$regulation, 'show']);
 $router->get('/admin/campeonatos/{slug}/regulamento/editar', [$regulation, 'edit']);
 $router->post('/admin/campeonatos/{slug}/regulamento', [$regulation, 'save']);

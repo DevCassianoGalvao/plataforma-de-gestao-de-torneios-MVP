@@ -26,7 +26,7 @@ final class AthleteSeed
                 $find = $pdo->prepare('SELECT id FROM athletes WHERE team_id = ? AND full_name = ? AND deleted_at IS NULL LIMIT 1');
                 $find->execute([(int) $team['id'], $name]);
                 $athleteId = (int) $find->fetchColumn();
-                $positionCode = $positionCodes[($teamIndex + $slot - 1) % count($positionCodes)];
+                $positionCode = $slot === 1 ? 'goalkeeper' : $positionCodes[$teamIndex % count($positionCodes)];
                 if (!$athleteId) {
                     $insert = $pdo->prepare('INSERT INTO athletes (team_id, full_name, sporting_name, birth_date, gender, primary_position_id, preferred_number, dominant_foot, status, private_notes, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, \'male\', ?, ?, ?, ?, ?, ?, ?, ?)');
                     $insert->execute([(int) $team['id'], $name, 'Esportivo ' . $team['short_name'] . ' ' . $slot, $birthDate, $positions[$positionCode], $slot, $slot === 1 ? 'right' : 'left', $statuses[$teamIndex], 'Registro ficticio da Etapa 5.', $adminId, $now, $now]);

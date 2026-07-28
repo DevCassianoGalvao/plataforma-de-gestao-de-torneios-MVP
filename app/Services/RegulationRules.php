@@ -14,6 +14,7 @@ final class RegulationRules
             'points' => ['points_win' => 3, 'points_draw' => 1, 'points_loss' => 0, 'wo_winner_goals' => 3, 'wo_loser_goals' => 0],
             'discipline' => ['yellow_cards_for_suspension' => 3, 'yellow_suspension_matches' => 1, 'red_card_automatic_suspension' => 1, 'red_card_suspension_matches' => 1, 'reset_cards_enabled' => 0, 'reset_cards_stage' => ''],
             'match' => ['regular_time_minutes' => 40, 'halftime_minutes' => 10, 'substitutions_allowed' => 5, 'substitution_windows' => 3, 'extra_time_enabled' => 0, 'extra_time_minutes' => 10, 'penalty_shootout_enabled' => 1, 'direct_penalties' => 0],
+            'roster' => ['minimum_roster_size' => 1, 'maximum_roster_size' => 25, 'minimum_goalkeepers' => 1, 'allow_multiple_team_registration' => 0, 'required_document_type_ids' => []],
             'tiebreakers' => array_map(static fn (string $criterion, int $index): array => ['criterion' => $criterion, 'priority' => $index + 1, 'enabled' => 1], self::CRITERIA, array_keys(self::CRITERIA)),
         ];
     }
@@ -25,6 +26,7 @@ final class RegulationRules
         $points = $data['points'] ?? [];
         $discipline = $data['discipline'] ?? [];
         $match = $data['match'] ?? [];
+        $roster = $data['roster'] ?? [];
         $integerRules = [
             [$format, 'group_count', 1, 'A quantidade de grupos deve ser maior que zero.'],
             [$format, 'teams_per_group', 1, 'A quantidade de equipes por grupo deve ser maior que zero.'],
@@ -43,6 +45,20 @@ final class RegulationRules
             [$match, 'substitution_windows', 0, 'Janelas de substituicao invalidas.'],
             [$match, 'extra_time_minutes', 0, 'Duracao da prorrogacao invalida.'],
         ];
+        if ($roster !== []) {
+            $integerRules = array_merge($integerRules, [
+                [$roster, 'minimum_roster_size', 0, 'Tamanho minimo do elenco invalido.'],
+                [$roster, 'maximum_roster_size', 1, 'Tamanho maximo do elenco invalido.'],
+                [$roster, 'minimum_goalkeepers', 0, 'Quantidade minima de goleiros invalida.'],
+            ]);
+            if ((int) ($roster['minimum_roster_size'] ?? 0) > (int) ($roster['maximum_roster_size'] ?? 0)) {
+                $errors[] = 'O minimo do elenco nao pode superar o maximo.';
+            }
+            $documentTypes = array_values(array_unique(array_filter(array_map('intval', (array) ($roster['required_document_type_ids'] ?? [])))));
+            if (count($documentTypes) !== count((array) ($roster['required_document_type_ids'] ?? []))) {
+                $errors[] = 'Tipos de documento obrigatorio invalidos.';
+            }
+        }
         foreach ($integerRules as [$section, $key, $minimum, $message]) {
             if ((int) ($section[$key] ?? -1) < $minimum) {
                 $errors[] = $message;

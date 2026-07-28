@@ -9,6 +9,7 @@
 | `0003_championships_and_regulations.sql` | catalogos, campeonatos, escopo e regulamentos | implementada |
 | `0004_teams_staff_and_formations.sql` | equipes, responsaveis, comissao e formacoes taticas | implementada |
 | `0005_athletes_guardians_and_documents.sql` | atletas, posicoes, responsaveis legais e documentos privados | implementada |
+| `0006_registration_roster_settings.sql` | regras de elenco, documentos obrigatorios, inscricoes e historico | implementada |
 
 ## Tabelas da Etapa 3
 
@@ -54,6 +55,17 @@ As coordenadas de `tactical_formation_slots` usam `DECIMAL(5,2)` entre 0 e 100: 
 | `athlete_documents` | arquivo privado, validade, status e revisao |
 
 `athletes.team_id` mantem o atleta dentro do escopo da equipe. `athletes.primary_position_id` e `athlete_secondary_positions.position_id` referenciam o catalogo ativo. Documentos podem apontar para um responsavel quando aplicavel; `reviewed_by` e `reviewed_at` preservam a analise.
+
+## Tabelas da Etapa 6
+
+| Tabela | Finalidade |
+|---|---|
+| `regulation_roster_settings` | tamanho minimo/maximo, goleiros minimos e inscricao por multiplas equipes |
+| `regulation_required_documents` | documentos obrigatorios por versao de regulamento |
+| `athlete_registrations` | inscricao do atleta no campeonato por equipe, status, analise e decisoes |
+| `athlete_registration_history` | transicoes, correcoes, pendencias, decisoes e usuario responsavel |
+
+`athlete_registrations` possui unicidade de campeonato, equipe e atleta. O elenco oficial e uma consulta de inscricoes com `status = approved`; nao existe tabela paralela nem limite fixado no codigo.
 
 ## Regras
 

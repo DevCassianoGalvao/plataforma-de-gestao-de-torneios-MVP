@@ -24,6 +24,8 @@ Administrador ve todos os campeonatos. Organizador precisa de vinculo `organizer
 
 O editor separa identificacao, formato, pontuacao/W.O., desempates, disciplina e regras de partida. As tabelas sao `regulation_format_settings`, `regulation_points_settings`, `regulation_tiebreakers`, `regulation_discipline_settings` e `regulation_match_settings`. Nao existe textarea JSON.
 
+A versao do regulamento tambem pode definir tamanho minimo e maximo do elenco, minimo de goleiros, permissao de inscricao por multiplas equipes e tipos de documento obrigatorios. Esses dados ficam em `regulation_roster_settings` e `regulation_required_documents`, sem JSON em formularios. A Etapa 6 usa essas configuracoes para validar envio e aprovacao de inscricoes.
+
 ## Preset
 
 O preset Copa Brasil de Talentos inicia com 10 equipes, 2 grupos, 5 equipes por grupo, 4 classificadas, quartas, semifinais, final e eliminatorias em jogo unico. Valores nao definidos pelo PRD sao padroes editaveis e identificados no editor.
