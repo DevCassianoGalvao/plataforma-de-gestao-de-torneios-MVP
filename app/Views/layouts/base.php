@@ -28,13 +28,13 @@ $isActive = static fn (string $path): bool => $path === '/' ? $currentPath === A
     <aside class="app-sidebar" data-sidebar aria-label="Navegação administrativa">
         <a class="app-brand" href="<?= $e(App\Core\Config::url('/admin')) ?>">
             <span class="brand-mark" aria-hidden="true">TM</span>
-            <span class="brand-copy">TORNEIOS<small>MVP / COMMAND</small></span>
+            <span class="brand-copy">TORNEIOS<small>MVP / OPERAÇÃO</small></span>
         </a>
         <div class="sidebar-context">
-            <small>Workspace ativo</small>
+            <small>Espaço ativo</small>
             <strong>Operação de campeonatos</strong>
         </div>
-        <nav class="sidebar-nav" aria-label="Modulos">
+        <nav class="sidebar-nav" aria-label="Módulos">
             <span class="sidebar-section-label">Visão geral</span>
             <a href="<?= $e(App\Core\Config::url('/admin')) ?>"<?= $isActive('/admin') && !$isActive('/admin/usuarios') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="overview" aria-hidden="true">OV</span><span class="nav-label">Visão geral</span></a>
             <?php if ($menuAuth && $menuAuth->can($currentUser, 'championships.view')): ?><a href="<?= $e(App\Core\Config::url('/admin/campeonatos')) ?>"<?= $isActive('/admin/campeonatos') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="championship" aria-hidden="true">CP</span><span class="nav-label">Campeonatos</span></a><?php endif; ?>
@@ -58,7 +58,7 @@ $isActive = static fn (string $path): bool => $path === '/' ? $currentPath === A
         <header class="app-topbar">
             <div class="topbar-context">
                 <small>Plataforma de gestão</small>
-                <strong><?= $e($title ?? 'Centro de operacao') ?></strong>
+                <strong><?= $e($title ?? 'Centro de operação') ?></strong>
             </div>
             <div class="topbar-actions">
                 <button class="icon-button sidebar-toggle" type="button" data-sidebar-toggle aria-label="Abrir menu" aria-expanded="false" title="Abrir menu">☰</button>
