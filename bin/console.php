@@ -17,6 +17,8 @@ use App\Database\MatchOperationSeed;
 use App\Database\DisciplineSeed;
 use App\Database\TacticalFormationSeed;
 use App\Database\TeamSeed;
+use App\Database\NewsSeed;
+use App\Database\TransferSeed;
 
 $command = $argv[1] ?? 'help';
 $runner = new MigrationRunner(Database::connection(), dirname(__DIR__) . '/database/migrations');
@@ -54,6 +56,8 @@ if ($command === 'db:seed') {
     LineupSeed::run(Database::connection());
     MatchOperationSeed::run(Database::connection());
     DisciplineSeed::run(Database::connection());
+    NewsSeed::run(Database::connection());
+    TransferSeed::run(Database::connection());
     echo "Seed de autenticacao concluido.\n";
     exit(0);
 }

@@ -13,6 +13,6 @@ try {
     $router->dispatch(Request::capture())->send();
 } catch (\Throwable $exception) {
     Logger::exception($exception);
-    $message = App\Core\Config::bool('APP_DEBUG') ? $exception->getMessage() : 'Ocorreu um erro interno.';
+    $message = App\Core\Config::bool('APP_DEBUG') && App\Core\Config::get('APP_ENV', 'development') !== 'production' ? $exception->getMessage() : 'Ocorreu um erro interno.';
     Response::html(View::page('Erro', View::render('errors/500', ['message' => $message])), 500)->send();
 }

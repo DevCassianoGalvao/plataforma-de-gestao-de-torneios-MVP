@@ -26,6 +26,9 @@ try {
 
     $valid = request('POST', '/login', ['_csrf' => csrf($invalid['body']), 'email' => $email, 'password' => $password]);
     check($valid['status'] === 302 && str_contains($valid['headers'], '/admin'), 'Login valido nao redirecionou para /admin');
+    foreach (['Content-Security-Policy', 'X-Content-Type-Options', 'X-Frame-Options', 'Referrer-Policy', 'Permissions-Policy'] as $header) {
+        check(str_contains($valid['headers'], $header . ':'), 'Header de seguranca ausente: ' . $header);
+    }
 
     $admin = request('GET', '/admin/usuarios');
     check($admin['status'] === 200 && str_contains($admin['body'], 'Usuarios'), 'Rota protegida nao abriu para administrador');
@@ -68,9 +71,16 @@ try {
     $operation = request('GET', '/admin/partidas/1/operacao');
     $operationText = strip_tags($operation['body']);
     check($operation['status'] === 200 && str_contains($operation['body'], 'Central operacional da partida'), 'Central operacional nao abriu status=' . $operation['status'] . ' body=' . substr($operationText, 0, 300) . ' tail=' . substr($operationText, -500));
-    $logout = request('POST', '/logout', ['_csrf' => csrf($admin['body'])]);
+    $portal = request('GET', '/campeonatos/copa-brasil-de-talentos-2026');
+    check($portal['status'] === 200 && !str_contains($portal['body'], 'private_notes') && str_contains($portal['body'], 'canonical'), 'Portal publico ou privacidade falhou');
+    $evilLogin = request('POST', '/login', ['_csrf' => csrf($admin['body']), 'email' => $email, 'password' => $password, 'next' => '//evil.example']);
+    check($evilLogin['status'] === 302 && !str_contains($evilLogin['headers'], 'evil.example'), 'Open redirect aceito no HTTP real');
+    $adminAfterEvil = request('GET', '/admin');
+    $logout = request('POST', '/logout', ['_csrf' => csrf($adminAfterEvil['body'])]);
     check($logout['status'] === 302, 'Logout nao redirecionou');
-    echo "REAL_HTTP_TESTS_OK checks=25\n";
+    $unauthorized = request('GET', '/admin');
+    check($unauthorized['status'] === 302 && !str_contains($unauthorized['headers'], '://'), 'Autorizacao HTTP apos logout falhou');
+    echo "REAL_HTTP_TESTS_OK checks=31\n";
 } finally {
     if (is_string($jar) && is_file($jar)) {
         unlink($jar);

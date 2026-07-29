@@ -4,9 +4,9 @@ Sistema web planejado para administrar campeonatos de futebol e publicar informa
 
 ## Estado atual
 
-As Etapas 1, 2, 3, 4, 5, 6, 7, 8 e 9 estao implementadas nesta branch de trabalho. O projeto possui fundacao tecnica, autenticacao, acesso por campeonato, temporadas, categorias, campeonamentos, identidade basica, regulamentos configuraveis, equipes, responsaveis, comissao tecnica, formacao tatica padrao, atletas, posicoes, documentos privados, inscricoes, elenco oficial, grupos, rodadas, locais, geracao de tabela, escalacoes taticas por partida e central operacional com homologacao basica.
+As Etapas 1 a 16 estao implementadas nesta linha de desenvolvimento. O projeto possui fundacao tecnica, autenticacao, acesso por campeonato, competicao completa, sumula, conteudo editorial, portal publico, hardening de seguranca, instalacao limpa, backup e preparacao para cPanel.
 
-Ainda nao existem acumulacao completa de suspensoes, classificacao, mata-mata, sumula operacional em PDF, noticias, Vai e Vem ou portal publico. A UI/UX definitiva continua planejada para rodada posterior; o campo funcional da escalacao e a central operacional ja existem em estrutura responsiva.
+A UI/UX definitiva continua planejada para rodada posterior. A auditoria da Etapa 16 esta aprovada para homologacao, nao para producao, porque cPanel, HTTPS, SMTP, cron, backup externo e restauracao precisam de evidencia no ambiente real.
 
 ## Stack prevista
 
@@ -51,8 +51,11 @@ No Windows PowerShell, defina variaveis com `$env:NOME='valor'` e use `C:\xampp\
 - [Perfis, permissoes e escopo](docs/ROLES_AND_PERMISSIONS.md)
 - [Plano de implementacao](docs/IMPLEMENTATION_PLAN.md)
 - [Plano de testes](docs/TEST_PLAN.md)
+- [Preparacao para producao](docs/PRODUCTION_READINESS.md)
+- [Implantacao em cPanel](docs/CPANEL_DEPLOYMENT.md)
+- [Auditoria final do MVP](docs/FINAL_MVP_AUDIT.md)
 - [Referencia da sumula](docs/REFERENCIA_SUMULA.xlsx)
 
 ## Proxima etapa
 
-A Etapa 10 deve tratar disciplina acumulada e suspensoes. Classificacao, sumula operacional, noticias, Vai e Vem e portal publico continuam fora desta branch.
+A Etapa 17 deve tratar o redesign definitivo de UI/UX, temas, acessibilidade visual e refinamento responsivo.

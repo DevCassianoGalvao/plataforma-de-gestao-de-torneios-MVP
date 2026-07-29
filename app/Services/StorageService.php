@@ -32,7 +32,7 @@ final class StorageService
             throw new \RuntimeException('Tipo de arquivo nao permitido.');
         }
         $extension = self::extensionForMime($mime);
-        $relativeDirectory = trim($directory, '/\\');
+        $relativeDirectory = self::safeRelativePath($directory, true);
         $absoluteDirectory = $this->root . DIRECTORY_SEPARATOR . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $relativeDirectory);
         if (!is_dir($absoluteDirectory) && !mkdir($absoluteDirectory, 0750, true) && !is_dir($absoluteDirectory)) {
             throw new \RuntimeException('Nao foi possivel preparar o armazenamento.');
@@ -65,7 +65,7 @@ final class StorageService
         if ($contents === '' || !preg_match('/^[a-z0-9]{1,8}$/i', $extension)) {
             throw new \RuntimeException('Conteudo ou extensao de arquivo invalida.');
         }
-        $relativeDirectory = trim($directory, '/\\');
+        $relativeDirectory = self::safeRelativePath($directory, true);
         $absoluteDirectory = $this->root . DIRECTORY_SEPARATOR . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $relativeDirectory);
         if (!is_dir($absoluteDirectory) && !mkdir($absoluteDirectory, 0750, true) && !is_dir($absoluteDirectory)) {
             throw new \RuntimeException('Nao foi possivel preparar o armazenamento.');
@@ -87,13 +87,37 @@ final class StorageService
 
     private function absolutePath(string $relativePath): ?string
     {
-        $relativePath = ltrim(str_replace(['\\', '..'], ['/', ''], $relativePath), '/');
+        try {
+            $relativePath = self::safeRelativePath($relativePath);
+        } catch (\Throwable) {
+            return null;
+        }
+        if ($relativePath === '') {
+            return null;
+        }
         $root = realpath($this->root);
         $path = realpath($this->root . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $relativePath));
         if (!$root || !$path || !str_starts_with($path, $root . DIRECTORY_SEPARATOR)) {
             return null;
         }
         return $path;
+    }
+
+    private static function safeRelativePath(string $path, bool $directory = false): string
+    {
+        $path = str_replace('\\', '/', $path);
+        if ($path === '' || str_contains($path, "\0") || preg_match('#^[A-Za-z]:#', $path) === 1 || str_starts_with($path, '/')) {
+            throw new \RuntimeException('Caminho de armazenamento invalido.');
+        }
+        $path = trim($path, '/');
+        $parts = preg_split('#[/\\\\]+#', $path) ?: [];
+        if (in_array('..', $parts, true) || in_array('', $parts, true)) {
+            throw new \RuntimeException('Caminho de armazenamento invalido.');
+        }
+        if (!$directory && count($parts) < 1) {
+            throw new \RuntimeException('Arquivo de armazenamento invalido.');
+        }
+        return implode('/', $parts);
     }
 
     private static function extensionForMime(string $mime): string

@@ -29,6 +29,7 @@ require dirname(__DIR__) . '/tests/Unit/MatchReportTest.php';
 require dirname(__DIR__) . '/tests/Unit/NewsTest.php';
 require dirname(__DIR__) . '/tests/Unit/TransferTest.php';
 require dirname(__DIR__) . '/tests/Unit/PublicPortalTest.php';
+require dirname(__DIR__) . '/tests/Unit/ProductionReadinessTest.php';
 require dirname(__DIR__) . '/tests/Integration/MigrationTest.php';
 require dirname(__DIR__) . '/tests/Integration/AuthIntegrationTest.php';
 require dirname(__DIR__) . '/tests/Integration/ChampionshipIntegrationTest.php';
@@ -59,6 +60,7 @@ require dirname(__DIR__) . '/tests/Http/MatchReportHttpTest.php';
 require dirname(__DIR__) . '/tests/Http/NewsHttpTest.php';
 require dirname(__DIR__) . '/tests/Http/TransferHttpTest.php';
 require dirname(__DIR__) . '/tests/Http/PublicPortalHttpTest.php';
+require dirname(__DIR__) . '/tests/Http/ProductionReadinessHttpTest.php';
 
 use App\Core\Database;
 use Tests\Http\FoundationHttpTest;
@@ -78,6 +80,7 @@ use Tests\Unit\MatchReportTest;
 use Tests\Unit\NewsTest;
 use Tests\Unit\TransferTest;
 use Tests\Unit\PublicPortalTest;
+use Tests\Unit\ProductionReadinessTest;
 use Tests\Integration\AuthIntegrationTest;
 use Tests\Integration\ChampionshipIntegrationTest;
 use Tests\Integration\TeamIntegrationTest;
@@ -106,6 +109,7 @@ use Tests\Http\MatchReportHttpTest;
 use Tests\Http\NewsHttpTest;
 use Tests\Http\TransferHttpTest;
 use Tests\Http\PublicPortalHttpTest;
+use Tests\Http\ProductionReadinessHttpTest;
 
 $server = Database::serverConnection();
 $quoted = '`' . str_replace('`', '``', $dbName) . '`';
@@ -127,6 +131,7 @@ try {
     NewsTest::run();
     TransferTest::run();
     PublicPortalTest::run();
+    ProductionReadinessTest::run();
     MigrationTest::run();
     AuthIntegrationTest::run();
     ChampionshipIntegrationTest::run();
@@ -157,7 +162,8 @@ try {
     NewsHttpTest::run();
     TransferHttpTest::run();
     PublicPortalHttpTest::run();
-    echo "MVP_TESTS_OK unit=15 integration=15 http=15\n";
+    ProductionReadinessHttpTest::run();
+    echo "MVP_TESTS_OK unit=16 integration=15 http=16\n";
 } finally {
     Database::disconnect();
     $server->exec('DROP DATABASE IF EXISTS ' . $quoted);

@@ -19,7 +19,7 @@ Legenda: `[ ]` pendente, `[x]` concluido com evidencia. Nenhuma etapa futura dev
 | 13 | Noticias | [x] | rascunho, agendamento e publicacao |
 | 14 | Vai e Vem | [x] | movimentacoes, publicacao e historico |
 | 15 | Portal publico | [x] | portal completo por slug, read model publico, SEO e privacidade |
-| 16 | Preparacao para producao | [ ] | cPanel, instalacao limpa e observabilidade |
+| 16 | Preparacao para producao | [x] | instalacao limpa, hardening, backup, cPanel e auditoria |
 | 17 | UI/UX definitiva | [ ] | design system, temas, responsividade e acessibilidade |
 
 ## Estado da Etapa 4
@@ -99,6 +99,12 @@ Implementada em `feat/public-portal`, partindo de `feat/transfers-market`. A eta
 O read model publico seleciona somente dados esportivos e editoriais publicados. Documentos, dados pessoais, responsaveis, observacoes privadas e arquivos privados permanecem fora das consultas e views publicas. O portal inclui canonical, Open Graph, Twitter card, sitemap, robots, 404, isolamento por slug e funcionamento com `APP_BASE_PATH=/copa-online`.
 
 Evidencias: `docs/PUBLIC_PORTAL.md`, `MVP_TESTS_OK unit=15 integration=15 http=15`, lint PHP, banco descartavel e testes de privacidade/SEO.
+
+## Estado da Etapa 16
+
+Implementada em `feat/production-readiness`, partindo de `feat/public-portal`. A etapa entrega instalador limpo com criacao de banco, migrations, seed opcional e smoke HTTP; hardening de headers, sessao, CSRF, open redirect e storage; `.htaccess` para cPanel; scripts de backup, verificacao, rotacao e restauracao; documentacao operacional e auditoria final.
+
+O veredito e `APROVADO PARA HOMOLOGACAO`. Aprovacao para producao depende de executar no cPanel real HTTPS, SMTP, cron, backup externo e restauracao.
 
 ## Estado da Etapa 3
 

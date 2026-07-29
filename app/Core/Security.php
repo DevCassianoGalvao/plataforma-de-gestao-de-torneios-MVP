@@ -27,6 +27,35 @@ final class Security
         }
     }
 
+    public static function rotateCsrf(): void
+    {
+        Session::forget('_csrf');
+    }
+
+    public static function safeLocalPath(?string $value): ?string
+    {
+        $value = trim((string) $value);
+        if ($value === '' || str_contains($value, "\0") || str_contains($value, '\\') || !str_starts_with($value, '/') || str_starts_with($value, '//')) {
+            return null;
+        }
+        $parts = parse_url($value);
+        if ($parts === false || isset($parts['scheme'], $parts['host'], $parts['user'], $parts['pass'])) {
+            return null;
+        }
+        $path = (string) ($parts['path'] ?? '/');
+        if (preg_match('#(^|/)\.\.?(/|$)#', rawurldecode($path)) === 1) {
+            return null;
+        }
+        $localPath = Config::url(Config::stripBasePath($path));
+        if (isset($parts['query'])) {
+            $localPath .= '?' . $parts['query'];
+        }
+        if (isset($parts['fragment'])) {
+            $localPath .= '#' . $parts['fragment'];
+        }
+        return $localPath;
+    }
+
     public static function hashToken(string $token): string
     {
         return hash('sha256', $token);

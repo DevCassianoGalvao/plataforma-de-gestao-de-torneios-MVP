@@ -48,6 +48,10 @@ No Windows, use `$env:NOME='valor'` e `C:\xampp\php\php.exe` quando o PHP nao es
 | Unitario Etapa 15 | `tests/Unit/PublicPortalTest.php` | read model, rankings e paginas publicas |
 | Integracao Etapa 15 | `tests/Integration/PublicPortalIntegrationTest.php` | isolamento por slug, seeds, dados publicos e ausencia de campos privados |
 | HTTP de contrato Etapa 15 | `tests/Http/PublicPortalHttpTest.php` | todas as rotas, SEO, sitemap, robots, 404 e `APP_BASE_PATH=/copa-online` |
+| Unitario Etapa 16 | `tests/Unit/ProductionReadinessTest.php` | redirects locais, headers, traversal e storage |
+| HTTP de contrato Etapa 16 | `tests/Http/ProductionReadinessHttpTest.php` | login, autorizacao, headers, portal, logout e open redirect |
+| HTTP real Etapa 16 | `bin/http-test.php` | cURL contra servidor real, autenticacao, portal, headers e autorizacao |
+| Operacional Etapa 16 | `bin/install.php`, `bin/backup.php`, `bin/restore.php` | instalacao limpa, backup verificavel, rotacao e restauracao confirmada |
 
 ## Resultado da Etapa 3
 
