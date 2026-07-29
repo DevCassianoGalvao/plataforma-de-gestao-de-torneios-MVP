@@ -26,6 +26,7 @@ require dirname(__DIR__) . '/tests/Unit/MatchOperationTest.php';
 require dirname(__DIR__) . '/tests/Unit/DisciplineTest.php';
 require dirname(__DIR__) . '/tests/Unit/StandingsTest.php';
 require dirname(__DIR__) . '/tests/Unit/MatchReportTest.php';
+require dirname(__DIR__) . '/tests/Unit/NewsTest.php';
 require dirname(__DIR__) . '/tests/Integration/MigrationTest.php';
 require dirname(__DIR__) . '/tests/Integration/AuthIntegrationTest.php';
 require dirname(__DIR__) . '/tests/Integration/ChampionshipIntegrationTest.php';
@@ -38,6 +39,7 @@ require dirname(__DIR__) . '/tests/Integration/MatchOperationIntegrationTest.php
 require dirname(__DIR__) . '/tests/Integration/DisciplineIntegrationTest.php';
 require dirname(__DIR__) . '/tests/Integration/StandingsIntegrationTest.php';
 require dirname(__DIR__) . '/tests/Integration/MatchReportIntegrationTest.php';
+require dirname(__DIR__) . '/tests/Integration/NewsIntegrationTest.php';
 require dirname(__DIR__) . '/tests/Http/FoundationHttpTest.php';
 require dirname(__DIR__) . '/tests/Http/AuthenticationHttpTest.php';
 require dirname(__DIR__) . '/tests/Http/ChampionshipHttpTest.php';
@@ -50,6 +52,7 @@ require dirname(__DIR__) . '/tests/Http/MatchOperationHttpTest.php';
 require dirname(__DIR__) . '/tests/Http/DisciplineHttpTest.php';
 require dirname(__DIR__) . '/tests/Http/StandingsHttpTest.php';
 require dirname(__DIR__) . '/tests/Http/MatchReportHttpTest.php';
+require dirname(__DIR__) . '/tests/Http/NewsHttpTest.php';
 
 use App\Core\Database;
 use Tests\Http\FoundationHttpTest;
@@ -66,6 +69,7 @@ use Tests\Unit\MatchOperationTest;
 use Tests\Unit\DisciplineTest;
 use Tests\Unit\StandingsTest;
 use Tests\Unit\MatchReportTest;
+use Tests\Unit\NewsTest;
 use Tests\Integration\AuthIntegrationTest;
 use Tests\Integration\ChampionshipIntegrationTest;
 use Tests\Integration\TeamIntegrationTest;
@@ -77,6 +81,7 @@ use Tests\Integration\MatchOperationIntegrationTest;
 use Tests\Integration\DisciplineIntegrationTest;
 use Tests\Integration\StandingsIntegrationTest;
 use Tests\Integration\MatchReportIntegrationTest;
+use Tests\Integration\NewsIntegrationTest;
 use Tests\Http\AuthenticationHttpTest;
 use Tests\Http\ChampionshipHttpTest;
 use Tests\Http\TeamHttpTest;
@@ -88,6 +93,7 @@ use Tests\Http\MatchOperationHttpTest;
 use Tests\Http\DisciplineHttpTest;
 use Tests\Http\StandingsHttpTest;
 use Tests\Http\MatchReportHttpTest;
+use Tests\Http\NewsHttpTest;
 
 $server = Database::serverConnection();
 $quoted = '`' . str_replace('`', '``', $dbName) . '`';
@@ -106,6 +112,7 @@ try {
     DisciplineTest::run();
     StandingsTest::run();
     MatchReportTest::run();
+    NewsTest::run();
     MigrationTest::run();
     AuthIntegrationTest::run();
     ChampionshipIntegrationTest::run();
@@ -118,6 +125,7 @@ try {
     DisciplineIntegrationTest::run();
     StandingsIntegrationTest::run();
     MatchReportIntegrationTest::run();
+    NewsIntegrationTest::run();
     FoundationHttpTest::run();
     AuthenticationHttpTest::run();
     ChampionshipHttpTest::run();
@@ -130,7 +138,8 @@ try {
     DisciplineHttpTest::run();
     StandingsHttpTest::run();
     MatchReportHttpTest::run();
-    echo "MVP_TESTS_OK unit=12 integration=12 http=12\n";
+    NewsHttpTest::run();
+    echo "MVP_TESTS_OK unit=13 integration=13 http=13\n";
 } finally {
     Database::disconnect();
     $server->exec('DROP DATABASE IF EXISTS ' . $quoted);

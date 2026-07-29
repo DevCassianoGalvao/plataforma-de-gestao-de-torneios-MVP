@@ -119,6 +119,15 @@ Nao existem operacao de partida, gols, cartoes, classificacao final, sumula oper
 - permissao, escopo, privacidade, CSRF e `APP_BASE_PATH=/copa-online` validados;
 - arquivos privados de teste removidos ao fim da suite.
 
+## Etapa 13 — noticias e blog
+
+- unitario: estados editoriais e normalizacao de slug;
+- integracao: seed duplo, CRUD, publicacao, slug duplicado, escopo de comunicacao, exclusao logica e consulta publica;
+- HTTP: painel editorial, capa otimizada, rascunho fora do portal, publicacao, busca, XSS escapado, CSRF, IDOR, treinador bloqueado, capa publica e base path `/copa-online`;
+- migration: `0013_news_blog.sql` aplicada em banco descartavel;
+- resultado: `MVP_TESTS_OK unit=13 integration=13 http=13` e `LINT_OK files=230`;
+- artefatos temporarios e banco de teste removidos ao final da suite.
+
 ## Resultado da Etapa 7
 
 - `LINT_OK files=165`;

@@ -142,3 +142,21 @@ fieldset { display: grid; gap: .5rem; border: 1px solid #d9e0e6; padding: 1rem; 
     .report-score { grid-template-columns: 1fr; gap: .25rem; }
     .report-score b { font-size: 1.6rem; }
 }
+/* News editorial and public portal surfaces. */
+.news-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; margin-top: 1.5rem; }
+.news-card { border: 1px solid #d8e1dc; padding: 1rem; background: #fff; }
+.news-card img, .news-cover { width: 100%; max-height: 360px; object-fit: cover; display: block; }
+.news-card h2 { margin: .35rem 0; }
+.news-card p { margin: .5rem 0; }
+.news-summary { font-size: 1.1rem; font-weight: 600; max-width: 70ch; }
+.news-content { max-width: 75ch; line-height: 1.7; white-space: normal; }
+.news-cover-thumb { width: 180px; max-height: 120px; object-fit: cover; }
+.news-admin-preview, .public-news-detail { max-width: 900px; }
+.news-byline { color: #5f6f66; }
+.inline-actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 1.5rem; }
+.inline-actions form { margin: 0; }
+.checkbox-line { display: flex; align-items: center; gap: .5rem; }
+.pagination { display: flex; gap: .4rem; margin-top: 1rem; }
+.pagination a { border: 1px solid #d8e1dc; padding: .35rem .6rem; text-decoration: none; }
+.pagination a.active { background: #123c32; color: #fff; }
+@media (max-width: 800px) { .news-grid { grid-template-columns: 1fr; } }

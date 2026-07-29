@@ -182,6 +182,26 @@ Operacao e homologacao sao estados separados. O operador nao homologa a propria 
 
 Sumulas nao possuem rota publica. O servidor valida permissao, escopo da partida/campeonato e existencia da versao antes de ler armazenamento privado.
 
+## Noticias e blog
+
+| Metodo | Rota | Funcao |
+|---|---|---|
+| GET | `/admin/noticias` | lista editorial filtravel |
+| GET | `/admin/noticias/novo` | formulario de criacao |
+| POST | `/admin/noticias` | cria noticia com capa opcional |
+| GET | `/admin/noticias/{id}/editar` | formulario de edicao |
+| POST | `/admin/noticias/{id}` | salva edicao |
+| GET | `/admin/noticias/{id}/preview` | previa autorizada |
+| POST | `/admin/noticias/{id}/publicar` | publica agora |
+| POST | `/admin/noticias/{id}/despublicar` | retira do portal |
+| POST | `/admin/noticias/{id}/excluir` | exclusao logica |
+| GET | `/campeonatos/{slug}/noticias` | lista publica paginada e buscavel |
+| GET | `/campeonatos/{slug}/noticias/recentes` | noticias recentes |
+| GET | `/campeonatos/{slug}/noticias/{newsSlug}` | detalhe publico |
+| GET | `/campeonatos/{slug}/noticias/{newsSlug}/capa` | capa de noticia publicada |
+
+Rotas administrativas validam permissao, atribuicao de campeonato e CSRF nas mutacoes. O portal nao serve rascunhos, agendadas futuras, arquivadas ou capas de noticias ainda nao publicadas.
+
 ## Classificacao e mata-mata
 
 | Metodo | Rota | Funcao |

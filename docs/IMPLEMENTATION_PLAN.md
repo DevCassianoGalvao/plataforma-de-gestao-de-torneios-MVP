@@ -16,7 +16,7 @@ Legenda: `[ ]` pendente, `[x]` concluido com evidencia. Nenhuma etapa futura dev
 | 10 | Disciplina | [x] | cartoes, suspensoes e proximos confrontos |
 | 11 | Classificacao e mata-mata | [x] | criterios, cruzamentos, campeao e vice |
 | 12 | Sumula | [x] | preview HTML, PDF A4, versoes e pacotes conforme planilha |
-| 13 | Noticias | [ ] | rascunho e publicacao |
+| 13 | Noticias | [x] | rascunho, agendamento e publicacao |
 | 14 | Vai e Vem | [ ] | movimentacoes e historico |
 | 15 | Portal publico | [ ] | dados publicados por slug |
 | 16 | Preparacao para producao | [ ] | cPanel, instalacao limpa e observabilidade |
@@ -77,6 +77,12 @@ Evidencias: migration `0011_standings_and_knockout.sql`, `docs/STANDINGS_AND_KNO
 Implementada em `feat/digital-match-report`, partindo de `feat/standings-and-knockout`. A etapa entrega sumula HTML e PDF A4 baseado na planilha enviada, relacao das duas equipes, atletas, numeros, titulares, reservas, cartoes, gols, placar, horarios, arbitragem, mesario, penaltis, ocorrencias, confirmacoes, pagina de verso, codigo de verificacao, armazenamento privado, historico imutavel, downloads autorizados e pacotes ZIP.
 
 Evidencias: migration `0012_digital_match_reports.sql`, `docs/DIGITAL_MATCH_REPORT.md`, `MVP_TESTS_OK unit=12 integration=12 http=12`, `LINT_OK files=216` e `APP_BASE_PATH=/copa-online`.
+
+## Estado da Etapa 13
+
+Implementada em `feat/news-blog`, partindo de `feat/digital-match-report`. A etapa entrega noticias por campeonato, CRUD editorial, rascunho, agendamento, publicacao, despublicacao, destaque, previa, exclusao logica, capas otimizadas, portal publico paginado, busca, recentes, escopo para comunicacao/organizador, XSS escapado e CSRF.
+
+Evidencias: migration `0013_news_blog.sql`, `docs/NEWS_BLOG.md`, `MVP_TESTS_OK unit=13 integration=13 http=13`, `LINT_OK files=230` e `APP_BASE_PATH=/copa-online`.
 
 ## Estado da Etapa 3
 

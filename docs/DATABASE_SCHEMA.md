@@ -20,6 +20,7 @@
 | `0010_discipline_and_suspensions.sql` | ledger disciplinar, suspensoes, cumprimentos e historico | implementada |
 | `0011_standings_and_knockout.sql` | snapshots de classificacao, calculos e chave eliminatoria | implementada |
 | `0012_digital_match_reports.sql` | sumulas, versoes imutaveis, hashes e arquivos privados | implementada |
+| `0013_news_blog.sql` | noticias, blog, estados editoriais, destaque e exclusao logica | implementada |
 
 ## Tabelas da Etapa 3
 
@@ -136,6 +137,14 @@ Classificacao consulta somente partidas homologadas e gols/eventos validos ou re
 | `match_report_versions` | historico imutavel, hash, codigo, HTML e PDF privado |
 
 O PDF nao fica em coluna binaria. `storage_path` aponta para armazenamento privado fora de `public`; a aplicacao controla download por partida e versao.
+
+## Tabelas da Etapa 13
+
+| Tabela | Finalidade |
+|---|---|
+| `news_articles` | noticias por campeonato, autor, conteudo, capa, status, publicacao, destaque e exclusao logica |
+
+Capas sao reprocessadas para JPEG e ficam fora de `public`. O portal consulta apenas campeonatos publicos e noticias publicadas cuja data ja chegou.
 
 ## Regras
 

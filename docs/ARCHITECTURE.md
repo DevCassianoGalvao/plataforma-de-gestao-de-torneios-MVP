@@ -63,6 +63,10 @@ O assistente recebe grupos, turno, periodo, dias, horarios e locais em campos es
 
 `MatchReportAccessService` reaproveita escopo da central de partida para bloquear IDOR. Downloads usam `StorageService`, nunca caminho publico. Pacotes ZIP sao compostos apenas de versoes atuais autorizadas.
 
+## Noticias e blog
+
+`NewsRepository` separa consulta editorial de consulta publica. `NewsAccessService` exige `content.manage`/`content.publish` e valida atribuicao de comunicacao ou organizador ao campeonato. `NewsService` controla status, slug, publicacao, exclusao logica e auditoria. `NewsImageService` valida MIME real, dimensoes e reprocessa capas com GD; o portal so resolve capas por noticias publicadas.
+
 ## Operacao e homologacao
 
 MatchOperationRepository concentra a operacao, eventos, substituicoes, arbitragem, placar derivado e historico. MatchOperationService valida os registros contra as duas escalacoes confirmadas e contra as regras de substituicao do regulamento. MatchOperationAccessService separa administrador, organizador, operador atribuido, treinador por equipe e perfis negados.
@@ -77,4 +81,4 @@ A operacao usa open, awaiting_homologation e homologated. O operador finaliza co
 
 Inscricoes usam `RegistrationAccessService`, `RegistrationRules` e `RegistrationService`. O repositorio aplica escopo por administrador, organizador vinculado ou equipe do treinador. O regulamento define tamanho de elenco, goleiros minimos, documentos obrigatorios e inscricao por multiplas equipes em tabelas normalizadas. Somente `approved` aparece no elenco oficial; toda transicao e correcao gera historico e auditoria.
 
-Nao existem assinatura digital oficial, retificacao completa, noticias, Vai e Vem ou portal publico. Equipes, atletas, documentos, inscricoes, elenco, grupos, tabela, escalacoes, operacao, classificacao, mata-mata e sumula digital existem apenas no painel administrativo; a UI/UX definitiva continua para uma rodada posterior.
+Nao existem assinatura digital oficial, retificacao completa, Vai e Vem ou portal publico completo. Equipes, atletas, documentos, inscricoes, elenco, grupos, tabela, escalacoes, operacao, classificacao, mata-mata, sumula digital e noticias existem na estrutura administrativa; noticias possuem portal publico basico, enquanto a home publica completa e o Vai e Vem permanecem para etapas posteriores.

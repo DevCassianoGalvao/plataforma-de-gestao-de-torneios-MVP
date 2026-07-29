@@ -115,3 +115,15 @@ Permissoes adicionadas: `standings.view`, `standings.recalculate`, `knockout.gen
 | Comunicacao | `403` | sem acesso |
 
 Permissoes adicionadas: `match_reports.view`, `match_reports.download`, `match_reports.generate`, `match_reports.package`. PDFs e dados privados nunca sao servidos por rota publica.
+
+## Etapa 13: noticias e blog
+
+| Perfil | Acesso | Escopo |
+|---|---|---|
+| Administrador | criar, editar, publicar, despublicar e arquivar | todos os campeonatos |
+| Organizador | criar, editar, publicar, despublicar e arquivar | campeonatos atribuidos |
+| Comunicacao | criar, editar, publicar, despublicar e arquivar | campeonatos atribuidos |
+| Treinador/gestor | `403` no painel editorial | sem acesso |
+| Operador | `403` no painel editorial | sem acesso |
+
+Noticias publicadas ficam disponiveis no portal somente quando o campeonato esta publico. O servidor nao confia em links ou menus para aplicar o escopo; cada noticia e capa e revalidada antes da resposta.
