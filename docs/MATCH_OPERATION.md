@@ -4,7 +4,11 @@
 
 A Etapa 9 separa a operacao de uma partida da homologacao administrativa. A central e uma pagina propria, protegida por permissao e escopo, para registrar o que ocorreu em campo e preparar o resultado.
 
-Nao fazem parte desta etapa a acumulacao completa de suspensoes, a classificacao definitiva, a sumula PDF, noticias, Vai e Vem ou portal publico.
+Nao fazem parte desta etapa a classificacao definitiva, a sumula PDF, noticias, Vai e Vem ou portal publico. A acumulacao disciplinar desta etapa e processada depois da homologacao.
+
+## Disciplina apos homologacao
+
+Eventos validos de amarelo, segundo amarelo e vermelho sao enviados ao ledger disciplinar. A suspensao automatica e o cumprimento de suspensoes anteriores sao processados de forma idempotente.
 
 ## Operacao
 

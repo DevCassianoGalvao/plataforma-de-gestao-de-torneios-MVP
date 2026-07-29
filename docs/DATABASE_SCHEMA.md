@@ -2,6 +2,10 @@
 
 ## Migrations
 
+### Etapa 10
+
+0010_discipline_and_suspensions.sql cria discipline_ledger, discipline_processing_runs, discipline_suspensions, discipline_suspension_fulfillments, discipline_card_resets e discipline_history, além de ampliar eventos da partida para comissão e anulação auditável.
+
 | Migration | Conteudo | Estado |
 |---|---|---|
 | `0001_foundation.sql` | controle de migrations e health | implementada |

@@ -168,3 +168,10 @@ Treinador gerencia somente a propria equipe. Organizador visualiza campeonatos a
 | POST | /admin/partidas/{id}/operacao/homologar | organizador ou administrador homologa |
 
 Operacao e homologacao sao estados separados. O operador nao homologa a propria partida. A central nao exige cronologia minuto a minuto; o minuto dos registros e opcional.
+## Etapa 10 — disciplina
+
+- GET /admin/disciplina: acumulacao, pendurados, suspensoes, ledger e historico dentro do escopo.
+- POST /admin/disciplina/suspensao: suspensao manual para organizador autorizado ou administrador.
+- POST /admin/disciplina/suspensao/{id}/revogar: revogacao com motivo.
+- POST /admin/disciplina/cartao/{id}/anular: anulação auditada de cartão.
+- POST /admin/partidas/{id}/operacao/homologar: dispara processamento disciplinar idempotente.

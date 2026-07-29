@@ -96,7 +96,7 @@ final class MatchOperationController extends Controller
 
     private function eventInput(Request $request): array
     {
-        return ['event_type' => $request->body['event_type'] ?? '', 'period' => $request->body['period'] ?? 'regular', 'team_id' => $request->body['team_id'] ?? '', 'athlete_id' => $request->body['athlete_id'] ?? '', 'related_athlete_id' => $request->body['related_athlete_id'] ?? '', 'minute' => $request->body['minute'] ?? '', 'notes' => trim((string) ($request->body['notes'] ?? ''))];
+        return ['event_type' => $request->body['event_type'] ?? '', 'period' => $request->body['period'] ?? 'regular', 'team_id' => $request->body['team_id'] ?? '', 'person_type' => $request->body['person_type'] ?? 'athlete', 'athlete_id' => $request->body['athlete_id'] ?? '', 'team_staff_id' => $request->body['team_staff_id'] ?? '', 'related_athlete_id' => $request->body['related_athlete_id'] ?? '', 'minute' => $request->body['minute'] ?? '', 'notes' => trim((string) ($request->body['notes'] ?? ''))];
     }
 
     private function substitutionInput(Request $request): array

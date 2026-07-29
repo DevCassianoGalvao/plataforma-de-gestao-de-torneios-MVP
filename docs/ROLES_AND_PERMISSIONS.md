@@ -78,6 +78,10 @@ Permissoes adicionadas: `lineups.view`, `lineups.create`, `lineups.update`, `lin
 
 ## Etapa 9: operacao e homologacao
 
+## Etapa 10: disciplina
+
+Permissoes adicionadas: discipline.view, discipline.manage, discipline.process, suspensions.view, suspensions.create_manual, suspensions.revoke e cards.cancel. Organizador recebe as decisoes do campeonato autorizado; treinador recebe leitura da propria equipe; operador recebe leitura no contexto da partida; comunicacao nao recebe acesso.
+
 | Perfil | Acesso | Escopo |
 |---|---|---|
 | Administrador | visualiza, opera, finaliza e homologa | todos |

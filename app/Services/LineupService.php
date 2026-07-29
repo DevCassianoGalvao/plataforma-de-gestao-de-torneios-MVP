@@ -9,7 +9,7 @@ use App\Repositories\TeamRepository;
 
 final class LineupService
 {
-    public function __construct(private readonly LineupRepository $lineups, private readonly TacticalFormationRepository $formations, private readonly TeamRepository $teams, private readonly AuthorizationService $authorization, private readonly AuditService $audit)
+    public function __construct(private readonly LineupRepository $lineups, private readonly TacticalFormationRepository $formations, private readonly TeamRepository $teams, private readonly AuthorizationService $authorization, private readonly AuditService $audit, private readonly ?DisciplineService $discipline = null)
     {
     }
 
@@ -62,7 +62,7 @@ final class LineupService
         $staff = $this->lineups->staff((int) $lineup['team_id']);
         $built = $this->buildPlayers($formation, $athletes, $data);
         if ($built['errors'] !== []) return ['ok' => false, 'errors' => $built['errors']];
-        $errors = $this->validateSelection($built, $athletes, $data, $confirm, $match);
+        $errors = $this->validateSelection($built, $athletes, $data, $confirm, $match, (int) $lineup['team_id']);
         if ($errors !== []) return ['ok' => false, 'errors' => $errors];
         $staffIds = array_map('intval', (array) ($data['staff_ids'] ?? []));
         $knownStaff = array_map(static fn (array $member): int => (int) $member['id'], $staff);
@@ -122,7 +122,7 @@ final class LineupService
         return ['players' => $players, 'errors' => array_values(array_unique($errors)), 'starterIds' => array_values(array_map(static fn (array $player): int => (int) $player['athlete_id'], array_filter($players, static fn (array $player): bool => $player['role'] === 'starter'))), 'captain' => (int) ($data['captain_athlete_id'] ?? 0), 'goalkeeper' => (int) ($data['goalkeeper_athlete_id'] ?? 0)];
     }
 
-    private function validateSelection(array $built, array $athletes, array $data, bool $confirm, array $match): array
+    private function validateSelection(array $built, array $athletes, array $data, bool $confirm, array $match, int $teamId): array
     {
         $errors = [];
         if (!$confirm) return [];
@@ -133,6 +133,12 @@ final class LineupService
         $athleteMap = [];
         foreach ($athletes as $athlete) $athleteMap[(int) $athlete['id']] = $athlete;
         if ($built['goalkeeper'] && isset($athleteMap[$built['goalkeeper']]) && !$this->hasPosition($athleteMap[$built['goalkeeper']], 'goalkeeper')) $errors[] = 'O goleiro precisa possuir posicao de goleiro principal ou secundaria.';
+        if ($this->discipline) {
+            foreach ($built['players'] as $player) {
+                $suspension = $this->discipline->activeSuspension((int) $match['championship_id'], 'athlete', (int) $player['athlete_id'], (int) $match['id']);
+                if ($suspension) $errors[] = 'Atleta suspenso: ' . ((int) $player['athlete_id']) . '.';
+            }
+        }
         return array_values(array_unique($errors));
     }
 

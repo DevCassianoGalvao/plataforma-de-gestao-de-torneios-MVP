@@ -113,3 +113,10 @@ Nao existem operacao de partida, gols, cartoes, classificacao final, sumula oper
 - seed executado duas vezes sem duplicar 13 posicoes, 6 tipos, 20 atletas, 20 responsaveis, 20 vinculos, 20 documentos e 20 posicoes secundarias;
 - uploads validos, MIME real, limite, executavel bloqueado, escopo, IDOR, CSRF, privacidade e `APP_BASE_PATH=/copa-online` validados;
 - banco, servidor temporario e arquivos de teste removidos apos a validacao.
+## Etapa 10 — disciplina
+
+- unit: tipos de pessoa/cartão e quantidade de suspensão;
+- integration: seed idempotente, ledger após homologação, cartão anulado, suspensão manual/revogada, histórico e bloqueio de atleta suspenso na escalação;
+- HTTP: base path /copa-online, CSRF, tela disciplinar e 403 para comunicação;
+- migration: migration 0010 em banco descartável;
+- validation: lint PHP, seed executado duas vezes e limpeza do banco de teste.

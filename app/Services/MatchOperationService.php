@@ -8,7 +8,7 @@ use App\Repositories\MatchOperationRepository;
 
 final class MatchOperationService
 {
-    public function __construct(private readonly MatchOperationRepository $operations, private readonly LineupRepository $lineups, private readonly AuditService $audit)
+    public function __construct(private readonly MatchOperationRepository $operations, private readonly LineupRepository $lineups, private readonly AuditService $audit, private readonly ?DisciplineService $discipline = null)
     {
     }
 
@@ -31,6 +31,8 @@ final class MatchOperationService
             'checklist' => $this->checklist($match, $operation),
             'lineups' => $this->lineups->listForMatch((int) $match['id']),
             'players' => $this->playersForMatch($match),
+            'staff' => $this->staffForMatch($match),
+            'discipline' => $this->discipline ? ['home' => $this->discipline->activeForMatch((int) $match['championship_id'], (int) $match['id'], (int) $match['home_team_id']), 'away' => $this->discipline->activeForMatch((int) $match['championship_id'], (int) $match['id'], (int) $match['away_team_id'])] : ['home' => [], 'away' => []],
         ];
     }
 
@@ -43,11 +45,16 @@ final class MatchOperationService
         if (!MatchOperationRules::eventType($type)) return $this->fail('Tipo de registro invalido.');
         if (!MatchOperationRules::period($period)) return $this->fail('Periodo invalido.');
         $teamId = ($data['team_id'] ?? '') === '' ? null : (int) $data['team_id'];
+        $personType = trim((string) ($data['person_type'] ?? 'athlete')) ?: 'athlete';
         $athleteId = ($data['athlete_id'] ?? '') === '' ? null : (int) $data['athlete_id'];
+        $staffId = ($data['team_staff_id'] ?? '') === '' ? null : (int) $data['team_staff_id'];
         $relatedAthleteId = ($data['related_athlete_id'] ?? '') === '' ? null : (int) $data['related_athlete_id'];
         if ($teamId !== null && !$this->isMatchTeam($match, $teamId)) return $this->fail('Equipe nao pertence a partida.');
-        if (in_array($type, ['goal', 'own_goal', 'yellow', 'second_yellow', 'red', 'assist'], true) && !$athleteId) return $this->fail('Selecione o atleta do registro.');
+        if (!in_array($personType, ['athlete', 'staff'], true)) return $this->fail('Pessoa disciplinar invalida.');
+        if (in_array($type, ['yellow', 'second_yellow', 'red'], true) && (($personType === 'athlete' && !$athleteId) || ($personType === 'staff' && !$staffId))) return $this->fail('Selecione a pessoa advertida.');
+        if (in_array($type, ['goal', 'own_goal', 'assist'], true) && !$athleteId) return $this->fail('Selecione o atleta do registro.');
         if ($athleteId && !$this->athleteInLineup($match, $teamId, $athleteId, $type === 'own_goal')) return $this->fail('Atleta nao pertence a uma escalacao confirmada valida.');
+        if ($staffId && (!$teamId || !$this->staffInLineup($match, $teamId, $staffId))) return $this->fail('Membro da comissao nao pertence a escalacao confirmada.');
         if ($type === 'assist') {
             if (!$relatedAthleteId || !$teamId || !$this->athleteInLineup($match, $teamId, $relatedAthleteId, false)) return $this->fail('Assistencia exige atleta e autor do gol da mesma equipe.');
         }
@@ -56,7 +63,7 @@ final class MatchOperationService
         if ($period === 'penalties' && !in_array($type, ['penalty_scored', 'penalty_missed'], true)) return $this->fail('Somente registros de penalti podem usar esse periodo.');
         $minute = MatchOperationRules::minute($data['minute'] ?? null);
         if (($data['minute'] ?? '') !== '' && $minute === null) return $this->fail('Minuto invalido ou fora do limite.');
-        $id = $this->operations->createEvent(['match_id' => (int) $match['id'], 'team_id' => $teamId, 'athlete_id' => $athleteId, 'related_athlete_id' => $relatedAthleteId, 'event_type' => $type, 'period' => $period, 'minute' => $minute, 'notes' => trim((string) ($data['notes'] ?? '')) ?: null, 'created_by' => (int) $user['id']]);
+        $id = $this->operations->createEvent(['match_id' => (int) $match['id'], 'team_id' => $teamId, 'person_type' => $personType, 'athlete_id' => $athleteId, 'team_staff_id' => $staffId, 'related_athlete_id' => $relatedAthleteId, 'event_type' => $type, 'period' => $period, 'minute' => $minute, 'notes' => trim((string) ($data['notes'] ?? '')) ?: null, 'created_by' => (int) $user['id']]);
         $this->audit->record('match_operation.event_created', (int) $user['id'], 'match_operation_event', $id, ['match_id' => $match['id'], 'event_type' => $type], null);
         return ['ok' => true, 'errors' => [], 'id' => $id];
     }
@@ -148,6 +155,10 @@ final class MatchOperationService
         $checklist = $this->checklist($match, $operation);
         if ($checklist['errors'] !== []) return ['ok' => false, 'errors' => $checklist['errors']];
         $this->operations->homologate((int) $operation['id'], (int) $match['id'], (int) $user['id']);
+        if ($this->discipline) {
+            $processed = $this->discipline->processHomologatedMatch(array_merge($match, ['id' => (int) $match['id'], 'status' => 'homologated']), (int) $user['id']);
+            if (!$processed['ok']) return ['ok' => false, 'errors' => $processed['errors']];
+        }
         $this->audit->record('match_operation.homologated', (int) $user['id'], 'match', (int) $match['id'], ['score' => $this->operations->score($operation)], null);
         return ['ok' => true, 'errors' => []];
     }
@@ -183,6 +194,16 @@ final class MatchOperationService
         return $players;
     }
 
+    private function staffForMatch(array $match): array
+    {
+        $staff = [];
+        foreach ([(int) $match['home_team_id'], (int) $match['away_team_id']] as $teamId) {
+            $lineup = $this->lineupForTeam($match, $teamId);
+            foreach ($lineup['staff'] ?? [] as $member) $staff[] = ['team_id' => $teamId, 'team_staff_id' => (int) $member['team_staff_id'], 'name' => $member['display_name'] ?: $member['full_name']];
+        }
+        return $staff;
+    }
+
     private function lineupForTeam(array $match, int $teamId): ?array
     {
         return $this->lineups->find((int) $match['id'], $teamId);
@@ -202,6 +223,14 @@ final class MatchOperationService
     private function isMatchTeam(array $match, int $teamId): bool
     {
         return in_array($teamId, [(int) $match['home_team_id'], (int) $match['away_team_id']], true);
+    }
+
+    private function staffInLineup(array $match, int $teamId, int $staffId): bool
+    {
+        $lineup = $this->lineupForTeam($match, $teamId);
+        if (!$lineup || $lineup['status'] !== 'confirmed') return false;
+        foreach ($lineup['staff'] as $staff) if ((int) $staff['team_staff_id'] === $staffId && (int) ($staff['present'] ?? 1) === 1) return true;
+        return false;
     }
 
     private function opponentTeam(array $match, int $teamId): int

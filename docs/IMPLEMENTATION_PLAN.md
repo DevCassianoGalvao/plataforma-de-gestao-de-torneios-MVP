@@ -56,6 +56,10 @@ Evidencias: migration `0008_tactical_lineups.sql`, `docs/TACTICAL_LINEUPS.md`, `
 
 ## Estado da Etapa 9
 
+## Estado da Etapa 10
+
+Implementada nesta branch: disciplina, ledger de cartoes, acumulacao configuravel, pendurados, suspensoes automaticas/manuais, cumprimento idempotente, limpeza por fase, escopo e bloqueio de atleta suspenso na escalacao. Classificacao definitiva, mata-mata e retificacao avancada permanecem fora do escopo desta etapa.
+
 Implementada em feat/match-operation-center, partindo de feat/tactical-lineups. A etapa entrega central operacional propria, registros de gols, gols contra, assistencias, cartoes, ocorrencias, substituicoes, penaltis separados, horarios, arbitragem, placar calculado ou administrativo, checklist, finalizacao pelo operador e homologacao separada pelo organizador.
 
 Nao foram implementados acumulacao completa de suspensoes, classificacao definitiva, retificacao avancada, sumula PDF, noticias, Vai e Vem ou portal publico.

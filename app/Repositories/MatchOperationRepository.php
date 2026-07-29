@@ -31,7 +31,7 @@ final class MatchOperationRepository
 
     public function events(int $matchId): array
     {
-        $statement = $this->pdo->prepare('SELECT e.*, t.name AS team_name, a.full_name AS athlete_name, a.sporting_name AS athlete_sporting_name, ra.full_name AS related_athlete_name, ra.sporting_name AS related_athlete_sporting_name FROM match_operation_events e LEFT JOIN teams t ON t.id = e.team_id LEFT JOIN athletes a ON a.id = e.athlete_id LEFT JOIN athletes ra ON ra.id = e.related_athlete_id WHERE e.match_id = ? ORDER BY e.created_at, e.id');
+        $statement = $this->pdo->prepare('SELECT e.*, t.name AS team_name, a.full_name AS athlete_name, a.sporting_name AS athlete_sporting_name, ts.full_name AS staff_name, ts.display_name AS staff_display_name, ra.full_name AS related_athlete_name, ra.sporting_name AS related_athlete_sporting_name FROM match_operation_events e LEFT JOIN teams t ON t.id = e.team_id LEFT JOIN athletes a ON a.id = e.athlete_id LEFT JOIN team_staff ts ON ts.id = e.team_staff_id LEFT JOIN athletes ra ON ra.id = e.related_athlete_id WHERE e.match_id = ? ORDER BY e.created_at, e.id');
         $statement->execute([$matchId]);
         return $statement->fetchAll();
     }
@@ -85,9 +85,17 @@ final class MatchOperationRepository
     public function createEvent(array $data): int
     {
         $now = date('Y-m-d H:i:s');
-        $statement = $this->pdo->prepare('INSERT INTO match_operation_events (match_id, team_id, athlete_id, related_athlete_id, event_type, period, minute, notes, valid, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?)');
-        $statement->execute([$data['match_id'], $data['team_id'], $data['athlete_id'], $data['related_athlete_id'], $data['event_type'], $data['period'], $data['minute'], $data['notes'], $data['created_by'], $now, $now]);
+        $statement = $this->pdo->prepare('INSERT INTO match_operation_events (match_id, team_id, person_type, athlete_id, team_staff_id, related_athlete_id, event_type, period, minute, notes, valid, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?)');
+        $statement->execute([$data['match_id'], $data['team_id'], $data['person_type'] ?? 'athlete', $data['athlete_id'], $data['team_staff_id'] ?? null, $data['related_athlete_id'], $data['event_type'], $data['period'], $data['minute'], $data['notes'], $data['created_by'], $now, $now]);
         return (int) $this->pdo->lastInsertId();
+    }
+
+    public function cancelEvent(int $eventId, int $userId, string $reason): bool
+    {
+        $statement = $this->pdo->prepare('UPDATE match_operation_events SET valid = 0, cancelled_by = ?, cancelled_at = ?, cancellation_reason = ?, updated_at = ? WHERE id = ? AND valid = 1');
+        $now = date('Y-m-d H:i:s');
+        $statement->execute([$userId, $now, $reason, $now, $eventId]);
+        return $statement->rowCount() > 0;
     }
 
     public function createSubstitution(array $data): int
