@@ -16,7 +16,7 @@ O nome do banco pode conter letras, numeros, underscore e hifen, por exemplo `xd
 ## Publicacao
 
 1. Envie o codigo sem `.env`, logs, dumps, ZIPs ou backups.
-2. Copie `.env.example` para `.env` no servidor e preencha credenciais reais fora do Git.
+2. Copie `config/cpanel.env.example` para `.env` no servidor e preencha `DB_PASS` e `APP_KEY` fora do Git.
 3. Configure `APP_ENV=production`, `APP_DEBUG=false`, `APP_BASE_PATH=/torneio-online`, `SESSION_SECURE_COOKIE=true` e `APP_HSTS=true` somente com HTTPS funcionando.
 4. Garanta permissoes 750 para diretorios de storage e 640 para arquivos privados; o usuario PHP precisa escrever apenas nos diretorios previstos.
 5. Execute `php bin/install.php` pelo Terminal do cPanel ou SSH.

@@ -22,6 +22,8 @@ A UI/UX da Etapa 17 foi centralizada em um design system com tema escuro e claro
 
 Copie `.env.example` para `.env` e preencha apenas valores do ambiente local. Nunca versione `.env` ou credenciais reais.
 
+Para cPanel, copie `config/cpanel.env.example` para `.env`. O template ja possui dominio, base path e banco configurados; preencha somente `DB_PASS` e `APP_KEY` no servidor.
+
 ## Comandos disponiveis
 
 ```text
