@@ -1,0 +1,21 @@
+Options -Indexes -MultiViews
+
+RewriteEngine On
+
+# O clone pode ficar na raiz do subdiretorio do dominio. Exponha somente public/.
+RewriteRule ^(?:app|bin|config|database|docs|resources|routes|storage|tests|\.git)(?:/|$) - [F,L]
+
+# Arquivos de configuracao e metadados nunca devem ser publicados.
+<FilesMatch "^(?:\.env(?:\..*)?|\.gitignore|README\.md)$">
+    Require all denied
+</FilesMatch>
+
+# Ativos publicos continuam disponiveis na URL sem exigir mover o clone.
+RewriteRule ^assets/(.*)$ public/assets/$1 [L]
+RewriteRule ^uploads/(.*)$ public/uploads/$1 [L]
+
+# Permite a segunda passagem das reescritas internas para public/.
+RewriteRule ^public(?:/|$) - [L]
+
+# Todas as rotas da aplicacao entram pelo front controller real.
+RewriteRule ^ public/index.php [QSA,L]
