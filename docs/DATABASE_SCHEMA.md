@@ -19,6 +19,7 @@
 | `0009_match_operation.sql` | operacao, eventos, substituicoes, arbitragem e homologacao | implementada |
 | `0010_discipline_and_suspensions.sql` | ledger disciplinar, suspensoes, cumprimentos e historico | implementada |
 | `0011_standings_and_knockout.sql` | snapshots de classificacao, calculos e chave eliminatoria | implementada |
+| `0012_digital_match_reports.sql` | sumulas, versoes imutaveis, hashes e arquivos privados | implementada |
 
 ## Tabelas da Etapa 3
 
@@ -126,6 +127,15 @@ O placar normal e uma consulta sobre eventos validos de gol e gol contra. Penalt
 | `competition_results` | campeao e vice homologados da fase |
 
 Classificacao consulta somente partidas homologadas e gols/eventos validos ou resultado administrativo. Penaltis ficam fora dos gols da classificacao e apenas decidem a tie eliminatoria.
+
+## Tabelas da Etapa 12
+
+| Tabela | Finalidade |
+|---|---|
+| `match_reports` | ponte da partida homologada para versao atual e homologacao |
+| `match_report_versions` | historico imutavel, hash, codigo, HTML e PDF privado |
+
+O PDF nao fica em coluna binaria. `storage_path` aponta para armazenamento privado fora de `public`; a aplicacao controla download por partida e versao.
 
 ## Regras
 

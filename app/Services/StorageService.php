@@ -60,6 +60,25 @@ final class StorageService
         return ['body' => (string) file_get_contents($path), 'mime' => $mime, 'name' => basename($path)];
     }
 
+    public function storeContents(string $contents, string $directory, string $extension, string $mime): array
+    {
+        if ($contents === '' || !preg_match('/^[a-z0-9]{1,8}$/i', $extension)) {
+            throw new \RuntimeException('Conteudo ou extensao de arquivo invalida.');
+        }
+        $relativeDirectory = trim($directory, '/\\');
+        $absoluteDirectory = $this->root . DIRECTORY_SEPARATOR . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $relativeDirectory);
+        if (!is_dir($absoluteDirectory) && !mkdir($absoluteDirectory, 0750, true) && !is_dir($absoluteDirectory)) {
+            throw new \RuntimeException('Nao foi possivel preparar o armazenamento.');
+        }
+        $filename = bin2hex(random_bytes(16)) . '.' . strtolower($extension);
+        $absolutePath = $absoluteDirectory . DIRECTORY_SEPARATOR . $filename;
+        if (file_put_contents($absolutePath, $contents, LOCK_EX) === false) {
+            throw new \RuntimeException('Nao foi possivel armazenar o arquivo gerado.');
+        }
+        @chmod($absolutePath, 0640);
+        return ['path' => str_replace('\\', '/', $relativeDirectory . '/' . $filename), 'mime' => $mime, 'size' => strlen($contents), 'original_name' => $filename];
+    }
+
     public function delete(string $relativePath): void
     {
         $path = $this->absolutePath($relativePath);

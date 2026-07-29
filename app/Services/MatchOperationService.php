@@ -8,7 +8,7 @@ use App\Repositories\MatchOperationRepository;
 
 final class MatchOperationService
 {
-    public function __construct(private readonly MatchOperationRepository $operations, private readonly LineupRepository $lineups, private readonly AuditService $audit, private readonly ?DisciplineService $discipline = null)
+    public function __construct(private readonly MatchOperationRepository $operations, private readonly LineupRepository $lineups, private readonly AuditService $audit, private readonly ?DisciplineService $discipline = null, private readonly ?MatchReportService $reports = null)
     {
     }
 
@@ -158,6 +158,10 @@ final class MatchOperationService
         if ($this->discipline) {
             $processed = $this->discipline->processHomologatedMatch(array_merge($match, ['id' => (int) $match['id'], 'status' => 'homologated']), (int) $user['id']);
             if (!$processed['ok']) return ['ok' => false, 'errors' => $processed['errors']];
+        }
+        if ($this->reports) {
+            $report = $this->reports->generateForHomologatedMatch(array_merge($match, ['id' => (int) $match['id'], 'status' => 'homologated']), (int) $user['id']);
+            if (!$report['ok']) return ['ok' => false, 'errors' => $report['errors']];
         }
         $this->audit->record('match_operation.homologated', (int) $user['id'], 'match', (int) $match['id'], ['score' => $this->operations->score($operation)], null);
         return ['ok' => true, 'errors' => []];

@@ -57,6 +57,12 @@ O assistente recebe grupos, turno, periodo, dias, horarios e locais em campos es
 
 `knockout_rounds` e `knockout_ties` representam a chave sem misturar a operacao da partida. A geracao usa fontes A1/B4 etc. e chaves de fixture para nao duplicar partidas. Apenas uma partida homologada pode promover vencedor; resultado administrativo e penaltis definem a tie sem entrar nos gols da classificacao. A final grava campeao e vice em `competition_results`.
 
+## Sumula digital
+
+`MatchReportRepository` monta payload de partida homologada a partir das tabelas reais de operacao, escalacao, arbitragem e campeonato. `MatchReportHtmlRenderer` preserva a organizacao estrutural da planilha em preview; `MatchReportPdf` desenha A4 com tabela de duas equipes, pagina principal e verso de ocorrencias. `MatchReportService` calcula hash da fonte, grava arquivo privado e cria versao imutavel; nova fonte cria nova versao sem alterar as anteriores.
+
+`MatchReportAccessService` reaproveita escopo da central de partida para bloquear IDOR. Downloads usam `StorageService`, nunca caminho publico. Pacotes ZIP sao compostos apenas de versoes atuais autorizadas.
+
 ## Operacao e homologacao
 
 MatchOperationRepository concentra a operacao, eventos, substituicoes, arbitragem, placar derivado e historico. MatchOperationService valida os registros contra as duas escalacoes confirmadas e contra as regras de substituicao do regulamento. MatchOperationAccessService separa administrador, organizador, operador atribuido, treinador por equipe e perfis negados.
@@ -71,4 +77,4 @@ A operacao usa open, awaiting_homologation e homologated. O operador finaliza co
 
 Inscricoes usam `RegistrationAccessService`, `RegistrationRules` e `RegistrationService`. O repositorio aplica escopo por administrador, organizador vinculado ou equipe do treinador. O regulamento define tamanho de elenco, goleiros minimos, documentos obrigatorios e inscricao por multiplas equipes em tabelas normalizadas. Somente `approved` aparece no elenco oficial; toda transicao e correcao gera historico e auditoria.
 
-Nao existem sumula operacional em PDF, noticias, Vai e Vem ou portal publico. Equipes, atletas, documentos, inscricoes, elenco, grupos, tabela, escalacoes, operacao, classificacao e mata-mata existem apenas no painel administrativo; a UI/UX definitiva continua para uma rodada posterior.
+Nao existem assinatura digital oficial, retificacao completa, noticias, Vai e Vem ou portal publico. Equipes, atletas, documentos, inscricoes, elenco, grupos, tabela, escalacoes, operacao, classificacao, mata-mata e sumula digital existem apenas no painel administrativo; a UI/UX definitiva continua para uma rodada posterior.

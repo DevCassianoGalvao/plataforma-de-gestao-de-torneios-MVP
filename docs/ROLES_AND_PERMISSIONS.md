@@ -103,3 +103,15 @@ Permissoes adicionadas: match_operation.view, match_operation.operate, match_ope
 | Comunicacao | `403` | `403` | sem acesso |
 
 Permissoes adicionadas: `standings.view`, `standings.recalculate`, `knockout.generate`, `knockout.advance`. O servidor valida fase, campeonato, vinculo, CSRF e status homologado antes de qualquer alteracao da chave.
+
+## Etapa 12: sumula digital
+
+| Perfil | Acesso | Escopo |
+|---|---|---|
+| Administrador | gerar, visualizar, baixar e empacotar | todos |
+| Organizador | gerar, visualizar, baixar e empacotar | campeonatos autorizados |
+| Operador | visualizar e baixar | partidas atribuidas |
+| Treinador/gestor | visualizar e baixar | partidas da propria equipe |
+| Comunicacao | `403` | sem acesso |
+
+Permissoes adicionadas: `match_reports.view`, `match_reports.download`, `match_reports.generate`, `match_reports.package`. PDFs e dados privados nunca sao servidos por rota publica.

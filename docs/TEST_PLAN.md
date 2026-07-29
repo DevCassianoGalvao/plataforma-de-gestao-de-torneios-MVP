@@ -42,6 +42,9 @@ No Windows, use `$env:NOME='valor'` e `C:\xampp\php\php.exe` quando o PHP nao es
 | Unitario Etapa 11 | `tests/Unit/StandingsTest.php` | fases permitidas e preset eliminatorio |
 | Integracao Etapa 11 | `tests/Integration/StandingsIntegrationTest.php` | partidas homologadas, pontos, desempates configurados, recalculo idempotente, quartas, semifinais, final, penaltis, campeao, vice e geracao repetida |
 | HTTP de contrato Etapa 11 | `tests/Http/StandingsHttpTest.php` | classificacao, CSRF, comunicacao negada e base path |
+| Unitario Etapa 12 | `tests/Unit/MatchReportTest.php` | assinatura PDF, duas paginas e campos estruturais HTML |
+| Integracao Etapa 12 | `tests/Integration/MatchReportIntegrationTest.php` | dados homologados, PDF privado, idempotencia, nova versao, preservacao do historico e ZIP |
+| HTTP de contrato Etapa 12 | `tests/Http/MatchReportHttpTest.php` | preview, PDF atual/historico, pacote, CSRF, privacidade e base path |
 
 ## Resultado da Etapa 3
 
@@ -105,6 +108,16 @@ Nao existem operacao de partida, gols, cartoes, classificacao final, sumula oper
 - idempotencia de snapshots, ties, partidas e resultado final validada;
 - CSRF, escopo, comunicacao negada e `APP_BASE_PATH=/copa-online` validados;
 - banco descartavel removido apos a validacao.
+
+## Resultado da Etapa 12
+
+- `LINT_OK files=216`;
+- `MVP_TESTS_OK unit=12 integration=12 http=12`;
+- migration `0012` aplicada em banco descartavel;
+- HTML, PDF 1.4 A4 com duas paginas, caracteres, equipes, atletas, eventos, arbitragem, ocorrencias e confirmacoes validados;
+- versao repetida idempotente, retificacao em nova versao, arquivo anterior preservado e pacote ZIP validado;
+- permissao, escopo, privacidade, CSRF e `APP_BASE_PATH=/copa-online` validados;
+- arquivos privados de teste removidos ao fim da suite.
 
 ## Resultado da Etapa 7
 

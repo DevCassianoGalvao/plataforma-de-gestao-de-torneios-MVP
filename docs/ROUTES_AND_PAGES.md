@@ -169,6 +169,19 @@ Treinador gerencia somente a propria equipe. Organizador visualiza campeonatos a
 
 Operacao e homologacao sao estados separados. O operador nao homologa a propria partida. A central nao exige cronologia minuto a minuto; o minuto dos registros e opcional.
 
+## Sumula digital
+
+| Metodo | Rota | Funcao |
+|---|---|---|
+| GET | `/admin/partidas/{id}/sumula` | preview HTML da sumula versionada |
+| POST | `/admin/partidas/{id}/sumula/gerar` | gerar nova versao autorizada |
+| GET | `/admin/partidas/{id}/sumula/pdf` | baixar PDF da versao atual |
+| GET | `/admin/sumulas/versoes/{id}/pdf` | baixar PDF historico autorizado |
+| GET | `/admin/sumulas/rodadas/{id}.zip` | pacote privado da rodada |
+| GET | `/admin/sumulas/campeonatos/{id}.zip` | pacote privado do campeonato |
+
+Sumulas nao possuem rota publica. O servidor valida permissao, escopo da partida/campeonato e existencia da versao antes de ler armazenamento privado.
+
 ## Classificacao e mata-mata
 
 | Metodo | Rota | Funcao |

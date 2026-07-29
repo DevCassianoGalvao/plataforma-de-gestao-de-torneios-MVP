@@ -48,4 +48,4 @@ Rotas administrativas:
 
 ## Limites
 
-A UI desta etapa e administrativa e funcional, sem design visual definitivo. Nao foram implementados sumula PDF, noticias, Vai e Vem, portal publico, retificacao avancada ou nova logica acumulada de suspensoes.
+A UI desta etapa e administrativa e funcional, sem design visual definitivo. Na Etapa 11 ficaram fora do escopo noticias, Vai e Vem, portal publico, retificacao avancada e nova logica acumulada de suspensoes. A sumula digital foi entregue na Etapa 12.

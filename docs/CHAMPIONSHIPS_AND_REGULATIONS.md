@@ -42,4 +42,4 @@ Transicoes validas: `draft -> registration -> configured -> in_progress -> finis
 
 O seed cria dados ficticios de temporada, categoria, Copa Brasil de Talentos, regulamento publicado e organizador vinculado, sem equipes ou partidas. Ele e idempotente e bloqueado em producao.
 
-Ainda faltam equipes, atletas, inscricoes, grupos, rodadas, partidas, disciplina operacional, classificacao, mata-mata, sumula, conteudo e portal.
+Este documento descreve a fundacao de campeonatos e regulamentos. As etapas posteriores adicionaram equipes, atletas, inscricoes, grupos, rodadas, partidas, disciplina, classificacao, mata-mata e sumula digital; conteudo e portal continuam fora do escopo implementado.

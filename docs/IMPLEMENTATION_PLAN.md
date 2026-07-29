@@ -15,7 +15,7 @@ Legenda: `[ ]` pendente, `[x]` concluido com evidencia. Nenhuma etapa futura dev
 | 9 | Central da partida | [x] | registros, placar derivado, arbitragem, finalizacao e homologacao basica |
 | 10 | Disciplina | [x] | cartoes, suspensoes e proximos confrontos |
 | 11 | Classificacao e mata-mata | [x] | criterios, cruzamentos, campeao e vice |
-| 12 | Sumula | [ ] | digital e PDF conforme planilha |
+| 12 | Sumula | [x] | preview HTML, PDF A4, versoes e pacotes conforme planilha |
 | 13 | Noticias | [ ] | rascunho e publicacao |
 | 14 | Vai e Vem | [ ] | movimentacoes e historico |
 | 15 | Portal publico | [ ] | dados publicados por slug |
@@ -62,7 +62,7 @@ Implementada nesta branch: disciplina, ledger de cartoes, acumulacao configurave
 
 Implementada em feat/match-operation-center, partindo de feat/tactical-lineups. A etapa entrega central operacional propria, registros de gols, gols contra, assistencias, cartoes, ocorrencias, substituicoes, penaltis separados, horarios, arbitragem, placar calculado ou administrativo, checklist, finalizacao pelo operador e homologacao separada pelo organizador.
 
-Nao foram implementados acumulacao completa de suspensoes, classificacao definitiva, retificacao avancada, sumula PDF, noticias, Vai e Vem ou portal publico.
+Nao foram implementados acumulacao completa de suspensoes, retificacao avancada, noticias, Vai e Vem ou portal publico.
 
 Evidencias: migration 0009_match_operation.sql, docs/MATCH_OPERATION.md, MVP_TESTS_OK unit=9 integration=9 http=9, lint PHP, banco descartavel e APP_BASE_PATH=/copa-online.
 
@@ -71,6 +71,12 @@ Evidencias: migration 0009_match_operation.sql, docs/MATCH_OPERATION.md, MVP_TES
 Implementada em `feat/standings-and-knockout`, partindo de `feat/discipline-and-suspensions`. A etapa entrega snapshots transacionais de classificacao por grupo usando partidas homologadas, pontuacao e desempates configuraveis, mini-tabela de confronto direto, registro do criterio separador, chave de quartas, semifinais e final, avancos apos homologacao, penaltis e resultados administrativos, campeao, vice, escopo e CSRF.
 
 Evidencias: migration `0011_standings_and_knockout.sql`, `docs/STANDINGS_AND_KNOCKOUT.md`, `MVP_TESTS_OK unit=11 integration=11 http=11`, `LINT_OK files=206` e banco descartavel com `APP_BASE_PATH=/copa-online`.
+
+## Estado da Etapa 12
+
+Implementada em `feat/digital-match-report`, partindo de `feat/standings-and-knockout`. A etapa entrega sumula HTML e PDF A4 baseado na planilha enviada, relacao das duas equipes, atletas, numeros, titulares, reservas, cartoes, gols, placar, horarios, arbitragem, mesario, penaltis, ocorrencias, confirmacoes, pagina de verso, codigo de verificacao, armazenamento privado, historico imutavel, downloads autorizados e pacotes ZIP.
+
+Evidencias: migration `0012_digital_match_reports.sql`, `docs/DIGITAL_MATCH_REPORT.md`, `MVP_TESTS_OK unit=12 integration=12 http=12`, `LINT_OK files=216` e `APP_BASE_PATH=/copa-online`.
 
 ## Estado da Etapa 3
 
