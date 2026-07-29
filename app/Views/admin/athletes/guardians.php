@@ -8,6 +8,6 @@
 <?php if ($canManage): ?>
 <section><h2>Vincular responsavel</h2><form method="post" action="<?= App\Core\View::e(App\Core\Config::url('/admin/atletas/' . $athlete['id'] . '/responsaveis')) ?>">
     <input type="hidden" name="_csrf" value="<?= App\Core\View::e(App\Core\Security::csrfToken()) ?>">
-    <label>Nome completo <input name="guardian_full_name" required></label><label>Parentesco <input name="guardian_relationship" required></label><label>Telefone <input name="guardian_phone" required></label><label>E-mail <input type="email" name="guardian_email"></label><label>Documento protegido <input name="guardian_document" required autocomplete="off"></label><label>Observacao da autorizacao <textarea name="guardian_authorization_note" rows="3"></textarea></label><button type="submit">Salvar responsavel</button>
+    <label>Nome completo <input name="guardian_full_name" required></label><label>Parentesco <input name="guardian_relationship" required></label><label>Telefone <input name="guardian_phone" required></label><label>E-mail <input type="email" name="guardian_email"></label><label>Documento protegido <input name="guardian_document" required autocomplete="off"></label><label>Observação da autorizacao <textarea name="guardian_authorization_note" rows="3"></textarea></label><button type="submit">Salvar responsavel</button>
 </form></section>
 <?php endif; ?>

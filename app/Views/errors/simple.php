@@ -1,1 +1,1 @@
-<section><p class="eyebrow">Validacao</p><h1>Nao foi possivel concluir</h1><p><?= App\Core\View::e($message ?? 'Revise os dados e tente novamente.') ?></p><p><a href="javascript:history.back()">Voltar</a></p></section>
+<section><p class="eyebrow">Validacao</p><h1>Não foi possivel concluir</h1><p><?= App\Core\View::e($message ?? 'Revise os dados e tente novamente.') ?></p><p><a href="javascript:history.back()">Voltar</a></p></section>

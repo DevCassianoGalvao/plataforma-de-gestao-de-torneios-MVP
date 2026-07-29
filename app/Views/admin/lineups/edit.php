@@ -12,7 +12,7 @@ $isSlotCompatible = static function (array $athlete, array $slot): bool {
 ?>
 <section>
     <div class="section-heading">
-        <div><p class="eyebrow"><?= App\Core\View::e($lineup['team_name']) ?></p><h1>Escalacao</h1><p><?= App\Core\View::e($match['home_team_name']) ?> x <?= App\Core\View::e($match['away_team_name']) ?> - versao <?= (int) $lineup['version'] ?></p></div>
+        <div><p class="eyebrow"><?= App\Core\View::e($lineup['team_name']) ?></p><h1>Escalação</h1><p><?= App\Core\View::e($match['home_team_name']) ?> x <?= App\Core\View::e($match['away_team_name']) ?> - versão <?= (int) $lineup['version'] ?></p></div>
         <span class="status status-<?= App\Core\View::e($lineup['status']) ?>"><?= App\Core\View::e($lineup['status']) ?></span>
     </div>
     <?php if ($errors !== []): ?><div class="error" role="alert"><ul><?php foreach ($errors as $error): ?><li><?= App\Core\View::e($error) ?></li><?php endforeach; ?></ul></div><?php endif; ?>
@@ -20,9 +20,9 @@ $isSlotCompatible = static function (array $athlete, array $slot): bool {
     <form method="post" action="<?= App\Core\View::e(App\Core\Config::url('/admin/partidas/' . $match['id'] . '/escalacao/' . $teamId)) ?>">
         <input type="hidden" name="_csrf" value="<?= App\Core\View::e(App\Core\Security::csrfToken()) ?>">
         <fieldset>
-            <legend>Formacao</legend>
+            <legend>Formação</legend>
             <label>Escolhida <select name="formation_id" required><?php foreach ($formations as $item): ?><option value="<?= (int) $item['id'] ?>" <?= (int) ($formData['formation_id'] ?? 0) === (int) $item['id'] ? 'selected' : '' ?>><?= App\Core\View::e($item['name']) ?></option><?php endforeach; ?></select></label>
-            <p>Sugestao padrao da equipe pode ser alterada nesta partida.</p>
+            <p>Sugestão padrao da equipe pode ser alterada nesta partida.</p>
         </fieldset>
         <?php if ($formation): ?>
         <fieldset>
@@ -42,7 +42,7 @@ $isSlotCompatible = static function (array $athlete, array $slot): bool {
                     </div>
                 <?php endforeach; ?>
             </div>
-            <p class="muted">Troque atleta de slot pelos selects. Mover, substituir ou ajustar nao depende de arrastar.</p>
+            <p class="muted">Troque atleta de slot pelos selects. Mover, substituir ou ajustar não depende de arrastar.</p>
         </fieldset>
         <?php endif; ?>
         <fieldset>
@@ -55,7 +55,7 @@ $isSlotCompatible = static function (array $athlete, array $slot): bool {
             <div class="choice-grid"><?php foreach ($athletes as $athlete): ?><label><input type="checkbox" name="reserves[]" value="<?= (int) $athlete['id'] ?>" <?= in_array((int) $athlete['id'], $selectedReserves, true) ? 'checked' : '' ?>> <?= App\Core\View::e($displayName($athlete)) ?> #<?= App\Core\View::e($athlete['preferred_number'] ?: '-') ?> <small><?= App\Core\View::e($athlete['primary_position_name']) ?></small></label><?php endforeach; ?></div>
         </fieldset>
         <fieldset>
-            <legend>Comissao presente</legend>
+            <legend>Comissão presente</legend>
             <div class="choice-grid"><?php foreach ($staff as $member): ?><label><input type="checkbox" name="staff_ids[]" value="<?= (int) $member['id'] ?>" <?= in_array((int) $member['id'], $selectedStaff, true) ? 'checked' : '' ?>> <?= App\Core\View::e($member['display_name'] ?: $member['full_name']) ?> - <?= App\Core\View::e($member['role_name']) ?></label><?php endforeach; ?></div>
         </fieldset>
         <?php if ($lineup['status'] === 'draft'): ?>
@@ -66,5 +66,5 @@ $isSlotCompatible = static function (array $athlete, array $slot): bool {
     </form>
             <?php if ($canReopen): ?><form method="post" action="<?= App\Core\View::e(App\Core\Config::url('/admin/partidas/' . $match['id'] . '/escalacao/' . $teamId . '/reabrir')) ?>"><input type="hidden" name="_csrf" value="<?= App\Core\View::e(App\Core\Security::csrfToken()) ?>"><label>Motivo da reabertura <textarea name="reason" required></textarea></label><button type="submit">Reabrir escalacao</button></form><?php endif; ?>
         <?php endif; ?>
-    <article class="panel"><h2>Historico minimo</h2><ul><?php foreach ($history as $item): ?><li>v<?= (int) $item['version'] ?> - <?= App\Core\View::e($item['action']) ?> - <?= App\Core\View::e($item['status']) ?> - <?= App\Core\View::e($item['created_at']) ?></li><?php endforeach; ?></ul></article>
+    <article class="panel"><h2>Histórico minimo</h2><ul><?php foreach ($history as $item): ?><li>v<?= (int) $item['version'] ?> - <?= App\Core\View::e($item['action']) ?> - <?= App\Core\View::e($item['status']) ?> - <?= App\Core\View::e($item['created_at']) ?></li><?php endforeach; ?></ul></article>
 </section>

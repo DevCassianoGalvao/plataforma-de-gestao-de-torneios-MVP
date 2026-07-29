@@ -1,6 +1,6 @@
 <?php $e = static fn (mixed $value): string => App\Core\View::e($value); $record = $record ?? []; $date = !empty($record['published_at']) ? str_replace(' ', 'T', substr((string) $record['published_at'], 0, 16)) : ''; ?>
 <section>
-    <p class="eyebrow">Conteudo editorial</p><h1><?= !empty($editing) ? 'Editar noticia' : 'Nova noticia' ?></h1>
+    <p class="eyebrow">Conteúdo editorial</p><h1><?= !empty($editing) ? 'Editar noticia' : 'Nova noticia' ?></h1>
     <?php foreach (($errors ?? []) as $error): ?><p class="alert" role="alert"><?= $e($error) ?></p><?php endforeach; ?>
     <form method="post" enctype="multipart/form-data" action="<?= $e(App\Core\Config::url(!empty($editing) ? '/admin/noticias/' . $record['id'] : '/admin/noticias')) ?>">
         <input type="hidden" name="_csrf" value="<?= $e(App\Core\Security::csrfToken()) ?>">
@@ -8,7 +8,7 @@
         <label>Titulo <input name="title" value="<?= $e($record['title'] ?? '') ?>" required maxlength="255"></label>
         <label>Slug <input name="slug" value="<?= $e($record['slug'] ?? '') ?>" placeholder="noticia-do-campeonato"></label>
         <label>Resumo <textarea name="summary" rows="3" maxlength="600"><?= $e($record['summary'] ?? '') ?></textarea></label>
-        <label>Conteudo <textarea name="content" rows="12" required><?= $e($record['content'] ?? '') ?></textarea></label>
+        <label>Conteúdo <textarea name="content" rows="12" required><?= $e($record['content'] ?? '') ?></textarea></label>
         <label>Imagem de capa <input type="file" name="cover_image" accept="image/jpeg,image/png,image/webp"></label>
         <?php if (!empty($record['cover_image_path'])): ?><p><img class="news-cover-thumb" src="<?= $e(App\Core\Config::url('/admin/noticias/' . $record['id'] . '/capa')) ?>" alt="Capa atual"></p><?php endif; ?>
         <label>Status <select name="status"><?php foreach (['draft', 'scheduled', 'published', 'unpublished', 'archived'] as $status): ?><option value="<?= $e($status) ?>" <?= ($record['status'] ?? 'draft') === $status ? 'selected' : '' ?>><?= $e($status) ?></option><?php endforeach; ?></select></label>

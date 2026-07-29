@@ -3,7 +3,7 @@
     <?php foreach (($errors ?? []) as $error): ?><p class="alert" role="alert"><?= App\Core\View::e($error) ?></p><?php endforeach; ?>
     <form method="post" action="<?= App\Core\View::e(App\Core\Config::url(!empty($editing) ? '/admin/equipes/' . ($record['slug'] ?? '') : '/admin/equipes')) ?>">
         <input type="hidden" name="_csrf" value="<?= App\Core\View::e(App\Core\Security::csrfToken()) ?>">
-        <fieldset><legend>Informacoes gerais</legend>
+        <fieldset><legend>Informações gerais</legend>
             <?php if (empty($editing)): ?><label>Campeonato <select name="championship_id" required><option value="">Selecione</option><?php foreach ($championships as $championship): ?><option value="<?= (int) $championship['id'] ?>" <?= (string) ($record['championship_id'] ?? '') === (string) $championship['id'] ? 'selected' : '' ?>><?= App\Core\View::e($championship['name']) ?></option><?php endforeach; ?></select></label><?php endif; ?>
             <label>Nome <input name="name" value="<?= App\Core\View::e($record['name'] ?? '') ?>" required></label>
             <label>Nome curto <input name="short_name" value="<?= App\Core\View::e($record['short_name'] ?? '') ?>" required></label>
@@ -14,7 +14,7 @@
             <label>Estado <input name="state" value="<?= App\Core\View::e($record['state'] ?? '') ?>"></label>
         </fieldset>
         <fieldset><legend>Identidade inicial</legend><label>Cor principal <input type="color" name="primary_color" value="<?= App\Core\View::e($record['primary_color'] ?? '#123C32') ?>"></label><label>Cor secundaria <input type="color" name="secondary_color" value="<?= App\Core\View::e($record['secondary_color'] ?? '#D9A441') ?>"></label></fieldset>
-        <fieldset><legend>Formacao padrao</legend><label>Esquema <select name="default_tactical_formation_id"><option value="">Definir depois</option><?php foreach ($formations as $formation): ?><option value="<?= (int) $formation['id'] ?>" <?= (string) ($record['default_tactical_formation_id'] ?? '') === (string) $formation['id'] ? 'selected' : '' ?>><?= App\Core\View::e($formation['name']) ?></option><?php endforeach; ?></select></label></fieldset>
+        <fieldset><legend>Formação padrao</legend><label>Esquema <select name="default_tactical_formation_id"><option value="">Definir depois</option><?php foreach ($formations as $formation): ?><option value="<?= (int) $formation['id'] ?>" <?= (string) ($record['default_tactical_formation_id'] ?? '') === (string) $formation['id'] ? 'selected' : '' ?>><?= App\Core\View::e($formation['name']) ?></option><?php endforeach; ?></select></label></fieldset>
         <?php if (!empty($editing)): ?><p class="muted">Status atual: <?= App\Core\View::e($record['status']) ?>. Use a pagina da equipe para transicoes validadas.</p><?php endif; ?>
         <button type="submit">Salvar equipe</button>
     </form>
