@@ -63,4 +63,4 @@ Nao ha rota publica para escalacoes, fotos, documentos ou dados privados.
 
 ## Seed e testes
 
-LineupSeed e idempotente e cria atletas ficticios aprovados para as dez equipes, com posicoes variadas, reservas e comissao disponivel. Os testes cobrem seed duplo, titulares, reservas, goleiro, capitao, posicoes principal/secundaria, fora de posicao, ajuste manual, equipe alheia, duplicidade, confirmacao, reabertura, historico, escopo, IDOR, CSRF e APP_BASE_PATH=/copa-online.
+LineupSeed e idempotente e cria atletas ficticios aprovados para as dez equipes, com posicoes variadas, reservas e comissao disponivel. Os testes cobrem seed duplo, titulares, reservas, goleiro, capitao, posicoes principal/secundaria, fora de posicao, ajuste manual, equipe alheia, duplicidade, confirmacao, reabertura, historico, escopo, IDOR, CSRF e APP_BASE_PATH=/torneio-online.

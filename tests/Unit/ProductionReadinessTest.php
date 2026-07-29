@@ -13,10 +13,10 @@ final class ProductionReadinessTest
 {
     public static function run(): void
     {
-        assert_same('/copa-online/admin', Security::safeLocalPath('/copa-online/admin'), 'Rota local valida foi rejeitada');
+        assert_same('/torneio-online/admin', Security::safeLocalPath('/torneio-online/admin'), 'Rota local valida foi rejeitada');
         assert_same(null, Security::safeLocalPath('https://evil.example/'), 'Open redirect externo aceito');
         assert_same(null, Security::safeLocalPath('//evil.example/'), 'Open redirect protocol-relative aceito');
-        assert_same(null, Security::safeLocalPath('/copa-online/../admin'), 'Traversal em redirect aceito');
+        assert_same(null, Security::safeLocalPath('/torneio-online/../admin'), 'Traversal em redirect aceito');
         $headers = Response::html('ok')->headers;
         foreach (['Content-Security-Policy', 'X-Content-Type-Options', 'X-Frame-Options', 'Referrer-Policy', 'Permissions-Policy'] as $header) {
             assert_true(isset($headers[$header]), 'Header de seguranca ausente: ' . $header);

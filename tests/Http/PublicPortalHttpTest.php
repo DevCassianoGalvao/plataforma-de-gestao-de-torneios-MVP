@@ -23,7 +23,7 @@ final class PublicPortalHttpTest
         /** @var Router $router */
         $router = require dirname(__DIR__, 2) . '/routes/web.php';
         $slug = 'copa-brasil-de-talentos-2026';
-        $base = '/copa-online/campeonatos/' . $slug;
+        $base = '/torneio-online/campeonatos/' . $slug;
         $paths = ['', '/proximos-jogos', '/resultados', '/classificacao', '/grupos', '/mata-mata', '/equipes', '/atletas', '/artilharia', '/assistencias', '/cartoes', '/regulamento', '/campeao', '/noticias', '/vai-e-vem'];
         foreach ($paths as $path) {
             $response = $router->dispatch(Request::fake('GET', $base . $path));
@@ -41,10 +41,13 @@ final class PublicPortalHttpTest
 
         $home = $router->dispatch(Request::fake('GET', $base));
         assert_true(str_contains($home->body, 'canonical') && str_contains($home->body, 'og:title'), 'SEO basico ausente na home publica');
-        assert_same(200, $router->dispatch(Request::fake('GET', '/sitemap.xml'))->status, 'Sitemap publico falhou');
+        assert_true(str_contains($home->body, 'https://www.cassianogalvao.com.br/torneio-online/campeonatos/' . $slug), 'Canonical nao usa o dominio final');
+        $sitemap = $router->dispatch(Request::fake('GET', '/sitemap.xml'));
+        assert_same(200, $sitemap->status, 'Sitemap publico falhou');
+        assert_true(str_contains($sitemap->body, 'https://www.cassianogalvao.com.br/torneio-online/campeonatos/' . $slug), 'Sitemap nao usa o dominio final');
         $robots = $router->dispatch(Request::fake('GET', '/robots.txt'));
         assert_same(200, $robots->status, 'Robots publico falhou');
-        assert_true(str_contains($robots->body, '/sitemap.xml'), 'Robots nao referencia sitemap');
-        assert_same(404, $router->dispatch(Request::fake('GET', '/copa-online/campeonatos/nao-existe'))->status, '404 publico nao foi retornado');
+        assert_true(str_contains($robots->body, 'https://www.cassianogalvao.com.br/torneio-online/sitemap.xml'), 'Robots nao referencia sitemap absoluto');
+        assert_same(404, $router->dispatch(Request::fake('GET', '/torneio-online/campeonatos/nao-existe'))->status, '404 publico nao foi retornado');
     }
 }

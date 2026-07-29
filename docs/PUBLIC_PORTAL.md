@@ -6,7 +6,7 @@ A Etapa 15 entrega um portal publico isolado por slug de campeonato. O portal co
 
 ## Rotas
 
-Todas as rotas abaixo aceitam `APP_BASE_PATH`, por exemplo `/copa-online`:
+Todas as rotas abaixo aceitam `APP_BASE_PATH`, por exemplo `/torneio-online`:
 
 - `/campeonatos/{slug}`: home;
 - `/proximos-jogos`, `/resultados` e `/partidas/{id}`: agenda, resultados e detalhe;

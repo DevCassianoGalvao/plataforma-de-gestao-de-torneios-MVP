@@ -1,6 +1,6 @@
 # Rotas e Paginas
 
-Todas as URLs respeitam `APP_BASE_PATH=/copa-online`.
+Todas as URLs respeitam `APP_BASE_PATH=/torneio-online`.
 
 ## Catalogos
 

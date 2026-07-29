@@ -7,7 +7,7 @@ php bin/lint.php
 APP_ENV=test DB_NAME=torneios_mvp_test php bin/test.php
 APP_ENV=test DB_NAME=torneios_mvp_http_test SEED_DEMO_PASSWORD=... php bin/console.php migrate
 APP_ENV=test DB_NAME=torneios_mvp_http_test SEED_DEMO_PASSWORD=... php bin/console.php db:seed
-HTTP_TEST_BASE_URL=http://127.0.0.1:18081/copa-online TEST_PASSWORD=... php bin/http-test.php
+HTTP_TEST_BASE_URL=http://127.0.0.1:18081/torneio-online TEST_PASSWORD=... php bin/http-test.php
 ```
 
 No Windows, use `$env:NOME='valor'` e `C:\xampp\php\php.exe` quando o PHP nao estiver no PATH.
@@ -47,7 +47,7 @@ No Windows, use `$env:NOME='valor'` e `C:\xampp\php\php.exe` quando o PHP nao es
 | HTTP de contrato Etapa 12 | `tests/Http/MatchReportHttpTest.php` | preview, PDF atual/historico, pacote, CSRF, privacidade e base path |
 | Unitario Etapa 15 | `tests/Unit/PublicPortalTest.php` | read model, rankings e paginas publicas |
 | Integracao Etapa 15 | `tests/Integration/PublicPortalIntegrationTest.php` | isolamento por slug, seeds, dados publicos e ausencia de campos privados |
-| HTTP de contrato Etapa 15 | `tests/Http/PublicPortalHttpTest.php` | todas as rotas, SEO, sitemap, robots, 404 e `APP_BASE_PATH=/copa-online` |
+| HTTP de contrato Etapa 15 | `tests/Http/PublicPortalHttpTest.php` | todas as rotas, SEO, sitemap, robots, 404 e `APP_BASE_PATH=/torneio-online` |
 | Unitario Etapa 16 | `tests/Unit/ProductionReadinessTest.php` | redirects locais, headers, traversal e storage |
 | HTTP de contrato Etapa 16 | `tests/Http/ProductionReadinessHttpTest.php` | login, autorizacao, headers, portal, logout e open redirect |
 | HTTP real Etapa 16 | `bin/http-test.php` | cURL contra servidor real, autenticacao, portal, headers e autorizacao |
@@ -68,7 +68,7 @@ Migrations, seed duplo, banco descartavel, servidor HTTP, uploads validos e inva
 - `REAL_HTTP_TESTS_OK checks=11`
 - migration `0004` aplicada em banco descartavel;
 - seed executado duas vezes sem duplicar 9 formacoes, 99 slots, 10 equipes, 10 vinculos e 20 membros;
-- uploads validos e invalidos, escopo por perfil e `APP_BASE_PATH=/copa-online` validados;
+- uploads validos e invalidos, escopo por perfil e `APP_BASE_PATH=/torneio-online` validados;
 - banco, servidor temporario e arquivos de teste removidos apos a validacao.
 
 ## Resultado da Etapa 6
@@ -78,7 +78,7 @@ Migrations, seed duplo, banco descartavel, servidor HTTP, uploads validos e inva
 - seed de inscricoes executado duas vezes sem duplicar registros;
 - fluxo de envio, analise, pendencia, correcao, aprovacao e elenco oficial validado;
 - periodo fechado, idade incompatível, documento ausente/vencido, limite, duplicidade, escopo, IDOR, CSRF e historico validados;
-- testes HTTP reais mantem `APP_BASE_PATH=/copa-online`;
+- testes HTTP reais mantem `APP_BASE_PATH=/torneio-online`;
 - banco, servidor temporario, uploads e arquivos de teste removidos apos a validacao.
 
 ## Resultado da Etapa 9
@@ -89,7 +89,7 @@ Migrations, seed duplo, banco descartavel, servidor HTTP, uploads validos e inva
 - seed de operacao executado duas vezes sem duplicar operador ou arbitragem;
 - gols, gol contra, assistencias, cartoes, ocorrencias, penaltis e placar administrativo validados;
 - penaltis separados do placar normal, limite e janela de substituicoes validados;
-- checklist, finalizacao do operador, bloqueio posterior, homologacao separada, CSRF, escopo, IDOR e APP_BASE_PATH=/copa-online validados;
+- checklist, finalizacao do operador, bloqueio posterior, homologacao separada, CSRF, escopo, IDOR e APP_BASE_PATH=/torneio-online validados;
 - banco descartavel e artefatos temporarios removidos apos a validacao.
 
 ## Resultado da Etapa 8
@@ -99,7 +99,7 @@ Migrations, seed duplo, banco descartavel, servidor HTTP, uploads validos e inva
 - migration `0008` aplicada em banco descartavel;
 - seed de atletas elegiveis executado duas vezes sem duplicar 120 registros ficticios;
 - distribuicao automatica, onze titulares, reservas, goleiro, capitao, posicao secundaria, fora de posicao e ajuste manual validados;
-- confirmacao, bloqueio de edicao, reabertura autorizada, historico, escopo, IDOR, CSRF e `APP_BASE_PATH=/copa-online` validados;
+- confirmacao, bloqueio de edicao, reabertura autorizada, historico, escopo, IDOR, CSRF e `APP_BASE_PATH=/torneio-online` validados;
 - banco descartavel e artefatos temporarios removidos apos a validacao.
 
 ## Limites
@@ -113,7 +113,7 @@ Nao existem operacao de partida, gols, cartoes, classificacao final, sumula oper
 - migration `0011` aplicada em banco descartavel;
 - recalculo por grupo, fonte homologada, pontuacao, criterios configurados, mini-tabela, chave completa e penaltis validados;
 - idempotencia de snapshots, ties, partidas e resultado final validada;
-- CSRF, escopo, comunicacao negada e `APP_BASE_PATH=/copa-online` validados;
+- CSRF, escopo, comunicacao negada e `APP_BASE_PATH=/torneio-online` validados;
 - banco descartavel removido apos a validacao.
 
 ## Resultado da Etapa 12
@@ -123,14 +123,14 @@ Nao existem operacao de partida, gols, cartoes, classificacao final, sumula oper
 - migration `0012` aplicada em banco descartavel;
 - HTML, PDF 1.4 A4 com duas paginas, caracteres, equipes, atletas, eventos, arbitragem, ocorrencias e confirmacoes validados;
 - versao repetida idempotente, retificacao em nova versao, arquivo anterior preservado e pacote ZIP validado;
-- permissao, escopo, privacidade, CSRF e `APP_BASE_PATH=/copa-online` validados;
+- permissao, escopo, privacidade, CSRF e `APP_BASE_PATH=/torneio-online` validados;
 - arquivos privados de teste removidos ao fim da suite.
 
 ## Etapa 13 — noticias e blog
 
 - unitario: estados editoriais e normalizacao de slug;
 - integracao: seed duplo, CRUD, publicacao, slug duplicado, escopo de comunicacao, exclusao logica e consulta publica;
-- HTTP: painel editorial, capa otimizada, rascunho fora do portal, publicacao, busca, XSS escapado, CSRF, IDOR, treinador bloqueado, capa publica e base path `/copa-online`;
+- HTTP: painel editorial, capa otimizada, rascunho fora do portal, publicacao, busca, XSS escapado, CSRF, IDOR, treinador bloqueado, capa publica e base path `/torneio-online`;
 - migration: `0013_news_blog.sql` aplicada em banco descartavel;
 - resultado: `MVP_TESTS_OK unit=13 integration=13 http=13` e `LINT_OK files=230`;
 - artefatos temporarios e banco de teste removidos ao final da suite.
@@ -139,7 +139,7 @@ Nao existem operacao de partida, gols, cartoes, classificacao final, sumula oper
 
 - unitario: tipos, status e transicoes terminais;
 - integracao: seed duplo, escopo, publicacao, historico, notas internas e preservacao de `athletes.team_id`;
-- HTTP: painel, fluxo pendente/aprovado/publicado, filtros, privacidade publica, foto, CSRF, IDOR, treinador bloqueado e base path `/copa-online`;
+- HTTP: painel, fluxo pendente/aprovado/publicado, filtros, privacidade publica, foto, CSRF, IDOR, treinador bloqueado e base path `/torneio-online`;
 - migration: `0014_transfers_market.sql` aplicada em banco descartavel;
 - resultado esperado: `MVP_TESTS_OK unit=14 integration=14 http=14` e lint PHP completo;
 - banco descartavel e artefatos temporarios removidos ao final da suite.
@@ -152,7 +152,7 @@ Nao existem operacao de partida, gols, cartoes, classificacao final, sumula oper
 - migration `0007` aplicada em banco descartavel;
 - seed executado duas vezes sem duplicar 2 grupos, 10 vinculos, 10 rodadas ou 20 partidas;
 - round-robin de grupos pares e impares, folgas, ida e volta, idempotencia, conflitos basicos e historico de agenda validados;
-- escopo, IDOR, CSRF e `APP_BASE_PATH=/copa-online` validados;
+- escopo, IDOR, CSRF e `APP_BASE_PATH=/torneio-online` validados;
 - banco, servidor temporario e arquivos de teste removidos apos a validacao.
 
 ## Resultado da Etapa 5
@@ -162,12 +162,12 @@ Nao existem operacao de partida, gols, cartoes, classificacao final, sumula oper
 - `REAL_HTTP_TESTS_OK checks=16`;
 - migration `0005` aplicada em banco descartavel;
 - seed executado duas vezes sem duplicar 13 posicoes, 6 tipos, 20 atletas, 20 responsaveis, 20 vinculos, 20 documentos e 20 posicoes secundarias;
-- uploads validos, MIME real, limite, executavel bloqueado, escopo, IDOR, CSRF, privacidade e `APP_BASE_PATH=/copa-online` validados;
+- uploads validos, MIME real, limite, executavel bloqueado, escopo, IDOR, CSRF, privacidade e `APP_BASE_PATH=/torneio-online` validados;
 - banco, servidor temporario e arquivos de teste removidos apos a validacao.
 ## Etapa 10 — disciplina
 
 - unit: tipos de pessoa/cartão e quantidade de suspensão;
 - integration: seed idempotente, ledger após homologação, cartão anulado, suspensão manual/revogada, histórico e bloqueio de atleta suspenso na escalação;
-- HTTP: base path /copa-online, CSRF, tela disciplinar e 403 para comunicação;
+- HTTP: base path /torneio-online, CSRF, tela disciplinar e 403 para comunicação;
 - migration: migration 0010 em banco descartável;
 - validation: lint PHP, seed executado duas vezes e limpeza do banco de teste.

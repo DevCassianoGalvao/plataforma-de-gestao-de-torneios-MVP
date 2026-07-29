@@ -14,12 +14,12 @@ final class FoundationHttpTest
     {
         /** @var Router $router */
         $router = require dirname(__DIR__, 2) . '/routes/web.php';
-        $health = $router->dispatch(Request::fake('GET', '/copa-online/health'));
+        $health = $router->dispatch(Request::fake('GET', '/torneio-online/health'));
         assert_same(200, $health->status, 'Health HTTP falhou');
         assert_true(str_contains($health->body, '"status":"ok"'), 'Health nao retornou JSON esperado');
-        $notFound = $router->dispatch(Request::fake('GET', '/copa-online/missing'));
+        $notFound = $router->dispatch(Request::fake('GET', '/torneio-online/missing'));
         assert_same(404, $notFound->status, '404 HTTP falhou');
-        $login = $router->dispatch(Request::fake('GET', '/copa-online/login'));
+        $login = $router->dispatch(Request::fake('GET', '/torneio-online/login'));
         assert_same(200, $login->status, 'Placeholder de login falhou');
         assert_true(str_contains($login->body, 'Esqueci minha senha'), 'Tela de login nao identificada');
     }

@@ -62,7 +62,7 @@ final class AuthIntegrationTest
         MailService::resetTestMessages();
         $audit = new AuditService($pdo);
         $reset = new PasswordResetService($pdo, $users, $audit, $mail);
-        $request = Request::fake('POST', '/copa-online/senha/esqueci', ['email' => 'admin@torneios.local']);
+        $request = Request::fake('POST', '/torneio-online/senha/esqueci', ['email' => 'admin@torneios.local']);
         $reset->request('admin@torneios.local', $request);
         $url = MailService::$testMessages[0]['url'] ?? '';
         preg_match('/token=([^&]+)/', $url, $matches);

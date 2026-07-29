@@ -11,7 +11,7 @@ Requisitos: PHP 8.2 com PDO MySQL, fileinfo, openssl, cURL, GD e ZipArchive; MyS
 5. Execute `php bin/install.php`. O comando cria o banco, aplica migrations e prepara os diretorios.
 6. O seed e opcional e bloqueado quando `APP_ENV=production`: `SEED_DEMO_PASSWORD=... php bin/install.php --seed`.
 7. Inicie localmente com `php -S 127.0.0.1:8000 -t public` ou publique o diretorio `public` no servidor web.
-8. Teste login e portal com `php bin/install.php --smoke-url=http://127.0.0.1:8000/copa-online`, usando `INSTALL_TEST_EMAIL` e `INSTALL_TEST_PASSWORD` apenas no ambiente de teste.
+8. Teste login e portal com `php bin/install.php --smoke-url=http://127.0.0.1:8000/torneio-online`, usando `INSTALL_TEST_EMAIL` e `INSTALL_TEST_PASSWORD` apenas no ambiente de teste.
 
 O instalador nao inventa credenciais, nao executa seed em producao e falha se `APP_KEY` for ausente, fraca ou ainda possuir o placeholder do exemplo.
 
@@ -52,7 +52,7 @@ Comandos:
 php bin/lint.php
 APP_ENV=test DB_NAME=torneios_mvp_test SEED_DEMO_PASSWORD=TestDemo123 php bin/test.php
 php -S 127.0.0.1:18081 -t public
-HTTP_TEST_BASE_URL=http://127.0.0.1:18081/copa-online TEST_PASSWORD=TestDemo123 php bin/http-test.php
+HTTP_TEST_BASE_URL=http://127.0.0.1:18081/torneio-online TEST_PASSWORD=TestDemo123 php bin/http-test.php
 ```
 
 ## Limites

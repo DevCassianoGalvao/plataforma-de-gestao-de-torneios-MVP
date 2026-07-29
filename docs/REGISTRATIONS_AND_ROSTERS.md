@@ -54,6 +54,6 @@ O painel possui central por status, filtros por campeonato/equipe/status, formul
 
 `RegistrationSeed` cria dez inscricoes ficticias em estados diferentes, configura regras de elenco e exige autorizacao do responsavel. Execucao repetida e idempotente.
 
-Testes cobrem migration, seed duplo, fluxo completo, correcoes, prazo fechado, idade, documento ausente/vencido, limite, duplicidade, escopo, IDOR, CSRF, historico, elenco aprovado, PHP lint e `APP_BASE_PATH=/copa-online`.
+Testes cobrem migration, seed duplo, fluxo completo, correcoes, prazo fechado, idade, documento ausente/vencido, limite, duplicidade, escopo, IDOR, CSRF, historico, elenco aprovado, PHP lint e `APP_BASE_PATH=/torneio-online`.
 
 Etapa 7 fica reservada para grupos, rodadas e tabela.

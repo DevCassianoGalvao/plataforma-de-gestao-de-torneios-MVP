@@ -6,7 +6,7 @@
 - MySQL via PDO com prepared statements.
 - MVC simples, autoload PSR-4 minimo e front controller em `public/index.php`.
 - Rotas declaradas em `routes/web.php` e URLs montadas por `Config::url`.
-- `APP_BASE_PATH` continua compativel com `/copa-online`.
+- `APP_BASE_PATH` continua compativel com `/torneio-online`.
 - Views PHP estruturadas por tarefa; o portal publico por campeonato usa read models explicitos e a UI/UX definitiva fica para a Etapa 17.
 
 ## Escopo por campeonato

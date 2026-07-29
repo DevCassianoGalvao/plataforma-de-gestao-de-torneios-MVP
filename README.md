@@ -2,6 +2,8 @@
 
 Sistema web planejado para administrar campeonatos de futebol e publicar informacoes esportivas.
 
+URL configurada: https://www.cassianogalvao.com.br/torneio-online
+
 ## Estado atual
 
 As Etapas 1 a 17 estao implementadas nesta linha de desenvolvimento. O projeto possui fundacao tecnica, autenticacao, acesso por campeonato, competicao completa, sumula, conteudo editorial, portal publico, hardening de seguranca, instalacao limpa, backup, preparacao para cPanel e a UI/UX definitiva da aplicacao.
@@ -28,7 +30,7 @@ php bin/console.php migrate
 php bin/console.php migrate:status
 SEED_DEMO_PASSWORD=... php bin/console.php db:seed
 APP_ENV=test DB_NAME=torneios_mvp_test php bin/test.php
-HTTP_TEST_BASE_URL=http://127.0.0.1:18081/copa-online TEST_PASSWORD=... php bin/http-test.php
+HTTP_TEST_BASE_URL=http://127.0.0.1:18081/torneio-online TEST_PASSWORD=... php bin/http-test.php
 ```
 
 No Windows PowerShell, defina variaveis com `$env:NOME='valor'` e use `C:\xampp\php\php.exe` se necessario. O seed exige senha ficticia no ambiente e e bloqueado em producao.
