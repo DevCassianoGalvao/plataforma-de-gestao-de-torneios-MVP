@@ -31,7 +31,16 @@ final class Router
     {
         $path = Config::stripBasePath($request->path);
         foreach ($this->routes[$request->method] ?? [] as [$pattern, $handler]) {
-            $regex = preg_replace('/\{[^}]+\}/', '([^/]+)', $pattern);
+            $segments = explode('/', trim($pattern, '/'));
+            $regexParts = [];
+            foreach ($segments as $segment) {
+                $segmentRegex = '';
+                foreach (preg_split('/(\{[^}]+\})/', $segment, -1, PREG_SPLIT_DELIM_CAPTURE) ?: [] as $part) {
+                    $segmentRegex .= preg_match('/^\{[^}]+\}$/', $part) === 1 ? '([^/]+)' : preg_quote($part, '#');
+                }
+                $regexParts[] = $segmentRegex;
+            }
+            $regex = '/' . implode('/', $regexParts);
             if ($regex !== null && preg_match('#^' . rtrim($regex, '/') . '/?$#', $path, $matches) === 1) {
                 array_shift($matches);
                 return $handler($request, $matches);

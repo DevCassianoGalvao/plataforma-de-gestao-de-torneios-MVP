@@ -33,6 +33,21 @@ final class Config
         return self::basePath() . ($path === '/' ? '/' : $path);
     }
 
+    public static function absoluteUrl(string $path = '/'): string
+    {
+        $configured = trim(self::get('APP_URL', '') ?? '');
+        $parts = $configured !== '' ? parse_url($configured) : false;
+        if (!is_array($parts) || empty($parts['scheme']) || empty($parts['host'])) {
+            return self::url($path);
+        }
+
+        $origin = $parts['scheme'] . '://' . $parts['host'];
+        if (!empty($parts['port'])) {
+            $origin .= ':' . $parts['port'];
+        }
+        return rtrim($origin, '/') . self::url($path);
+    }
+
     public static function stripBasePath(string $path): string
     {
         $base = self::basePath();

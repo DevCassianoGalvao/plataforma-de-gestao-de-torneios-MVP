@@ -22,25 +22,25 @@ final class AuthenticationHttpTest
         /** @var Router $router */
         $router = require dirname(__DIR__, 2) . '/routes/web.php';
         Session::destroy();
-        $login = $router->dispatch(Request::fake('GET', '/copa-online/login'));
+        $login = $router->dispatch(Request::fake('GET', '/torneio-online/login'));
         assert_same(200, $login->status, 'GET login falhou');
-        $invalidCsrf = $router->dispatch(Request::fake('POST', '/copa-online/login', ['email' => 'admin@torneios.local', 'password' => 'TestDemo123']));
+        $invalidCsrf = $router->dispatch(Request::fake('POST', '/torneio-online/login', ['email' => 'admin@torneios.local', 'password' => 'TestDemo123']));
         assert_same(419, $invalidCsrf->status, 'CSRF de login invalido aceito');
         $csrf = Security::csrfToken();
-        $valid = $router->dispatch(Request::fake('POST', '/copa-online/login', ['_csrf' => $csrf, 'email' => 'admin@torneios.local', 'password' => getenv('SEED_DEMO_PASSWORD') ?: 'TestDemo123']));
+        $valid = $router->dispatch(Request::fake('POST', '/torneio-online/login', ['_csrf' => $csrf, 'email' => 'admin@torneios.local', 'password' => getenv('SEED_DEMO_PASSWORD') ?: 'TestDemo123']));
         assert_same(302, $valid->status, 'Login valido nao redirecionou');
         assert_same(Config::url('/admin'), $valid->headers['Location'] ?? null, 'Redirecionamento de administrador incorreto');
         assert_true(Auth::authenticated(), 'Sessao nao criada');
-        $admin = $router->dispatch(Request::fake('GET', '/copa-online/admin/usuarios'));
+        $admin = $router->dispatch(Request::fake('GET', '/torneio-online/admin/usuarios'));
         assert_same(200, $admin->status, 'Administrador nao acessou usuarios');
-        $logout = $router->dispatch(Request::fake('POST', '/copa-online/logout', ['_csrf' => Security::csrfToken()]));
+        $logout = $router->dispatch(Request::fake('POST', '/torneio-online/logout', ['_csrf' => Security::csrfToken()]));
         assert_same(302, $logout->status, 'Logout nao redirecionou');
         $csrf = Security::csrfToken();
-        $organizer = $router->dispatch(Request::fake('POST', '/copa-online/login', ['_csrf' => $csrf, 'email' => 'organizador@torneios.local', 'password' => getenv('SEED_DEMO_PASSWORD') ?: 'TestDemo123']));
+        $organizer = $router->dispatch(Request::fake('POST', '/torneio-online/login', ['_csrf' => $csrf, 'email' => 'organizador@torneios.local', 'password' => getenv('SEED_DEMO_PASSWORD') ?: 'TestDemo123']));
         assert_same(Config::url('/meus-campeonatos'), $organizer->headers['Location'] ?? null, 'Redirecionamento de organizador incorreto');
-        $denied = $router->dispatch(Request::fake('GET', '/copa-online/admin/usuarios'));
+        $denied = $router->dispatch(Request::fake('GET', '/torneio-online/admin/usuarios'));
         assert_same(403, $denied->status, 'Organizador acessou usuarios');
-        $protected = $router->dispatch(Request::fake('GET', '/copa-online/admin'));
+        $protected = $router->dispatch(Request::fake('GET', '/torneio-online/admin'));
         assert_same(403, $protected->status, 'Organizador acessou painel global');
     }
 }

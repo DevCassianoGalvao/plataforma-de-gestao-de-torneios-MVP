@@ -34,4 +34,8 @@ Campos observados: time, atleta, gols, amarelo, vermelho, dia da suspensao e oco
 4. Manter verso/segunda pagina para ocorrencias.
 5. Registrar versao da sumula, homologador e data.
 
-Nao ha geracao de PDF nesta etapa.
+## Implementacao da Etapa 12
+
+O contrato acima foi implementado por `MatchReportRepository`, `MatchReportService`, `MatchReportHtmlRenderer` e `MatchReportPdf`. A aba principal vira preview HTML e PDF A4 com duas paginas; a aba de atletas alimenta titulares/reservas, numero, AM, VM e gols; a aba de artilharia/cartoes permanece fonte de referencia, enquanto estatisticas sao derivadas de eventos homologados.
+
+PDFs sao privados, versionados e identificados por codigo de verificacao. A versao atual e baixada por partida; pacotes ZIP podem ser montados por rodada ou campeonato. Nao ha assinatura digital oficial nem retificacao completa no MVP.

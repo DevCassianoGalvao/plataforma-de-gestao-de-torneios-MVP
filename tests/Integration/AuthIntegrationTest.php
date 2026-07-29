@@ -24,9 +24,9 @@ final class AuthIntegrationTest
         $password = getenv('SEED_DEMO_PASSWORD') ?: 'TestDemo123';
         AuthSeed::run($pdo, $password);
         AuthSeed::run($pdo, $password);
-        assert_same(5, (int) $pdo->query('SELECT COUNT(*) FROM users')->fetchColumn(), 'Seed duplicou usuarios');
+        assert_same(8, (int) $pdo->query('SELECT COUNT(*) FROM users')->fetchColumn(), 'Seed duplicou usuarios');
         assert_same(5, (int) $pdo->query('SELECT COUNT(*) FROM roles')->fetchColumn(), 'Seed duplicou perfis');
-        assert_same(23, (int) $pdo->query('SELECT COUNT(*) FROM permissions')->fetchColumn(), 'Seed duplicou permissoes');
+        assert_same(117, (int) $pdo->query('SELECT COUNT(*) FROM permissions')->fetchColumn(), 'Seed duplicou permissoes');
         $users = new UserRepository($pdo);
         $admin = $users->findByEmail('admin@torneios.local');
         assert_true($admin !== null && password_verify($password, $admin['password_hash']), 'Senha seed nao pode ser verificada');
@@ -62,7 +62,7 @@ final class AuthIntegrationTest
         MailService::resetTestMessages();
         $audit = new AuditService($pdo);
         $reset = new PasswordResetService($pdo, $users, $audit, $mail);
-        $request = Request::fake('POST', '/copa-online/senha/esqueci', ['email' => 'admin@torneios.local']);
+        $request = Request::fake('POST', '/torneio-online/senha/esqueci', ['email' => 'admin@torneios.local']);
         $reset->request('admin@torneios.local', $request);
         $url = MailService::$testMessages[0]['url'] ?? '';
         preg_match('/token=([^&]+)/', $url, $matches);

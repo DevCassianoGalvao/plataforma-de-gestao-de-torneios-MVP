@@ -12,14 +12,28 @@ final class Session
         if (session_status() !== PHP_SESSION_NONE) {
             return;
         }
+        ini_set('session.use_only_cookies', '1');
         ini_set('session.use_strict_mode', '1');
+        ini_set('session.cookie_httponly', '1');
+        $savePath = Config::get('SESSION_SAVE_PATH', dirname(__DIR__, 2) . '/storage/sessions') ?: dirname(__DIR__, 2) . '/storage/sessions';
+        if (preg_match('#^[A-Za-z]:[\\\\/]#', $savePath) !== 1 && !str_starts_with($savePath, '/')) {
+            $savePath = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, trim($savePath, '/\\'));
+        }
+        if (is_dir($savePath)) {
+            ini_set('session.save_path', $savePath);
+        }
         session_name(Config::get('SESSION_NAME', 'torneios_mvp_session'));
+        $sameSite = Config::get('SESSION_SAMESITE', 'Lax') ?: 'Lax';
+        if (!in_array($sameSite, ['Lax', 'Strict', 'None'], true)) {
+            $sameSite = 'Lax';
+        }
+        $secure = Config::bool('SESSION_SECURE_COOKIE', self::isHttps());
         session_set_cookie_params([
             'lifetime' => 0,
             'path' => Config::basePath() ?: '/',
-            'secure' => self::isHttps(),
+            'secure' => $secure,
             'httponly' => true,
-            'samesite' => 'Lax',
+            'samesite' => $sameSite,
         ]);
         session_start();
         self::expireInactiveSession();

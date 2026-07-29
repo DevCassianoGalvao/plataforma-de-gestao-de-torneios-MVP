@@ -26,12 +26,61 @@ try {
 
     $valid = request('POST', '/login', ['_csrf' => csrf($invalid['body']), 'email' => $email, 'password' => $password]);
     check($valid['status'] === 302 && str_contains($valid['headers'], '/admin'), 'Login valido nao redirecionou para /admin');
+    foreach (['Content-Security-Policy', 'X-Content-Type-Options', 'X-Frame-Options', 'Referrer-Policy', 'Permissions-Policy'] as $header) {
+        check(str_contains($valid['headers'], $header . ':'), 'Header de seguranca ausente: ' . $header);
+    }
 
     $admin = request('GET', '/admin/usuarios');
     check($admin['status'] === 200 && str_contains($admin['body'], 'Usuarios'), 'Rota protegida nao abriu para administrador');
-    $logout = request('POST', '/logout', ['_csrf' => csrf($admin['body'])]);
+    $championships = request('GET', '/admin/campeonatos');
+    check($championships['status'] === 200 && str_contains($championships['body'], 'Campeonatos'), 'Rota de campeonatos nao abriu para administrador');
+    $regulation = request('GET', '/admin/campeonatos/copa-brasil-de-talentos-2026/regulamento');
+    check($regulation['status'] === 200 && str_contains($regulation['body'], 'Regulamento'), 'Rota de regulamento nao abriu para administrador');
+    $teams = request('GET', '/admin/equipes');
+    check($teams['status'] === 200 && str_contains($teams['body'], 'Equipes'), 'Rota de equipes nao abriu para administrador');
+    $team = request('GET', '/admin/equipes/estrela-norte-fc');
+    check($team['status'] === 200 && str_contains($team['body'], 'Estrela Norte FC'), 'Pagina da equipe nao abriu');
+    $formation = request('GET', '/admin/equipes/estrela-norte-fc/formacao');
+    check($formation['status'] === 200 && str_contains($formation['body'], 'Formacao padrao'), 'Pagina de formacao nao abriu');
+    $athletes = request('GET', '/admin/atletas');
+    check($athletes['status'] === 200 && str_contains($athletes['body'], 'Atletas'), 'Rota de atletas nao abriu para administrador');
+    $positions = request('GET', '/admin/posicoes');
+    check($positions['status'] === 200 && str_contains($positions['body'], 'Posicoes'), 'Catalogo de posicoes nao abriu');
+    $athlete = request('GET', '/admin/atletas/1');
+    check($athlete['status'] === 200 && str_contains($athlete['body'], 'Atleta'), 'Detalhe de atleta nao abriu');
+    $guardians = request('GET', '/admin/atletas/1/responsaveis');
+    check($guardians['status'] === 200 && str_contains($guardians['body'], 'Responsaveis legais'), 'Rota de responsaveis nao abriu');
+    $documents = request('GET', '/admin/atletas/1/documentos');
+    check($documents['status'] === 200 && str_contains($documents['body'], 'Documentos'), 'Rota de documentos nao abriu');
+    $registrations = request('GET', '/admin/inscricoes');
+    check($registrations['status'] === 200 && str_contains($registrations['body'], 'Inscricoes'), 'Rota de inscricoes nao abriu');
+    $roster = request('GET', '/admin/inscricoes/elenco');
+    check($roster['status'] === 200 && str_contains($roster['body'], 'Elenco oficial'), 'Rota de elenco nao abriu');
+    $schedule = request('GET', '/admin/tabela');
+    check($schedule['status'] === 200 && str_contains($schedule['body'], 'Tabela e partidas'), 'Rota de tabela nao abriu');
+    $phases = request('GET', '/admin/fases');
+    check($phases['status'] === 200 && str_contains($phases['body'], 'Fases'), 'Rota de fases nao abriu');
+    $venues = request('GET', '/admin/locais');
+    check($venues['status'] === 200 && str_contains($venues['body'], 'Locais'), 'Rota de locais nao abriu');
+    $assistant = request('GET', '/admin/tabela/assistente');
+    check($assistant['status'] === 200 && str_contains($assistant['body'], 'Assistente de tabela'), 'Rota de assistente nao abriu');
+    $match = request('GET', '/admin/partidas/1');
+    check($match['status'] === 200 && str_contains($match['body'], 'Agenda'), 'Rota de partida nao abriu');
+    $lineups = request('GET', '/admin/partidas/1/escalacoes');
+    check($lineups['status'] === 200 && str_contains($lineups['body'], 'Escalacoes da partida'), 'Rota de escalacoes nao abriu');
+    $operation = request('GET', '/admin/partidas/1/operacao');
+    $operationText = strip_tags($operation['body']);
+    check($operation['status'] === 200 && str_contains($operation['body'], 'Central operacional da partida'), 'Central operacional nao abriu status=' . $operation['status'] . ' body=' . substr($operationText, 0, 300) . ' tail=' . substr($operationText, -500));
+    $portal = request('GET', '/campeonatos/copa-brasil-de-talentos-2026');
+    check($portal['status'] === 200 && !str_contains($portal['body'], 'private_notes') && str_contains($portal['body'], 'canonical'), 'Portal publico ou privacidade falhou');
+    $evilLogin = request('POST', '/login', ['_csrf' => csrf($admin['body']), 'email' => $email, 'password' => $password, 'next' => '//evil.example']);
+    check($evilLogin['status'] === 302 && !str_contains($evilLogin['headers'], 'evil.example'), 'Open redirect aceito no HTTP real');
+    $adminAfterEvil = request('GET', '/admin');
+    $logout = request('POST', '/logout', ['_csrf' => csrf($adminAfterEvil['body'])]);
     check($logout['status'] === 302, 'Logout nao redirecionou');
-    echo "REAL_HTTP_TESTS_OK checks=6\n";
+    $unauthorized = request('GET', '/admin');
+    check($unauthorized['status'] === 302 && preg_match('/^Location:\s*https?:\/\//mi', $unauthorized['headers']) !== 1, 'Autorizacao HTTP apos logout falhou');
+    echo "REAL_HTTP_TESTS_OK checks=31\n";
 } finally {
     if (is_string($jar) && is_file($jar)) {
         unlink($jar);

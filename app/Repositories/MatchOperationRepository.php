@@ -1,0 +1,182 @@
+<?php
+declare(strict_types=1);
+
+namespace App\Repositories;
+
+use PDO;
+
+final class MatchOperationRepository
+{
+    public function __construct(private readonly PDO $pdo)
+    {
+    }
+
+    public function find(int $matchId): ?array
+    {
+        $statement = $this->pdo->prepare('SELECT mo.*, m.championship_id, m.phase_id, m.group_id, m.round_id, m.match_date, m.match_time, m.status AS match_status, m.venue_id, c.name AS championship_name, p.name AS phase_name, g.name AS group_name, r.round_number, v.name AS venue_name, ht.id AS home_team_id, ht.name AS home_team_name, ht.short_name AS home_team_short_name, ht.slug AS home_team_slug, ht.shield_path AS home_team_shield_path, at.id AS away_team_id, at.name AS away_team_name, at.short_name AS away_team_short_name, at.slug AS away_team_slug, at.shield_path AS away_team_shield_path FROM match_operations mo INNER JOIN matches m ON m.id = mo.match_id INNER JOIN championships c ON c.id = m.championship_id INNER JOIN competition_phases p ON p.id = m.phase_id INNER JOIN competition_groups g ON g.id = m.group_id INNER JOIN competition_rounds r ON r.id = m.round_id INNER JOIN teams ht ON ht.id = m.home_team_id INNER JOIN teams at ON at.id = m.away_team_id LEFT JOIN venues v ON v.id = m.venue_id WHERE mo.match_id = ? LIMIT 1');
+        $statement->execute([$matchId]);
+        $row = $statement->fetch();
+        return $row ?: null;
+    }
+
+    public function ensure(int $matchId, int $userId): array
+    {
+        $now = date('Y-m-d H:i:s');
+        $statement = $this->pdo->prepare('INSERT INTO match_operations (match_id, status, created_by, created_at, updated_at) VALUES (?, \'open\', ?, ?, ?) ON DUPLICATE KEY UPDATE id = LAST_INSERT_ID(id)');
+        $statement->execute([$matchId, $userId, $now, $now]);
+        $operation = $this->find($matchId);
+        if (!$operation) throw new \RuntimeException('Operacao da partida nao encontrada.');
+        return $operation;
+    }
+
+    public function events(int $matchId): array
+    {
+        $statement = $this->pdo->prepare('SELECT e.*, t.name AS team_name, a.full_name AS athlete_name, a.sporting_name AS athlete_sporting_name, ts.full_name AS staff_name, ts.display_name AS staff_display_name, ra.full_name AS related_athlete_name, ra.sporting_name AS related_athlete_sporting_name FROM match_operation_events e LEFT JOIN teams t ON t.id = e.team_id LEFT JOIN athletes a ON a.id = e.athlete_id LEFT JOIN team_staff ts ON ts.id = e.team_staff_id LEFT JOIN athletes ra ON ra.id = e.related_athlete_id WHERE e.match_id = ? ORDER BY e.created_at, e.id');
+        $statement->execute([$matchId]);
+        return $statement->fetchAll();
+    }
+
+    public function substitutions(int $matchId): array
+    {
+        $statement = $this->pdo->prepare('SELECT s.*, t.name AS team_name, ao.full_name AS athlete_out_name, ao.sporting_name AS athlete_out_sporting_name, ai.full_name AS athlete_in_name, ai.sporting_name AS athlete_in_sporting_name FROM match_substitutions s INNER JOIN teams t ON t.id = s.team_id INNER JOIN athletes ao ON ao.id = s.athlete_out_id INNER JOIN athletes ai ON ai.id = s.athlete_in_id WHERE s.match_id = ? ORDER BY s.created_at, s.id');
+        $statement->execute([$matchId]);
+        return $statement->fetchAll();
+    }
+
+    public function officials(int $matchId): array
+    {
+        $statement = $this->pdo->prepare('SELECT * FROM match_officials WHERE match_id = ? ORDER BY display_order, role, id');
+        $statement->execute([$matchId]);
+        return $statement->fetchAll();
+    }
+
+    public function history(int $operationId): array
+    {
+        $statement = $this->pdo->prepare('SELECT h.*, u.name AS user_name FROM match_operation_history h INNER JOIN users u ON u.id = h.changed_by WHERE h.operation_id = ? ORDER BY h.created_at, h.id');
+        $statement->execute([$operationId]);
+        return $statement->fetchAll();
+    }
+
+    public function score(array $operation): array
+    {
+        $statement = $this->pdo->prepare("SELECT COALESCE(SUM(CASE WHEN e.team_id = ? THEN 1 ELSE 0 END), 0) AS home_score, COALESCE(SUM(CASE WHEN e.team_id = ? THEN 1 ELSE 0 END), 0) AS away_score FROM match_operation_events e WHERE e.match_id = ? AND e.valid = 1 AND e.event_type IN ('goal', 'own_goal')");
+        $statement->execute([(int) $operation['home_team_id'], (int) $operation['away_team_id'], (int) $operation['match_id']]);
+        $row = $statement->fetch() ?: ['home_score' => 0, 'away_score' => 0];
+        if ($operation['administrative_home_score'] !== null && $operation['administrative_away_score'] !== null) {
+            $row['home_score'] = (int) $operation['administrative_home_score'];
+            $row['away_score'] = (int) $operation['administrative_away_score'];
+            $row['administrative'] = true;
+        } else {
+            $row['administrative'] = false;
+        }
+        $penalties = $this->pdo->prepare("SELECT COALESCE(SUM(CASE WHEN e.team_id = ? THEN 1 ELSE 0 END), 0) AS home_penalties, COALESCE(SUM(CASE WHEN e.team_id = ? THEN 1 ELSE 0 END), 0) AS away_penalties FROM match_operation_events e WHERE e.match_id = ? AND e.valid = 1 AND e.event_type = 'penalty_scored' AND e.period = 'penalties'");
+        $penalties->execute([(int) $operation['home_team_id'], (int) $operation['away_team_id'], (int) $operation['match_id']]);
+        $penaltyRow = $penalties->fetch() ?: ['home_penalties' => 0, 'away_penalties' => 0];
+        return ['home_score' => (int) $row['home_score'], 'away_score' => (int) $row['away_score'], 'home_penalties' => (int) $penaltyRow['home_penalties'], 'away_penalties' => (int) $penaltyRow['away_penalties'], 'administrative' => (bool) $row['administrative']];
+    }
+
+    public function matchSettings(int $championshipId): array
+    {
+        $statement = $this->pdo->prepare("SELECT rms.* FROM regulation_match_settings rms INNER JOIN regulations r ON r.id = rms.regulation_id WHERE r.championship_id = ? AND r.status = 'published' ORDER BY r.version_number DESC LIMIT 1");
+        $statement->execute([$championshipId]);
+        return $statement->fetch() ?: ['substitutions_allowed' => 5, 'substitution_windows' => 3, 'extra_time_enabled' => 0, 'penalty_shootout_enabled' => 1];
+    }
+
+    public function createEvent(array $data): int
+    {
+        $now = date('Y-m-d H:i:s');
+        $statement = $this->pdo->prepare('INSERT INTO match_operation_events (match_id, team_id, person_type, athlete_id, team_staff_id, related_athlete_id, event_type, period, minute, notes, valid, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?)');
+        $statement->execute([$data['match_id'], $data['team_id'], $data['person_type'] ?? 'athlete', $data['athlete_id'], $data['team_staff_id'] ?? null, $data['related_athlete_id'], $data['event_type'], $data['period'], $data['minute'], $data['notes'], $data['created_by'], $now, $now]);
+        return (int) $this->pdo->lastInsertId();
+    }
+
+    public function cancelEvent(int $eventId, int $userId, string $reason): bool
+    {
+        $statement = $this->pdo->prepare('UPDATE match_operation_events SET valid = 0, cancelled_by = ?, cancelled_at = ?, cancellation_reason = ?, updated_at = ? WHERE id = ? AND valid = 1');
+        $now = date('Y-m-d H:i:s');
+        $statement->execute([$userId, $now, $reason, $now, $eventId]);
+        return $statement->rowCount() > 0;
+    }
+
+    public function createSubstitution(array $data): int
+    {
+        $now = date('Y-m-d H:i:s');
+        $statement = $this->pdo->prepare('INSERT INTO match_substitutions (match_id, team_id, athlete_out_id, athlete_in_id, period, window_number, minute, notes, valid, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?)');
+        $statement->execute([$data['match_id'], $data['team_id'], $data['athlete_out_id'], $data['athlete_in_id'], $data['period'], $data['window_number'], $data['minute'], $data['notes'], $data['created_by'], $now, $now]);
+        return (int) $this->pdo->lastInsertId();
+    }
+
+    public function saveOfficials(int $matchId, array $officials, int $userId): void
+    {
+        $now = date('Y-m-d H:i:s');
+        $this->pdo->prepare('DELETE FROM match_officials WHERE match_id = ?')->execute([$matchId]);
+        $statement = $this->pdo->prepare('INSERT INTO match_officials (match_id, role, display_name, display_order, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)');
+        foreach ($officials as $role => $name) {
+            if (trim((string) $name) === '') continue;
+            $statement->execute([$matchId, $role, trim((string) $name), 1, $userId, $now, $now]);
+        }
+    }
+
+    public function updateTimes(int $operationId, array $times): void
+    {
+        $allowed = ['first_half_started_at', 'first_half_ended_at', 'second_half_started_at', 'second_half_ended_at', 'extra_time_started_at', 'extra_time_ended_at'];
+        $sets = [];
+        $params = [];
+        foreach ($allowed as $column) {
+            $sets[] = $column . ' = ?';
+            $params[] = $times[$column] ?? null;
+        }
+        $sets[] = 'updated_at = ?';
+        $params[] = date('Y-m-d H:i:s');
+        $params[] = $operationId;
+        $this->pdo->prepare('UPDATE match_operations SET ' . implode(', ', $sets) . ' WHERE id = ? AND status = \'open\'')->execute($params);
+    }
+
+    public function setAdministrativeResult(int $operationId, int $homeScore, int $awayScore, string $reason, int $userId): void
+    {
+        $now = date('Y-m-d H:i:s');
+        $this->pdo->prepare('UPDATE match_operations SET administrative_home_score = ?, administrative_away_score = ?, administrative_result_reason = ?, administrative_result_by = ?, administrative_result_at = ?, updated_at = ? WHERE id = ? AND status = \'open\'')->execute([$homeScore, $awayScore, $reason, $userId, $now, $now, $operationId]);
+    }
+
+    public function finish(int $operationId, int $matchId, int $userId): void
+    {
+        $now = date('Y-m-d H:i:s');
+        $operation = $this->operationById($operationId);
+        $this->pdo->prepare("UPDATE match_operations SET status = 'awaiting_homologation', finalized_by = ?, finalized_at = ?, updated_at = ? WHERE id = ? AND status = 'open'")->execute([$userId, $now, $now, $operationId]);
+        $this->pdo->prepare("UPDATE matches SET status = 'finished', updated_at = ? WHERE id = ? AND status NOT IN ('cancelled', 'homologated')")->execute([$now, $matchId]);
+        $this->historyInsert($operationId, 'finished', $operation['status'], 'awaiting_homologation', 'Operacao finalizada e enviada para homologacao.', $userId);
+    }
+
+    public function homologate(int $operationId, int $matchId, int $userId): void
+    {
+        $now = date('Y-m-d H:i:s');
+        $operation = $this->operationById($operationId);
+        $this->pdo->prepare("UPDATE match_operations SET status = 'homologated', homologated_by = ?, homologated_at = ?, updated_at = ? WHERE id = ? AND status = 'awaiting_homologation'")->execute([$userId, $now, $now, $operationId]);
+        $this->pdo->prepare("UPDATE matches SET status = 'homologated', updated_at = ? WHERE id = ? AND status = 'finished'")->execute([$now, $matchId]);
+        $this->historyInsert($operationId, 'homologated', $operation['status'], 'homologated', 'Resultado homologado sem retificacao avancada.', $userId);
+    }
+
+    public function operatorAssigned(int $matchId, int $userId): bool
+    {
+        $statement = $this->pdo->prepare("SELECT id FROM match_operator_assignments WHERE match_id = ? AND user_id = ? AND status = 'active' LIMIT 1");
+        $statement->execute([$matchId, $userId]);
+        return (bool) $statement->fetchColumn();
+    }
+
+    public function assignOperator(int $matchId, int $userId, int $createdBy): void
+    {
+        $this->pdo->prepare("INSERT INTO match_operator_assignments (match_id, user_id, assignment_type, status, created_by, created_at) VALUES (?, ?, 'operator', 'active', ?, ?) ON DUPLICATE KEY UPDATE status = 'active', ended_at = NULL")->execute([$matchId, $userId, $createdBy, date('Y-m-d H:i:s')]);
+    }
+
+    private function operationById(int $id): array
+    {
+        $statement = $this->pdo->prepare('SELECT * FROM match_operations WHERE id = ? LIMIT 1');
+        $statement->execute([$id]);
+        return $statement->fetch() ?: throw new \RuntimeException('Operacao da partida nao encontrada.');
+    }
+
+    private function historyInsert(int $operationId, string $action, string $from, string $to, string $details, int $userId): void
+    {
+        $this->pdo->prepare('INSERT INTO match_operation_history (operation_id, action, from_status, to_status, details, changed_by, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)')->execute([$operationId, $action, $from, $to, $details, $userId, date('Y-m-d H:i:s')]);
+    }
+}

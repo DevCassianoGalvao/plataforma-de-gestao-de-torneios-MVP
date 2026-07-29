@@ -47,6 +47,7 @@ final class AuthService
 
         $this->users->markSuccessfulLogin((int) $user['id']);
         Session::regenerate();
+        Security::rotateCsrf();
         Session::put('user_id', (int) $user['id']);
         Session::put('last_activity', time());
         $this->audit->record('auth.login_succeeded', (int) $user['id'], 'user', (int) $user['id'], [], $request);

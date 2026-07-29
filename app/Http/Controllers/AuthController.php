@@ -54,8 +54,8 @@ final class AuthController extends Controller
             'match_operator' => '/minhas-partidas',
             'communication' => '/conteudo',
         ];
-        $next = (string) ($request->body['next'] ?? '');
-        if ($next !== '' && str_starts_with($next, '/') && !str_starts_with($next, '//')) {
+        $next = Security::safeLocalPath((string) ($request->body['next'] ?? ''));
+        if ($next !== null) {
             return Response::redirect($next);
         }
         return Response::redirect(Config::url($fallbacks[$role] ?? '/admin'));

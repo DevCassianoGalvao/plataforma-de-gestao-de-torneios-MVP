@@ -12,8 +12,13 @@
 /storage/private/*
 !/storage/private/.gitkeep
 /storage/exports/*
+/storage/backups/*
+!/storage/backups/.gitkeep
 /uploads/private/*
 /public/uploads-private/*
+/public/uploads/*
+!/public/uploads/.gitkeep
+!/public/uploads/.htaccess
 
 *.log
 *.sqlite
