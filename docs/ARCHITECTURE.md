@@ -51,6 +51,12 @@ O campo `metadata` de auditoria continua sendo JSON por conter atributos pequeno
 
 O assistente recebe grupos, turno, periodo, dias, horarios e locais em campos estruturados. A previa mostra confrontos e conflitos antes da confirmacao. Alteracoes de agenda entram em `match_schedule_changes`; decisoes administrativas entram em `administrative_decisions`. O escopo de leitura de partidas e administrador, organizador vinculado ou treinador com vinculo ativo a uma das equipes.
 
+## Classificacao e mata-mata
+
+`StandingsRepository` le somente partidas homologadas, eventos validos, resultados administrativos e dados disciplinares necessarios aos desempates. `StandingsService` calcula cada grupo dentro de transacao, grava snapshot e hash de fonte e ordena pelos criterios habilitados do regulamento. Confronto direto usa mini-tabela dos times empatados; o ultimo desempate e deterministico para permitir reproducao.
+
+`knockout_rounds` e `knockout_ties` representam a chave sem misturar a operacao da partida. A geracao usa fontes A1/B4 etc. e chaves de fixture para nao duplicar partidas. Apenas uma partida homologada pode promover vencedor; resultado administrativo e penaltis definem a tie sem entrar nos gols da classificacao. A final grava campeao e vice em `competition_results`.
+
 ## Operacao e homologacao
 
 MatchOperationRepository concentra a operacao, eventos, substituicoes, arbitragem, placar derivado e historico. MatchOperationService valida os registros contra as duas escalacoes confirmadas e contra as regras de substituicao do regulamento. MatchOperationAccessService separa administrador, organizador, operador atribuido, treinador por equipe e perfis negados.
@@ -65,4 +71,4 @@ A operacao usa open, awaiting_homologation e homologated. O operador finaliza co
 
 Inscricoes usam `RegistrationAccessService`, `RegistrationRules` e `RegistrationService`. O repositorio aplica escopo por administrador, organizador vinculado ou equipe do treinador. O regulamento define tamanho de elenco, goleiros minimos, documentos obrigatorios e inscricao por multiplas equipes em tabelas normalizadas. Somente `approved` aparece no elenco oficial; toda transicao e correcao gera historico e auditoria.
 
-Nao existem acumulacao completa de suspensoes, classificacao, mata-mata, sumula operacional em PDF, noticias, Vai e Vem ou portal publico. Equipes, atletas, documentos, inscricoes, elenco, grupos, tabela, escalacoes e operacao existem apenas no painel administrativo; a UI/UX definitiva continua para uma rodada posterior.
+Nao existem sumula operacional em PDF, noticias, Vai e Vem ou portal publico. Equipes, atletas, documentos, inscricoes, elenco, grupos, tabela, escalacoes, operacao, classificacao e mata-mata existem apenas no painel administrativo; a UI/UX definitiva continua para uma rodada posterior.

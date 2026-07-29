@@ -13,8 +13,8 @@ Legenda: `[ ]` pendente, `[x]` concluido com evidencia. Nenhuma etapa futura dev
 | 7 | Grupos, rodadas e tabela | [x] | grupos, locais, round-robin, agenda e proximos confrontos |
 | 8 | Formacoes e escalacoes | [x] | campo funcional, distribuicao automatica, titulares, reservas e confirmacao |
 | 9 | Central da partida | [x] | registros, placar derivado, arbitragem, finalizacao e homologacao basica |
-| 10 | Disciplina | [ ] | cartoes, suspensoes e proximos confrontos |
-| 11 | Classificacao e mata-mata | [ ] | criterios, cruzamentos e campeao |
+| 10 | Disciplina | [x] | cartoes, suspensoes e proximos confrontos |
+| 11 | Classificacao e mata-mata | [x] | criterios, cruzamentos, campeao e vice |
 | 12 | Sumula | [ ] | digital e PDF conforme planilha |
 | 13 | Noticias | [ ] | rascunho e publicacao |
 | 14 | Vai e Vem | [ ] | movimentacoes e historico |
@@ -65,6 +65,12 @@ Implementada em feat/match-operation-center, partindo de feat/tactical-lineups. 
 Nao foram implementados acumulacao completa de suspensoes, classificacao definitiva, retificacao avancada, sumula PDF, noticias, Vai e Vem ou portal publico.
 
 Evidencias: migration 0009_match_operation.sql, docs/MATCH_OPERATION.md, MVP_TESTS_OK unit=9 integration=9 http=9, lint PHP, banco descartavel e APP_BASE_PATH=/copa-online.
+
+## Estado da Etapa 11
+
+Implementada em `feat/standings-and-knockout`, partindo de `feat/discipline-and-suspensions`. A etapa entrega snapshots transacionais de classificacao por grupo usando partidas homologadas, pontuacao e desempates configuraveis, mini-tabela de confronto direto, registro do criterio separador, chave de quartas, semifinais e final, avancos apos homologacao, penaltis e resultados administrativos, campeao, vice, escopo e CSRF.
+
+Evidencias: migration `0011_standings_and_knockout.sql`, `docs/STANDINGS_AND_KNOCKOUT.md`, `MVP_TESTS_OK unit=11 integration=11 http=11`, `LINT_OK files=206` e banco descartavel com `APP_BASE_PATH=/copa-online`.
 
 ## Estado da Etapa 3
 

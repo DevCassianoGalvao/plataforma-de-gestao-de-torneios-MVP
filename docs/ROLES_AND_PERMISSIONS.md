@@ -91,3 +91,15 @@ Permissoes adicionadas: discipline.view, discipline.manage, discipline.process, 
 | Comunicacao | 403 | sem acesso |
 
 Permissoes adicionadas: match_operation.view, match_operation.operate, match_operation.homologate. Acoes de escrita exigem CSRF. O servidor bloqueia mutacoes depois da finalizacao e separa a homologacao do operador. Nenhuma rota publica expoe documentos, dados privados ou operacao.
+
+## Etapa 11: classificacao e mata-mata
+
+| Perfil | Classificacao | Mata-mata | Escopo |
+|---|---|---|---|
+| Administrador | consulta e recalcula | gera, consulta e avanca | todos |
+| Organizador | consulta e recalcula | gera, consulta e avanca | campeonatos autorizados |
+| Treinador/gestor | consulta | consulta | fase do campeonato da propria equipe |
+| Operador | `403` | `403` | sem acesso |
+| Comunicacao | `403` | `403` | sem acesso |
+
+Permissoes adicionadas: `standings.view`, `standings.recalculate`, `knockout.generate`, `knockout.advance`. O servidor valida fase, campeonato, vinculo, CSRF e status homologado antes de qualquer alteracao da chave.

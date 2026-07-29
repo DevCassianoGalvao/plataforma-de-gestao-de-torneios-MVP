@@ -17,6 +17,8 @@
 | `0007_groups_rounds_schedule.sql` | locais, fases, grupos, rodadas, partidas, agenda e decisoes | implementada |
 | `0008_tactical_lineups.sql` | escalacoes, titulares, reservas, comissao e historico | implementada |
 | `0009_match_operation.sql` | operacao, eventos, substituicoes, arbitragem e homologacao | implementada |
+| `0010_discipline_and_suspensions.sql` | ledger disciplinar, suspensoes, cumprimentos e historico | implementada |
+| `0011_standings_and_knockout.sql` | snapshots de classificacao, calculos e chave eliminatoria | implementada |
 
 ## Tabelas da Etapa 3
 
@@ -112,6 +114,18 @@ As coordenadas de `tactical_formation_slots` usam `DECIMAL(5,2)` entre 0 e 100: 
 | match_operation_history | transicoes de operacao e homologacao |
 
 O placar normal e uma consulta sobre eventos validos de gol e gol contra. Penaltis ficam em colunas de consulta separadas. Resultado administrativo, quando informado, substitui o placar calculado e preserva motivo, usuario e horario.
+
+## Tabelas da Etapa 11
+
+| Tabela | Finalidade |
+|---|---|
+| `competition_standings` | snapshot atual por equipe e grupo, com estatisticas, posicao e criterio separador |
+| `standings_calculation_runs` | hash da fonte de cada recalculo transacional |
+| `knockout_rounds` | quartas, semifinais e final por fase eliminatoria |
+| `knockout_ties` | cruzamentos, equipes, partida, vencedor, vice e criterio de decisao |
+| `competition_results` | campeao e vice homologados da fase |
+
+Classificacao consulta somente partidas homologadas e gols/eventos validos ou resultado administrativo. Penaltis ficam fora dos gols da classificacao e apenas decidem a tie eliminatoria.
 
 ## Regras
 

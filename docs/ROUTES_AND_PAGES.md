@@ -168,6 +168,18 @@ Treinador gerencia somente a propria equipe. Organizador visualiza campeonatos a
 | POST | /admin/partidas/{id}/operacao/homologar | organizador ou administrador homologa |
 
 Operacao e homologacao sao estados separados. O operador nao homologa a propria partida. A central nao exige cronologia minuto a minuto; o minuto dos registros e opcional.
+
+## Classificacao e mata-mata
+
+| Metodo | Rota | Funcao |
+|---|---|---|
+| GET | `/admin/classificacao?phase_id=...` | classificacao por grupo e capacidades |
+| POST | `/admin/classificacao/recalcular` | recalcular snapshot homologado |
+| POST | `/admin/mata-mata/gerar` | gerar quartas, semifinais e final |
+| GET | `/admin/mata-mata?phase_id=...` | visualizar chave administrativa e resultado |
+| POST | `/admin/mata-mata/partidas/{id}/avancar` | avancar vencedor de partida homologada |
+
+Treinador/gestor consulta somente a fase do campeonato de sua equipe. Organizador consulta e recalcula apenas campeonatos autorizados. Operador e comunicacao recebem `403`; toda mutacao exige CSRF.
 ## Etapa 10 — disciplina
 
 - GET /admin/disciplina: acumulacao, pendurados, suspensoes, ledger e historico dentro do escopo.

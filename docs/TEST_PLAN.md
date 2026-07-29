@@ -39,6 +39,9 @@ No Windows, use `$env:NOME='valor'` e `C:\xampp\php\php.exe` quando o PHP nao es
 | Unitario Etapa 9 | `tests/Unit/MatchOperationTest.php` | tipos de registro, periodos, minutos opcionais e limites |
 | Integracao Etapa 9 | `tests/Integration/MatchOperationIntegrationTest.php` | seed duplo, eventos, placar, penaltis, substituicoes, arbitragem, checklist, finalizacao, homologacao, escopo e IDOR |
 | HTTP de contrato Etapa 9 | `tests/Http/MatchOperationHttpTest.php` | central, perfis, CSRF, IDOR, privacidade e base path |
+| Unitario Etapa 11 | `tests/Unit/StandingsTest.php` | fases permitidas e preset eliminatorio |
+| Integracao Etapa 11 | `tests/Integration/StandingsIntegrationTest.php` | partidas homologadas, pontos, desempates configurados, recalculo idempotente, quartas, semifinais, final, penaltis, campeao, vice e geracao repetida |
+| HTTP de contrato Etapa 11 | `tests/Http/StandingsHttpTest.php` | classificacao, CSRF, comunicacao negada e base path |
 
 ## Resultado da Etapa 3
 
@@ -92,6 +95,16 @@ Migrations, seed duplo, banco descartavel, servidor HTTP, uploads validos e inva
 ## Limites
 
 Nao existem operacao de partida, gols, cartoes, classificacao final, sumula operacional, portal, noticias ou Vai e Vem. O teste HTTP real cobre as rotas principais de inscricoes, elenco, tabela e central de escalacoes, mas nao substitui a UI/UX definitiva.
+
+## Resultado da Etapa 11
+
+- `LINT_OK files=206`;
+- `MVP_TESTS_OK unit=11 integration=11 http=11`;
+- migration `0011` aplicada em banco descartavel;
+- recalculo por grupo, fonte homologada, pontuacao, criterios configurados, mini-tabela, chave completa e penaltis validados;
+- idempotencia de snapshots, ties, partidas e resultado final validada;
+- CSRF, escopo, comunicacao negada e `APP_BASE_PATH=/copa-online` validados;
+- banco descartavel removido apos a validacao.
 
 ## Resultado da Etapa 7
 
