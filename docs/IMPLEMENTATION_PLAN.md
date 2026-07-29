@@ -17,7 +17,7 @@ Legenda: `[ ]` pendente, `[x]` concluido com evidencia. Nenhuma etapa futura dev
 | 11 | Classificacao e mata-mata | [x] | criterios, cruzamentos, campeao e vice |
 | 12 | Sumula | [x] | preview HTML, PDF A4, versoes e pacotes conforme planilha |
 | 13 | Noticias | [x] | rascunho, agendamento e publicacao |
-| 14 | Vai e Vem | [ ] | movimentacoes e historico |
+| 14 | Vai e Vem | [x] | movimentacoes, publicacao e historico |
 | 15 | Portal publico | [ ] | dados publicados por slug |
 | 16 | Preparacao para producao | [ ] | cPanel, instalacao limpa e observabilidade |
 | 17 | UI/UX definitiva | [ ] | design system, temas, responsividade e acessibilidade |
@@ -83,6 +83,14 @@ Evidencias: migration `0012_digital_match_reports.sql`, `docs/DIGITAL_MATCH_REPO
 Implementada em `feat/news-blog`, partindo de `feat/digital-match-report`. A etapa entrega noticias por campeonato, CRUD editorial, rascunho, agendamento, publicacao, despublicacao, destaque, previa, exclusao logica, capas otimizadas, portal publico paginado, busca, recentes, escopo para comunicacao/organizador, XSS escapado e CSRF.
 
 Evidencias: migration `0013_news_blog.sql`, `docs/NEWS_BLOG.md`, `MVP_TESTS_OK unit=13 integration=13 http=13`, `LINT_OK files=230` e `APP_BASE_PATH=/copa-online`.
+
+## Estado da Etapa 14
+
+Implementada em `feat/transfers-market`, partindo de `feat/news-blog`. A etapa entrega fluxo assistido de movimentacoes, tipos configuraveis no dominio, janela e limite opcionais, escopo por campeonato atribuido, historico, publicacao no Vai e Vem, filtros, privacidade de notas internas e seed idempotente.
+
+O registro permanece editorial/administrativo e nao altera automaticamente `athletes.team_id`; aplicacao do vinculo oficial exige decisao explicita em etapa posterior.
+
+Evidencias: migration `0014_transfers_market.sql`, `docs/TRANSFERS_MARKET.md`, `MVP_TESTS_OK unit=14 integration=14 http=14`, lint PHP e `APP_BASE_PATH=/copa-online`.
 
 ## Estado da Etapa 3
 

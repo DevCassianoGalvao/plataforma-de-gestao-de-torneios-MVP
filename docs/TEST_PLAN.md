@@ -128,6 +128,15 @@ Nao existem operacao de partida, gols, cartoes, classificacao final, sumula oper
 - resultado: `MVP_TESTS_OK unit=13 integration=13 http=13` e `LINT_OK files=230`;
 - artefatos temporarios e banco de teste removidos ao final da suite.
 
+## Etapa 14 - Vai e Vem
+
+- unitario: tipos, status e transicoes terminais;
+- integracao: seed duplo, escopo, publicacao, historico, notas internas e preservacao de `athletes.team_id`;
+- HTTP: painel, fluxo pendente/aprovado/publicado, filtros, privacidade publica, foto, CSRF, IDOR, treinador bloqueado e base path `/copa-online`;
+- migration: `0014_transfers_market.sql` aplicada em banco descartavel;
+- resultado esperado: `MVP_TESTS_OK unit=14 integration=14 http=14` e lint PHP completo;
+- banco descartavel e artefatos temporarios removidos ao final da suite.
+
 ## Resultado da Etapa 7
 
 - `LINT_OK files=165`;

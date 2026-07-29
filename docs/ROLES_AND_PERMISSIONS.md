@@ -31,7 +31,7 @@ Papeis sao globais. Acesso esportivo exige tambem vinculo ao campeonato.
 
 Administrador recebe escopo global. Organizador recebe operacoes de equipes nos campeonatos vinculados como `organizer`. Treinador ou gestor recebe leitura e operacoes permitidas apenas nas equipes com vinculo ativo; nao pode trocar o campeonato nem atribuir responsaveis administrativos. O vinculo e explicito, portanto um treinador pode estar em mais de uma equipe sem ganhar acesso automatico as demais.
 
-Operador e comunicacao recebem `403` por padrao neste modulo. O service nunca usa somente o papel global para autorizar uma equipe ou campeonato. Permissoes de atletas, partidas, conteudo e transferencias continuam fora do escopo.
+Operador e comunicacao recebem `403` por padrao neste modulo. O service nunca usa somente o papel global para autorizar uma equipe ou campeonato. Permissoes de atletas, partidas e conteudo continuam fora do escopo desta etapa historica.
 
 ## Permissoes da Etapa 5
 
@@ -127,3 +127,15 @@ Permissoes adicionadas: `match_reports.view`, `match_reports.download`, `match_r
 | Operador | `403` no painel editorial | sem acesso |
 
 Noticias publicadas ficam disponiveis no portal somente quando o campeonato esta publico. O servidor nao confia em links ou menus para aplicar o escopo; cada noticia e capa e revalidada antes da resposta.
+
+## Etapa 14: Vai e Vem
+
+| Perfil | Acesso | Escopo |
+|---|---|---|
+| Administrador | cria, aprova, publica, cancela e consulta historico | todos os campeonatos |
+| Organizador | cria, aprova, publica, cancela e consulta historico | campeonatos atribuidos |
+| Comunicacao | cria, aprova, publica, cancela e consulta historico | campeonatos atribuidos |
+| Treinador/gestor | `403` | sem acesso |
+| Operador | `403` | sem acesso |
+
+Permissao: `transfers.manage`. O registro editorial e separado do vinculo oficial; nenhuma transicao troca automaticamente a equipe do atleta.

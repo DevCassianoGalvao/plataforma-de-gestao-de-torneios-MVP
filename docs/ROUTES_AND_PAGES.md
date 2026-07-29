@@ -202,6 +202,22 @@ Sumulas nao possuem rota publica. O servidor valida permissao, escopo da partida
 
 Rotas administrativas validam permissao, atribuicao de campeonato e CSRF nas mutacoes. O portal nao serve rascunhos, agendadas futuras, arquivadas ou capas de noticias ainda nao publicadas.
 
+## Vai e Vem
+
+| Metodo | Rota | Funcao |
+|---|---|---|
+| GET | `/admin/vai-e-vem` | painel filtravel de movimentacoes |
+| GET | `/admin/vai-e-vem/novo` | fluxo assistido de criacao |
+| POST | `/admin/vai-e-vem` | cria rascunho ou pendencia |
+| GET | `/admin/vai-e-vem/{id}` | detalhe privado e historico |
+| POST | `/admin/vai-e-vem/{id}/aprovar` | aprova movimentacao |
+| POST | `/admin/vai-e-vem/{id}/publicar` | publica movimentacao |
+| POST | `/admin/vai-e-vem/{id}/cancelar` | cancela mantendo historico |
+| GET | `/campeonatos/{slug}/vai-e-vem` | listagem publica paginada e filtravel |
+| GET | `/campeonatos/{slug}/vai-e-vem/{id}/foto` | foto do atleta em movimento publicado |
+
+A publicacao nao altera o vinculo oficial do atleta. Notas internas, autor e historico administrativo ficam fora do portal.
+
 ## Classificacao e mata-mata
 
 | Metodo | Rota | Funcao |

@@ -146,6 +146,16 @@ O PDF nao fica em coluna binaria. `storage_path` aponta para armazenamento priva
 
 Capas sao reprocessadas para JPEG e ficam fora de `public`. O portal consulta apenas campeonatos publicos e noticias publicadas cuja data ja chegou.
 
+## Tabelas da Etapa 14
+
+| Tabela | Finalidade |
+|---|---|
+| `regulation_transfer_settings` | janela e limite opcional de movimentacoes por regulamento |
+| `transfer_movements` | registro editorial de atleta, equipes, tipo, data, publicacao e notas privadas |
+| `transfer_movement_history` | transicoes, decisoes, motivos e usuario responsavel |
+
+Vai e Vem nao altera automaticamente `athletes.team_id`. A movimentacao publicada e um registro publico separado do vinculo oficial.
+
 ## Regras
 
 - slugs de categorias e campeonamentos sao unicos;
