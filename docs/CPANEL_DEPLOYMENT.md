@@ -4,6 +4,8 @@
 
 URL final: `https://www.cassianogalvao.com.br/torneio-online`.
 
+O nome do banco pode conter letras, numeros, underscore e hifen, por exemplo `xdigcomb_torneio-online`.
+
 - PHP 8.2 selecionado no MultiPHP.
 - Banco MySQL criado no cPanel; use o nome, usuario e host fornecidos pelo painel.
 - Document root apontando para `public`.

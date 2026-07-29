@@ -44,7 +44,7 @@ use App\Database\TeamSeed;
 use App\Database\TransferSeed;
 
 $dbName = (string) (getenv('DB_NAME') ?: '');
-if (preg_match('/^[A-Za-z0-9_]+$/', $dbName) !== 1) fail('DB_NAME invalido. Use somente letras, numeros e underscore.');
+if (preg_match('/^[A-Za-z0-9_-]+$/', $dbName) !== 1) fail('DB_NAME invalido. Use somente letras, numeros, underscore e hifen.');
 $server = Database::serverConnection();
 $quoted = '`' . str_replace('`', '``', $dbName) . '`';
 $server->exec('CREATE DATABASE IF NOT EXISTS ' . $quoted . ' CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci');

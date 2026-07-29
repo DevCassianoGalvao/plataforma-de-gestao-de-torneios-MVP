@@ -12,7 +12,7 @@ $zip = new ZipArchive(); if ($zip->open($archive) !== true) fail('ZIP de backup 
 $temporary = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'torneios-restore-' . bin2hex(random_bytes(8)); if (!mkdir($temporary, 0700)) fail('Nao foi possivel preparar restauracao.');
 try {
     if (!$zip->extractTo($temporary)) fail('Nao foi possivel extrair o backup.'); $zip->close();
-    $db = (string) (Config::get('DB_NAME') ?: ''); if (preg_match('/^[A-Za-z0-9_]+$/', $db) !== 1) fail('DB_NAME invalido.');
+    $db = (string) (Config::get('DB_NAME') ?: ''); if (preg_match('/^[A-Za-z0-9_-]+$/', $db) !== 1) fail('DB_NAME invalido.');
     $server = \App\Core\Database::serverConnection(); $server->exec('CREATE DATABASE IF NOT EXISTS `' . str_replace('`', '``', $db) . '` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci');
     $mysql = Config::get('MYSQL_BIN', 'mysql') ?: 'mysql'; $host = safeShellValue((string) Config::get('DB_HOST', '127.0.0.1')); $port = safeShellValue((string) Config::get('DB_PORT', '3306')); $user = safeShellValue((string) Config::get('DB_USER', 'root')); $command = escapeshellarg($mysql) . ' --protocol=tcp --host=' . $host . ' --port=' . $port . ' --user=' . $user . ' ' . $db . ' < ' . escapeshellarg($temporary . DIRECTORY_SEPARATOR . 'database.sql'); $environment = is_array(getenv()) ? getenv() : []; $environment['MYSQL_PWD'] = (string) Config::get('DB_PASS', ''); run($command, $environment);
     copyTree($temporary . '/storage/private', $root . '/storage/private'); copyTree($temporary . '/public/uploads', $root . '/public/uploads');

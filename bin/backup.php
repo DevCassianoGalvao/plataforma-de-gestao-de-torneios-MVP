@@ -8,7 +8,7 @@ use App\Core\Config;
 $root = dirname(__DIR__); $options = options(array_slice($argv, 1));
 $output = (string) ($options['output'] ?? Config::get('BACKUP_DIR', 'storage/backups')); $output = absolutePath($root, $output);
 if (!is_dir($output) && !mkdir($output, 0750, true) && !is_dir($output)) fail('Nao foi possivel criar o diretorio de backup.');
-$db = (string) (Config::get('DB_NAME') ?: ''); if (preg_match('/^[A-Za-z0-9_]+$/', $db) !== 1) fail('DB_NAME invalido.');
+$db = (string) (Config::get('DB_NAME') ?: ''); if (preg_match('/^[A-Za-z0-9_-]+$/', $db) !== 1) fail('DB_NAME invalido.');
 $temporary = $output . DIRECTORY_SEPARATOR . '.backup-' . bin2hex(random_bytes(8)); if (!mkdir($temporary, 0750)) fail('Nao foi possivel preparar o backup.');
 $dump = $temporary . DIRECTORY_SEPARATOR . 'database.sql';
 $dumpBin = Config::get('MYSQLDUMP_BIN', 'mysqldump') ?: 'mysqldump';
