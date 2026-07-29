@@ -45,6 +45,9 @@ No Windows, use `$env:NOME='valor'` e `C:\xampp\php\php.exe` quando o PHP nao es
 | Unitario Etapa 12 | `tests/Unit/MatchReportTest.php` | assinatura PDF, duas paginas e campos estruturais HTML |
 | Integracao Etapa 12 | `tests/Integration/MatchReportIntegrationTest.php` | dados homologados, PDF privado, idempotencia, nova versao, preservacao do historico e ZIP |
 | HTTP de contrato Etapa 12 | `tests/Http/MatchReportHttpTest.php` | preview, PDF atual/historico, pacote, CSRF, privacidade e base path |
+| Unitario Etapa 15 | `tests/Unit/PublicPortalTest.php` | read model, rankings e paginas publicas |
+| Integracao Etapa 15 | `tests/Integration/PublicPortalIntegrationTest.php` | isolamento por slug, seeds, dados publicos e ausencia de campos privados |
+| HTTP de contrato Etapa 15 | `tests/Http/PublicPortalHttpTest.php` | todas as rotas, SEO, sitemap, robots, 404 e `APP_BASE_PATH=/copa-online` |
 
 ## Resultado da Etapa 3
 

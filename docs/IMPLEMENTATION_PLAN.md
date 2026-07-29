@@ -18,7 +18,7 @@ Legenda: `[ ]` pendente, `[x]` concluido com evidencia. Nenhuma etapa futura dev
 | 12 | Sumula | [x] | preview HTML, PDF A4, versoes e pacotes conforme planilha |
 | 13 | Noticias | [x] | rascunho, agendamento e publicacao |
 | 14 | Vai e Vem | [x] | movimentacoes, publicacao e historico |
-| 15 | Portal publico | [ ] | dados publicados por slug |
+| 15 | Portal publico | [x] | portal completo por slug, read model publico, SEO e privacidade |
 | 16 | Preparacao para producao | [ ] | cPanel, instalacao limpa e observabilidade |
 | 17 | UI/UX definitiva | [ ] | design system, temas, responsividade e acessibilidade |
 
@@ -91,6 +91,14 @@ Implementada em `feat/transfers-market`, partindo de `feat/news-blog`. A etapa e
 O registro permanece editorial/administrativo e nao altera automaticamente `athletes.team_id`; aplicacao do vinculo oficial exige decisao explicita em etapa posterior.
 
 Evidencias: migration `0014_transfers_market.sql`, `docs/TRANSFERS_MARKET.md`, `MVP_TESTS_OK unit=14 integration=14 http=14`, lint PHP e `APP_BASE_PATH=/copa-online`.
+
+## Estado da Etapa 15
+
+Implementada em `feat/public-portal`, partindo de `feat/transfers-market`. A etapa entrega home e paginas publicas por campeonato para agenda, resultados, partida, classificacao, grupos, mata-mata, equipes, atletas, rankings, noticias, Vai e Vem, regulamento e campeao/vice. A identidade publica usa logo, cores, banner, favicon, imagem social e tema basico cadastrados no campeonato.
+
+O read model publico seleciona somente dados esportivos e editoriais publicados. Documentos, dados pessoais, responsaveis, observacoes privadas e arquivos privados permanecem fora das consultas e views publicas. O portal inclui canonical, Open Graph, Twitter card, sitemap, robots, 404, isolamento por slug e funcionamento com `APP_BASE_PATH=/copa-online`.
+
+Evidencias: `docs/PUBLIC_PORTAL.md`, `MVP_TESTS_OK unit=15 integration=15 http=15`, lint PHP, banco descartavel e testes de privacidade/SEO.
 
 ## Estado da Etapa 3
 

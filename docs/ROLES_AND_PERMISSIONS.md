@@ -139,3 +139,6 @@ Noticias publicadas ficam disponiveis no portal somente quando o campeonato esta
 | Operador | `403` | sem acesso |
 
 Permissao: `transfers.manage`. O registro editorial e separado do vinculo oficial; nenhuma transicao troca automaticamente a equipe do atleta.
+# Portal publico
+
+O portal por campeonato nao exige sessao. Ele permite somente leitura de dados publicos filtrados por campeonato visivel e nao carrega documentos, dados de contato, responsaveis legais, observacoes privadas ou arquivos privados. Gestao de conteudo continua protegida pela matriz administrativa; treinador, operador e comunicacao nao recebem permissoes administrativas novas nesta etapa.

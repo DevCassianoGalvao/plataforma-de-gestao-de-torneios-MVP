@@ -80,7 +80,7 @@ final class NewsController extends Controller
     public function publicIndex(Request $request, array $params = []): Response
     {
         $championship = $this->news->publicChampionship((string) ($params[0] ?? '')); if (!$championship) return Response::html('Campeonato nao encontrado.', 404); $page = max(1, (int) ($request->query['page'] ?? 1)); $search = trim((string) ($request->query['q'] ?? '')); $total = $this->news->countPublished((int) $championship['id'], $search); $items = $this->news->listPublished((int) $championship['id'], $search, 12, ($page - 1) * 12);
-        return $this->page($championship['name'] . ' - Noticias', 'public/news/index', ['championship' => $championship, 'items' => $items, 'search' => $search, 'page' => $page, 'pages' => max(1, (int) ceil($total / 12))]);
+        return $this->publicPage($request, 'Noticias', $championship, 'public/news/index', ['championship' => $championship, 'items' => $items, 'search' => $search, 'page' => $page, 'pages' => max(1, (int) ceil($total / 12))]);
     }
 
     public function publicRecent(Request $request, array $params = []): Response
@@ -90,7 +90,7 @@ final class NewsController extends Controller
 
     public function publicShow(Request $request, array $params = []): Response
     {
-        $article = $this->news->publicFind((string) ($params[0] ?? ''), (string) ($params[1] ?? '')); if (!$article) return Response::html('Noticia nao encontrada.', 404); return $this->page($article['title'], 'public/news/show', ['article' => $article]);
+        $article = $this->news->publicFind((string) ($params[0] ?? ''), (string) ($params[1] ?? '')); $championship = $this->news->publicChampionship((string) ($params[0] ?? '')); if (!$article || !$championship) return Response::html('Noticia nao encontrada.', 404); return $this->publicPage($request, $article['title'], $championship, 'public/news/show', ['article' => $article]);
     }
 
     public function publicCover(Request $request, array $params = []): Response

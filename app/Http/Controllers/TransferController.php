@@ -37,7 +37,7 @@ final class TransferController extends Controller
 
     public function publicIndex(Request $request, array $params = []): Response
     {
-        $championship = $this->transfers->publicChampionship((string) ($params[0] ?? '')); if (!$championship) return Response::html('Campeonato nao encontrado.', 404); $filters = ['q' => trim((string) ($request->query['q'] ?? '')), 'type' => (string) ($request->query['type'] ?? '')]; $page = max(1, (int) ($request->query['page'] ?? 1)); $total = $this->transfers->countPublic((int) $championship['id'], $filters); return $this->page($championship['name'] . ' - Vai e Vem', 'public/transfers/index', ['championship' => $championship, 'items' => $this->transfers->listPublic((int) $championship['id'], $filters, 12, ($page - 1) * 12), 'filters' => $filters, 'types' => TransferRepository::TYPES, 'page' => $page, 'pages' => max(1, (int) ceil($total / 12))]);
+        $championship = $this->transfers->publicChampionship((string) ($params[0] ?? '')); if (!$championship) return Response::html('Campeonato nao encontrado.', 404); $filters = ['q' => trim((string) ($request->query['q'] ?? '')), 'type' => (string) ($request->query['type'] ?? '')]; $page = max(1, (int) ($request->query['page'] ?? 1)); $total = $this->transfers->countPublic((int) $championship['id'], $filters); return $this->publicPage($request, 'Vai e Vem', $championship, 'public/transfers/index', ['championship' => $championship, 'items' => $this->transfers->listPublic((int) $championship['id'], $filters, 12, ($page - 1) * 12), 'filters' => $filters, 'types' => TransferRepository::TYPES, 'page' => $page, 'pages' => max(1, (int) ceil($total / 12))]);
     }
     public function publicPhoto(Request $request, array $params = []): Response
     {

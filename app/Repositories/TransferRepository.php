@@ -42,7 +42,7 @@ final class TransferRepository
 
     public function publicChampionship(string $slug): ?array
     {
-        $s = $this->pdo->prepare("SELECT id, name, slug FROM championships WHERE slug = ? AND visibility = 'public' AND status <> 'draft' AND deleted_at IS NULL LIMIT 1"); $s->execute([$slug]); return $s->fetch() ?: null;
+        $s = $this->pdo->prepare("SELECT c.*, s.name AS season_name, cat.name AS category_name FROM championships c INNER JOIN seasons s ON s.id = c.season_id INNER JOIN categories cat ON cat.id = c.category_id WHERE c.slug = ? AND c.visibility = 'public' AND c.status <> 'draft' AND c.deleted_at IS NULL LIMIT 1"); $s->execute([$slug]); return $s->fetch() ?: null;
     }
 
     public function listPublic(int $championshipId, array $filters = [], int $limit = 12, int $offset = 0): array

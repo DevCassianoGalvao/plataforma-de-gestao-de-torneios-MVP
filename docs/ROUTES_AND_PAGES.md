@@ -236,3 +236,27 @@ Treinador/gestor consulta somente a fase do campeonato de sua equipe. Organizado
 - POST /admin/disciplina/suspensao/{id}/revogar: revogacao com motivo.
 - POST /admin/disciplina/cartao/{id}/anular: anulação auditada de cartão.
 - POST /admin/partidas/{id}/operacao/homologar: dispara processamento disciplinar idempotente.
+# Portal publico por campeonato
+
+As rotas publicas nao exigem autenticacao e filtram o campeonato por slug publico. O contrato completo esta em `docs/PUBLIC_PORTAL.md`.
+
+| Rota | Funcao |
+|---|---|
+| `/campeonatos/{slug}` | home com fase, jogos, resultados, classificacao, rankings, noticias e Vai e Vem |
+| `/campeonatos/{slug}/proximos-jogos` | proximas partidas |
+| `/campeonatos/{slug}/resultados` | partidas homologadas |
+| `/campeonatos/{slug}/partidas/{id}` | detalhe publico da partida |
+| `/campeonatos/{slug}/classificacao` | classificacao por grupo |
+| `/campeonatos/{slug}/grupos` | grupos e equipes |
+| `/campeonatos/{slug}/mata-mata` | chave publicada |
+| `/campeonatos/{slug}/equipes` | equipes publicas |
+| `/campeonatos/{slug}/atletas` | atletas aprovados |
+| `/campeonatos/{slug}/artilharia` | gols validos |
+| `/campeonatos/{slug}/assistencias` | assistencias validas |
+| `/campeonatos/{slug}/cartoes` | disciplina publica |
+| `/campeonatos/{slug}/noticias` | noticias publicadas |
+| `/campeonatos/{slug}/vai-e-vem` | transferencias publicadas |
+| `/campeonatos/{slug}/regulamento` | regulamento publicado |
+| `/campeonatos/{slug}/campeao` | campeao e vice |
+
+O prefixo e configurado por `APP_BASE_PATH`.

@@ -42,6 +42,11 @@ abstract class Controller
         return Response::html(View::page($title, View::render($view, $data)), $status);
     }
 
+    protected function publicPage(Request $request, string $title, array $championship, string $view, array $data = []): Response
+    {
+        $base = Config::url('/campeonatos/' . $championship['slug']); $image = !empty($championship['social_image_path']) ? Config::url('/campeonatos/' . $championship['slug'] . '/assets/social') : (!empty($championship['logo_path']) ? Config::url('/campeonatos/' . $championship['slug'] . '/assets/logo') : null); $seo = ['title' => $title . ' | ' . $championship['name'], 'description' => trim(mb_substr((string) ($championship['description'] ?: 'Portal oficial de ' . $championship['name']), 0, 155)), 'canonical' => Config::url(Config::stripBasePath($request->path)), 'image' => $image, 'favicon' => !empty($championship['favicon_path']) ? Config::url('/campeonatos/' . $championship['slug'] . '/assets/favicon') : null, 'base' => $base]; return Response::html(View::render('layouts/public', array_merge($data, ['title' => $title, 'content' => View::render($view, $data), 'championship' => $championship, 'seo' => $seo])));
+    }
+
     protected function validCsrf(Request $request): bool
     {
         try {

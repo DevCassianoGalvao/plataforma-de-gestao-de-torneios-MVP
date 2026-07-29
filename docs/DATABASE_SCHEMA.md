@@ -165,3 +165,6 @@ Vai e Vem nao altera automaticamente `athletes.team_id`. A movimentacao publicad
 - rascunhos, versoes superseded e versoes anteriores nao sao excluidos;
 - uploads usam caminho privado e nome aleatorio;
 - nenhuma regra e editada por JSON.
+# Read model publico
+
+A Etapa 15 nao cria migration ou tabela nova. `PublicPortalRepository` compoe o portal a partir de `championships`, fases, grupos, partidas, equipes, elenco aprovado, classificacao, mata-mata, eventos, disciplina, noticias e transferencias existentes. As consultas usam listas explicitas de colunas e filtros de visibilidade/status para manter a fronteira de privacidade.
