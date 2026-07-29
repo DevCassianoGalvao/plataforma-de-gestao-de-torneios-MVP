@@ -4,9 +4,9 @@ Sistema web planejado para administrar campeonatos de futebol e publicar informa
 
 ## Estado atual
 
-As Etapas 1 a 16 estao implementadas nesta linha de desenvolvimento. O projeto possui fundacao tecnica, autenticacao, acesso por campeonato, competicao completa, sumula, conteudo editorial, portal publico, hardening de seguranca, instalacao limpa, backup e preparacao para cPanel.
+As Etapas 1 a 17 estao implementadas nesta linha de desenvolvimento. O projeto possui fundacao tecnica, autenticacao, acesso por campeonato, competicao completa, sumula, conteudo editorial, portal publico, hardening de seguranca, instalacao limpa, backup, preparacao para cPanel e a UI/UX definitiva da aplicacao.
 
-A UI/UX definitiva continua planejada para rodada posterior. A auditoria da Etapa 16 esta aprovada para homologacao, nao para producao, porque cPanel, HTTPS, SMTP, cron, backup externo e restauracao precisam de evidencia no ambiente real.
+A UI/UX da Etapa 17 foi centralizada em um design system com tema escuro e claro, responsividade e acessibilidade basica. A auditoria permanece aprovada para homologacao, nao para producao, porque cPanel, HTTPS, SMTP, cron, backup externo e restauracao ainda precisam de evidencia no ambiente real.
 
 ## Stack prevista
 
@@ -54,8 +54,11 @@ No Windows PowerShell, defina variaveis com `$env:NOME='valor'` e use `C:\xampp\
 - [Preparacao para producao](docs/PRODUCTION_READINESS.md)
 - [Implantacao em cPanel](docs/CPANEL_DEPLOYMENT.md)
 - [Auditoria final do MVP](docs/FINAL_MVP_AUDIT.md)
+- [Referencia visual do Stitch](docs/STITCH_DESIGN_REFERENCE.md)
+- [Design system da UI](docs/UI_DESIGN_SYSTEM.md)
+- [Auditoria final de UI/UX](docs/UI_UX_FINAL_AUDIT.md)
 - [Referencia da sumula](docs/REFERENCIA_SUMULA.xlsx)
 
 ## Proxima etapa
 
-A Etapa 17 deve tratar o redesign definitivo de UI/UX, temas, acessibilidade visual e refinamento responsivo.
+A proxima etapa e a homologacao operacional em ambiente semelhante ao cPanel de destino. Melhorias de produto, refinamento visual adicional e retificacao avancada devem ser priorizados somente apos essa verificacao real.

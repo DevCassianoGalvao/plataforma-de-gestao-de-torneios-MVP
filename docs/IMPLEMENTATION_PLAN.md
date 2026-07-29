@@ -106,6 +106,14 @@ Implementada em `feat/production-readiness`, partindo de `feat/public-portal`. A
 
 O veredito e `APROVADO PARA HOMOLOGACAO`. Aprovacao para producao depende de executar no cPanel real HTTPS, SMTP, cron, backup externo e restauracao.
 
+## Estado da Etapa 17
+
+Implementada em `feat/final-ui-ux`, partindo de `feat/production-readiness`. A etapa aplica a referencia visual do projeto privado `Football Management Login Interface`, do Google Stitch, sem importar codigo proprietario ou alterar a stack PHP/HTML/CSS/JavaScript.
+
+O produto agora possui tokens visuais centralizados, Hanken Grotesk para titulos e numeros, Inter para textos e formularios, shell administrativo, login, portal publico, campo tatico, central da partida, sumula, noticias, temas claro/escuro, foco visivel, drawer mobile, navegacao responsiva e protecoes basicas contra overflow. O dashboard administrativo passou a exibir metricas reais do banco em vez de numeros demonstrativos.
+
+Evidencias e decisoes visuais: `docs/STITCH_DESIGN_REFERENCE.md`, `docs/UI_DESIGN_SYSTEM.md` e `docs/UI_UX_FINAL_AUDIT.md`. A UI/UX foi aprovada para homologacao; a aprovacao para producao continua condicionada a validacao operacional no ambiente de destino.
+
 ## Estado da Etapa 3
 
 Implementada em `feat/championships-and-regulations`. Equipes, partidas, portal e demais modulos esportivos continuam fora desta etapa.

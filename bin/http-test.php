@@ -79,7 +79,7 @@ try {
     $logout = request('POST', '/logout', ['_csrf' => csrf($adminAfterEvil['body'])]);
     check($logout['status'] === 302, 'Logout nao redirecionou');
     $unauthorized = request('GET', '/admin');
-    check($unauthorized['status'] === 302 && !str_contains($unauthorized['headers'], '://'), 'Autorizacao HTTP apos logout falhou');
+    check($unauthorized['status'] === 302 && preg_match('/^Location:\s*https?:\/\//mi', $unauthorized['headers']) !== 1, 'Autorizacao HTTP apos logout falhou');
     echo "REAL_HTTP_TESTS_OK checks=31\n";
 } finally {
     if (is_string($jar) && is_file($jar)) {
