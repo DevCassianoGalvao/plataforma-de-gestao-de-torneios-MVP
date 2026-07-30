@@ -1036,3 +1036,409 @@ button.secondary, .button.secondary, .actions button { background: var(--ui-surf
     .public-portal .champion-grid { grid-template-columns: 1fr; }
     .public-portal .portal-footer { width: min(100% - 1rem, 1248px); }
 }
+
+/* Public portal redesign: field report, not compact admin UI. */
+body.public-portal {
+    --portal-bg: #0d121a;
+    --portal-panel: #1b2534;
+    --portal-panel-strong: #202b3b;
+    --portal-panel-soft: #151d28;
+    --portal-line: #304055;
+    --portal-copy: #f4f6fa;
+    --portal-muted: #b7c1bd;
+    --portal-dim: #91a0b5;
+    --portal-green: #45e39c;
+    --portal-green-deep: #20bd77;
+    --portal-yellow: #ffba67;
+    min-height: 100vh;
+    background: var(--portal-bg);
+    background-image: none;
+    color: var(--portal-copy);
+    font-family: Manrope, Inter, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+}
+body.public-portal[data-theme="light"] {
+    --portal-bg: #f3f5f4;
+    --portal-panel: #ffffff;
+    --portal-panel-strong: #edf2ef;
+    --portal-panel-soft: #f8faf9;
+    --portal-line: #d1ded7;
+    --portal-copy: #152319;
+    --portal-muted: #64736a;
+    --portal-dim: #74847a;
+    --portal-green: #0b9a61;
+    --portal-green-deep: #07824f;
+}
+body.public-portal .portal-header {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    background: #151c26;
+    border-bottom: 1px solid #2e3948;
+    box-shadow: none;
+    backdrop-filter: none;
+}
+body.public-portal[data-theme="light"] .portal-header { background: rgba(255, 255, 255, .96); }
+body.public-portal .portal-header-inner,
+body.public-portal .portal-footer,
+body.public-portal .portal-shell { width: min(100% - 5rem, 1200px); }
+body.public-portal .portal-header-inner {
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr) max-content;
+    min-height: 80px;
+    gap: 1.5rem;
+}
+body.public-portal .portal-brand {
+    grid-column: 1;
+    grid-row: 1;
+    gap: .9rem;
+    color: var(--portal-green);
+    font-family: Sora, Manrope, sans-serif;
+    font-size: 1.1rem;
+    font-weight: 800;
+    letter-spacing: -.04em;
+}
+body.public-portal .portal-brand img,
+body.public-portal .portal-mark-fallback { width: 2.5rem; height: 2.5rem; border-radius: 50%; }
+body.public-portal .portal-mark-fallback { background: #1d2939; color: var(--portal-green); font-size: .7rem; }
+body.public-portal .portal-header nav {
+    grid-column: 2;
+    grid-row: 1;
+    justify-content: center;
+    align-self: stretch;
+    flex-wrap: nowrap;
+    gap: .1rem;
+}
+body.public-portal .portal-header nav a {
+    position: relative;
+    display: grid;
+    height: 80px;
+    padding: 0 .88rem;
+    place-items: center;
+    border: 0;
+    color: var(--portal-muted);
+    font-family: Manrope, Inter, sans-serif;
+    font-size: .93rem;
+    font-weight: 500;
+    text-decoration: none;
+    white-space: nowrap;
+}
+body.public-portal .portal-header nav a::after {
+    position: absolute;
+    right: .82rem;
+    bottom: 0;
+    left: .82rem;
+    height: 2px;
+    content: '';
+    background: transparent;
+}
+body.public-portal .portal-header nav a:hover,
+body.public-portal .portal-header nav a[aria-current="page"] { color: var(--portal-green); }
+body.public-portal .portal-header nav a[aria-current="page"]::after { background: var(--portal-green); }
+body.public-portal .portal-nav-tools { grid-column: 3; grid-row: 1; justify-self: end; }
+body.public-portal .portal-nav-tools .icon-button {
+    width: 2.55rem;
+    height: 2.55rem;
+    padding: 0;
+    border: 1px solid #334052;
+    border-radius: 50%;
+    background: #202938;
+    color: var(--portal-muted);
+}
+body.public-portal .portal-nav-tools .icon-button::before { display: none; }
+body.public-portal .portal-nav-tools .icon-button .ui-icon { width: 1.18rem; height: 1.18rem; }
+body.public-portal .portal-shell { padding: 3rem 0 5.2rem; }
+body.public-portal h1,
+body.public-portal h2,
+body.public-portal h3,
+body.public-portal h4 { font-family: Sora, Manrope, sans-serif; }
+body.public-portal .eyebrow { color: var(--portal-green); font-size: .76rem; font-weight: 800; letter-spacing: .12em; }
+body.public-portal .portal-hero {
+    min-height: 18.2rem;
+    margin-bottom: 2rem;
+    padding: 3.25rem 2.8rem;
+    border: 1px solid #2b4053;
+    border-radius: 12px;
+    background-color: #162b2e;
+    background-image: linear-gradient(112deg, rgba(14, 58, 57, .94), rgba(28, 64, 61, .84));
+    box-shadow: none;
+}
+body.public-portal .portal-hero::after { opacity: .25; }
+body.public-portal .portal-hero h1 {
+    max-width: none;
+    margin: .6rem 0 .85rem;
+    color: #fff;
+    font-size: clamp(2.5rem, 4.6vw, 3.5rem);
+    font-weight: 800;
+    letter-spacing: -.06em;
+    line-height: 1.08;
+}
+body.public-portal .portal-hero p:not(.eyebrow) { max-width: 44rem; color: #aebec0; font-size: 1rem; }
+body.public-portal .portal-badge {
+    margin-top: 1.2rem;
+    padding: .55rem .9rem;
+    border-radius: 999px;
+    color: var(--portal-green);
+    font-size: .82rem;
+}
+body.public-portal .portal-grid { gap: 1.4rem; margin-bottom: 1.4rem; }
+body.public-portal .portal-grid-main { grid-template-columns: 1.72fr .84fr; }
+body.public-portal .portal-grid section,
+body.public-portal .portal-shell > section:not(.portal-hero):not(.portal-page-heading):not(.portal-card),
+body.public-portal .portal-table-block,
+body.public-portal .knockout-tie,
+body.public-portal .champion-grid article {
+    border: 1px solid var(--portal-line);
+    border-radius: 12px;
+    background: var(--portal-panel);
+    box-shadow: none;
+}
+body.public-portal .portal-grid section { padding: 1.45rem; }
+body.public-portal .section-heading { margin-bottom: 1.2rem; }
+body.public-portal .section-heading h2 { font-size: 1.26rem; font-weight: 700; }
+body.public-portal .section-heading a { color: var(--portal-green); font-size: .9rem; font-weight: 700; }
+body.public-portal .match-cards { gap: .9rem; }
+body.public-portal .match-cards-large { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.45rem; margin-top: 1.5rem; }
+body.public-portal .match-card {
+    gap: .75rem;
+    min-height: 6.15rem;
+    padding: 1rem;
+    border: 1px solid #314157;
+    border-radius: 8px;
+    background: var(--portal-panel-strong);
+}
+body.public-portal .match-card span,
+body.public-portal .match-card small { color: var(--portal-dim); font: 600 .78rem/1.45 "JetBrains Mono", monospace; }
+body.public-portal .match-card strong { color: var(--portal-copy); font-size: 1.1rem; }
+body.public-portal .match-card b { color: var(--portal-green); }
+body.public-portal .standings-row,
+body.public-portal .ranking-row { padding: .84rem 0; border-bottom-color: rgba(148, 164, 183, .17); font-size: .95rem; }
+body.public-portal .standings-row strong,
+body.public-portal .ranking-row b { color: var(--portal-copy); font-size: .92rem; }
+body.public-portal .result-list a {
+    min-height: 4.7rem;
+    padding: .9rem 1rem;
+    border-bottom-color: rgba(148, 164, 183, .17);
+    color: var(--portal-muted);
+    font-size: 1rem;
+}
+body.public-portal .result-list a strong {
+    padding: .35rem .7rem;
+    border-radius: 6px;
+    color: var(--portal-copy);
+    font-size: 1.18rem;
+}
+body.public-portal .portal-page-heading {
+    max-width: 76rem;
+    margin: 0 0 2.8rem;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+body.public-portal .portal-page-heading h1 {
+    margin: .4rem 0 .75rem;
+    font-size: clamp(2.4rem, 4vw, 3.35rem);
+    letter-spacing: -.06em;
+    line-height: 1.1;
+}
+body.public-portal .portal-page-heading > p:last-child { max-width: 43rem; color: var(--portal-muted); font-size: 1.05rem; }
+body.public-portal.portal-page--next .portal-page-heading,
+body.public-portal.portal-page--standings .portal-page-heading,
+body.public-portal.portal-page--teams .portal-page-heading,
+body.public-portal.portal-page--athletes .portal-page-heading {
+    max-width: none;
+    padding: 2.25rem 2rem;
+    border: 1px solid var(--portal-line);
+    border-radius: 12px;
+    background: linear-gradient(110deg, var(--portal-panel), #182231);
+}
+body.public-portal .portal-search,
+body.public-portal .filter-bar {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) max-content;
+    gap: 1rem;
+    max-width: none;
+    margin: 0 0 2rem !important;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+}
+body.public-portal .portal-search label,
+body.public-portal .filter-bar label { flex: 0 1 auto; min-width: 0; color: var(--portal-muted); font-size: .83rem; font-weight: 700; letter-spacing: 0; text-transform: none; }
+body.public-portal .portal-search input,
+body.public-portal .filter-bar input,
+body.public-portal .filter-bar select {
+    min-height: 3.25rem;
+    margin-top: .45rem;
+    padding: .75rem 1rem;
+    border: 1px solid #334258;
+    border-radius: 7px;
+    background: #101721;
+    color: var(--portal-copy);
+    font-size: .97rem;
+}
+body.public-portal .portal-search button,
+body.public-portal .filter-bar button {
+    align-self: end;
+    min-height: 3.25rem;
+    padding: .7rem 1.65rem;
+    border-radius: 7px;
+    background: var(--portal-green);
+    color: #07160f;
+    font-size: .92rem;
+    font-weight: 800;
+}
+body.public-portal .portal-table-block { margin-bottom: 1.45rem; padding: 2rem; }
+body.public-portal .portal-table-block h2 { margin: 0 0 1.4rem; font-size: 1.28rem; }
+body.public-portal .table-wrap,
+body.public-portal .ranking-table {
+    border: 1px solid #304055;
+    border-radius: 8px;
+    background: #151d28;
+}
+body.public-portal table { min-width: 42rem; }
+body.public-portal th { padding: .95rem 1rem; background: #0f151e; color: #bac5c2; font-size: .75rem; }
+body.public-portal td { padding: 1rem; color: #d0d7d4; font-size: .95rem; }
+body.public-portal td:last-child strong { color: var(--portal-copy); font-size: 1rem; }
+body.public-portal td:nth-last-child(2) { color: var(--portal-green); }
+body.public-portal .portal-card-grid { gap: 1.35rem; margin-top: 1.25rem; }
+body.public-portal.portal-page--teams .portal-card-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); row-gap: 3.7rem; margin-top: 3.5rem; }
+body.public-portal.portal-page--teams .portal-card-grid > a {
+    min-height: 0;
+    padding: 0 1.5rem;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+}
+body.public-portal.portal-page--teams .portal-card-grid > a:hover { transform: none; box-shadow: none; }
+body.public-portal.portal-page--teams .portal-card h2 { margin-top: .8rem; font-size: 1.15rem; }
+body.public-portal.portal-page--teams .portal-card p { font-size: .9rem; }
+body.public-portal .portal-shield,
+body.public-portal .team-mark-fallback { width: 4rem; height: 4rem; }
+body.public-portal .team-mark-fallback { background: #283242 !important; color: #cfdbd3; }
+body.public-portal.portal-page--athletes .portal-card-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .85rem; }
+body.public-portal.portal-page--athletes .portal-card-grid > a {
+    display: grid;
+    grid-template-columns: 3rem minmax(0, 1fr);
+    align-items: center;
+    min-height: 5.35rem;
+    padding: .8rem 1rem;
+    border: 0;
+    border-radius: 8px;
+    background: var(--portal-panel-strong);
+}
+body.public-portal.portal-page--athletes .portal-athlete-photo,
+body.public-portal.portal-page--athletes .athlete-avatar-fallback { grid-column: 1; grid-row: 1 / span 2; }
+body.public-portal.portal-page--athletes .portal-card h2 { margin: 0 0 .2rem; font-family: Manrope, Inter, sans-serif; font-size: .92rem; }
+body.public-portal.portal-page--athletes .portal-card h2,
+body.public-portal.portal-page--athletes .portal-card p { grid-column: 2; }
+body.public-portal.portal-page--athletes .portal-card p { margin: 0; font-size: .78rem; }
+body.public-portal .portal-athlete-photo,
+body.public-portal .athlete-avatar-fallback { width: 3rem; height: 3rem; }
+body.public-portal .athlete-avatar-fallback { background: #313b4b; color: var(--portal-yellow); font-size: .72rem; }
+body.public-portal.portal-page--groups .portal-card {
+    min-height: 23.7rem;
+    padding: 1.6rem;
+    border: 1px solid var(--portal-line);
+    border-radius: 10px;
+    background: var(--portal-panel);
+}
+body.public-portal.portal-page--groups .portal-card h2 { font-size: 1.25rem; }
+body.public-portal.portal-page--groups .portal-card li { margin: 1.2rem 0; color: var(--portal-copy); }
+body.public-portal.portal-page--knockout .knockout-grid {
+    grid-template-columns: 1fr 1fr 1fr;
+    align-items: start;
+    gap: 3rem;
+}
+body.public-portal.portal-page--knockout .knockout-tie { min-height: 12.5rem; padding: 1.5rem; background: var(--portal-panel); }
+body.public-portal.portal-page--knockout .knockout-tie:nth-child(2),
+body.public-portal.portal-page--knockout .knockout-tie:nth-child(4) { margin-top: 1.6rem; }
+body.public-portal.portal-page--knockout .knockout-tie:nth-child(5),
+body.public-portal.portal-page--knockout .knockout-tie:nth-child(6) { margin-top: 8rem; }
+body.public-portal .public-news > header { max-width: 48rem; margin-bottom: 2.5rem; }
+body.public-portal .public-news > header h1 { margin: .45rem 0 .85rem; font-size: clamp(2.35rem, 4vw, 3.35rem); letter-spacing: -.06em; }
+body.public-portal .public-news > header > p:last-child { color: var(--portal-muted); font-size: 1.05rem; }
+body.public-portal.portal-page--news .filter-bar,
+body.public-portal.portal-page--transfers .filter-bar {
+    padding: 1.6rem;
+    border: 1px solid var(--portal-line);
+    border-radius: 12px;
+    background: var(--portal-panel);
+}
+body.public-portal .news-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.4rem; }
+body.public-portal .news-card {
+    padding: 1.5rem;
+    border: 1px solid var(--portal-line);
+    border-radius: 12px;
+    background: var(--portal-panel);
+}
+body.public-portal .news-card:first-child { grid-row: span 2; }
+body.public-portal .news-card:first-child img { min-height: 15rem; }
+body.public-portal .news-card img { margin: -1.5rem -1.5rem .8rem; width: calc(100% + 3rem); max-height: 20rem; border-radius: 11px 11px 0 0; }
+body.public-portal .news-card h2 { margin: .55rem 0; font-size: 1.25rem; line-height: 1.25; }
+body.public-portal .news-card p { color: var(--portal-muted); font-size: .95rem; }
+body.public-portal .pagination { justify-content: center; margin-top: 2.3rem; }
+body.public-portal .pagination a { min-width: 2.6rem; padding: .6rem .8rem; border: 0; border-radius: 6px; background: #293241; color: var(--portal-muted); text-align: center; }
+body.public-portal .pagination a.active { background: var(--portal-green); color: #07160f; }
+body.public-portal .portal-footer {
+    min-height: 13rem;
+    margin-top: 0;
+    padding: 3.2rem 0;
+    border-top: 1px solid #2b3949;
+    color: var(--portal-muted);
+}
+body.public-portal .portal-footer::before { background: #0b1017; }
+body.public-portal .portal-footer strong { color: var(--portal-green); font-size: 1.15rem; }
+body.public-portal .portal-footer span,
+body.public-portal .portal-footer a { color: var(--portal-muted); font-size: .9rem; }
+
+@media (max-width: 1040px) {
+    body.public-portal .portal-header-inner,
+    body.public-portal .portal-footer,
+    body.public-portal .portal-shell { width: min(100% - 3rem, 1200px); }
+    body.public-portal .portal-header nav a { padding: 0 .55rem; font-size: .84rem; }
+    body.public-portal.portal-page--teams .portal-card-grid,
+    body.public-portal.portal-page--athletes .portal-card-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 800px) {
+    body.public-portal .portal-header-inner { display: flex; min-height: 68px; padding: .75rem 0; }
+    body.public-portal .portal-brand { font-size: .98rem; }
+    body.public-portal .portal-header nav { order: 4; width: 100%; }
+    body.public-portal .portal-header nav a { height: 44px; padding: 0 .65rem; }
+    body.public-portal .portal-nav-tools { margin-left: auto; }
+    body.public-portal .portal-grid-main,
+    body.public-portal .portal-grid { grid-template-columns: 1fr; }
+    body.public-portal .portal-shell { padding-top: 2rem; }
+    body.public-portal .portal-hero { min-height: 16rem; }
+    body.public-portal.portal-page--knockout .knockout-grid { grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+    body.public-portal.portal-page--knockout .knockout-tie:nth-child(n) { margin-top: 0; }
+}
+@media (max-width: 600px) {
+    body.public-portal .portal-header-inner,
+    body.public-portal .portal-footer,
+    body.public-portal .portal-shell { width: min(100% - 1.5rem, 1200px); }
+    body.public-portal .portal-brand span { max-width: 13rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    body.public-portal .portal-hero { min-height: 15rem; padding: 2rem 1.35rem; }
+    body.public-portal .portal-hero h1 { font-size: 2.35rem; }
+    body.public-portal .portal-page-heading h1,
+    body.public-portal .public-news > header h1 { font-size: 2.25rem; }
+    body.public-portal.portal-page--next .portal-page-heading,
+    body.public-portal.portal-page--standings .portal-page-heading,
+    body.public-portal.portal-page--teams .portal-page-heading,
+    body.public-portal.portal-page--athletes .portal-page-heading { padding: 1.5rem 1.25rem; }
+    body.public-portal .match-cards-large,
+    body.public-portal .news-grid,
+    body.public-portal.portal-page--teams .portal-card-grid,
+    body.public-portal.portal-page--athletes .portal-card-grid,
+    body.public-portal.portal-page--knockout .knockout-grid { grid-template-columns: 1fr; }
+    body.public-portal .portal-search,
+    body.public-portal .filter-bar { grid-template-columns: 1fr; }
+    body.public-portal .portal-search button,
+    body.public-portal .filter-bar button { width: 100%; }
+    body.public-portal .portal-table-block { padding: 1rem; }
+    body.public-portal .portal-footer { align-items: flex-start; flex-direction: column; min-height: 0; padding: 2rem 0; }
+}

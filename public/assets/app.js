@@ -55,7 +55,7 @@
     var savedTheme = null;
     try { savedTheme = window.localStorage.getItem('torneios-theme'); } catch (error) { savedTheme = null; }
     var preferred = savedTheme || (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
-    if (root.classList.contains('public-portal') && !savedTheme) { preferred = 'light'; }
+    if (root.classList.contains('public-portal') && !savedTheme) { preferred = 'dark'; }
     root.dataset.theme = preferred;
 
     document.querySelectorAll('[data-icon]').forEach(function (element) {
@@ -110,6 +110,31 @@
             var open = portalNav.classList.toggle('is-open');
             portalNavToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
         });
+    }
+
+    if (root.classList.contains('public-portal')) {
+        var portalPath = window.location.pathname.replace(/\/+$/, '') || '/';
+        var portalParts = portalPath.split('/');
+        var portalLastPart = portalParts[portalParts.length - 1];
+        var portalPages = {
+            'proximos-jogos': 'next', resultados: 'results', classificacao: 'standings', grupos: 'groups',
+            'mata-mata': 'knockout', equipes: 'teams', atletas: 'athletes', artilharia: 'goals',
+            assistencias: 'assists', cartoes: 'cards', regulamento: 'regulation', campeao: 'champion',
+            noticias: 'news', 'vai-e-vem': 'transfers'
+        };
+        var portalPage = portalPages[portalLastPart] || 'home';
+        if (portalParts.indexOf('partidas') !== -1) portalPage = 'match';
+        if (portalParts.indexOf('noticias') !== -1) portalPage = 'news';
+        if (portalParts.indexOf('vai-e-vem') !== -1) portalPage = 'transfers';
+        if (portalParts.indexOf('equipes') !== -1 && !portalPages[portalLastPart]) portalPage = 'team';
+        if (portalParts.indexOf('atletas') !== -1 && !portalPages[portalLastPart]) portalPage = 'athlete';
+        root.classList.add('portal-page--' + portalPage);
+        if (portalNav) {
+            portalNav.querySelectorAll('a').forEach(function (link) {
+                var linkPath = new URL(link.href, window.location.origin).pathname.replace(/\/+$/, '') || '/';
+                if (linkPath === portalPath) link.setAttribute('aria-current', 'page');
+            });
+        }
     }
 
     document.querySelectorAll('[data-password-toggle]').forEach(function (button) {
