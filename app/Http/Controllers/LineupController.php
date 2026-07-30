@@ -99,7 +99,13 @@ final class LineupController extends Controller
 
     private function editPage(array $user, array $match, int $teamId, array $lineup, array $formData, array $errors, int $status = 200): Response
     {
-        return $this->errorPage('Escalacao de ' . $lineup['team_name'], 'admin/lineups/edit', ['user' => $user, 'match' => $match, 'teamId' => $teamId, 'lineup' => $lineup, 'formData' => $formData, 'formations' => $this->formations->listActive(), 'formation' => $this->formations->findWithSlots((int) ($formData['formation_id'] ?? $lineup['tactical_formation_id'])), 'athletes' => $this->lineups->eligibleAthletes((int) $match['championship_id'], $teamId), 'staff' => $this->lineups->staff($teamId), 'history' => $this->lineups->history((int) $lineup['id']), 'canReopen' => $this->access->canReopen($user, $match, $teamId), 'errors' => $errors, 'message' => Session::consumeFlash('lineup_message')], $status);
+        $formations = $this->formations->listActive();
+        $formationCatalog = [];
+        foreach ($formations as $item) {
+            $full = $this->formations->findWithSlots((int) $item['id']);
+            if ($full) $formationCatalog[] = $full;
+        }
+        return $this->errorPage('Escalacao de ' . $lineup['team_name'], 'admin/lineups/edit', ['user' => $user, 'match' => $match, 'teamId' => $teamId, 'lineup' => $lineup, 'formData' => $formData, 'formations' => $formations, 'formationCatalog' => $formationCatalog, 'formation' => $this->formations->findWithSlots((int) ($formData['formation_id'] ?? $lineup['tactical_formation_id'])), 'athletes' => $this->lineups->eligibleAthletes((int) $match['championship_id'], $teamId), 'staff' => $this->lineups->staff($teamId), 'history' => $this->lineups->history((int) $lineup['id']), 'canReopen' => $this->access->canReopen($user, $match, $teamId), 'errors' => $errors, 'message' => Session::consumeFlash('lineup_message')], $status);
     }
 
     private function input(Request $request): array

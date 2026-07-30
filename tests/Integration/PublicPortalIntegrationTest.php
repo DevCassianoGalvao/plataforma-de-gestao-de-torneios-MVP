@@ -38,8 +38,12 @@ final class PublicPortalIntegrationTest
         assert_true(count($matchRows) >= 1, 'Proximos jogos publicos ausentes');
         $publicMatch = $repository->match($championshipId, (int) $matchRows[0]['id']);
         assert_true((bool) $publicMatch, 'Detalhe publico de partida ausente');
-        foreach (['observation', 'private_notes', 'documents', 'guardian', 'phone', 'email', 'address'] as $privateField) {
+        foreach (['observation', 'private_notes', 'documents', 'guardian', 'phone', 'email', 'address', 'photo_path'] as $privateField) {
             assert_true(!array_key_exists($privateField, $publicMatch), 'Campo privado carregado na partida publica: ' . $privateField);
+        }
+        foreach ($publicMatch['lineups'] as $player) {
+            assert_true(array_key_exists('slot_key', $player) && array_key_exists('horizontal_position', $player), 'Escalacao publica sem coordenadas taticas.');
+            assert_true(!array_key_exists('photo_path', $player), 'Caminho privado de foto vazou na escalacao publica.');
         }
 
         $publicAthlete = $repository->athlete($championshipId, (int) $publicAthletes[0]['id']);

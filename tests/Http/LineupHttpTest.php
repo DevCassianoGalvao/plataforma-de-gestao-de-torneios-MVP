@@ -40,6 +40,8 @@ final class LineupHttpTest
         $suggestion = $service->suggest($match, $teamId, $formationId);
         $suggestion['staff_ids'] = array_map(static fn (array $member): int => (int) $member['id'], $lineups->staff($teamId));
         assert_true($service->save($admin, $match, $draft, array_merge(['formation_id' => $formationId], $suggestion), true)['ok'], 'Fixture HTTP de escalacao nao confirmou');
+        $reopened = $service->reopen($admin, $match, $lineups->find($matchId, $teamId), 'Teste do editor tatico');
+        assert_true($reopened['ok'], 'Fixture HTTP de escalacao nao reabriu');
 
         Session::destroy();
         self::login($router, 'admin@torneios.local');
@@ -47,7 +49,7 @@ final class LineupHttpTest
         assert_same(200, $summary->status, 'Central HTTP de escalacoes nao abriu');
         $edit = $router->dispatch(Request::fake('GET', '/torneio-online/admin/partidas/' . $matchId . '/escalacao/' . $teamId));
         assert_same(200, $edit->status, 'Campo HTTP de escalacao nao abriu');
-        assert_true(str_contains($edit->body, 'lineup-field') && str_contains($edit->body, 'Campo funcional'), 'Campo funcional nao foi renderizado');
+        assert_true(str_contains($edit->body, 'tactical-field--editor') && str_contains($edit->body, 'football-field.svg') && str_contains($edit->body, 'lineup-formation-catalog'), 'Campo tatico interativo nao foi renderizado');
         assert_same(200, $router->dispatch(Request::fake('POST', '/torneio-online/admin/partidas/' . $matchId . '/escalacao/' . $teamId . '/automatico', ['_csrf' => Security::csrfToken(), 'formation_id' => $formationId]))->status, 'Distribuicao HTTP falhou');
         assert_same(403, $router->dispatch(Request::fake('POST', '/torneio-online/admin/partidas/' . $matchId . '/escalacao/' . $teamId, ['_csrf' => 'invalid']))->status, 'CSRF de escalacao foi aceito');
         self::logout($router);

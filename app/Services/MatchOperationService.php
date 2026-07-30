@@ -23,7 +23,7 @@ final class MatchOperationService
         $lineups = [];
         foreach ($this->lineups->listForMatch((int) $match['id']) as $summary) {
             $fullLineup = $this->lineups->find((int) $match['id'], (int) $summary['team_id']);
-            $lineups[] = $fullLineup ? array_merge($summary, ['players' => $fullLineup['players']]) : $summary;
+            $lineups[] = $fullLineup ? array_merge($summary, ['players' => $fullLineup['players'], 'slots' => $this->lineups->formationSlots((int) $summary['tactical_formation_id'])]) : $summary;
         }
         return [
             'operation' => $operation,

@@ -29,6 +29,13 @@ final class LineupRepository
         return $statement->fetchAll();
     }
 
+    public function formationSlots(int $formationId): array
+    {
+        $statement = $this->pdo->prepare('SELECT slot_key, position_code, label, position_group, horizontal_position, vertical_position, display_order FROM tactical_formation_slots WHERE tactical_formation_id = ? ORDER BY display_order, id');
+        $statement->execute([$formationId]);
+        return $statement->fetchAll();
+    }
+
     public function eligibleAthletes(int $championshipId, int $teamId): array
     {
         $statement = $this->pdo->prepare("SELECT a.id, a.full_name, a.sporting_name, a.photo_path, a.preferred_number, a.status, p.code AS primary_position_code, p.name AS primary_position_name, p.position_group AS primary_position_group, COALESCE(GROUP_CONCAT(DISTINCT sp.code ORDER BY sp.code SEPARATOR ','), '') AS secondary_position_codes, COALESCE(GROUP_CONCAT(DISTINCT sp.position_group ORDER BY sp.position_group SEPARATOR ','), '') AS secondary_position_groups FROM athlete_registrations ar INNER JOIN athletes a ON a.id = ar.athlete_id INNER JOIN positions p ON p.id = a.primary_position_id LEFT JOIN athlete_secondary_positions asp ON asp.athlete_id = a.id LEFT JOIN positions sp ON sp.id = asp.position_id WHERE ar.championship_id = ? AND ar.team_id = ? AND ar.status = 'approved' AND a.team_id = ? AND a.status = 'active' AND a.deleted_at IS NULL GROUP BY a.id, a.full_name, a.sporting_name, a.photo_path, a.preferred_number, a.status, p.code, p.name, p.position_group ORDER BY a.preferred_number IS NULL, a.preferred_number, a.full_name");

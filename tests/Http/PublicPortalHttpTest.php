@@ -42,6 +42,8 @@ final class PublicPortalHttpTest
         foreach (['/equipes/' . $teamSlug, '/atletas/' . $athleteId, '/partidas/' . $matchId] as $path) {
             assert_same(200, $router->dispatch(Request::fake('GET', $base . $path))->status, 'Detalhe publico falhou: ' . $path);
         }
+        $publicMatch = $router->dispatch(Request::fake('GET', $base . '/partidas/' . $matchId));
+        if (str_contains($publicMatch->body, 'Escala&ccedil;&otilde;es confirmadas')) assert_true(str_contains($publicMatch->body, 'football-field.svg'), 'Campo tatico nao foi carregado no registro publico da partida.');
 
         $home = $router->dispatch(Request::fake('GET', $base));
         assert_true(str_contains($home->body, 'canonical') && str_contains($home->body, 'og:title'), 'SEO basico ausente na home publica');

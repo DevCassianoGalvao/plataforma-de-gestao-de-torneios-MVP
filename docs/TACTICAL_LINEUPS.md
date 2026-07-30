@@ -49,7 +49,11 @@ Depois da confirmacao, edicao comum e bloqueada. Administrador com permissao pod
 - POST /automatico: gerar uma sugestao sem persistir;
 - POST /reabrir: reabrir uma confirmada com motivo.
 
-O campo usa coordenadas normalizadas da formacao. Cada slot mostra foto quando existente, nome esportivo, numero, posicao e aviso posicional. Os dados de rascunho ficam privados da equipe; operadores visualizam somente confirmadas.
+O campo usa coordenadas normalizadas da formacao. Cada slot mostra foto quando existente, nome esportivo, numero, posicao e aviso posicional. A troca de formacao no rascunho reorganiza a visualizacao imediatamente no navegador e preserva os atletas selecionados sempre que houver slot equivalente; somente Salvar rascunho persiste a mudanca. Os dados de rascunho ficam privados da equipe; operadores visualizam somente confirmadas.
+
+## Visualizacao da partida
+
+O mesmo campo SVG e usado no editor, na central operacional e no portal publico. A central mostra um campo por equipe com os titulares da escalacao confirmada. O registro publico da partida tambem mostra os dois campos, com foto circular ou iniciais e nome curto; cada atleta aponta para seu perfil publico. O read model publico entrega apenas coordenadas, identificacao esportiva e indicador de foto, nunca caminho do arquivo ou outros dados privados.
 
 ## Escopo
 
@@ -59,7 +63,7 @@ O campo usa coordenadas normalizadas da formacao. Cada slot mostra foto quando e
 - operador: leitura de escalacoes confirmadas;
 - comunicacao: 403.
 
-Nao ha rota publica para escalacoes, fotos, documentos ou dados privados.
+Nao ha rota publica para rascunhos, documentos ou dados privados. Escalacoes confirmadas e fotos autorizadas sao exibidas somente no registro publico da partida por rota controlada.
 
 ## Seed e testes
 
