@@ -339,6 +339,7 @@ $router->get('/admin/noticias/{id}/editar', [$news, 'editForm']);
 $router->post('/admin/noticias/{id}', [$news, 'update']);
 $router->get('/admin/noticias/{id}/preview', [$news, 'adminShow']);
 $router->get('/admin/noticias/{id}/capa', [$news, 'adminCover']);
+$router->get('/admin/noticias/{id}/imagens/{name}', [$news, 'adminContentImage']);
 $router->post('/admin/noticias/{id}/publicar', [$news, 'publish']);
 $router->post('/admin/noticias/{id}/despublicar', [$news, 'unpublish']);
 $router->post('/admin/noticias/{id}/excluir', [$news, 'delete']);
@@ -347,6 +348,7 @@ $router->get('/admin/noticias/{id}', [$news, 'adminShow']);
 $router->get('/campeonatos/{slug}/noticias/recentes', [$news, 'publicRecent']);
 $router->get('/campeonatos/{slug}/noticias', [$news, 'publicIndex']);
 $router->get('/campeonatos/{championshipSlug}/noticias/{newsSlug}/capa', [$news, 'publicCover']);
+$router->get('/campeonatos/{championshipSlug}/noticias/{newsSlug}/imagens/{name}', [$news, 'publicContentImage']);
 $router->get('/campeonatos/{championshipSlug}/noticias/{newsSlug}', [$news, 'publicShow']);
 
 $transfers = new TransferController($users, $authorization, $audit, $transferRepository, $transferAccess, $transferService, $storage);

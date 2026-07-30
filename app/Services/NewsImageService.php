@@ -9,7 +9,7 @@ final class NewsImageService
     {
     }
 
-    public function store(array $file): array
+    public function store(array $file, string $directory = 'news/covers'): array
     {
         $validated = UploadRules::validate($file, ['image/jpeg' => ['jpg', 'jpeg'], 'image/png' => ['png'], 'image/webp' => ['webp']], 5242880);
         $dimensions = @getimagesize((string) $file['tmp_name']);
@@ -22,7 +22,7 @@ final class NewsImageService
         if ($temporary === false || !imagejpeg($target, $temporary, 82)) { imagedestroy($source); imagedestroy($target); if ($temporary) @unlink($temporary); throw new \RuntimeException('Nao foi possivel otimizar a imagem.'); }
         imagedestroy($source); imagedestroy($target);
         try {
-            return $this->storage->store(['error' => UPLOAD_ERR_OK, 'size' => filesize($temporary), 'tmp_name' => $temporary, 'name' => 'capa.jpg'], 'news/covers', ['image/jpeg'], 5242880);
+            return $this->storage->store(['error' => UPLOAD_ERR_OK, 'size' => filesize($temporary), 'tmp_name' => $temporary, 'name' => 'imagem.jpg'], $directory, ['image/jpeg'], 5242880);
         } finally {
             @unlink($temporary);
         }

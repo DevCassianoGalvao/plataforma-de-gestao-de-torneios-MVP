@@ -8,8 +8,9 @@
         <label>Titulo <input name="title" value="<?= $e($record['title'] ?? '') ?>" required maxlength="255"></label>
         <label>Slug <input name="slug" value="<?= $e($record['slug'] ?? '') ?>" placeholder="noticia-do-campeonato"></label>
         <label>Resumo <textarea name="summary" rows="3" maxlength="600"><?= $e($record['summary'] ?? '') ?></textarea></label>
-        <label>Conteúdo <textarea name="content" rows="12" required><?= $e($record['content'] ?? '') ?></textarea></label>
+        <label>Conteúdo <textarea name="content" rows="12" required><?= $e($record['content'] ?? '') ?></textarea><small>Para inserir uma imagem no ponto desejado, escreva [[imagem]] em uma linha do texto e envie o arquivo abaixo.</small></label>
         <label>Imagem de capa <input type="file" name="cover_image" accept="image/jpeg,image/png,image/webp"></label>
+        <label>Imagem no conteúdo <input type="file" name="content_image" accept="image/jpeg,image/png,image/webp"></label>
         <?php if (!empty($record['cover_image_path'])): ?><p><img class="news-cover-thumb" src="<?= $e(App\Core\Config::url('/admin/noticias/' . $record['id'] . '/capa')) ?>" alt="Capa atual"></p><?php endif; ?>
         <label>Status <select name="status"><?php foreach (['draft', 'scheduled', 'published', 'unpublished', 'archived'] as $status): ?><option value="<?= $e($status) ?>" <?= ($record['status'] ?? 'draft') === $status ? 'selected' : '' ?>><?= $e($status) ?></option><?php endforeach; ?></select></label>
         <label>Data de publicacao <input type="datetime-local" name="published_at" value="<?= $e($date) ?>"><small>Obrigatoria no agendamento; publicacao sem data usa o horario atual.</small></label>

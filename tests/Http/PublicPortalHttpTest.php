@@ -24,13 +24,15 @@ final class PublicPortalHttpTest
         $router = require dirname(__DIR__, 2) . '/routes/web.php';
         $slug = 'copa-brasil-de-talentos-2026';
         $base = '/torneio-online/campeonatos/' . $slug;
-        $paths = ['', '/proximos-jogos', '/resultados', '/classificacao', '/grupos', '/mata-mata', '/equipes', '/atletas', '/artilharia', '/assistencias', '/cartoes', '/regulamento', '/campeao', '/noticias', '/vai-e-vem'];
+        $paths = ['', '/proximos-jogos', '/resultados', '/classificacao', '/mata-mata', '/equipes', '/atletas', '/artilharia', '/assistencias', '/cartoes', '/regulamento', '/campeao', '/noticias', '/vai-e-vem'];
         foreach ($paths as $path) {
             $response = $router->dispatch(Request::fake('GET', $base . $path));
             assert_same(200, $response->status, 'Rota publica falhou: ' . $path);
             assert_true(!str_contains(strtolower($response->body), 'private_notes'), 'Campo privado vazou na rota: ' . $path);
             assert_true(!str_contains(strtolower($response->body), 'internal_notes'), 'Campo interno vazou na rota: ' . $path);
         }
+        $groups = $router->dispatch(Request::fake('GET', $base . '/grupos'));
+        assert_same(302, $groups->status, 'A rota legada de grupos deve redirecionar para a classificação.');
 
         $teamSlug = (string) $pdo->query("SELECT slug FROM teams WHERE championship_id = (SELECT id FROM championships WHERE slug = '{$slug}') AND deleted_at IS NULL ORDER BY id LIMIT 1")->fetchColumn();
         $athleteId = (int) $pdo->query("SELECT a.id FROM athletes a INNER JOIN teams t ON t.id = a.team_id WHERE t.championship_id = (SELECT id FROM championships WHERE slug = '{$slug}') AND a.deleted_at IS NULL ORDER BY a.id LIMIT 1")->fetchColumn();

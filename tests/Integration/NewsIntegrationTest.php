@@ -28,6 +28,11 @@ final class NewsIntegrationTest
         $result = $service->save($admin, ['championship_id' => $championshipId, 'title' => 'Noticia de integracao', 'slug' => 'noticia-integracao', 'summary' => 'Resumo', 'content' => '<script>alert(1)</script>', 'status' => 'published', 'featured' => 0], null); assert_true($result['ok'], 'CRUD de noticia falhou'); $newsId = (int) $result['id'];
         $duplicate = $service->save($admin, ['championship_id' => $championshipId, 'title' => 'Outra', 'slug' => 'noticia-integracao', 'summary' => '', 'content' => 'Conteudo', 'status' => 'draft'], null); assert_true(!$duplicate['ok'], 'Slug duplicado foi aceito');
         $article = $repository->find($newsId); assert_true($article && $article['status'] === 'published', 'Noticia publicada nao foi lida'); assert_same(2, count($repository->listPublished($championshipId)), 'Busca publica nao encontrou noticias publicadas');
+        $temporary = tempnam(sys_get_temp_dir(), 'news-inline-'); file_put_contents($temporary, base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII='));
+        $inline = ['error' => UPLOAD_ERR_OK, 'size' => filesize($temporary), 'tmp_name' => $temporary, 'name' => 'inline.png'];
+        $withImage = $service->save($admin, ['championship_id' => $championshipId, 'title' => 'Noticia com imagem', 'slug' => 'noticia-com-imagem', 'summary' => 'Resumo', 'content' => "Primeiro paragrafo\n[[imagem]]\nUltimo paragrafo", 'status' => 'draft'], null, null, $inline); assert_true($withImage['ok'], 'Imagem no conteudo nao foi salva');
+        $imageArticle = $repository->find((int) $withImage['id']); assert_true($imageArticle !== null && preg_match('/\[\[imagem:news\/content\/[a-f0-9]{32}\.jpg\]\]/', (string) $imageArticle['content']) === 1, 'Marcador da imagem no conteudo nao foi persistido');
+        if ($imageArticle && preg_match('/\[\[imagem:(news\/content\/[^\]]+)\]\]/', (string) $imageArticle['content'], $match) === 1) $storage->delete($match[1]); @unlink($temporary);
         $service->delete($newsId, (int) $admin['id']); assert_true($repository->find($newsId) === null, 'Exclusao logica nao ocultou noticia');
     }
 }

@@ -55,7 +55,7 @@
     var savedTheme = null;
     try { savedTheme = window.localStorage.getItem('torneios-theme'); } catch (error) { savedTheme = null; }
     var preferred = savedTheme || (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
-    if (root.classList.contains('public-portal') && !savedTheme) { preferred = 'dark'; }
+    if (root.classList.contains('public-portal')) { preferred = 'dark'; }
     root.dataset.theme = preferred;
 
     document.querySelectorAll('[data-icon]').forEach(function (element) {

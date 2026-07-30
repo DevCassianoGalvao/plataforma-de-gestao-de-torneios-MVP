@@ -2,18 +2,11 @@
 $e = static fn (mixed $value): string => App\Core\View::e($value);
 $slug = (string) ($championship['slug'] ?? '');
 $base = App\Core\Config::url('/campeonatos/' . $slug);
+$hasKnockout = $hasKnockout ?? false;
 $assetUrl = static function (string $asset): string {
     $file = dirname(__DIR__, 3) . '/public/assets/' . $asset;
     $version = is_file($file) ? (string) filemtime($file) : '0';
     return App\Core\Config::url('/assets/' . $asset) . '?v=' . rawurlencode($version);
-};
-$portalInitials = static function (string $name): string {
-    $parts = preg_split('/\s+/', trim($name)) ?: [];
-    $initials = '';
-    foreach (array_slice($parts, 0, 2) as $part) {
-        $initials .= strtoupper(substr($part, 0, 1));
-    }
-    return $initials ?: 'TM';
 };
 ?>
 <!doctype html>
@@ -33,32 +26,17 @@ $portalInitials = static function (string $name): string {
 <body class="public-portal" data-portal-primary="<?= $e($championship['primary_color'] ?? '') ?>" data-portal-secondary="<?= $e($championship['secondary_color'] ?? '') ?>" data-portal-accent="<?= $e($championship['accent_color'] ?? '') ?>">
     <header class="portal-header">
         <div class="portal-header-inner">
-            <a class="portal-brand" href="<?= $e($base) ?>">
-                <?php if (!empty($championship['logo_path'])): ?><img src="<?= $e($base . '/assets/logo') ?>" alt="Logo de <?= $e($championship['name']) ?>"><?php else: ?><span class="portal-mark-fallback" aria-hidden="true"><?= $e($portalInitials((string) ($championship['name'] ?? 'Torneios'))) ?></span><?php endif; ?>
-                <span><?= $e($championship['name']) ?></span>
+            <a class="portal-brand portal-brand--logo-only" href="<?= $e($base) ?>" aria-label="<?= $e($championship['name']) ?>">
+                <?php if (!empty($championship['logo_path'])): ?><img src="<?= $e($base . '/assets/logo') ?>" alt="Logo de <?= $e($championship['name']) ?>"><?php else: ?><span class="portal-mark-fallback" data-icon="trophy" aria-hidden="true"></span><?php endif; ?>
             </a>
-            <div class="portal-nav-tools">
-                <button class="icon-button" type="button" data-theme-toggle aria-label="Ativar tema escuro" title="Ativar tema escuro">◐</button>
-                <button class="icon-button portal-nav-toggle" type="button" data-portal-nav-toggle aria-label="Abrir navegação" aria-expanded="false" title="Abrir navegação">☰</button>
-            </div>
+            <div class="portal-nav-tools"><button class="icon-button portal-nav-toggle" type="button" data-portal-nav-toggle aria-label="Abrir navegação" aria-expanded="false" title="Abrir navegação">Menu</button></div>
             <nav class="portal-nav" data-portal-nav aria-label="Navegação do campeonato">
-                <a href="<?= $e($base) ?>">Início</a>
-                <a href="<?= $e($base . '/proximos-jogos') ?>">Jogos</a>
-                <a href="<?= $e($base . '/resultados') ?>">Resultados</a>
-                <a href="<?= $e($base . '/classificacao') ?>">Classificação</a>
-                <a href="<?= $e($base . '/equipes') ?>">Equipes</a>
-                <a href="<?= $e($base . '/noticias') ?>">Notícias</a>
-                <a href="<?= $e($base . '/vai-e-vem') ?>">Vai e Vem</a>
-                <a href="<?= $e($base . '/grupos') ?>">Grupos</a>
-                <a href="<?= $e($base . '/mata-mata') ?>">Mata-mata</a>
+                <a href="<?= $e($base) ?>">Início</a><a href="<?= $e($base . '/proximos-jogos') ?>">Jogos</a><a href="<?= $e($base . '/resultados') ?>">Resultados</a><a href="<?= $e($base . '/classificacao') ?>">Classificação</a><a href="<?= $e($base . '/equipes') ?>">Equipes</a><a href="<?= $e($base . '/noticias') ?>">Notícias</a><a href="<?= $e($base . '/vai-e-vem') ?>">Vai e Vem</a><?php if (!empty($hasKnockout)): ?><a href="<?= $e($base . '/mata-mata') ?>">Mata-mata</a><?php endif; ?>
             </nav>
         </div>
     </header>
     <main class="portal-shell"><?= $content ?? '' ?></main>
-    <footer class="portal-footer">
-        <div><strong><?= $e($championship['name']) ?></strong><span><?= $e($championship['category_name']) ?> | <?= $e($championship['season_name']) ?></span></div>
-        <nav aria-label="Informações do campeonato"><a href="<?= $e($base . '/atletas') ?>">Atletas</a><a href="<?= $e($base . '/artilharia') ?>">Artilharia</a><a href="<?= $e($base . '/regulamento') ?>">Regulamento</a><a href="<?= $e($base . '/campeao') ?>">Campeão e vice</a></nav>
-    </footer>
+    <footer class="portal-footer"><div><strong><?= $e($championship['name']) ?></strong><span><?= $e($championship['category_name']) ?> | <?= $e($championship['season_name']) ?></span></div><nav aria-label="Informações do campeonato"><a href="<?= $e($base . '/atletas') ?>">Atletas</a><a href="<?= $e($base . '/artilharia') ?>">Artilharia</a><a href="<?= $e($base . '/regulamento') ?>">Regulamento</a></nav></footer>
     <script src="<?= $e($assetUrl('app.js')) ?>" defer></script>
 </body>
 </html>

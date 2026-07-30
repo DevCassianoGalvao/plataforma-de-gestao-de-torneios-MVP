@@ -11,7 +11,7 @@ final class NewsService
     {
     }
 
-    public function save(array $user, array $input, ?array $file, ?int $id = null): array
+    public function save(array $user, array $input, ?array $file, ?int $id = null, ?array $contentImage = null): array
     {
         $record = $id ? $this->news->find($id) : null;
         $errors = [];
@@ -26,10 +26,12 @@ final class NewsService
         if ($this->news->slugExists($championshipId, $slug, $id)) $errors[] = 'Ja existe noticia com este slug no campeonato.';
         if ($status === 'scheduled' && (!$publishedAt || strtotime($publishedAt) <= time())) $errors[] = 'Agendamento deve estar no futuro.';
         if ($status === 'published' && $publishedAt && strtotime($publishedAt) > time()) $errors[] = 'Publicacao futura deve usar o status agendado.';
+        if ($contentImage && (($contentImage['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) && !str_contains($content, '[[imagem]]')) $errors[] = 'Para inserir a imagem no texto, posicione o marcador [[imagem]] no conteúdo.';
         if ($errors) return ['ok' => false, 'errors' => $errors, 'record' => array_merge($input, ['slug' => $slug])];
-        $coverPath = $record['cover_image_path'] ?? null; $newCover = null;
+        $coverPath = $record['cover_image_path'] ?? null; $newCover = null; $newContentImage = null;
         try {
             if ($file && (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE)) { $newCover = $this->images->store($file); $coverPath = $newCover['path']; }
+            if ($contentImage && (($contentImage['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE)) { $newContentImage = $this->images->store($contentImage, 'news/content'); $content = str_replace('[[imagem]]', '[[imagem:' . $newContentImage['path'] . ']]', $content); }
             if ($status === 'published' && !$publishedAt) $publishedAt = date('Y-m-d H:i:s');
             $now = date('Y-m-d H:i:s'); $data = ['championship_id' => $championshipId, 'author_id' => $record['author_id'] ?? (int) $user['id'], 'related_team_id' => $this->nullableInt($input['related_team_id'] ?? null), 'related_match_id' => $this->nullableInt($input['related_match_id'] ?? null), 'title' => $title, 'slug' => $slug, 'summary' => $summary, 'content' => $content, 'cover_image_path' => $coverPath, 'status' => $status, 'featured' => !empty($input['featured']) ? 1 : 0, 'published_at' => $publishedAt, 'created_at' => $record['created_at'] ?? $now, 'updated_at' => $now];
             if ($id) { $this->news->update($id, $data); $savedId = $id; } else { $savedId = $this->news->create($data); }
@@ -37,7 +39,7 @@ final class NewsService
             $this->audit->record($id ? 'news.updated' : 'news.created', (int) $user['id'], 'news_article', $savedId, ['championship_id' => $championshipId, 'status' => $status]);
             return ['ok' => true, 'id' => $savedId, 'errors' => []];
         } catch (\Throwable $exception) {
-            if ($newCover) $this->storage->delete($newCover['path']);
+            if ($newCover) $this->storage->delete($newCover['path']); if ($newContentImage) $this->storage->delete($newContentImage['path']);
             $duplicate = $exception instanceof \PDOException && is_array($exception->errorInfo) && (int) ($exception->errorInfo[1] ?? 0) === 1062;
             if ($duplicate) $errors[] = 'Ja existe noticia com este slug no campeonato.'; else $errors[] = $exception->getMessage();
             return ['ok' => false, 'errors' => $errors, 'record' => array_merge($input, ['slug' => $slug])];
