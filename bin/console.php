@@ -19,6 +19,7 @@ use App\Database\TacticalFormationSeed;
 use App\Database\TeamSeed;
 use App\Database\NewsSeed;
 use App\Database\TransferSeed;
+use App\Database\TournamentProgressSeed;
 
 $command = $argv[1] ?? 'help';
 $runner = new MigrationRunner(Database::connection(), dirname(__DIR__) . '/database/migrations');
@@ -62,5 +63,11 @@ if ($command === 'db:seed') {
     exit(0);
 }
 
-echo "Comandos: migrate | migrate:status | db:seed\n";
+if ($command === 'db:seed:simulation') {
+    TournamentProgressSeed::run(Database::connection());
+    echo "SIMULATION_OK fase_de_grupos=concluida quartas=concluidas semifinais=agendadas\n";
+    exit(0);
+}
+
+echo "Comandos: migrate | migrate:status | db:seed | db:seed:simulation\n";
 exit($command === 'help' ? 0 : 1);

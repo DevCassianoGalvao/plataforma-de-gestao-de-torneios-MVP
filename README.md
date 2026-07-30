@@ -31,6 +31,7 @@ php bin/lint.php
 php bin/console.php migrate
 php bin/console.php migrate:status
 SEED_DEMO_PASSWORD=... php bin/console.php db:seed
+ALLOW_DEMO_SIMULATION=1 php bin/console.php db:seed:simulation
 APP_ENV=test DB_NAME=torneios_mvp_test php bin/test.php
 HTTP_TEST_BASE_URL=http://127.0.0.1:18081/torneio-online TEST_PASSWORD=... php bin/http-test.php
 ```
@@ -61,6 +62,7 @@ No Windows PowerShell, defina variaveis com `$env:NOME='valor'` e use `C:\xampp\
 - [Referencia visual do Stitch](docs/STITCH_DESIGN_REFERENCE.md)
 - [Design system da UI](docs/UI_DESIGN_SYSTEM.md)
 - [Auditoria final de UI/UX](docs/UI_UX_FINAL_AUDIT.md)
+- [Simulacao de campeonato em andamento](docs/TOURNAMENT_PROGRESS_SIMULATION.md)
 - [Referencia da sumula](docs/REFERENCIA_SUMULA.xlsx)
 
 ## Proxima etapa
