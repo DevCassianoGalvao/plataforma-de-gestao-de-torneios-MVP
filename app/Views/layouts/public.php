@@ -2,6 +2,11 @@
 $e = static fn (mixed $value): string => App\Core\View::e($value);
 $slug = (string) ($championship['slug'] ?? '');
 $base = App\Core\Config::url('/campeonatos/' . $slug);
+$assetUrl = static function (string $asset): string {
+    $file = dirname(__DIR__, 3) . '/public/assets/' . $asset;
+    $version = is_file($file) ? (string) filemtime($file) : '0';
+    return App\Core\Config::url('/assets/' . $asset) . '?v=' . rawurlencode($version);
+};
 $portalInitials = static function (string $name): string {
     $parts = preg_split('/\s+/', trim($name)) ?: [];
     $initials = '';
@@ -23,7 +28,7 @@ $portalInitials = static function (string $name): string {
     <?php if (!empty($seo['image'])): ?><meta property="og:image" content="<?= $e($seo['image']) ?>"><meta name="twitter:card" content="summary_large_image"><?php endif; ?>
     <meta property="og:title" content="<?= $e($seo['title'] ?? $title) ?>">
     <meta property="og:description" content="<?= $e($seo['description'] ?? '') ?>">
-    <link rel="stylesheet" href="<?= $e(App\Core\Config::url('/assets/app.css')) ?>">
+    <link rel="stylesheet" href="<?= $e($assetUrl('app.css')) ?>">
 </head>
 <body class="public-portal" data-portal-primary="<?= $e($championship['primary_color'] ?? '') ?>" data-portal-secondary="<?= $e($championship['secondary_color'] ?? '') ?>" data-portal-accent="<?= $e($championship['accent_color'] ?? '') ?>">
     <header class="portal-header">
@@ -54,6 +59,6 @@ $portalInitials = static function (string $name): string {
         <div><strong><?= $e($championship['name']) ?></strong><span><?= $e($championship['category_name']) ?> | <?= $e($championship['season_name']) ?></span></div>
         <nav aria-label="Informações do campeonato"><a href="<?= $e($base . '/atletas') ?>">Atletas</a><a href="<?= $e($base . '/artilharia') ?>">Artilharia</a><a href="<?= $e($base . '/regulamento') ?>">Regulamento</a><a href="<?= $e($base . '/campeao') ?>">Campeão e vice</a></nav>
     </footer>
-    <script src="<?= $e(App\Core\Config::url('/assets/app.js')) ?>" defer></script>
+    <script src="<?= $e($assetUrl('app.js')) ?>" defer></script>
 </body>
 </html>

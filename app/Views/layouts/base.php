@@ -11,6 +11,11 @@ $userInitials = static function (string $name): string {
     }
     return $initials ?: 'TM';
 };
+$assetUrl = static function (string $asset): string {
+    $file = dirname(__DIR__, 3) . '/public/assets/' . $asset;
+    $version = is_file($file) ? (string) filemtime($file) : '0';
+    return App\Core\Config::url('/assets/' . $asset) . '?v=' . rawurlencode($version);
+};
 $currentPath = (string) parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
 $isActive = static fn (string $path): bool => $path === '/' ? $currentPath === App\Core\Config::url('/') : str_starts_with($currentPath, App\Core\Config::url($path));
 ?>
@@ -20,7 +25,7 @@ $isActive = static fn (string $path): bool => $path === '/' ? $currentPath === A
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= $e($title ?? 'Plataforma de Torneios') ?></title>
-    <link rel="stylesheet" href="<?= $e(App\Core\Config::url('/assets/app.css')) ?>">
+    <link rel="stylesheet" href="<?= $e($assetUrl('app.css')) ?>">
 </head>
 <body class="<?= $currentUser ? 'app-body' : 'auth-body' ?>" data-theme="dark">
 <?php if ($currentUser): ?>
@@ -77,6 +82,6 @@ $isActive = static fn (string $path): bool => $path === '/' ? $currentPath === A
     <?= $content ?? '' ?>
 </main>
 <?php endif; ?>
-<script src="<?= $e(App\Core\Config::url('/assets/app.js')) ?>" defer></script>
+<script src="<?= $e($assetUrl('app.js')) ?>" defer></script>
 </body>
 </html>
