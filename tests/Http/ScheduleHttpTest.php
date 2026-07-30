@@ -30,7 +30,9 @@ final class ScheduleHttpTest
         assert_same(200, $router->dispatch(new Request('GET', '/torneio-online/admin/grupos', ['phase_id' => $phaseId]))->status, 'Grupos HTTP nao abriram');
         assert_same(200, $router->dispatch(Request::fake('GET', '/torneio-online/admin/locais'))->status, 'Locais HTTP nao abriram');
         assert_same(200, $router->dispatch(new Request('GET', '/torneio-online/admin/tabela/assistente', ['phase_id' => $phaseId]))->status, 'Assistente HTTP nao abriu');
-        assert_same(200, $router->dispatch(Request::fake('GET', '/torneio-online/admin/partidas/' . $matchId))->status, 'Detalhe da partida nao abriu');
+        $matchDetail = $router->dispatch(Request::fake('GET', '/torneio-online/admin/partidas/' . $matchId));
+        assert_same(200, $matchDetail->status, 'Detalhe da partida nao abriu');
+        assert_true(str_contains($matchDetail->body, 'match-workflow-actions') && str_contains($matchDetail->body, 'Central operacional'), 'Acoes do fluxo da partida nao renderizaram');
         assert_same(403, $router->dispatch(Request::fake('POST', '/torneio-online/admin/partidas/' . $matchId . '/cancelar', ['_csrf' => 'invalid', 'reason' => 'teste']))->status, 'CSRF da agenda foi aceito');
         self::logout($router);
 

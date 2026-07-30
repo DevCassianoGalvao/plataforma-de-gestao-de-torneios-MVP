@@ -849,6 +849,22 @@ body.public-portal .team-roster-grid { grid-template-columns: repeat(4, minmax(0
 }
 .action-nav a:hover,
 .action-nav a.is-active { border-color: var(--ui-border); background: var(--ui-surface-2); color: var(--ui-text); }
+.match-workflow-actions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem; margin: 1.35rem 0 1.55rem; }
+.match-workflow-action { display: grid; grid-template-columns: 2.65rem minmax(0, 1fr); align-items: center; gap: .72rem; min-height: 5.2rem; padding: .85rem .95rem; background: var(--ui-surface-2); border: 1px solid var(--ui-border); border-radius: var(--ui-radius-lg); color: var(--ui-text); text-decoration: none; transition: transform var(--ui-speed), border-color var(--ui-speed), background var(--ui-speed), box-shadow var(--ui-speed); }
+.match-workflow-action:hover { color: var(--ui-text); background: var(--ui-surface-3); border-color: var(--ui-border-strong); box-shadow: 0 10px 24px rgba(0, 0, 0, .14); transform: translateY(-2px); }
+.match-workflow-action > span:last-child { display: grid; gap: .16rem; min-width: 0; }
+.match-workflow-action strong { color: inherit; font: 700 .9rem/1.2 "Hanken Grotesk", sans-serif; }
+.match-workflow-action small { color: var(--ui-text-muted); font-size: .72rem; line-height: 1.35; }
+.match-workflow-icon { display: grid; width: 2.65rem; height: 2.65rem; place-items: center; border: 1px solid currentColor; border-radius: var(--ui-radius); color: var(--ui-primary-soft); }
+.match-workflow-icon .ui-icon { width: 1.18rem; height: 1.18rem; }
+.match-workflow-action--lineups { border-color: color-mix(in srgb, var(--ui-info) 36%, var(--ui-border)); }
+.match-workflow-action--lineups .match-workflow-icon { color: var(--ui-info); background: rgba(96, 165, 250, .11); }
+.match-workflow-action--operation { background: linear-gradient(135deg, color-mix(in srgb, var(--ui-primary) 90%, #1d4ed8), var(--ui-primary)); border-color: var(--ui-primary); color: #fff; }
+.match-workflow-action--operation:hover { background: linear-gradient(135deg, #1d4ed8, #2563eb); border-color: #60a5fa; color: #fff; }
+.match-workflow-action--operation small { color: rgba(255, 255, 255, .8); }
+.match-workflow-action--operation .match-workflow-icon { color: #fff; background: rgba(255, 255, 255, .13); border-color: rgba(255, 255, 255, .28); }
+.match-workflow-action--operator { background: transparent; }
+.match-workflow-action--operator .match-workflow-icon { color: var(--ui-secondary-soft); background: rgba(74, 225, 118, .08); border-color: rgba(74, 225, 118, .28); }
 .status-tabs { margin: 1.1rem 0 0; padding-bottom: .15rem; overflow-x: auto; flex-wrap: nowrap; }
 .status-tabs a { flex: 0 0 auto; }
 .table-wrap td > a:not(.button) {
@@ -2005,6 +2021,8 @@ body.public-portal .public-lineup-reserves b { color: var(--portal-copy); }
     .color-picker-grid { grid-template-columns: 1fr; }
     .color-control { min-height: 5.35rem; }
     .asset-upload-grid { grid-template-columns: 1fr; }
+    .match-workflow-actions { grid-template-columns: 1fr; margin: 1rem 0 1.25rem; }
+    .match-workflow-action { min-height: 4.6rem; }
     .inline-form button, .search-form button, .filter-bar button, .filters button { width: 100%; }
     input:not([type="checkbox"]):not([type="radio"]), select, textarea { font-size: 16px; }
     .table-wrap, .ranking-table { width: 100%; overscroll-behavior-inline: contain; -webkit-overflow-scrolling: touch; }
