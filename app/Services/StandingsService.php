@@ -47,21 +47,21 @@ final class StandingsService
             $qualified[$group['code']] = array_slice($this->standings->standings((int) $group['id']), 0, (int) $regulation['qualified_per_group']);
         }
         if (count($qualified) < 2 || count($qualified[array_key_first($qualified)] ?? []) < 4 || count($qualified[array_key_last($qualified)] ?? []) < 4) return $this->fail('Sao necessarios dois grupos com quatro classificados.');
+        $pairs = $this->standings->knockoutPairings((int) $regulation['id'], 'quarterfinals');
+        if ($pairs === []) return $this->fail('Configure os cruzamentos do mata-mata no regulamento.');
         $knockout = $this->standings->ensureKnockoutPhase($phase, $userId);
         $this->standings->begin();
         try {
             $roundIds = [];
             foreach (StandingsRules::STAGES as $index => $stage) $roundIds[$stage] = $this->standings->ensureKnockoutRound($knockout, $stage, $index + 1, $userId);
-            $first = array_key_first($qualified);
-            $second = array_key_last($qualified);
-            $pairs = [[$first . '1', $second . '4'], [$second . '1', $first . '4'], [$first . '2', $second . '3'], [$second . '2', $first . '3']];
-            foreach ($pairs as $index => [$homeSource, $awaySource]) {
+            foreach ($pairs as $pair) {
+                $homeSource = (string) $pair['home_source']; $awaySource = (string) $pair['away_source']; $index = (int) $pair['tie_number'] - 1;
                 $home = $this->qualifiedTeam($qualified, $homeSource);
                 $away = $this->qualifiedTeam($qualified, $awaySource);
                 $tieId = $this->standings->upsertTie($roundIds['quarterfinals'], $index + 1, $homeSource, $awaySource, $home, $away);
                 $this->attachMatchIfReady($tieId, $knockout, $home, $away, $index + 1, $userId);
             }
-            $this->upsertProgressionTies($roundIds, $knockout, $userId);
+            $this->upsertProgressionTies($roundIds, $knockout, $regulation, $userId);
             $this->standings->commit();
         } catch (\Throwable $exception) {
             $this->standings->rollBack();
@@ -195,11 +195,13 @@ final class StandingsService
         return isset($qualified[$code][$position - 1]) ? (int) $qualified[$code][$position - 1]['team_id'] : null;
     }
 
-    private function upsertProgressionTies(array $roundIds, array $phase, int $userId): void
+    private function upsertProgressionTies(array $roundIds, array $phase, array $regulation, int $userId): void
     {
-        $this->standings->upsertTie($roundIds['semifinals'], 1, 'QF1', 'QF3', null, null);
-        $this->standings->upsertTie($roundIds['semifinals'], 2, 'QF2', 'QF4', null, null);
-        $this->standings->upsertTie($roundIds['final'], 1, 'SF1', 'SF2', null, null);
+        foreach (['semifinals', 'final'] as $stage) {
+            foreach ($this->standings->knockoutPairings((int) $regulation['id'], $stage) as $pair) {
+                $this->standings->upsertTie($roundIds[$stage], (int) $pair['tie_number'], (string) $pair['home_source'], (string) $pair['away_source'], null, null);
+            }
+        }
     }
 
     private function advanceAfterTie(array $tie, int $winner, int $loser, int $userId): void
@@ -207,29 +209,23 @@ final class StandingsService
         $phase = $this->standings->phase((int) $tie['phase_id']);
         if (!$phase) return;
         $stage = (string) $tie['stage'];
-        if ($stage === 'quarterfinals') {
-            $semis = $this->standings->knockoutRounds((int) $tie['phase_id']);
-            $roundId = 0; foreach ($semis as $round) if ($round['stage'] === 'semifinals') $roundId = (int) $round['id'];
-            $semiNumber = in_array((int) $tie['tie_number'], [1, 3], true) ? 1 : 2;
-            $semi = $this->standings->ties($roundId)[$semiNumber - 1] ?? null;
-            if (!$semi) return;
-            $sources = $semiNumber === 1 ? [1, 3] : [2, 4];
-            $sourceTies = array_map(fn (int $number): ?array => $this->findTieByStageNumber((int) $tie['phase_id'], 'quarterfinals', $number), $sources);
-            $home = $sourceTies[0]['winner_team_id'] ?? null;
-            $away = $sourceTies[1]['winner_team_id'] ?? null;
-            $semiTieId = $this->standings->upsertTie($roundId, $semiNumber, $semi['home_source'], $semi['away_source'], $home, $away);
-            $this->attachMatchIfReady($semiTieId, $phase, $home, $away, 5 + $semiNumber, $userId);
-        } elseif ($stage === 'semifinals') {
-            $finalRounds = $this->standings->knockoutRounds((int) $tie['phase_id']); $final = null; foreach ($finalRounds as $round) if ($round['stage'] === 'final') $final = $round;
-            if (!$final) return;
-            $finalTie = $this->standings->ties((int) $final['id'])[0] ?? null; if (!$finalTie) return;
-            $other = $this->findTieByStageNumber($tie['phase_id'], 'semifinals', $tie['tie_number'] === 1 ? 2 : 1);
-            $home = $tie['tie_number'] === 1 ? $winner : ($other['winner_team_id'] ?? null);
-            $away = $tie['tie_number'] === 2 ? $winner : ($other['winner_team_id'] ?? null);
-            $finalTieId = $this->standings->upsertTie((int) $final['id'], 1, 'SF1', 'SF2', $home, $away);
-            $this->attachMatchIfReady($finalTieId, $phase, $home, $away, 7, $userId);
-        } elseif ($stage === 'final') {
+        if ($stage === 'final') {
             $this->standings->saveResult((int) $tie['championship_id'], (int) $tie['phase_id'], $winner, $loser, $userId);
+            return;
+        }
+        $source = match ($stage) { 'quarterfinals' => 'QF' . $tie['tie_number'], 'semifinals' => 'SF' . $tie['tie_number'], default => '' };
+        if ($source === '') return;
+        foreach ($this->standings->knockoutRounds((int) $tie['phase_id']) as $round) {
+            foreach ($this->standings->ties((int) $round['id']) as $next) {
+                if (!in_array($source, [(string) $next['home_source'], (string) $next['away_source']], true)) continue;
+                $homeTie = $this->sourceTie((int) $tie['phase_id'], (string) $next['home_source']);
+                $awayTie = $this->sourceTie((int) $tie['phase_id'], (string) $next['away_source']);
+                $home = $homeTie['winner_team_id'] ?? null;
+                $away = $awayTie['winner_team_id'] ?? null;
+                $nextId = $this->standings->upsertTie((int) $round['id'], (int) $next['tie_number'], (string) $next['home_source'], (string) $next['away_source'], $home ? (int) $home : null, $away ? (int) $away : null);
+                $roundNumber = $round['stage'] === 'semifinals' ? 5 + (int) $next['tie_number'] : 7;
+                $this->attachMatchIfReady($nextId, $phase, $home ? (int) $home : null, $away ? (int) $away : null, $roundNumber, $userId);
+            }
         }
     }
 
@@ -247,6 +243,12 @@ final class StandingsService
     {
         foreach ($this->standings->knockoutRounds($phaseId) as $round) if ($round['stage'] === $stage) return $this->standings->ties((int) $round['id'])[$number - 1] ?? null;
         return null;
+    }
+
+    private function sourceTie(int $phaseId, string $source): ?array
+    {
+        if (preg_match('/^(QF|SF)([1-9][0-9]*)$/', $source, $matches) !== 1) return null;
+        return $this->findTieByStageNumber($phaseId, $matches[1] === 'QF' ? 'quarterfinals' : 'semifinals', (int) $matches[2]);
     }
 
     private function win(array &$winner, array &$loser, array $regulation): void

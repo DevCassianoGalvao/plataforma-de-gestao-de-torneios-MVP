@@ -21,6 +21,7 @@ final class RegulationService
         $id = $this->regulations->create($championshipId, 1, 'Regulamento inicial', 'draft', $userId);
         $this->regulations->saveSettings($id, ...$this->split(RegulationRules::preset()));
         $this->saveRoster($id, RegulationRules::preset());
+        $this->regulations->saveKnockoutPairings($id, RegulationRepository::defaultKnockoutPairings());
         $this->audit->record('regulations.created', $userId, 'regulation', $id, ['championship_id' => $championshipId], $request);
         return $id;
     }
@@ -40,6 +41,7 @@ final class RegulationService
         $id = $this->regulations->create($championshipId, $newVersion, (string) $source['name'] . ' - Revisao', 'draft', $userId);
         $this->regulations->saveSettings($id, $loaded['format_settings'], $loaded['points_settings'], $loaded['discipline_settings'], $loaded['match_settings'], $loaded['tiebreakers']);
         $this->regulations->saveRosterSettings($id, $loaded['roster_settings'] ?: RegulationRules::preset()['roster'], array_column($loaded['required_documents'], 'document_type_id'));
+        $this->regulations->saveKnockoutPairings($id, $loaded['knockout_pairings'] ?? RegulationRepository::defaultKnockoutPairings());
         $this->audit->record('regulations.version_created', $userId, 'regulation', $id, ['based_on' => (int) $source['id'], 'championship_id' => $championshipId], $request);
         return $id;
     }
@@ -54,6 +56,7 @@ final class RegulationService
         $this->regulations->updateMain($id, (string) $data['name'], $data['effective_from'] ?: null);
         $this->regulations->saveSettings($id, ...$this->split($data));
         $this->saveRoster($id, $data);
+        $this->regulations->saveKnockoutPairings($id, (array) ($data['knockout_pairings'] ?? RegulationRepository::defaultKnockoutPairings()));
         $this->audit->record('regulations.updated', $userId, 'regulation', $id, ['championship_id' => $championshipId], $request);
         return ['ok' => true, 'id' => $id];
     }
@@ -63,6 +66,7 @@ final class RegulationService
         $id = $this->ensureDraft($championshipId, $userId, $request);
         $this->regulations->saveSettings($id, ...$this->split(RegulationRules::preset()));
         $this->saveRoster($id, RegulationRules::preset());
+        $this->regulations->saveKnockoutPairings($id, RegulationRepository::defaultKnockoutPairings());
         $this->audit->record('regulations.preset_applied', $userId, 'regulation', $id, ['championship_id' => $championshipId, 'preset' => 'copa_brasil_de_talentos'], $request);
         return $id;
     }

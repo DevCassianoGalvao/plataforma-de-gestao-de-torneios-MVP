@@ -43,8 +43,10 @@ final class ChampionshipSeed
             $insertCriterion->execute([$regulation, $criterion, $index + 1, $now]);
         }
         $organizerId = self::userId($pdo, 'organizador@torneios.local');
+        $accountabilityId = self::userId($pdo, 'prestacao@torneios.local');
         $assignment = $pdo->prepare('INSERT IGNORE INTO championship_user_assignments (championship_id, user_id, assignment_type, created_at, created_by) VALUES (?, ?, ?, ?, ?)');
         $assignment->execute([$championshipId, $organizerId, 'organizer', $now, $adminId]);
+        $assignment->execute([$championshipId, $accountabilityId, 'accountability', $now, $adminId]);
     }
 
     private static function firstOrCreate(PDO $pdo, string $findSql, array $findParams, string $insertSql, array $insertParams): int

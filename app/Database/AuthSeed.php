@@ -21,6 +21,7 @@ final class AuthSeed
             ['organizer', 'Organizador', 'Opera campeonatos autorizados.'],
             ['team_manager', 'Treinador ou gestor de equipe', 'Opera a equipe autorizada.'],
             ['match_operator', 'Operador de partida', 'Opera partidas atribuidas.'],
+            ['accountability', 'Prestacao de contas', 'Consulta e exporta evidencias autorizadas.'],
             ['communication', 'Comunicacao', 'Gerencia conteudo editorial.'],
         ];
         $permissions = [
@@ -145,6 +146,9 @@ final class AuthSeed
             ['content.manage', 'Gerenciar conteudo', 'Cria e edita conteudo.', 'conteudo'],
             ['content.publish', 'Publicar conteudo', 'Publica conteudo editorial.', 'conteudo'],
             ['transfers.manage', 'Gerenciar Vai e Vem', 'Gerencia movimentacoes.', 'vai-e-vem'],
+            ['accountability.view', 'Visualizar prestacao de contas', 'Consulta dados consolidados autorizados.', 'prestacao'],
+            ['accountability.export', 'Exportar prestacao de contas', 'Exporta planilhas e pacote de evidencias autorizados.', 'prestacao'],
+            ['sponsors.manage', 'Gerenciar patrocinadores', 'Gerencia patrocinadores publicos do campeonato.', 'conteudo'],
         ];
         $roleIds = [];
         $roleStatement = $pdo->prepare('INSERT INTO roles (`key`, name, description, created_at, updated_at) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE name = VALUES(name), description = VALUES(description), updated_at = VALUES(updated_at)');
@@ -163,6 +167,7 @@ final class AuthSeed
             'organizer' => ['championships.view', 'championships.manage', 'championships.create', 'championships.update', 'championships.manage_identity', 'seasons.view', 'categories.view', 'regulations.view', 'regulations.create', 'regulations.update', 'regulations.publish', 'regulations.version_history', 'teams.view', 'teams.create', 'teams.update', 'teams.deactivate', 'teams.restore', 'teams.manage_assignments', 'teams.manage_identity', 'team_staff.view', 'team_staff.create', 'team_staff.update', 'team_staff.deactivate', 'tactical_formations.view', 'tactical_formations.manage', 'teams.select_default_formation', 'athletes.view', 'athletes.create', 'athletes.update', 'athletes.deactivate', 'athletes.restore', 'positions.view', 'positions.manage', 'athlete_guardians.view', 'athlete_guardians.create', 'athlete_guardians.update', 'athlete_documents.view', 'athlete_documents.create', 'athlete_documents.update', 'athlete_documents.review', 'registrations.view', 'registrations.review', 'registrations.correct', 'registrations.approve', 'registrations.reject', 'registrations.cancel', 'rosters.view', 'matches.view', 'matches.homologate', 'venues.view', 'venues.create', 'venues.update', 'phases.view', 'phases.create', 'phases.update', 'phases.publish', 'groups.view', 'groups.create', 'groups.update', 'groups.distribute', 'groups.publish', 'schedule.view', 'schedule.generate', 'schedule.update', 'schedule.postpone', 'schedule.cancel', 'lineups.view', 'match_operation.view', 'match_operation.homologate', 'discipline.view', 'discipline.manage', 'discipline.process', 'suspensions.view', 'suspensions.create_manual', 'suspensions.revoke', 'cards.cancel', 'standings.view', 'standings.recalculate', 'knockout.generate', 'knockout.advance', 'match_reports.view', 'match_reports.download', 'match_reports.generate', 'match_reports.package', 'content.manage', 'content.publish', 'transfers.manage'],
             'team_manager' => ['teams.view', 'teams.manage_own', 'teams.select_default_formation', 'team_staff.view', 'team_staff.create', 'team_staff.update', 'team_staff.deactivate', 'team_staff.manage_own', 'tactical_formations.view', 'athletes.view', 'athletes.create', 'athletes.manage_own', 'positions.view', 'athlete_guardians.view', 'athlete_guardians.create', 'athlete_guardians.update', 'athlete_guardians.manage_own', 'athlete_documents.view', 'athlete_documents.create', 'athlete_documents.update', 'athlete_documents.manage_own', 'registrations.view', 'registrations.create', 'registrations.update', 'registrations.submit', 'registrations.correct', 'registrations.cancel', 'registrations.manage_own', 'rosters.view', 'matches.view', 'schedule.view', 'lineups.view', 'lineups.create', 'lineups.update', 'lineups.confirm', 'lineups.manage_own', 'match_operation.view', 'discipline.view', 'suspensions.view', 'standings.view', 'match_reports.view', 'match_reports.download'],
             'match_operator' => ['matches.view', 'matches.operate', 'lineups.view', 'match_operation.view', 'match_operation.operate', 'discipline.view', 'match_reports.view', 'match_reports.download'],
+            'accountability' => ['championships.view', 'matches.view', 'match_reports.view', 'match_reports.download', 'accountability.view', 'accountability.export'],
             'communication' => ['content.manage', 'content.publish', 'transfers.manage'],
         ];
         $link = $pdo->prepare('INSERT IGNORE INTO role_permissions (role_id, permission_id, created_at) VALUES (?, ?, ?)');
@@ -179,6 +184,7 @@ final class AuthSeed
             ['gestor@torneios.local', 'Gestor Demo', 'team_manager'],
             ['treinador-sem-equipe@torneios.local', 'Treinador sem equipe Demo', 'team_manager'],
             ['operador@torneios.local', 'Operador Demo', 'match_operator'],
+            ['prestacao@torneios.local', 'Prestacao de Contas Demo', 'accountability'],
             ['comunicacao@torneios.local', 'Comunicacao Demo', 'communication'],
         ];
         $find = $pdo->prepare('SELECT id FROM users WHERE email = ? LIMIT 1');

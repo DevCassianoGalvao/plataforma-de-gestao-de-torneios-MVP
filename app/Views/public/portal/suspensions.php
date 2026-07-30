@@ -1,0 +1,3 @@
+<?php $e = static fn (mixed $v): string => App\Core\View::e($v); ?>
+<section class="portal-page-heading"><p class="eyebrow"><?= $e($championship['name']) ?></p><h1>Suspensoes</h1><p>Lista publica limitada aos dados esportivos autorizados pela organizacao.</p></section>
+<div class="ranking-table"><table><thead><tr><th>Atleta</th><th>Equipe</th><th>Jogos a cumprir</th><th>Motivo</th></tr></thead><tbody><?php foreach ($items as $row): ?><tr><td><?= $e($row['sporting_name'] ?: $row['full_name']) ?></td><td><?= $e($row['team_name']) ?></td><td><?= (int) $row['matches_remaining'] ?></td><td><?= $e($row['reason']) ?></td></tr><?php endforeach; ?><?php if ($items === []): ?><tr><td colspan="4">Nenhuma suspensao ativa publicada.</td></tr><?php endif; ?></tbody></table></div>

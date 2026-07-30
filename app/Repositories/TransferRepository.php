@@ -103,6 +103,19 @@ final class TransferRepository
     public function addHistory(int $id, ?string $from, string $to, string $action, ?string $reason, int $userId): void { $this->pdo->prepare('INSERT INTO transfer_movement_history (transfer_movement_id, from_status, to_status, action, reason, user_id, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)')->execute([$id, $from, $to, $action, $reason, $userId, date('Y-m-d H:i:s')]); }
     public function history(int $id): array { $s = $this->pdo->prepare('SELECT h.*, u.name AS user_name FROM transfer_movement_history h INNER JOIN users u ON u.id = h.user_id WHERE h.transfer_movement_id = ? ORDER BY h.created_at, h.id'); $s->execute([$id]); return $s->fetchAll(); }
 
+    public function applyOfficial(int $id, int $userId): bool
+    {
+        $record = $this->find($id);
+        if (!$record || !in_array($record['status'], ['approved', 'published'], true) || $record['official_applied_at'] !== null) return false;
+        $this->pdo->beginTransaction();
+        try {
+            $newTeam = $record['type'] === 'saida' ? null : (int) $record['new_team_id'];
+            $this->pdo->prepare('UPDATE athletes SET team_id = ?, status = CASE WHEN ? IS NULL THEN \'transferred\' ELSE status END, updated_at = ? WHERE id = ?')->execute([$newTeam, $newTeam, date('Y-m-d H:i:s'), $record['athlete_id']]);
+            $this->pdo->prepare('UPDATE transfer_movements SET official_applied_at = ?, official_applied_by = ?, updated_at = ? WHERE id = ? AND official_applied_at IS NULL')->execute([date('Y-m-d H:i:s'), $userId, date('Y-m-d H:i:s'), $id]);
+            $this->pdo->commit(); return true;
+        } catch (\Throwable $e) { $this->pdo->rollBack(); throw $e; }
+    }
+
     private function where(?array $championshipIds, array $filters, bool $public): array
     {
         $where = ['m.deleted_at IS NULL']; $params = []; $this->scopeIds($championshipIds, 'm.championship_id', $where, $params);

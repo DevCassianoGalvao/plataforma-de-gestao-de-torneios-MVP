@@ -41,7 +41,11 @@ final class Env
 
     public static function get(string $key, ?string $default = null): ?string
     {
-        $value = $_ENV[$key] ?? getenv($key);
+        // Process environment must override .env for cPanel and disposable tests.
+        $value = getenv($key);
+        if ($value === false || $value === null) {
+            $value = $_ENV[$key] ?? false;
+        }
         return $value === false || $value === null ? $default : (string) $value;
     }
 }

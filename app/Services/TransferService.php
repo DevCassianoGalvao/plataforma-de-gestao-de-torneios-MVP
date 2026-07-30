@@ -24,6 +24,12 @@ final class TransferService
     {
         $record = $this->transfers->find($id); if (!$record || !TransferRules::canTransition((string) $record['status'], $to)) return false; $publishedAt = $to === 'published' ? date('Y-m-d H:i:s') : null; $this->transfers->setStatus($id, $to, $publishedAt); $this->transfers->addHistory($id, $record['status'], $to, $action, $reason, $userId); $this->audit->record('transfer.' . $action, $userId, 'transfer_movement', $id, ['from' => $record['status'], 'to' => $to]); return true;
     }
+    public function applyOfficial(int $id, int $userId): bool
+    {
+        $ok = $this->transfers->applyOfficial($id, $userId);
+        if ($ok) $this->audit->record('transfer.official_link_applied', $userId, 'transfer_movement', $id, []);
+        return $ok;
+    }
     private function nullableInt(mixed $value): ?int { return (int) $value > 0 ? (int) $value : null; }
     private function validDate(string $date): bool { $d = \DateTimeImmutable::createFromFormat('!Y-m-d', $date); return $d !== false && $d->format('Y-m-d') === $date; }
 }

@@ -8,7 +8,7 @@ use App\Repositories\MatchOperationRepository;
 
 final class MatchOperationService
 {
-    public function __construct(private readonly MatchOperationRepository $operations, private readonly LineupRepository $lineups, private readonly AuditService $audit, private readonly ?DisciplineService $discipline = null, private readonly ?MatchReportService $reports = null)
+    public function __construct(private readonly MatchOperationRepository $operations, private readonly LineupRepository $lineups, private readonly AuditService $audit, private readonly ?DisciplineService $discipline = null, private readonly ?MatchReportService $reports = null, private readonly ?CompetitionProgressService $competition = null)
     {
     }
 
@@ -162,6 +162,10 @@ final class MatchOperationService
         if ($this->reports) {
             $report = $this->reports->generateForHomologatedMatch(array_merge($match, ['id' => (int) $match['id'], 'status' => 'homologated']), (int) $user['id']);
             if (!$report['ok']) return ['ok' => false, 'errors' => $report['errors']];
+        }
+        if ($this->competition) {
+            $progress = $this->competition->afterHomologation(array_merge($match, ['status' => 'homologated']), (int) $user['id']);
+            if (!$progress['ok']) return ['ok' => false, 'errors' => $progress['errors'] ?? ['Nao foi possivel atualizar os dados derivados da competicao.']];
         }
         $this->audit->record('match_operation.homologated', (int) $user['id'], 'match', (int) $match['id'], ['score' => $this->operations->score($operation)], null);
         return ['ok' => true, 'errors' => []];

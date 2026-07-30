@@ -52,6 +52,7 @@ final class AuthController extends Controller
             'organizer' => '/meus-campeonatos',
             'team_manager' => '/minha-equipe',
             'match_operator' => '/minhas-partidas',
+            'accountability' => '/prestacao',
             'communication' => '/conteudo',
         ];
         $next = Security::safeLocalPath((string) ($request->body['next'] ?? ''));

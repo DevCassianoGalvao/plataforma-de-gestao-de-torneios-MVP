@@ -34,6 +34,10 @@ final class TransferController extends Controller
     public function approve(Request $request, array $params = []): Response { return $this->transition($request, $params, 'approved', 'approved', 'Aprovacao'); }
     public function publish(Request $request, array $params = []): Response { return $this->transition($request, $params, 'published', 'published', 'Publicacao'); }
     public function cancel(Request $request, array $params = []): Response { return $this->transition($request, $params, 'cancelled', 'cancelled', 'Cancelamento'); }
+    public function applyOfficial(Request $request, array $params = []): Response
+    {
+        $guard = $this->guard($request, 'transfers.manage'); if ($guard instanceof Response) return $guard; if (!$this->validCsrf($request)) return Response::forbidden('A sessao expirou.'); $id = (int) ($params[0] ?? 0); $item = $this->itemForUser($guard, $id); if (!$item) return Response::forbidden(); if (!$this->service->applyOfficial($id, (int) $guard['id'])) return Response::html('Vinculo oficial nao pode ser aplicado a esta movimentacao.', 422); Session::flash('transfer_message', 'Vinculo oficial do atleta atualizado; o historico foi preservado.'); return $this->redirect('/admin/vai-e-vem/' . $id);
+    }
 
     public function publicIndex(Request $request, array $params = []): Response
     {

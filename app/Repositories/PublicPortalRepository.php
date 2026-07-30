@@ -99,6 +99,18 @@ final class PublicPortalRepository
         $sql = "SELECT l.athlete_id, a.full_name, a.sporting_name, t.name AS team_name, t.slug AS team_slug, SUM(l.card_type = 'yellow') AS yellows, SUM(l.card_type IN ('red', 'second_yellow')) AS reds, COUNT(*) AS total FROM discipline_ledger l INNER JOIN athletes a ON a.id = l.athlete_id INNER JOIN teams t ON t.id = l.team_id WHERE l.championship_id = ? AND l.person_type = 'athlete' AND l.status = 'considered' GROUP BY l.athlete_id, a.full_name, a.sporting_name, t.name, t.slug ORDER BY total DESC, a.full_name LIMIT " . max(1, $limit); $statement = $this->pdo->prepare($sql); $statement->execute([$championshipId]); return $statement->fetchAll();
     }
 
+    public function suspensions(int $championshipId): array
+    {
+        $sql = "SELECT a.full_name, a.sporting_name, t.name AS team_name, s.matches_remaining, s.reason FROM discipline_suspensions s INNER JOIN athletes a ON a.id = s.athlete_id INNER JOIN teams t ON t.id = s.team_id WHERE s.championship_id = ? AND s.status = 'active' AND a.deleted_at IS NULL ORDER BY t.name, a.full_name";
+        $statement = $this->pdo->prepare($sql); $statement->execute([$championshipId]); return $statement->fetchAll();
+    }
+
+    public function sponsors(int $championshipId): array
+    {
+        $statement = $this->pdo->prepare("SELECT id, name, website_url, logo_path FROM championship_sponsors WHERE championship_id = ? AND status = 'active' AND deleted_at IS NULL ORDER BY display_order, id");
+        $statement->execute([$championshipId]); return $statement->fetchAll();
+    }
+
     public function regulation(int $championshipId): ?array
     {
         $statement = $this->pdo->prepare("SELECT r.id, r.name, r.version_number, r.effective_from, r.published_at, ps.points_win, ps.points_draw, ps.points_loss, fs.qualified_per_group, ms.regular_time_minutes, ms.extra_time_enabled, ms.penalty_shootout_enabled FROM regulations r LEFT JOIN regulation_points_settings ps ON ps.regulation_id = r.id LEFT JOIN regulation_format_settings fs ON fs.regulation_id = r.id LEFT JOIN regulation_match_settings ms ON ms.regulation_id = r.id WHERE r.championship_id = ? AND r.status = 'published' ORDER BY r.version_number DESC LIMIT 1"); $statement->execute([$championshipId]); return $statement->fetch() ?: null;

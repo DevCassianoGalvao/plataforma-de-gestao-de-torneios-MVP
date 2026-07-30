@@ -51,6 +51,20 @@ final class StandingsRepository
         return $statement->fetchAll();
     }
 
+    public function phaseMatchesPending(int $phaseId): int
+    {
+        $statement = $this->pdo->prepare("SELECT COUNT(*) FROM matches WHERE phase_id = ? AND status NOT IN ('homologated', 'cancelled')");
+        $statement->execute([$phaseId]);
+        return (int) $statement->fetchColumn();
+    }
+
+    public function knockoutPairings(int $regulationId, string $stage): array
+    {
+        $statement = $this->pdo->prepare('SELECT tie_number, home_source, away_source FROM regulation_knockout_pairings WHERE regulation_id = ? AND stage = ? ORDER BY tie_number');
+        $statement->execute([$regulationId, $stage]);
+        return $statement->fetchAll();
+    }
+
     public function homologatedMatch(int $matchId): ?array
     {
         $statement = $this->pdo->prepare('SELECT group_id FROM matches WHERE id = ? AND status = \'homologated\' LIMIT 1');

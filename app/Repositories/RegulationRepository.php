@@ -47,6 +47,9 @@ final class RegulationRepository
         $statement = $this->pdo->prepare('SELECT * FROM regulation_tiebreakers WHERE regulation_id = ? ORDER BY priority');
         $statement->execute([$id]);
         $regulation['tiebreakers'] = $statement->fetchAll();
+        $statement = $this->pdo->prepare('SELECT stage, tie_number, home_source, away_source FROM regulation_knockout_pairings WHERE regulation_id = ? ORDER BY FIELD(stage, \'quarterfinals\', \'semifinals\', \'final\'), tie_number');
+        $statement->execute([$id]);
+        $regulation['knockout_pairings'] = $statement->fetchAll();
         return $regulation;
     }
 
@@ -144,6 +147,28 @@ final class RegulationRepository
         foreach (array_values(array_unique(array_filter(array_map('intval', $requiredDocumentTypeIds)))) as $order => $documentTypeId) {
             $insert->execute([$id, $documentTypeId, $order + 1, $now]);
         }
+    }
+
+    public function saveKnockoutPairings(int $id, array $pairings): void
+    {
+        $defaults = self::defaultKnockoutPairings();
+        $pairings = $pairings ?: $defaults; $now = date('Y-m-d H:i:s');
+        $this->pdo->prepare('DELETE FROM regulation_knockout_pairings WHERE regulation_id = ?')->execute([$id]);
+        $insert = $this->pdo->prepare('INSERT INTO regulation_knockout_pairings (regulation_id, stage, tie_number, home_source, away_source, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)');
+        foreach ($pairings as $pair) $insert->execute([$id, $pair['stage'], (int) $pair['tie_number'], $pair['home_source'], $pair['away_source'], $now, $now]);
+    }
+
+    public static function defaultKnockoutPairings(): array
+    {
+        return [
+            ['stage' => 'quarterfinals', 'tie_number' => 1, 'home_source' => 'A1', 'away_source' => 'B4'],
+            ['stage' => 'quarterfinals', 'tie_number' => 2, 'home_source' => 'B1', 'away_source' => 'A4'],
+            ['stage' => 'quarterfinals', 'tie_number' => 3, 'home_source' => 'A2', 'away_source' => 'B3'],
+            ['stage' => 'quarterfinals', 'tie_number' => 4, 'home_source' => 'B2', 'away_source' => 'A3'],
+            ['stage' => 'semifinals', 'tie_number' => 1, 'home_source' => 'QF1', 'away_source' => 'QF3'],
+            ['stage' => 'semifinals', 'tie_number' => 2, 'home_source' => 'QF2', 'away_source' => 'QF4'],
+            ['stage' => 'final', 'tie_number' => 1, 'home_source' => 'SF1', 'away_source' => 'SF2'],
+        ];
     }
 
     public function documents(int $regulationId): array
