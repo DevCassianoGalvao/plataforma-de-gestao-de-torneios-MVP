@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit;
 
+use App\Core\DeploymentIssue;
 use App\Core\Response;
 use App\Core\Security;
 use App\Services\StorageService;
@@ -35,6 +36,10 @@ final class ProductionReadinessTest
         } finally {
             self::removeTree($root);
         }
+        $missingTable = new \PDOException('Table does not exist');
+        $missingTable->errorInfo = ['42S02', 1146, 'Table does not exist'];
+        assert_true(DeploymentIssue::requiresDatabaseUpdate($missingTable), 'Schema desatualizado nao identificado');
+        assert_true(!DeploymentIssue::requiresDatabaseUpdate(new \RuntimeException('Falha generica')), 'Falha generica marcada como migration');
     }
 
     private static function removeTree(string $directory): void

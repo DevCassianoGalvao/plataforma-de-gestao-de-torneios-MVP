@@ -14,13 +14,16 @@ final class Logger
         error_log(sprintf("[%s] %s\n", date(DATE_ATOM), $message), 3, $directory . '/app.log');
     }
 
-    public static function exception(\Throwable $exception): void
+    public static function exception(\Throwable $exception): string
     {
-        $directory = dirname(__DIR__, 2) . '/storage/logs';
-        if (!is_dir($directory)) {
-            mkdir($directory, 0775, true);
+        $reference = strtoupper(bin2hex(random_bytes(5)));
+        $lines = [sprintf('[%s] [%s] %s: %s in %s:%d', date(DATE_ATOM), $reference, $exception::class, $exception->getMessage(), $exception->getFile(), $exception->getLine())];
+        for ($current = $exception->getPrevious(); $current !== null; $current = $current->getPrevious()) {
+            $lines[] = sprintf('[%s] [%s] Caused by %s: %s in %s:%d', date(DATE_ATOM), $reference, $current::class, $current->getMessage(), $current->getFile(), $current->getLine());
         }
-        $line = sprintf("[%s] %s in %s:%d\n", date(DATE_ATOM), $exception->getMessage(), $exception->getFile(), $exception->getLine());
-        error_log($line, 3, $directory . '/app.log');
+        $lines[] = sprintf('[%s] [%s] Request: %s %s', date(DATE_ATOM), $reference, $_SERVER['REQUEST_METHOD'] ?? 'CLI', $_SERVER['REQUEST_URI'] ?? '');
+        $lines[] = $exception->getTraceAsString();
+        self::message(implode("\n", $lines));
+        return $reference;
     }
 }

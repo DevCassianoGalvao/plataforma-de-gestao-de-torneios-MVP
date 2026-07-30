@@ -16,8 +16,9 @@ final class StorageService
 
     public function store(array $file, string $directory, array $allowedMimeTypes, int $maxBytes = 5242880): array
     {
-        if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
-            throw new \RuntimeException('Nenhum arquivo valido foi enviado.');
+        $uploadError = (int) ($file['error'] ?? UPLOAD_ERR_NO_FILE);
+        if ($uploadError !== UPLOAD_ERR_OK) {
+            throw new \RuntimeException($this->uploadErrorMessage($uploadError));
         }
         $size = (int) ($file['size'] ?? 0);
         if ($size <= 0 || $size > $maxBytes) {
@@ -34,9 +35,7 @@ final class StorageService
         $extension = self::extensionForMime($mime);
         $relativeDirectory = self::safeRelativePath($directory, true);
         $absoluteDirectory = $this->root . DIRECTORY_SEPARATOR . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $relativeDirectory);
-        if (!is_dir($absoluteDirectory) && !mkdir($absoluteDirectory, 0750, true) && !is_dir($absoluteDirectory)) {
-            throw new \RuntimeException('Nao foi possivel preparar o armazenamento.');
-        }
+        $this->prepareDirectory($absoluteDirectory);
         $filename = bin2hex(random_bytes(16)) . '.' . $extension;
         $absolutePath = $absoluteDirectory . DIRECTORY_SEPARATOR . $filename;
         if (is_uploaded_file($temporary)) {
@@ -45,8 +44,9 @@ final class StorageService
             $moved = copy($temporary, $absolutePath);
         }
         if (!$moved) {
-            throw new \RuntimeException('Nao foi possivel armazenar o arquivo.');
+            throw new \RuntimeException('Nao foi possivel armazenar o arquivo. Verifique a permissao de escrita da pasta storage/private no servidor.');
         }
+        @chmod($absolutePath, 0640);
         return ['path' => str_replace('\\', '/', $relativeDirectory . '/' . $filename), 'mime' => $mime, 'size' => $size, 'original_name' => basename((string) ($file['name'] ?? 'arquivo'))];
     }
 
@@ -67,9 +67,7 @@ final class StorageService
         }
         $relativeDirectory = self::safeRelativePath($directory, true);
         $absoluteDirectory = $this->root . DIRECTORY_SEPARATOR . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $relativeDirectory);
-        if (!is_dir($absoluteDirectory) && !mkdir($absoluteDirectory, 0750, true) && !is_dir($absoluteDirectory)) {
-            throw new \RuntimeException('Nao foi possivel preparar o armazenamento.');
-        }
+        $this->prepareDirectory($absoluteDirectory);
         $filename = bin2hex(random_bytes(16)) . '.' . strtolower($extension);
         $absolutePath = $absoluteDirectory . DIRECTORY_SEPARATOR . $filename;
         if (file_put_contents($absolutePath, $contents, LOCK_EX) === false) {
@@ -129,6 +127,29 @@ final class StorageService
             'image/x-icon', 'image/vnd.microsoft.icon' => 'ico',
             'application/pdf' => 'pdf',
             default => throw new \RuntimeException('Extensao de arquivo nao permitida.'),
+        };
+    }
+
+    private function prepareDirectory(string $directory): void
+    {
+        if (!is_dir($directory) && !mkdir($directory, 0750, true) && !is_dir($directory)) {
+            throw new \RuntimeException('Nao foi possivel preparar o armazenamento privado.');
+        }
+        if (!is_writable($directory)) {
+            throw new \RuntimeException('O armazenamento privado nao tem permissao de escrita. Ajuste as permissoes de storage/private no servidor.');
+        }
+    }
+
+    private function uploadErrorMessage(int $error): string
+    {
+        return match ($error) {
+            UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE => 'O arquivo excede o limite permitido pelo servidor.',
+            UPLOAD_ERR_PARTIAL => 'O envio do arquivo foi interrompido. Tente novamente.',
+            UPLOAD_ERR_NO_FILE => 'Selecione um arquivo para enviar.',
+            UPLOAD_ERR_NO_TMP_DIR => 'O servidor nao possui uma pasta temporaria para uploads.',
+            UPLOAD_ERR_CANT_WRITE => 'O servidor nao conseguiu gravar o arquivo enviado.',
+            UPLOAD_ERR_EXTENSION => 'O envio foi bloqueado por uma extensao do PHP.',
+            default => 'Nao foi possivel receber o arquivo enviado.',
         };
     }
 }
