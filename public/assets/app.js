@@ -200,6 +200,16 @@
         renderColor();
     });
 
+    document.querySelectorAll('[data-file-input]').forEach(function (input) {
+        var state = document.querySelector('[data-file-state][data-file-input-id="' + input.id + '"]');
+        if (!state) return;
+        var renderFile = function () {
+            state.textContent = input.files && input.files.length ? input.files[0].name : state.dataset.emptyLabel;
+        };
+        input.addEventListener('change', renderFile);
+        renderFile();
+    });
+
     var portalBody = document.querySelector('[data-portal-primary]');
     if (portalBody) {
         ['primary', 'secondary', 'accent'].forEach(function (key) {
