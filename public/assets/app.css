@@ -1785,9 +1785,10 @@ body.app-body .operation-lineup-reserves { padding: .8rem 1rem 1rem; }
 .tactical-player small { display: block; max-width: 5.1rem; overflow: hidden; margin-top: .22rem; color: #fff; font: 750 .63rem/1.12 Inter, sans-serif; text-overflow: ellipsis; white-space: nowrap; }
 .tactical-player.is-out-of-position > img, .tactical-player.is-out-of-position > span { border-color: #ffd166; }
 body.app-body .tactical-field--editor { width: min(100%, 42rem); }
-body.app-body .tactical-editor-slot { width: clamp(6.5rem, 16vw, 9.2rem); }
-body.app-body .tactical-editor-slot .tactical-player { width: 100%; pointer-events: none; }
-body.app-body .tactical-editor-slot label { display: grid; gap: .2rem; margin-top: .35rem; color: #f7fffb; font-size: .64rem; font-weight: 750; text-align: center; text-shadow: 0 1px 3px rgba(0,0,0,.88); }
+body.app-body .tactical-editor-slot { display: grid; width: clamp(6.5rem, 16vw, 9.2rem); justify-items: center; gap: .35rem; }
+body.app-body .tactical-editor-slot .tactical-player { position: static; width: 100%; transform: none; pointer-events: none; }
+body.app-body .tactical-editor-slot label { display: grid; width: 100%; gap: .2rem; margin: 0; color: #f7fffb; font-size: .64rem; font-weight: 750; text-align: center; text-shadow: 0 1px 3px rgba(0,0,0,.88); }
+body.app-body .tactical-editor-slot label span { display: none; }
 body.app-body .tactical-editor-slot select { min-width: 0; padding: .26rem .32rem; border-color: rgba(235,255,246,.82); background: rgba(7,18,25,.9); color: #fff; font-size: .67rem; }
 body.app-body .tactical-field--operation { width: min(100%, 22rem); margin: 0 auto; }
 body.app-body .operation-lineup-preview { padding-bottom: 0; }
