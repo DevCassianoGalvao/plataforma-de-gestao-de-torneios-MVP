@@ -14,7 +14,7 @@ Administradores acessam `/admin/notificacoes`. Cada evento de auditoria gera uma
 
 ## Categorias
 
-A migration `0018_admin_notifications_and_categories.sql` mantem a Sub-15 existente e adiciona Sub-09, Sub-11, Sub-13, Sub-17, Sub-20 e Adulto, todas idempotentes. Novos campeonatos continuam escolhendo a categoria por nome no catalogo, sem IDs digitados.
+A migration `0018_admin_notifications_and_categories.sql` mantem a Sub-15 existente e adiciona Sub-09, Sub-11, Sub-13, Sub-17, Sub-20 e Adulto, todas idempotentes. A migration `0019_demo_championship_adult.sql` atualiza somente o campeonato demo e seus atletas ficticios para Adulto, sem alterar atletas reais. Novos campeonatos continuam escolhendo a categoria por nome no catalogo, sem IDs digitados.
 
 ## Estado dos modulos
 

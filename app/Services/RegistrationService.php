@@ -172,8 +172,10 @@ final class RegistrationService
         $required = $regulation['required_documents'] ?? [];
         if ($required === []) return [];
         $documents = $this->documents->listForAthlete((int) $athlete['id']);
+        $isMinor = AthleteRules::isMinor((string) $athlete['birth_date']);
         $issues = [];
         foreach ($required as $requiredDocument) {
+            if ((int) ($requiredDocument['required_for_minor'] ?? 0) === 1 && !$isMinor) continue;
             $valid = false;
             foreach ($documents as $document) {
                 if ((int) $document['document_type_id'] !== (int) $requiredDocument['document_type_id']) continue;

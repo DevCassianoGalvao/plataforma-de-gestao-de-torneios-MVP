@@ -65,6 +65,17 @@ final class AthleteHttpTest
         (new StorageService())->delete($athletePhotoPath);
         @unlink($athletePhoto);
 
+        $guardianId = (int) $pdo->query("SELECT guardian_id FROM athlete_guardians WHERE athlete_id = {$athleteId} LIMIT 1")->fetchColumn();
+        $pdo->prepare('DELETE FROM athlete_guardians WHERE athlete_id = ?')->execute([$athleteId]);
+        if ($guardianId > 0) $pdo->prepare('DELETE FROM legal_guardians WHERE id = ?')->execute([$guardianId]);
+        $photoWithoutGuardian = tempnam(sys_get_temp_dir(), 'mvp-athlete-photo-no-guardian-');
+        file_put_contents($photoWithoutGuardian, base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII='));
+        $photoOnly = $router->dispatch(Request::fake('POST', '/torneio-online/admin/atletas/' . $athleteId, ['_csrf' => Security::csrfToken(), 'full_name' => 'Atleta HTTP Completo', 'sporting_name' => 'HTTP', 'birth_date' => '2012-06-15', 'gender' => 'male', 'primary_position_id' => $positionId, 'preferred_number' => '17', 'dominant_foot' => 'right', 'private_notes' => 'Nota privada'], ['photo' => ['error' => UPLOAD_ERR_OK, 'size' => filesize($photoWithoutGuardian), 'tmp_name' => $photoWithoutGuardian, 'name' => 'atleta-sem-responsavel.png']]));
+        assert_same(302, $photoOnly->status, 'Troca de foto foi bloqueada pela ausencia de responsavel');
+        $photoOnlyPath = (string) $pdo->query("SELECT photo_path FROM athletes WHERE id = {$athleteId}")->fetchColumn();
+        (new StorageService())->delete($photoOnlyPath);
+        @unlink($photoWithoutGuardian);
+
         $temporary = tempnam(sys_get_temp_dir(), 'mvp-athlete-http-');
         file_put_contents($temporary, base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII='));
         $document = $router->dispatch(Request::fake('POST', '/torneio-online/admin/atletas/' . $athleteId . '/documentos', ['_csrf' => Security::csrfToken(), 'document_type_id' => $documentTypeId, 'observation' => 'Comprovante HTTP'], ['document' => ['error' => UPLOAD_ERR_OK, 'size' => filesize($temporary), 'tmp_name' => $temporary, 'name' => 'comprovante.png']]));
@@ -74,6 +85,7 @@ final class AthleteHttpTest
         assert_same(200, $router->dispatch(Request::fake('GET', '/torneio-online/admin/atletas/' . $athleteId . '/documentos'))->status, 'Documentos nao abriram');
         assert_same(200, $router->dispatch(Request::fake('GET', '/torneio-online/admin/atletas/' . $athleteId . '/documentos/' . $documentId))->status, 'Documento privado nao foi servido');
         assert_same(302, $router->dispatch(Request::fake('POST', '/torneio-online/admin/atletas/' . $athleteId . '/documentos/' . $documentId . '/status', ['_csrf' => Security::csrfToken(), 'status' => 'approved']))->status, 'Revisao de documento falhou');
+        assert_same('approved', (string) $pdo->query("SELECT status FROM athlete_documents WHERE id = {$documentId}")->fetchColumn(), 'A aprovacao do documento nao foi persistida');
         (new StorageService())->delete($storedDocumentPath);
         @unlink($temporary);
         $invalidFile = tempnam(sys_get_temp_dir(), 'mvp-athlete-invalid-');

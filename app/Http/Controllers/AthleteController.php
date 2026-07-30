@@ -141,7 +141,8 @@ final class AthleteController extends Controller
         $errors = $team ? $this->validateAthlete($data, $team, (int) $athlete['id']) : ['Equipe fora do escopo autorizado.'];
         $errors = array_merge($errors, $this->validatePositions($data));
         $minor = $this->isMinor($data);
-        if ($minor && !$this->guardians->hasActiveForAthlete((int) $athlete['id']) && !$this->hasGuardianInput($guardianData)) $errors[] = 'Atletas menores precisam de responsavel legal.';
+        $profileChanged = $this->profileChanged($data, $athlete, $this->athletes->secondaryPositions((int) $athlete['id']));
+        if ($minor && $profileChanged && !$this->guardians->hasActiveForAthlete((int) $athlete['id']) && !$this->hasGuardianInput($guardianData)) $errors[] = 'Atletas menores precisam de responsavel legal.';
         if ($this->hasGuardianInput($guardianData)) $errors = array_merge($errors, \App\Services\AthleteRules::validateGuardian($guardianData));
         $stored = null;
         if (($request->files['photo']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
@@ -380,6 +381,19 @@ final class AthleteController extends Controller
     private function hasGuardianInput(array $data): bool
     {
         return trim((string) ($data['full_name'] ?? '')) !== '' || trim((string) ($data['document_number'] ?? '')) !== '';
+    }
+
+    private function profileChanged(array $data, array $athlete, array $secondaryPositions): bool
+    {
+        foreach (['full_name', 'sporting_name', 'birth_date', 'gender', 'preferred_number', 'dominant_foot', 'status', 'private_notes'] as $field) {
+            if ((string) ($data[$field] ?? '') !== (string) ($athlete[$field] ?? '')) return true;
+        }
+        if ((int) ($data['primary_position_id'] ?? 0) !== (int) ($athlete['primary_position_id'] ?? 0)) return true;
+        $current = array_map(static fn (array $position): int => (int) $position['id'], $secondaryPositions);
+        $submitted = array_map('intval', $data['secondary_position_ids'] ?? []);
+        sort($current);
+        sort($submitted);
+        return $current !== $submitted;
     }
 
     private function athleteData(Request $request, string $status): array

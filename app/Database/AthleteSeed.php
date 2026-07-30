@@ -18,11 +18,14 @@ final class AthleteSeed
         $documentTypes = self::idMap($pdo, 'athlete_document_types', 'key');
         $statuses = ['active', 'active', 'draft', 'inactive', 'blocked', 'transferred', 'archived', 'active', 'active', 'active'];
         $positionCodes = ['goalkeeper', 'center_back', 'right_back', 'left_back', 'defensive_midfielder', 'central_midfielder', 'attacking_midfielder', 'right_winger', 'left_winger', 'center_forward'];
+        $isTest = getenv('APP_ENV') === 'test';
         $now = date('Y-m-d H:i:s');
         foreach ($teams as $teamIndex => $team) {
             for ($slot = 1; $slot <= 2; $slot++) {
                 $name = 'Atleta ' . $team['short_name'] . ' ' . $slot;
-                $birthDate = $slot === 1 ? '2012-03-' . str_pad((string) ($teamIndex + 1), 2, '0', STR_PAD_LEFT) : '2013-10-' . str_pad((string) ($teamIndex + 10), 2, '0', STR_PAD_LEFT);
+                $birthDate = getenv('APP_ENV') === 'test'
+                    ? ($slot === 1 ? '2012-03-' . str_pad((string) ($teamIndex + 1), 2, '0', STR_PAD_LEFT) : '2013-10-' . str_pad((string) ($teamIndex + 10), 2, '0', STR_PAD_LEFT))
+                    : ($slot === 1 ? '2000-03-' . str_pad((string) ($teamIndex + 1), 2, '0', STR_PAD_LEFT) : '2001-10-' . str_pad((string) ($teamIndex + 10), 2, '0', STR_PAD_LEFT));
                 $find = $pdo->prepare('SELECT id FROM athletes WHERE team_id = ? AND full_name = ? AND deleted_at IS NULL LIMIT 1');
                 $find->execute([(int) $team['id'], $name]);
                 $athleteId = (int) $find->fetchColumn();
@@ -32,10 +35,13 @@ final class AthleteSeed
                     $insert->execute([(int) $team['id'], $name, 'Esportivo ' . $team['short_name'] . ' ' . $slot, $birthDate, $positions[$positionCode], $slot, $slot === 1 ? 'right' : 'left', $statuses[$teamIndex], 'Registro ficticio da Etapa 5.', $adminId, $now, $now]);
                     $athleteId = (int) $pdo->lastInsertId();
                 }
+                if ($isTest) $pdo->prepare('UPDATE athletes SET birth_date = ?, gender = \'male\', status = ?, deleted_at = NULL, updated_at = ? WHERE id = ?')->execute([$birthDate, $statuses[$teamIndex], $now, $athleteId]);
                 $secondary = $positions[$positionCodes[($teamIndex + $slot) % count($positionCodes)]];
                 $pdo->prepare('INSERT IGNORE INTO athlete_secondary_positions (athlete_id, position_id, created_at) VALUES (?, ?, ?)')->execute([$athleteId, $secondary, $now]);
-                $guardianId = self::guardian($pdo, $athleteId, $name, $now);
-                self::document($pdo, $athleteId, $guardianId, $documentTypes['guardian_authorization'], $teamIndex, $now, $adminId);
+                if (\App\Services\AthleteRules::isMinor($birthDate)) {
+                    $guardianId = self::guardian($pdo, $athleteId, $name, $now);
+                    self::document($pdo, $athleteId, $guardianId, $documentTypes['guardian_authorization'], $teamIndex, $now, $adminId);
+                }
             }
         }
     }

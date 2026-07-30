@@ -71,18 +71,36 @@ final class RegistrationIntegrationTest
         assert_true(count($service->history($registrationId)) >= 8, 'Correcao ou transicao sem historico');
         assert_true(count($service->officialRoster($championshipId, $teamId)) >= 2, 'Elenco oficial nao incluiu aprovado');
 
+        $adultCategoryId = (int) $pdo->query("SELECT id FROM categories WHERE slug = 'adulto-masculino' LIMIT 1")->fetchColumn();
+        $originalCategoryId = (int) $pdo->query("SELECT category_id FROM championships WHERE id = {$championshipId}")->fetchColumn();
+        $adultTeamId = (int) $pdo->query("SELECT id FROM teams WHERE id NOT IN ({$teamId}, {$foreignTeamId}) ORDER BY id LIMIT 1")->fetchColumn();
+        $adultAthleteId = (int) $pdo->query("SELECT a.id FROM athletes a WHERE a.team_id = {$adultTeamId} AND a.id NOT IN (SELECT athlete_id FROM athlete_registrations WHERE championship_id = {$championshipId}) ORDER BY a.id LIMIT 1")->fetchColumn();
+        $originalBirthDate = (string) $pdo->query("SELECT birth_date FROM athletes WHERE id = {$adultAthleteId}")->fetchColumn();
+        $pdo->prepare('UPDATE championships SET category_id = ? WHERE id = ?')->execute([$adultCategoryId, $championshipId]);
+        $pdo->prepare("UPDATE athletes SET birth_date = '2000-01-01' WHERE id = ?")->execute([$adultAthleteId]);
+        $adultDraft = $service->createDraft((int) $admin['id'], $championshipId, $adultTeamId, $adultAthleteId, 89, 'Adulto sem autorizacao de responsavel');
+        assert_true($adultDraft['ok'] === true, 'Rascunho adulto nao foi criado');
+        $adultRegistration = $repository->findByPair($championshipId, $adultTeamId, $adultAthleteId);
+        assert_true($service->submit($adultRegistration, (int) $admin['id'])['ok'] === true, 'Adulto foi bloqueado por autorizacao de responsavel');
+        $adultRegistration = $repository->findByPair($championshipId, $adultTeamId, $adultAthleteId);
+        $service->cancel($adultRegistration, (int) $admin['id']);
+        $pdo->prepare('DELETE FROM athlete_registration_history WHERE registration_id = ?')->execute([(int) $adultRegistration['id']]);
+        $pdo->prepare('DELETE FROM athlete_registrations WHERE id = ?')->execute([(int) $adultRegistration['id']]);
+        $pdo->prepare('UPDATE championships SET category_id = ? WHERE id = ?')->execute([$originalCategoryId, $championshipId]);
+        $pdo->prepare('UPDATE athletes SET birth_date = ? WHERE id = ?')->execute([$originalBirthDate, $adultAthleteId]);
+
         self::assertSubmissionIssue($pdo, $service, $repository, $championshipId, $foreignTeamId, 'period', function () use ($pdo): void {
             $pdo->exec("UPDATE championships SET registration_ends_at = '2020-01-01' LIMIT 1");
         }, function () use ($pdo): void {
             $pdo->exec("UPDATE championships SET registration_ends_at = '2026-12-31' LIMIT 1");
         });
-        $ageTeamId = (int) $pdo->query("SELECT id FROM teams WHERE id NOT IN ({$teamId}, {$foreignTeamId}) ORDER BY id LIMIT 1")->fetchColumn();
+        $ageTeamId = (int) $pdo->query("SELECT id FROM teams WHERE id NOT IN ({$teamId}, {$foreignTeamId}, {$adultTeamId}) ORDER BY id LIMIT 1")->fetchColumn();
         self::assertSubmissionIssue($pdo, $service, $repository, $championshipId, $ageTeamId, 'idade', function () use ($pdo, $ageTeamId): void {
             $pdo->exec("UPDATE athletes SET birth_date = '2000-01-01' WHERE team_id = {$ageTeamId}");
         }, function () use ($pdo, $ageTeamId): void {
             $pdo->exec("UPDATE athletes SET birth_date = '2012-04-01' WHERE team_id = {$ageTeamId}");
         });
-        $documentTeamId = (int) $pdo->query("SELECT id FROM teams WHERE id NOT IN ({$teamId}, {$foreignTeamId}, {$ageTeamId}) ORDER BY id LIMIT 1")->fetchColumn();
+        $documentTeamId = (int) $pdo->query("SELECT id FROM teams WHERE id NOT IN ({$teamId}, {$foreignTeamId}, {$adultTeamId}, {$ageTeamId}) ORDER BY id LIMIT 1")->fetchColumn();
         self::assertSubmissionIssue($pdo, $service, $repository, $championshipId, $documentTeamId, 'documento', static function (): void {}, static function (): void {});
         $limitTeamId = (int) $pdo->query("SELECT t.id FROM teams t WHERE t.id NOT IN ({$teamId}, {$foreignTeamId}, {$ageTeamId}, {$documentTeamId}) AND EXISTS (SELECT 1 FROM athlete_registrations ar0 WHERE ar0.team_id = t.id AND ar0.status = 'approved') ORDER BY t.id LIMIT 1")->fetchColumn();
         $limitAthleteId = (int) $pdo->query("SELECT id FROM athletes WHERE team_id = {$limitTeamId} AND id NOT IN (SELECT athlete_id FROM athlete_registrations WHERE team_id = {$limitTeamId}) ORDER BY id LIMIT 1")->fetchColumn();
@@ -113,7 +131,7 @@ final class RegistrationIntegrationTest
         $users = new UserRepository($pdo);
         $adminId = (int) $users->findByEmail('admin@torneios.local')['id'];
         $created = $service->createDraft($adminId, $championshipId, $teamId, $athleteId, 77, 'Validacao');
-        assert_true($created['ok'] === true, 'Rascunho para validacao nao foi criado');
+        assert_true($created['ok'] === true, 'Rascunho para validacao nao foi criado: ' . implode(' | ', $created['errors'] ?? []) . ' team=' . $teamId . ' athlete=' . $athleteId);
         $registration = $repository->findByPair($championshipId, $teamId, $athleteId);
         $result = $service->submit($registration, $adminId);
         assert_true($result['ok'] === false && implode(' ', $result['errors']) !== '' && str_contains(strtolower(implode(' ', $result['errors'])), $needle), 'Regra ' . $needle . ' nao bloqueou envio: ' . implode(' | ', $result['errors']));

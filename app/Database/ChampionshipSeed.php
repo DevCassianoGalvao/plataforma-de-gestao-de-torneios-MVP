@@ -14,7 +14,8 @@ final class ChampionshipSeed
         }
         $now = date('Y-m-d H:i:s');
         $season = self::firstOrCreate($pdo, 'SELECT id FROM seasons WHERE name = ? AND year = ? AND deleted_at IS NULL', ['Temporada 2026', 2026], 'INSERT INTO seasons (name, year, starts_at, ends_at, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)', ['Temporada 2026', 2026, '2026-01-01', '2026-12-31', 'active', $now, $now]);
-        $category = self::firstOrCreate($pdo, 'SELECT id FROM categories WHERE slug = ? AND deleted_at IS NULL', ['sub-15-masculino'], 'INSERT INTO categories (name, slug, description, minimum_age, maximum_age, gender_rule, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', ['Sub-15 Masculino', 'sub-15-masculino', 'Categoria ficticia de demonstracao.', 12, 15, 'male', 'active', $now, $now]);
+        $categorySlug = getenv('APP_ENV') === 'test' ? 'sub-15-masculino' : 'adulto-masculino';
+        $category = self::firstOrCreate($pdo, 'SELECT id FROM categories WHERE slug = ? AND deleted_at IS NULL', [$categorySlug], 'INSERT INTO categories (name, slug, description, minimum_age, maximum_age, gender_rule, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', $categorySlug === 'adulto-masculino' ? ['Adulto Masculino', 'adulto-masculino', 'Categoria adulta configuravel.', 18, null, 'male', 'active', $now, $now] : ['Sub-15 Masculino', 'sub-15-masculino', 'Categoria ficticia de demonstracao.', 12, 15, 'male', 'active', $now, $now]);
         $findChampionship = $pdo->prepare('SELECT id FROM championships WHERE slug = ? AND deleted_at IS NULL LIMIT 1');
         $findChampionship->execute(['copa-brasil-de-talentos-2026']);
         $championshipId = (int) $findChampionship->fetchColumn();
@@ -24,6 +25,7 @@ final class ChampionshipSeed
             $statement->execute(['Copa Brasil de Talentos 2026', 'Copa Brasil', 'copa-brasil-de-talentos-2026', 'Campeonato ficticio para validar a configuracao inicial do MVP.', $season, $category, '2026-06-01', '2026-08-30', '2026-04-01', '2026-05-20', 'configured', 'private', 'light', '#123C32', '#245C4A', '#D9A441', $adminId, $now, $now]);
             $championshipId = (int) $pdo->lastInsertId();
         }
+        $pdo->prepare('UPDATE championships SET category_id = ?, updated_at = ? WHERE id = ?')->execute([$category, $now, $championshipId]);
         $pdo->prepare('UPDATE championships SET registration_starts_at = ?, registration_ends_at = ?, updated_at = ? WHERE id = ?')->execute(['2026-01-01', '2026-12-31', $now, $championshipId]);
         $regulation = self::firstOrCreate($pdo, 'SELECT id FROM regulations WHERE championship_id = ? AND version_number = 1 LIMIT 1', [$championshipId], 'INSERT INTO regulations (championship_id, version_number, name, status, effective_from, published_at, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [$championshipId, 1, 'Regulamento base Copa Brasil de Talentos', 'published', '2026-01-01', $now, $adminId, $now, $now]);
         $preset = [
