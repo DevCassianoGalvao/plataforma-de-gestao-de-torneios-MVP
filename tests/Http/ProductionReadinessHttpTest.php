@@ -34,6 +34,7 @@ final class ProductionReadinessHttpTest
         assert_true(!str_contains($portal->body, 'private_notes'), 'Campo privado vazou no portal');
         $notifications = $router->dispatch(Request::fake('GET', '/torneio-online/admin/notificacoes'));
         assert_same(200, $notifications->status, 'Central de notificacoes nao abriu para administrador');
+        assert_true(str_contains($notifications->body, 'notification-center') && str_contains($notifications->body, 'Atividades recentes'), 'Central de notificacoes nao renderizou o feed operacional');
         $logout = $router->dispatch(Request::fake('POST', '/torneio-online/logout', ['_csrf' => Security::csrfToken()]));
         assert_same(302, $logout->status, 'Logout de smoke falhou');
         Session::destroy();
