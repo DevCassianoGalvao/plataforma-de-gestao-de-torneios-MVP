@@ -11,7 +11,6 @@ use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\ChampionshipController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\PlaceholderController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RegulationController;
 use App\Http\Controllers\RegistrationController;
@@ -30,6 +29,7 @@ use App\Http\Controllers\AccountabilityController;
 use App\Http\Controllers\GovernanceController;
 use App\Http\Controllers\TeamController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\NotificationController;
 use App\Repositories\CategoryRepository;
 use App\Repositories\AthleteDocumentRepository;
 use App\Repositories\AthleteDocumentTypeRepository;
@@ -49,6 +49,7 @@ use App\Repositories\MatchReportRepository;
 use App\Repositories\NewsRepository;
 use App\Repositories\TransferRepository;
 use App\Repositories\PublicPortalRepository;
+use App\Repositories\NotificationRepository;
 use App\Repositories\AccountabilityRepository;
 use App\Repositories\GovernanceRepository;
 use App\Repositories\SeasonRepository;
@@ -154,6 +155,7 @@ $transferService = new TransferService($transferRepository, $audit);
 $publicPortalRepository = new PublicPortalRepository($pdo);
 $accountabilityRepository = new AccountabilityRepository($pdo);
 $governanceRepository = new GovernanceRepository($pdo);
+$notifications = new NotificationRepository($pdo);
 
 $router->get('/', [new HomeController(), 'index']);
 $router->get('/health', [new HealthController(), 'show']);
@@ -169,6 +171,10 @@ $router->post('/senha/redefinir', [$auth, 'reset']);
 
 $admin = new AdminController($users, $authorization, $audit);
 $router->get('/admin', [$admin, 'dashboard']);
+$notificationController = new NotificationController($users, $authorization, $audit, $notifications);
+$router->get('/admin/notificacoes', [$notificationController, 'index']);
+$router->post('/admin/notificacoes/{id}/ler', [$notificationController, 'read']);
+$router->post('/admin/notificacoes/ler-todas', [$notificationController, 'readAll']);
 $accountability = new AccountabilityController($users, $authorization, $audit, $accountabilityRepository);
 $router->get('/prestacao', [$accountability, 'index']);
 $router->get('/prestacao/campeonatos/{id}', [$accountability, 'show']);
@@ -210,7 +216,7 @@ $router->post('/admin/categorias', [$catalog, 'saveCategory']);
 $router->get('/admin/categorias/{id}/editar', [$catalog, 'categoryForm']);
 $router->post('/admin/categorias/{id}', [$catalog, 'saveCategory']);
 
-$team = new TeamController($users, $authorization, $audit, $teams, $teamStaff, $staffRoles, $teamAccess, $teamStatus, $tacticalFormationService, $championships, $storage);
+$team = new TeamController($users, $authorization, $audit, $teams, $teamStaff, $staffRoles, $teamAccess, $teamStatus, $tacticalFormationService, $championships, $storage, $registrations);
 $router->get('/admin/equipes', [$team, 'index']);
 $router->get('/admin/equipes/nova', [$team, 'createForm']);
 $router->post('/admin/equipes', [$team, 'create']);
@@ -422,10 +428,8 @@ $router->post('/admin/campeonatos/{slug}/regulamento/publicar', [$regulation, 'p
 $router->get('/admin/campeonatos/{slug}/regulamento/versoes', [$regulation, 'versions']);
 $router->get('/admin/campeonatos/{slug}/regulamento/versoes/{version}', [$regulation, 'version']);
 
-$placeholder = new PlaceholderController($users, $authorization, $audit);
-$router->get('/meus-campeonatos', static fn ($request, $params = []) => $placeholder->show($request, ['Meus campeonatos']));
-$router->get('/minha-equipe', static fn ($request, $params = []) => $placeholder->show($request, ['Minha equipe']));
-$router->get('/minhas-partidas', static fn ($request, $params = []) => $placeholder->show($request, ['Minhas partidas']));
-$router->get('/conteudo', static fn ($request, $params = []) => $placeholder->show($request, ['Conteudo']));
+$router->get('/meus-campeonatos', static fn () => \App\Core\Response::redirect(\App\Core\Config::url('/admin/campeonatos')));
+$router->get('/minha-equipe', static fn () => \App\Core\Response::redirect(\App\Core\Config::url('/admin/equipes')));
+$router->get('/conteudo', static fn () => \App\Core\Response::redirect(\App\Core\Config::url('/admin/noticias')));
 
 return $router;

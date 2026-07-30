@@ -8,7 +8,7 @@ Temporadas possuem nome, ano, periodo e status. Categorias possuem nome, slug, d
 
 O cadastro usa nome, nome curto, slug, descricao, temporada, categoria, datas, periodo de inscricao e visibilidade. O primeiro salvamento cria um campeonato em `draft` e um regulamento inicial em rascunho.
 
-O dashboard mostra dados reais, identidade, versao do regulamento, organizadores e checklist. Equipes e partidas aparecem como indisponiveis, sem metricas ficticias.
+O dashboard mostra dados reais, identidade, versao do regulamento, organizadores e checklist. Equipes, elenco, tabela e partidas ficam disponiveis nos modulos integrados, sem metricas ficticias.
 
 ## Identidade e uploads
 
@@ -42,4 +42,4 @@ Transicoes validas: `draft -> registration -> configured -> in_progress -> finis
 
 O seed cria dados ficticios de temporada, categoria, Copa Brasil de Talentos, regulamento publicado e organizador vinculado, sem equipes ou partidas. Ele e idempotente e bloqueado em producao.
 
-Este documento descreve a fundacao de campeonatos e regulamentos. As etapas posteriores adicionaram equipes, atletas, inscricoes, grupos, rodadas, partidas, disciplina, classificacao, mata-mata e sumula digital; conteudo e portal continuam fora do escopo implementado.
+Este documento descreve a fundacao de campeonatos e regulamentos. As etapas posteriores adicionaram equipes, atletas, inscricoes, grupos, rodadas, partidas, disciplina, classificacao, mata-mata, sumula digital, conteudo e portal publico.

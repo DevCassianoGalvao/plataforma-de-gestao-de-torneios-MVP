@@ -76,6 +76,13 @@ small, .muted { color: var(--ui-text-muted); }
 .topbar-user span { color: var(--ui-text-muted); font-size: .7rem; }
 .icon-button { display: inline-grid; width: 2.35rem; height: 2.35rem; place-items: center; padding: 0; background: var(--ui-surface-2); border: 1px solid var(--ui-border); border-radius: var(--ui-radius); color: var(--ui-text); }
 .icon-button:hover { background: var(--ui-surface-3); }
+.notification-button { position: relative; text-decoration: none; }
+.notification-button > .ui-icon { width: 1.1rem; height: 1.1rem; }
+.notification-count, .nav-count { display: inline-grid; min-width: 1.15rem; height: 1.15rem; place-items: center; padding: 0 .25rem; border-radius: 999px; background: var(--ui-secondary); color: #07111f; font-size: .68rem; line-height: 1; }
+.notification-count { position: absolute; top: -.25rem; right: -.25rem; }
+.nav-count { margin-left: auto; }
+.notification-item { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+.notification-item.is-unread { border-color: color-mix(in srgb, var(--ui-secondary) 55%, var(--ui-border)); box-shadow: inset 3px 0 0 var(--ui-secondary); }
 .sidebar-toggle { display: none; }
 .page-shell { width: min(100% - 3rem, 1280px); margin: 0 auto; padding: clamp(1.5rem, 3vw, 2.75rem) 0 5rem; }
 .page-shell > section, .page-shell > .panel { background: var(--ui-surface); border: 1px solid var(--ui-border); border-radius: var(--ui-radius-lg); padding: clamp(1.1rem, 2vw, 1.65rem); box-shadow: var(--ui-shadow); }

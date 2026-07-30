@@ -15,7 +15,7 @@
         <button type="submit">Salvar rascunho</button>
     </form>
     <h2>Documento do regulamento</h2>
-    <p class="muted">PDF privado, armazenado fora de public. O portal ainda não existe nesta etapa.</p>
+    <p class="muted">PDF privado, armazenado fora de public. A versao publicada aparece no portal do campeonato.</p>
     <form method="post" enctype="multipart/form-data" action="<?= App\Core\View::e(App\Core\Config::url('/admin/campeonatos/' . $championship['slug'] . '/regulamento/documento')) ?>"><input type="hidden" name="_csrf" value="<?= App\Core\View::e(App\Core\Security::csrfToken()) ?>"><label>Arquivo PDF <input type="file" name="regulation_document" accept="application/pdf" required></label><button type="submit">Anexar PDF</button></form>
     <?php if (!empty($documents)): ?><ul><?php foreach ($documents as $document): ?><li><a href="<?= App\Core\View::e(App\Core\Config::url('/admin/campeonatos/' . $championship['slug'] . '/regulamento/documentos/' . $document['id'])) ?>"><?= App\Core\View::e($document['original_name']) ?></a></li><?php endforeach; ?></ul><?php endif; ?>
     <form method="post" action="<?= App\Core\View::e(App\Core\Config::url('/admin/campeonatos/' . $championship['slug'] . '/regulamento/preset')) ?>"><input type="hidden" name="_csrf" value="<?= App\Core\View::e(App\Core\Security::csrfToken()) ?>"><button type="submit">Aplicar preset Copa Brasil de Talentos</button></form>

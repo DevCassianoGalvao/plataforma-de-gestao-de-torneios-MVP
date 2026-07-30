@@ -48,7 +48,7 @@ Falta de inscricao nao bloqueia cadastro do atleta. Documento e dados de respons
 
 Administrador acessa tudo. Organizador analisa somente campeonamentos autorizados. Treinador gerencia somente propria equipe e nunca aprova. Operador e comunicacao recebem `403`.
 
-O painel possui central por status, filtros por campeonato/equipe/status, formulario, detalhe com historico e central de elenco oficial. A pagina do atleta continua reservando inscricoes, partidas e disciplina como modulos futuros.
+O painel possui central por status, filtros por campeonato/equipe/status, formulario, detalhe com historico e central de elenco oficial. A pagina do atleta oferece atalhos para inscricoes, partidas e disciplina, que usam as mesmas regras de escopo do painel.
 
 ## Seed e testes
 

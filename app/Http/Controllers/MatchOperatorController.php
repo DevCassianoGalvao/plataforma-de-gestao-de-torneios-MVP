@@ -20,8 +20,10 @@ final class MatchOperatorController extends Controller
     public function mine(Request $request, array $params = []): Response
     {
         $user = $this->guard($request, 'matches.operate'); if ($user instanceof Response) return $user;
-        if ($this->operationAccess->scope($user) !== 'operator') return Response::forbidden();
-        return $this->page('Minhas partidas', 'operator/matches', ['user' => $user, 'items' => $this->operations->assignedMatches((int) $user['id'])]);
+        $scope = $this->operationAccess->scope($user);
+        if (!in_array($scope, ['operator', 'administrator'], true)) return Response::forbidden();
+        $items = $scope === 'administrator' ? $this->operations->allOpenMatches() : $this->operations->assignedMatches((int) $user['id']);
+        return $this->page($scope === 'administrator' ? 'Partidas para operar' : 'Minhas partidas', 'operator/matches', ['user' => $user, 'items' => $items, 'isAdministrator' => $scope === 'administrator']);
     }
 
     public function assignments(Request $request, array $params = []): Response

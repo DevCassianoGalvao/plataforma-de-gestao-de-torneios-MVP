@@ -14,6 +14,7 @@
         'clipboard-check': '<rect x="4" y="4" width="16" height="17" rx="2"/><path d="M9 4.5V3h6v1.5M8 13l2 2 4-4"/>',
         'arrow-left-right': '<path d="M8 3 4 7l4 4M4 7h16M16 21l4-4-4-4M20 17H4"/>',
         'newspaper': '<path d="M4 4h16v16H4zM8 8h8M8 12h8M8 16h5"/>',
+        'bell': '<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/>',
         'scan-line': '<path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2M7 12h10"/>',
         'settings-2': '<path d="M20 7h-9M14 17H4M17 17a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM7 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/>',
         'sun': '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>',
@@ -25,7 +26,7 @@
     var navIconMap = {
         overview: 'layout-dashboard', championship: 'trophy', schedule: 'calendar-days', team: 'shield',
         athlete: 'user-round', registration: 'file-check-2', roster: 'clipboard-check', transfer: 'arrow-left-right',
-        news: 'newspaper', user: 'users-round', audit: 'scan-line', profile: 'settings-2'
+        news: 'newspaper', user: 'users-round', audit: 'scan-line', profile: 'settings-2', bell: 'bell'
     };
     function createIcon(name) {
         var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');

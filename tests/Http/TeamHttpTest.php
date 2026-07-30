@@ -43,6 +43,9 @@ final class TeamHttpTest
         assert_same(302, $created->status, 'Administrador nao criou equipe');
         $teamId = (int) $pdo->query("SELECT id FROM teams WHERE slug = 'equipe-http-admin' LIMIT 1")->fetchColumn();
         assert_true($teamId > 0, 'Equipe HTTP nao foi persistida');
+        $teamPage = $router->dispatch(Request::fake('GET', '/torneio-online/admin/equipes/equipe-http-admin'));
+        assert_same(200, $teamPage->status, 'Pagina da equipe criada nao abriu');
+        assert_true(str_contains($teamPage->body, 'Elenco oficial'), 'Elenco oficial nao foi incorporado a pagina da equipe');
         $duplicate = $router->dispatch(Request::fake('POST', '/torneio-online/admin/equipes', ['_csrf' => Security::csrfToken(), 'championship_id' => $championshipId, 'name' => 'Outra Equipe', 'short_name' => 'Outra', 'slug' => 'equipe-http-admin', 'abbreviation' => 'OUT', 'primary_color' => '#123C32', 'secondary_color' => '#D9A441']));
         assert_same(422, $duplicate->status, 'Slug duplicado de equipe foi aceito');
 

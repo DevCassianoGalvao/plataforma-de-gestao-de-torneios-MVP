@@ -2,7 +2,7 @@
 
 ## Escopo
 
-A Etapa 4 entrega o cadastro administrativo de equipes vinculadas a campeonamentos, seus responsaveis, membros da comissao tecnica, identidade visual basica, status e formacao tatica padrao. A pagina da equipe tambem sinaliza que atletas, inscricoes e partidas ainda nao estao disponiveis.
+A Etapa 4 entrega o cadastro administrativo de equipes vinculadas a campeonamentos, seus responsaveis, membros da comissao tecnica, identidade visual basica, status e formacao tatica padrao. A pagina da equipe tambem exibe o elenco oficial aprovado e atalhos para inscricoes e partidas.
 
 ## Equipes
 
@@ -33,6 +33,6 @@ Escudo da equipe e foto de membro aceitam PNG, JPG, JPEG e WEBP. O MIME, a exten
 
 A auditoria cobre criacao, edicao, identidade, status, atribuicao e encerramento de responsaveis, criacao/edicao/status da comissao e alteracao da formacao padrao. A interface mostra textos compreensiveis, sem exibir metadata JSON bruto.
 
-## Fora do escopo
+## Integracao atual
 
-Nao existem atletas, documentos de atletas, inscricoes, grupos, rodadas, tabela, partidas, escalacoes, cartoes, suspensoes, portal publico ou design definitivo nesta etapa.
+Atletas, documentos, inscricoes, elenco oficial, grupos, rodadas, tabela, partidas, escalacoes, cartoes, suspensoes e portal publico possuem modulos proprios e sao acessados pelo painel conforme a permissao do usuario.

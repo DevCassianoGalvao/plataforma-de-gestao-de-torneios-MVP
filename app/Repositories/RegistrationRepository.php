@@ -16,7 +16,7 @@ final class RegistrationRepository
         [$scopeSql, $scopeParams] = $this->scopeSql($userId, $scope);
         $conditions = ['ar.' . 'id IS NOT NULL', $scopeSql];
         $params = $scopeParams;
-        foreach (['status' => 'ar.status', 'championship_id' => 'ar.championship_id', 'team_id' => 'ar.team_id'] as $key => $column) {
+        foreach (['status' => 'ar.status', 'championship_id' => 'ar.championship_id', 'team_id' => 'ar.team_id', 'athlete_id' => 'ar.athlete_id'] as $key => $column) {
             if (($filters[$key] ?? '') !== '') {
                 $conditions[] = $column . ' = ?';
                 $params[] = $filters[$key];

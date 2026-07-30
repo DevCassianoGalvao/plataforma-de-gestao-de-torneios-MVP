@@ -25,6 +25,14 @@ final class AuditService
             $request?->userAgent(),
             date('Y-m-d H:i:s'),
         ]);
+        $auditId = (int) $this->pdo->lastInsertId();
+        try {
+            $notification = $this->pdo->prepare('INSERT IGNORE INTO admin_notifications (audit_id, title, message, created_at) VALUES (?, ?, ?, ?)');
+            $label = str_replace(['.', '_'], [' / ', ' '], $action);
+            $notification->execute([$auditId, 'Atividade do sistema', 'Evento registrado: ' . $label, date('Y-m-d H:i:s')]);
+        } catch (\PDOException) {
+            // Permite operar durante deploy antes da migration de notificacoes.
+        }
     }
 
     public function recent(int $limit = 100): array

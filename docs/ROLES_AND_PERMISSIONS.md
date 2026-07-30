@@ -31,7 +31,7 @@ Papeis sao globais. Acesso esportivo exige tambem vinculo ao campeonato.
 
 Administrador recebe escopo global. Organizador recebe operacoes de equipes nos campeonatos vinculados como `organizer`. Treinador ou gestor recebe leitura e operacoes permitidas apenas nas equipes com vinculo ativo; nao pode trocar o campeonato nem atribuir responsaveis administrativos. O vinculo e explicito, portanto um treinador pode estar em mais de uma equipe sem ganhar acesso automatico as demais.
 
-Operador e comunicacao recebem `403` por padrao neste modulo. O service nunca usa somente o papel global para autorizar uma equipe ou campeonato. Permissoes de atletas, partidas e conteudo continuam fora do escopo desta etapa historica.
+Operador e comunicacao recebem `403` por padrao neste modulo. O service nunca usa somente o papel global para autorizar uma equipe ou campeonato. As permissoes de atletas, partidas e conteudo sao tratadas nas secoes especificas de cada modulo abaixo.
 
 ## Permissoes da Etapa 5
 

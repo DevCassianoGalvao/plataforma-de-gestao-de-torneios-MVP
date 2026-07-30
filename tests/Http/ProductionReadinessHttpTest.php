@@ -32,6 +32,8 @@ final class ProductionReadinessHttpTest
         assert_same(200, $portal->status, 'Portal nao abriu durante smoke de seguranca');
         foreach (['Content-Security-Policy', 'X-Content-Type-Options', 'X-Frame-Options', 'Referrer-Policy', 'Permissions-Policy'] as $header) assert_true(isset($portal->headers[$header]), 'Header ausente no portal: ' . $header);
         assert_true(!str_contains($portal->body, 'private_notes'), 'Campo privado vazou no portal');
+        $notifications = $router->dispatch(Request::fake('GET', '/torneio-online/admin/notificacoes'));
+        assert_same(200, $notifications->status, 'Central de notificacoes nao abriu para administrador');
         $logout = $router->dispatch(Request::fake('POST', '/torneio-online/logout', ['_csrf' => Security::csrfToken()]));
         assert_same(302, $logout->status, 'Logout de smoke falhou');
         Session::destroy();

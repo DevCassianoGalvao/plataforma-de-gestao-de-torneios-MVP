@@ -24,7 +24,7 @@ final class RegistrationController extends Controller
     {
         $guard = $this->guard($request, 'registrations.view');
         if ($guard instanceof Response) return $guard;
-        $filters = ['status' => (string) ($request->query['status'] ?? ''), 'championship_id' => (string) ($request->query['championship_id'] ?? ''), 'team_id' => (string) ($request->query['team_id'] ?? '')];
+        $filters = ['status' => (string) ($request->query['status'] ?? ''), 'championship_id' => (string) ($request->query['championship_id'] ?? ''), 'team_id' => (string) ($request->query['team_id'] ?? ''), 'athlete_id' => (string) ($request->query['athlete_id'] ?? '')];
         return $this->page('Inscricoes', 'admin/registrations/index', ['user' => $guard, 'items' => $this->access->list($guard, $filters), 'query' => $filters, 'statuses' => RegistrationRules::STATUSES, 'championships' => $this->access->authorizedChampionships($guard), 'teams' => $this->availableTeams($guard), 'canCreate' => $this->authorization->can($guard, 'registrations.create'), 'message' => Session::consumeFlash('registration_message')]);
     }
 

@@ -2,7 +2,7 @@
 
 ## Escopo
 
-A Etapa 5 cria o cadastro estrutural de atletas sem exigir inscricao em campeonato. O cadastro cobre dados esportivos, equipe atual, status, posicoes, responsavel legal de menor, documentos privados, revisao e historico basico. Inscricoes, partidas, escalacoes, disciplina e portal publico ficam para etapas futuras.
+A Etapa 5 cria o cadastro estrutural de atletas sem exigir inscricao em campeonato. O cadastro cobre dados esportivos, equipe atual, status, posicoes, responsavel legal de menor, documentos privados, revisao e historico basico. Inscricoes, partidas, escalacoes, disciplina e portal publico sao modulos integrados ao fluxo geral e nao bloqueiam o cadastro inicial.
 
 ## Atleta
 
@@ -38,6 +38,6 @@ Arquivos ficam em armazenamento privado, fora de rotas publicas. O servidor vali
 
 ## Interface estrutural
 
-As paginas sao `/admin/atletas`, `/admin/atletas/nova`, `/admin/atletas/{id}`, `/admin/atletas/{id}/editar`, `/admin/atletas/{id}/responsaveis`, `/admin/atletas/{id}/documentos` e `/admin/posicoes`. O detalhe separa dados esportivos, equipe, posicoes, responsavel, documentos e os modulos futuros de inscricoes, partidas e disciplina.
+As paginas sao `/admin/atletas`, `/admin/atletas/nova`, `/admin/atletas/{id}`, `/admin/atletas/{id}/editar`, `/admin/atletas/{id}/responsaveis`, `/admin/atletas/{id}/documentos` e `/admin/posicoes`. O detalhe separa dados esportivos, equipe, posicoes, responsavel, documentos e atalhos para inscricoes, partidas e disciplina.
 
 UI/UX definitiva, campo visual, inscricoes e integracao com partidas permanecem para rodadas posteriores.

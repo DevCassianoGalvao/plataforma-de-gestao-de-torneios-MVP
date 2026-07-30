@@ -28,9 +28,10 @@ final class ChampionshipIntegrationTest
         $pdo = Database::connection();
         $password = getenv('SEED_DEMO_PASSWORD') ?: 'TestDemo123';
         ChampionshipSeed::run($pdo);
+        $categoryCount = (int) $pdo->query('SELECT COUNT(*) FROM categories')->fetchColumn();
         ChampionshipSeed::run($pdo);
         assert_same(1, (int) $pdo->query('SELECT COUNT(*) FROM seasons')->fetchColumn(), 'Seed duplicou temporada');
-        assert_same(1, (int) $pdo->query('SELECT COUNT(*) FROM categories')->fetchColumn(), 'Seed duplicou categoria');
+        assert_same($categoryCount, (int) $pdo->query('SELECT COUNT(*) FROM categories')->fetchColumn(), 'Seed duplicou categoria');
         assert_same(1, (int) $pdo->query('SELECT COUNT(*) FROM championships')->fetchColumn(), 'Seed duplicou campeonato');
         assert_same(2, (int) $pdo->query('SELECT COUNT(*) FROM championship_user_assignments')->fetchColumn(), 'Seed duplicou vinculo');
         assert_same(1, (int) $pdo->query("SELECT COUNT(*) FROM regulations WHERE status = 'published'")->fetchColumn(), 'Seed nao publicou regulamento');

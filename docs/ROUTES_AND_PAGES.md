@@ -97,7 +97,7 @@ Nenhum formulario solicita JSON, nome de tabela ou ID digitado livremente. Selec
 | POST | `/admin/atletas/{id}/documentos/{documentId}/status` | revisar documento |
 | GET | `/admin/atletas/{id}/assets/photo` | servir foto privada autorizada |
 
-As telas exibem nomes, funcoes e formacoes; IDs permanecem apenas nos valores internos dos formularios. Inscricoes, partidas e disciplina aparecem como modulos futuros na pagina do atleta.
+As telas exibem nomes, funcoes e formacoes; IDs permanecem apenas nos valores internos dos formularios. A pagina do atleta oferece atalhos para inscricoes, partidas e disciplina.
 
 ## Inscricoes e elenco oficial
 

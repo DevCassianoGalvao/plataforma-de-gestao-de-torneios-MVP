@@ -25,6 +25,8 @@ final class MatchOperationHttpTest
 
         Session::destroy();
         self::login($router, 'admin@torneios.local');
+        assert_same(200, $router->dispatch(Request::fake('GET', '/torneio-online/minhas-partidas'))->status, 'Administrador nao abriu suas partidas');
+        assert_same(200, $router->dispatch(Request::fake('GET', '/torneio-online/admin/notificacoes'))->status, 'Administrador nao abriu a central de notificacoes');
         $central = $router->dispatch(Request::fake('GET', '/torneio-online/admin/partidas/' . $matchId . '/operacao'));
         assert_same(200, $central->status, 'Central operacional nao abriu');
         assert_true(str_contains($central->body, 'Central operacional da partida') && str_contains($central->body, 'Checklist de finalizacao'), 'Central nao renderizou operacao e checklist');

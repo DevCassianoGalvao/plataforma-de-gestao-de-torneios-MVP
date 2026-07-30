@@ -1,7 +1,7 @@
 <?php $e = static fn (mixed $value): string => App\Core\View::e($value); $filters = $filters ?? []; ?>
 <section class="roster-page">
     <div class="section-heading">
-        <div><p class="eyebrow">Elegibilidade da competição</p><h1>Elenco oficial</h1><p>Aqui ficam somente atletas com inscrição aprovada. Esta é a base usada nas futuras escalações.</p></div>
+        <div><p class="eyebrow">Elegibilidade da competição</p><h1>Elenco oficial</h1><p>Aqui ficam somente atletas com inscrição aprovada. Esta é a base usada nas escalações e na operação das partidas.</p></div>
         <a class="button secondary" href="<?= $e(App\Core\Config::url('/admin/inscricoes')) ?>">Ver inscrições</a>
     </div>
     <div class="roster-notice"><span class="roster-notice-mark" aria-hidden="true">✓</span><div><strong>Relação liberada para a competição</strong><p>Documentos e regras foram validados no momento da aprovação. Pendências e rascunhos continuam na central de inscrições.</p></div><b><?= count($items) ?></b></div>

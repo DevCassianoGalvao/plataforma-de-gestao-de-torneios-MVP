@@ -11,6 +11,7 @@ use App\Repositories\ChampionshipRepository;
 use App\Repositories\StaffRoleRepository;
 use App\Repositories\TeamRepository;
 use App\Repositories\TeamStaffRepository;
+use App\Repositories\RegistrationRepository;
 use App\Repositories\TacticalFormationRepository;
 use App\Services\AuditService;
 use App\Services\ColorRules;
@@ -35,6 +36,7 @@ final class TeamController extends Controller
         private readonly TacticalFormationService $formations,
         private readonly ChampionshipRepository $championships,
         private readonly StorageService $storage,
+        private readonly RegistrationRepository $registrations,
     ) {
         parent::__construct($users, $authorization, $audit);
     }
@@ -99,6 +101,7 @@ final class TeamController extends Controller
             'assignments' => $this->teams->assignments((int) $team['id']),
             'staff' => $this->staff->list((int) $team['id']),
             'formation' => $formation,
+            'officialRoster' => $this->registrations->officialRoster((int) $team['championship_id'], (int) $team['id']),
             'canEdit' => $this->access->findForEitherMutation($guard, (int) $team['id'], 'teams.update', 'teams.manage_own') !== null,
             'canAssignments' => $this->access->canManageAssignments($guard, (int) $team['id']),
             'canStaff' => $this->canStaff($guard, 'team_staff.update', (int) $team['id']),

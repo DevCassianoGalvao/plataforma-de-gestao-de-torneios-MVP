@@ -175,6 +175,12 @@ final class MatchOperationRepository
         return $statement->fetchAll();
     }
 
+    public function allOpenMatches(): array
+    {
+        $statement = $this->pdo->query("SELECT m.*, c.name AS championship_name, p.name AS phase_name, g.name AS group_name, r.round_number, ht.name AS home_team_name, at.name AS away_team_name, v.name AS venue_name, mo.status AS operation_status FROM matches m INNER JOIN championships c ON c.id = m.championship_id INNER JOIN competition_phases p ON p.id = m.phase_id INNER JOIN competition_groups g ON g.id = m.group_id INNER JOIN competition_rounds r ON r.id = m.round_id INNER JOIN teams ht ON ht.id = m.home_team_id INNER JOIN teams at ON at.id = m.away_team_id LEFT JOIN venues v ON v.id = m.venue_id LEFT JOIN match_operations mo ON mo.match_id = m.id WHERE m.status NOT IN ('cancelled', 'homologated') ORDER BY m.match_date IS NULL, m.match_date, m.match_time, m.id");
+        return $statement->fetchAll();
+    }
+
     public function assignments(int $matchId): array
     {
         $statement = $this->pdo->prepare("SELECT a.*, u.name, u.email FROM match_operator_assignments a INNER JOIN users u ON u.id = a.user_id WHERE a.match_id = ? AND a.status = 'active' ORDER BY u.name");
