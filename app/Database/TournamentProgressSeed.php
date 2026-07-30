@@ -48,7 +48,11 @@ final class TournamentProgressSeed
         $repository = new StandingsRepository($pdo);
         $standings = new StandingsService($repository, new AuditService($pdo));
         $standings->recalculate($phase, $adminId);
-        $knockout = $standings->generateKnockout($phase, $adminId)['phase'];
+        $generated = $standings->generateKnockout($phase, $adminId);
+        if (empty($generated['ok']) || empty($generated['phase'])) {
+            throw new \RuntimeException('Nao foi possivel gerar o mata-mata da simulacao: ' . implode(' ', (array) ($generated['errors'] ?? [])));
+        }
+        $knockout = $generated['phase'];
 
         self::completeQuarterfinals($pdo, $repository, $standings, $knockout, $adminId, $venueId, $today, $now);
         self::scheduleSemifinals($pdo, (int) $knockout['id'], $venueId, $today, $now);

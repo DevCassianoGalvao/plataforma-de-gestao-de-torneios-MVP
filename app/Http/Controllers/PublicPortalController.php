@@ -6,7 +6,10 @@ namespace App\Http\Controllers;
 use App\Core\Config;
 use App\Core\Request;
 use App\Core\Response;
+use App\Core\Security;
+use App\Core\Session;
 use App\Core\View;
+use App\Repositories\ContactRepository;
 use App\Repositories\NewsRepository;
 use App\Repositories\PublicPortalRepository;
 use App\Repositories\TransferRepository;
@@ -14,7 +17,7 @@ use App\Services\StorageService;
 
 final class PublicPortalController
 {
-    public function __construct(private readonly PublicPortalRepository $portal, private readonly NewsRepository $news, private readonly TransferRepository $transfers, private readonly StorageService $storage) {}
+    public function __construct(private readonly PublicPortalRepository $portal, private readonly NewsRepository $news, private readonly TransferRepository $transfers, private readonly StorageService $storage, private readonly ContactRepository $contacts, private readonly \App\Services\AuditService $audit) {}
 
     public function home(Request $request, array $params = []): Response
     {
@@ -23,13 +26,13 @@ final class PublicPortalController
 
     public function nextMatches(Request $request, array $params = []): Response { return $this->listPage($request, $params, 'Proximos jogos', 'next', $this->portal->nextMatches((int) $this->id($params[0] ?? ''))); }
     public function results(Request $request, array $params = []): Response { return $this->listPage($request, $params, 'Resultados', 'results', $this->portal->results((int) $this->id($params[0] ?? ''), 50)); }
-    public function standings(Request $request, array $params = []): Response { return $this->listPage($request, $params, 'Classificacao', 'standings', $this->portal->standings((int) $this->id($params[0] ?? ''))); }
+    public function standings(Request $request, array $params = []): Response { $championship = $this->championship($params[0] ?? ''); if ($championship instanceof Response) return $championship; return $this->page($request, 'Classificacao', 'public/portal/list', ['championship' => $championship, 'kind' => 'standings', 'items' => $this->portal->standings((int) $championship['id']), 'simulator' => $this->portal->simulator((int) $championship['id'])]); }
     public function groups(Request $request, array $params = []): Response { return Response::redirect(Config::url('/campeonatos/' . rawurlencode((string) ($params[0] ?? '')) . '/classificacao')); }
     public function knockout(Request $request, array $params = []): Response { $championship = $this->championship($params[0] ?? ''); if ($championship instanceof Response) return $championship; $items = $this->portal->knockout((int) $championship['id']); if (!$items) return Response::redirect(Config::url('/campeonatos/' . rawurlencode((string) $championship['slug']) . '/classificacao')); return $this->page($request, 'Mata-mata', 'public/portal/list', ['championship' => $championship, 'kind' => 'knockout', 'items' => $items]); }
     public function teams(Request $request, array $params = []): Response { $championship = $this->championship($params[0] ?? ''); if ($championship instanceof Response) return $championship; $search = trim((string) ($request->query['q'] ?? '')); return $this->page($request, 'Equipes', 'public/portal/list', ['championship' => $championship, 'kind' => 'teams', 'search' => $search, 'items' => $this->portal->teams((int) $championship['id'], $search)]); }
-    public function team(Request $request, array $params = []): Response { $championship = $this->championship($params[0] ?? ''); if ($championship instanceof Response) return $championship; $page = max(1, (int) ($request->query['page'] ?? 1)); $perPage = 16; $team = $this->portal->team((int) $championship['id'], (string) ($params[1] ?? ''), $perPage, ($page - 1) * $perPage); if (!$team) return $this->notFound('Equipe nao encontrada.'); return $this->page($request, $team['name'], 'public/portal/team', ['championship' => $championship, 'team' => $team, 'page' => $page, 'pages' => max(1, (int) ceil(((int) $team['athletes_total']) / $perPage))]); }
+    public function team(Request $request, array $params = []): Response { $championship = $this->championship($params[0] ?? ''); if ($championship instanceof Response) return $championship; $page = max(1, (int) ($request->query['page'] ?? 1)); $perPage = 16; $team = $this->portal->team((int) $championship['id'], (string) ($params[1] ?? ''), $perPage, ($page - 1) * $perPage); if (!$team) return $this->notFound('Equipe nao encontrada.'); return $this->page($request, $team['name'], 'public/portal/team', ['championship' => $championship, 'team' => $team, 'history' => $this->portal->teamProfile($team), 'page' => $page, 'pages' => max(1, (int) ceil(((int) $team['athletes_total']) / $perPage))]); }
     public function athletes(Request $request, array $params = []): Response { $championship = $this->championship($params[0] ?? ''); if ($championship instanceof Response) return $championship; $search = trim((string) ($request->query['q'] ?? '')); return $this->page($request, 'Atletas', 'public/portal/list', ['championship' => $championship, 'kind' => 'athletes', 'search' => $search, 'items' => $this->portal->athletes((int) $championship['id'], $search)]); }
-    public function athlete(Request $request, array $params = []): Response { $championship = $this->championship($params[0] ?? ''); if ($championship instanceof Response) return $championship; $athlete = $this->portal->athlete((int) $championship['id'], (int) ($params[1] ?? 0)); if (!$athlete) return $this->notFound('Atleta nao encontrado.'); return $this->page($request, $athlete['sporting_name'] ?: $athlete['full_name'], 'public/portal/athlete', ['championship' => $championship, 'athlete' => $athlete]); }
+    public function athlete(Request $request, array $params = []): Response { $championship = $this->championship($params[0] ?? ''); if ($championship instanceof Response) return $championship; $athlete = $this->portal->athlete((int) $championship['id'], (int) ($params[1] ?? 0)); if (!$athlete) return $this->notFound('Atleta nao encontrado.'); return $this->page($request, $athlete['sporting_name'] ?: $athlete['full_name'], 'public/portal/athlete', ['championship' => $championship, 'athlete' => $athlete, 'profile' => $this->portal->athleteProfile((int) $athlete['id'])]); }
     public function scorers(Request $request, array $params = []): Response { return $this->leaderboardPage($request, $params, 'Artilharia', 'goals'); }
     public function assists(Request $request, array $params = []): Response { return $this->leaderboardPage($request, $params, 'Assistencias', 'assists'); }
     public function cards(Request $request, array $params = []): Response { return $this->listPage($request, $params, 'Cartoes', 'cards', $this->portal->cards((int) $this->id($params[0] ?? ''), 50)); }
@@ -37,6 +40,39 @@ final class PublicPortalController
     public function regulation(Request $request, array $params = []): Response { return $this->listPage($request, $params, 'Regulamento', 'regulation', $this->portal->regulation((int) $this->id($params[0] ?? ''))); }
     public function champion(Request $request, array $params = []): Response { return $this->listPage($request, $params, 'Campeao e vice', 'champion', $this->portal->champion((int) $this->id($params[0] ?? ''))); }
     public function match(Request $request, array $params = []): Response { $championship = $this->championship($params[0] ?? ''); if ($championship instanceof Response) return $championship; $match = $this->portal->match((int) $championship['id'], (int) ($params[1] ?? 0)); if (!$match) return $this->notFound('Partida nao encontrada.'); return $this->page($request, 'Partida', 'public/portal/match', ['championship' => $championship, 'match' => $match]); }
+
+    public function officials(Request $request, array $params = []): Response
+    {
+        $championship = $this->championship($params[0] ?? '');
+        if ($championship instanceof Response) return $championship;
+        return $this->page($request, 'Arbitragem', 'public/portal/officials', ['championship' => $championship, 'officials' => $this->portal->officials((int) $championship['id'])]);
+    }
+
+    public function contact(Request $request, array $params = []): Response
+    {
+        $championship = $this->championship($params[0] ?? '');
+        if ($championship instanceof Response) return $championship;
+        return $this->page($request, 'Contato', 'public/portal/contact', ['championship' => $championship, 'errors' => [], 'message' => Session::consumeFlash('public_contact_message'), 'values' => []]);
+    }
+
+    public function submitContact(Request $request, array $params = []): Response
+    {
+        $championship = $this->championship($params[0] ?? '');
+        if ($championship instanceof Response) return $championship;
+        $data = ['name' => trim((string) ($request->body['name'] ?? '')), 'email' => trim((string) ($request->body['email'] ?? '')), 'phone' => trim((string) ($request->body['phone'] ?? '')), 'subject' => trim((string) ($request->body['subject'] ?? '')), 'message' => trim((string) ($request->body['message'] ?? ''))];
+        $allowed = ['competitions', 'sponsorship', 'transfers', 'documents', 'result_error', 'other'];
+        $errors = [];
+        try { Security::verifyCsrf((string) ($request->body['_csrf'] ?? '')); } catch (\Throwable) { $errors[] = 'Sua sessão expirou. Atualize a página e tente novamente.'; }
+        if (mb_strlen($data['name']) < 3 || mb_strlen($data['name']) > 160) $errors[] = 'Informe seu nome completo.';
+        if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) $errors[] = 'Informe um e-mail válido.';
+        if (!in_array($data['subject'], $allowed, true)) $errors[] = 'Selecione um assunto válido.';
+        if (mb_strlen($data['message']) < 10 || mb_strlen($data['message']) > 5000) $errors[] = 'A mensagem deve ter entre 10 e 5.000 caracteres.';
+        if ($errors !== []) return $this->page($request, 'Contato', 'public/portal/contact', ['championship' => $championship, 'errors' => $errors, 'values' => $data], 422);
+        $id = $this->contacts->create((int) $championship['id'], $data);
+        $this->audit->record('public_contact.created', null, 'public_contact_message', $id, ['championship_id' => (int) $championship['id'], 'subject' => $data['subject']], $request);
+        Session::flash('public_contact_message', 'Mensagem enviada. A organização receberá sua solicitação.');
+        return Response::redirect(Config::url('/campeonatos/' . $championship['slug'] . '/contato'));
+    }
 
     public function asset(Request $request, array $params = []): Response
     {
@@ -53,9 +89,27 @@ final class PublicPortalController
         $championship = $this->championship($params[0] ?? ''); if ($championship instanceof Response) return $championship; $athlete = $this->portal->athlete((int) $championship['id'], (int) ($params[1] ?? 0)); if (!$athlete || empty($athlete['photo_path'])) return $this->notFound('Foto nao encontrada.'); $file = $this->storage->read((string) $athlete['photo_path']); if (!$file) return $this->notFound('Foto nao encontrada.'); return new Response($file['body'], 200, ['Content-Type' => $file['mime'], 'Cache-Control' => 'public, no-cache, must-revalidate']);
     }
 
+    public function officialAsset(Request $request, array $params = []): Response
+    {
+        $championship = $this->championship($params[0] ?? ''); if ($championship instanceof Response) return $championship;
+        $official = $this->portal->official((int) $championship['id'], (int) ($params[1] ?? 0));
+        if (!$official || empty($official['photo_path'])) return $this->notFound('Foto não encontrada.');
+        $file = $this->storage->read((string) $official['photo_path']); if (!$file) return $this->notFound('Foto não encontrada.');
+        return new Response($file['body'], 200, ['Content-Type' => $file['mime'], 'Cache-Control' => 'public, max-age=3600']);
+    }
+
+    public function partnerAsset(Request $request, array $params = []): Response
+    {
+        $championship = $this->championship($params[0] ?? ''); if ($championship instanceof Response) return $championship;
+        $partner = $this->portal->partner((int) $championship['id'], (int) ($params[1] ?? 0));
+        if (!$partner || empty($partner['logo_path'])) return $this->notFound('Logo não encontrado.');
+        $file = $this->storage->read((string) $partner['logo_path']); if (!$file) return $this->notFound('Logo não encontrado.');
+        return new Response($file['body'], 200, ['Content-Type' => $file['mime'], 'Cache-Control' => 'public, max-age=3600']);
+    }
+
     public function sitemap(Request $request, array $params = []): Response
     {
-        $urls = []; foreach ($this->portal->publicChampionships() as $championship) { $base = Config::absoluteUrl('/campeonatos/' . rawurlencode($championship['slug'])); foreach (['', '/proximos-jogos', '/resultados', '/classificacao', '/equipes', '/atletas', '/artilharia', '/assistencias', '/cartoes', '/suspensoes', '/noticias', '/vai-e-vem', '/regulamento', '/campeao'] as $path) $urls[] = '<url><loc>' . $this->xml($base . $path) . '</loc><lastmod>' . $this->xml(substr((string) $championship['updated_at'], 0, 10)) . '</lastmod></url>'; if ($this->portal->knockout((int) $championship['id'])) $urls[] = '<url><loc>' . $this->xml($base . '/mata-mata') . '</loc><lastmod>' . $this->xml(substr((string) $championship['updated_at'], 0, 10)) . '</lastmod></url>'; } return new Response('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . implode('', $urls) . '</urlset>', 200, ['Content-Type' => 'application/xml; charset=UTF-8']);
+        $urls = []; foreach ($this->portal->publicChampionships() as $championship) { $base = Config::absoluteUrl('/campeonatos/' . rawurlencode($championship['slug'])); foreach (['', '/proximos-jogos', '/resultados', '/classificacao', '/equipes', '/atletas', '/artilharia', '/assistencias', '/cartoes', '/suspensoes', '/noticias', '/vai-e-vem', '/arbitragem', '/contato', '/regulamento', '/campeao'] as $path) $urls[] = '<url><loc>' . $this->xml($base . $path) . '</loc><lastmod>' . $this->xml(substr((string) $championship['updated_at'], 0, 10)) . '</lastmod></url>'; if ($this->portal->knockout((int) $championship['id'])) $urls[] = '<url><loc>' . $this->xml($base . '/mata-mata') . '</loc><lastmod>' . $this->xml(substr((string) $championship['updated_at'], 0, 10)) . '</lastmod></url>'; } return new Response('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . implode('', $urls) . '</urlset>', 200, ['Content-Type' => 'application/xml; charset=UTF-8']);
     }
 
     public function robots(Request $request, array $params = []): Response { return new Response("User-agent: *\nAllow: /\nSitemap: " . Config::absoluteUrl('/sitemap.xml') . "\n", 200, ['Content-Type' => 'text/plain; charset=UTF-8']); }
@@ -66,7 +120,7 @@ final class PublicPortalController
     private function id(string $slug): int { $championship = $this->portal->championship($slug); return (int) ($championship['id'] ?? 0); }
     private function publishedNews(array $championship): array { return $this->news->listPublished((int) $championship['id'], '', 4); }
     private function publishedTransfers(int $championshipId): array { return $this->transfers->listPublic($championshipId, [], 4); }
-    private function page(Request $request, string $title, string $view, array $data): Response { $championship = $data['championship']; $base = Config::url('/campeonatos/' . $championship['slug']); $image = !empty($championship['social_image_path']) ? Config::absoluteUrl('/campeonatos/' . $championship['slug'] . '/assets/social') : (!empty($championship['logo_path']) ? Config::absoluteUrl('/campeonatos/' . $championship['slug'] . '/assets/logo') : null); $data['seo'] = ['title' => $title . ' | ' . $championship['name'], 'description' => trim(mb_substr((string) ($championship['description'] ?: 'Portal oficial de ' . $championship['name']), 0, 155)), 'canonical' => Config::absoluteUrl(Config::stripBasePath($request->path)), 'image' => $image, 'favicon' => !empty($championship['favicon_path']) ? Config::absoluteUrl('/campeonatos/' . $championship['slug'] . '/assets/favicon') : null, 'base' => $base]; return Response::html(View::render('layouts/public', ['title' => $title, 'content' => View::render($view, $data), 'championship' => $championship, 'hasKnockout' => !empty($data['hasKnockout']) || $this->portal->knockout((int) $championship['id']) !== [], 'seo' => $data['seo']])); }
+    private function page(Request $request, string $title, string $view, array $data, int $status = 200): Response { $championship = $data['championship']; $base = Config::url('/campeonatos/' . $championship['slug']); $image = !empty($championship['social_image_path']) ? Config::absoluteUrl('/campeonatos/' . $championship['slug'] . '/assets/social') : (!empty($championship['logo_path']) ? Config::absoluteUrl('/campeonatos/' . $championship['slug'] . '/assets/logo') : null); $data['seo'] = ['title' => $title . ' | ' . $championship['name'], 'description' => trim(mb_substr((string) ($championship['description'] ?: 'Portal oficial de ' . $championship['name']), 0, 155)), 'canonical' => Config::absoluteUrl(Config::stripBasePath($request->path)), 'image' => $image, 'favicon' => !empty($championship['favicon_path']) ? Config::absoluteUrl('/campeonatos/' . $championship['slug'] . '/assets/favicon') : null, 'base' => $base]; return Response::html(View::render('layouts/public', ['title' => $title, 'content' => View::render($view, $data), 'championship' => $championship, 'hasKnockout' => !empty($data['hasKnockout']) || $this->portal->knockout((int) $championship['id']) !== [], 'sponsors' => $this->portal->sponsors((int) $championship['id']), 'seo' => $data['seo']]), $status); }
     private function notFound(string $message): Response { return Response::html(View::render('errors/404', ['path' => $message]), 404); }
     private function xml(string $value): string { return htmlspecialchars($value, ENT_XML1 | ENT_QUOTES, 'UTF-8'); }
 }

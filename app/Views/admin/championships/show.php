@@ -8,6 +8,7 @@
         <a class="link-card" href="<?= App\Core\View::e(App\Core\Config::url('/admin/campeonatos/' . $championship['slug'] . '/identidade')) ?>"><strong>Identidade</strong><span>Cores, tema e arquivos</span></a>
         <a class="link-card" href="<?= App\Core\View::e(App\Core\Config::url('/admin/campeonatos/' . $championship['slug'] . '/regulamento')) ?>"><strong>Regulamento</strong><span><?= $regulation ? App\Core\View::e($regulation['status'] . ' · versão ' . $regulation['version_number']) : 'Ainda não criado' ?></span></a>
         <a class="link-card" href="<?= App\Core\View::e(App\Core\Config::url('/admin/campeonatos/' . $championship['slug'] . '/organizadores')) ?>"><strong>Organizadores</strong><span><?= count($assignments) ?> vinculo(s)</span></a>
+        <a class="link-card" href="<?= App\Core\View::e(App\Core\Config::url('/admin/campeonatos/' . $championship['slug'] . '/parceiros')) ?>"><strong>Parceiros</strong><span>Patrocinadores, apoiadores e organizadores</span></a>
     </div>
     <h2>Checklist</h2>
     <ul class="checklist"><li class="done">Informações gerais</li><li class="<?= $championship['logo_path'] || $championship['primary_color'] !== '#123C32' ? 'done' : '' ?>">Identidade basica</li><li class="<?= $regulation && $regulation['status'] === 'published' ? 'done' : '' ?>">Regulamento</li><li class="<?= $assignments !== [] ? 'done' : '' ?>">Organizadores vinculados</li><li class="done">Equipes e elenco oficial</li><li class="done">Tabela, partidas e operação</li></ul>

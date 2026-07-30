@@ -1691,3 +1691,87 @@ body.public-portal .team-page-heading .team-mark-fallback.portal-shield-large { 
 body.public-portal .team-roster-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 @media (max-width: 800px) { body.public-portal .portal-grid-results, body.public-portal .portal-grid-editorial { grid-template-columns: 1fr; } body.public-portal .team-roster-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (max-width: 600px) { body.public-portal .portal-page--results .result-list-large > a { grid-template-columns: minmax(0, 1fr) auto; gap: .7rem; padding: .9rem; } body.public-portal .result-team--away { grid-column: 1; justify-content: flex-start; text-align: left; } body.public-portal .result-team--away .team-list-mark { order: 0; } body.public-portal .portal-page--results .result-list-large small { grid-column: 1 / -1; } body.public-portal .home-rankings, body.public-portal .home-knockout-grid, body.public-portal .home-news-feature > a, body.public-portal .lineup-columns, body.public-portal .team-roster-grid { grid-template-columns: 1fr; } body.public-portal .match-detail-score { grid-template-columns: 1fr; text-align: center; } body.public-portal .match-detail-team a, body.public-portal .match-detail-team:last-child a { justify-content: center; text-align: center; } body.public-portal .knockout-bracket { grid-template-columns: 1fr; overflow: visible; } body.public-portal .bracket-round { min-width: 0; } }
+
+/* Portal expansion and final spacing pass. */
+body.public-portal { min-height: 100dvh; display: flex; flex-direction: column; background: #0d121b; }
+body.public-portal .portal-shell { flex: 1 0 auto; }
+body.public-portal .portal-header-inner { grid-template-columns: 3.25rem minmax(0, 1fr); }
+body.public-portal .portal-nav-tools { display: none; }
+body.public-portal .portal-header nav { justify-content: flex-end; }
+body.public-portal .portal-header nav a { flex: 0 0 auto; }
+body.public-portal .portal-partners { width: min(100% - 5rem, 1200px); margin: 3.5rem auto 0; padding: 2rem 0; border-top: 1px solid var(--portal-line); }
+body.public-portal .portal-partners > div + div { margin-top: 1.5rem; }
+body.public-portal .partner-logos { display: flex; flex-wrap: wrap; gap: .8rem; align-items: center; }
+body.public-portal .partner-logos a, body.public-portal .partner-logos > span { display: grid; min-width: 8rem; min-height: 4.5rem; place-items: center; padding: .8rem 1rem; border: 1px solid var(--portal-line); border-radius: 8px; background: var(--portal-panel); color: var(--portal-copy); text-decoration: none; }
+body.public-portal .partner-logos img { max-width: 7.5rem; max-height: 3rem; object-fit: contain; }
+body.public-portal .portal-footer { margin-top: auto; }
+body.public-portal .portal-footer small { display: block; margin-top: .8rem; color: var(--portal-dim); font-size: .78rem; }
+body.public-portal .portal-contact { max-width: 54rem; margin: 2.4rem 0 0; padding: 1.6rem; border: 1px solid var(--portal-line); border-radius: 12px; background: var(--portal-panel); }
+body.public-portal .portal-contact form { display: grid; gap: 1rem; }
+body.public-portal .contact-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+body.public-portal .portal-contact label { display: grid; gap: .45rem; color: var(--portal-muted); font-size: .86rem; font-weight: 700; }
+body.public-portal .portal-contact input, body.public-portal .portal-contact select, body.public-portal .portal-contact textarea { width: 100%; box-sizing: border-box; border: 1px solid #35445a; border-radius: 7px; background: #0c131e; color: var(--portal-copy); }
+body.public-portal .portal-contact input, body.public-portal .portal-contact select { min-height: 2.9rem; padding: .65rem .75rem; }
+body.public-portal .portal-contact textarea { padding: .75rem; resize: vertical; }
+body.public-portal .official-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; margin-top: 2rem; }
+body.public-portal .official-card { display: grid; grid-template-columns: 3.6rem minmax(0, 1fr); gap: .9rem; align-items: center; min-height: 5.7rem; padding: 1rem; border: 1px solid var(--portal-line); border-radius: 9px; background: var(--portal-panel); }
+body.public-portal .official-card img, body.public-portal .official-avatar { width: 3.6rem; height: 3.6rem; border-radius: 50%; object-fit: cover; }
+body.public-portal .official-avatar { display: grid; place-items: center; background: #303b4a; color: var(--portal-green); font-weight: 800; }
+body.public-portal .official-card h2 { margin: .15rem 0 0; font-size: 1rem; }
+body.public-portal .club-history, body.public-portal .athlete-profile-data { margin: 2rem 0; padding: 1.5rem; border: 1px solid var(--portal-line); border-radius: 12px; background: var(--portal-panel); }
+body.public-portal .club-stat-grid, body.public-portal .profile-facts { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: .75rem; }
+body.public-portal .club-stat-grid article, body.public-portal .profile-facts article { min-height: 5rem; padding: .85rem; border: 1px solid #304056; border-radius: 8px; background: #171f2c; }
+body.public-portal .club-stat-grid span, body.public-portal .profile-facts span { display: block; color: var(--portal-muted); font-size: .76rem; }
+body.public-portal .club-stat-grid strong, body.public-portal .profile-facts strong { display: block; margin-top: .45rem; color: var(--portal-copy); font-size: 1.25rem; }
+body.public-portal .profile-facts { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+body.public-portal .athlete-stat-grid { margin: 1.2rem 0; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+body.public-portal .club-history-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-top: 1.2rem; }
+body.public-portal .club-history-grid .panel { margin: 0; padding: 1.1rem; border: 1px solid #304056; border-radius: 8px; background: #171f2c; }
+body.public-portal .club-history-grid h3, body.public-portal .club-history-grid h2 { margin: 0 0 .9rem; font-size: 1rem; }
+body.public-portal .honour-list, body.public-portal .recent-results, body.public-portal .transfer-history { display: grid; gap: .75rem; margin: 0; padding: 0; list-style: none; }
+body.public-portal .honour-list li, body.public-portal .recent-results li, body.public-portal .transfer-history li { display: grid; gap: .22rem; padding-bottom: .75rem; border-bottom: 1px solid rgba(148,164,183,.16); }
+body.public-portal .honour-list li:last-child, body.public-portal .recent-results li:last-child, body.public-portal .transfer-history li:last-child { padding-bottom: 0; border-bottom: 0; }
+body.public-portal .honour-list strong, body.public-portal .transfer-history b { color: var(--portal-green); }
+body.public-portal .honour-list span, body.public-portal .recent-results small, body.public-portal .transfer-history small { color: var(--portal-muted); font-size: .83rem; }
+body.public-portal .standings-simulator { margin: 2rem 0; padding: 1.5rem; border: 1px solid #3a5570; border-radius: 12px; background: linear-gradient(135deg, #172633, #13202c); }
+body.public-portal .simulator-fixtures { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem; margin-top: 1rem; }
+body.public-portal .simulator-fixtures label { display: grid; gap: .45rem; padding: .8rem; border: 1px solid #304056; border-radius: 8px; color: var(--portal-green); font-size: .78rem; font-weight: 800; text-transform: uppercase; }
+body.public-portal .simulator-fixtures span { display: grid; grid-template-columns: minmax(0, 1fr) 2.4rem auto 1.35rem auto minmax(0, 1fr); gap: .4rem; align-items: center; color: var(--portal-copy); font-size: .9rem; font-weight: 650; text-transform: none; }
+body.public-portal .simulator-fixtures input { width: 2.4rem; min-height: 2.2rem; box-sizing: border-box; border: 1px solid #40516a; border-radius: 6px; background: #0d151f; color: var(--portal-copy); text-align: center; }
+body.public-portal .simulator-fixtures b { color: var(--portal-green); }
+body.app-body { background: #08111d; }
+body.app-body .page-shell { padding: clamp(1.35rem, 2.2vw, 2.4rem); }
+body.app-body .topbar-actions { gap: .7rem; }
+body.app-body .topbar-user { min-width: 11rem; }
+body.app-body .contact-list { display: grid; gap: 1rem; }
+body.app-body .contact-item { margin: 0; }
+body.app-body .contact-item header { display: flex; justify-content: space-between; gap: 1rem; align-items: flex-start; margin-bottom: 1rem; }
+body.app-body .contact-item h2 { margin: .45rem 0 .25rem; font-size: 1.1rem; }
+body.app-body .operation-lineup-panel { margin-top: 1.2rem; }
+body.app-body .operation-lineups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; }
+body.app-body .operation-lineup-preview { overflow: hidden; border: 1px solid #33445a; border-radius: 10px; background: #111c2b; }
+body.app-body .operation-lineup-preview > header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; padding: 1rem 1rem .8rem; }
+body.app-body .operation-lineup-preview > header strong, body.app-body .operation-lineup-preview > header small { display: block; }
+body.app-body .operation-lineup-preview > header small, body.app-body .operation-lineup-reserves { margin: .35rem 0 0; color: #9aabc0; font-size: .82rem; }
+body.app-body .operation-pitch { position: relative; min-height: 21rem; margin: 0 1rem; overflow: hidden; border: 2px solid #3c806c; border-radius: 7px; background: repeating-linear-gradient(90deg, #164e43 0, #164e43 12.5%, #1b5d4f 12.5%, #1b5d4f 25%); }
+body.app-body .operation-pitch::before { content: ''; position: absolute; top: 0; bottom: 0; left: 50%; width: 1px; background: rgba(238,255,247,.58); }
+body.app-body .operation-pitch::after { content: ''; position: absolute; top: 50%; left: 50%; width: 5.2rem; height: 5.2rem; transform: translate(-50%, -50%); border: 1px solid rgba(238,255,247,.58); border-radius: 50%; }
+body.app-body .operation-pitch-player { position: absolute; z-index: 1; display: grid; width: 4rem; transform: translate(-50%, -50%); place-items: center; text-align: center; color: #f4f8ff; font-size: .66rem; }
+body.app-body .operation-pitch-player b { display: grid; width: 1.8rem; height: 1.8rem; place-items: center; border: 2px solid #b7f4db; border-radius: 50%; background: #0d1722; color: #49e0a4; font-size: .67rem; }
+body.app-body .operation-pitch-player i { max-width: 4rem; overflow: hidden; margin-top: .18rem; font-style: normal; text-overflow: ellipsis; white-space: nowrap; }
+body.app-body .operation-pitch-player em { position: absolute; top: -.2rem; right: .7rem; display: grid; width: .9rem; height: .9rem; place-items: center; border-radius: 50%; background: #efaa4e; color: #111b28; font-style: normal; font-weight: 900; }
+body.app-body .operation-pitch-player:nth-child(1) { left: 50%; top: 88%; }
+body.app-body .operation-pitch-player:nth-child(2) { left: 16%; top: 70%; }
+body.app-body .operation-pitch-player:nth-child(3) { left: 38%; top: 72%; }
+body.app-body .operation-pitch-player:nth-child(4) { left: 62%; top: 72%; }
+body.app-body .operation-pitch-player:nth-child(5) { left: 84%; top: 70%; }
+body.app-body .operation-pitch-player:nth-child(6) { left: 25%; top: 50%; }
+body.app-body .operation-pitch-player:nth-child(7) { left: 50%; top: 48%; }
+body.app-body .operation-pitch-player:nth-child(8) { left: 75%; top: 50%; }
+body.app-body .operation-pitch-player:nth-child(9) { left: 23%; top: 27%; }
+body.app-body .operation-pitch-player:nth-child(10) { left: 50%; top: 18%; }
+body.app-body .operation-pitch-player:nth-child(11) { left: 77%; top: 27%; }
+body.app-body .operation-lineup-reserves { padding: .8rem 1rem 1rem; }
+@media (max-width: 1040px) { body.public-portal .portal-header-inner, body.public-portal .portal-partners, body.public-portal .portal-footer, body.public-portal .portal-shell { width: min(100% - 3rem, 1200px); } body.public-portal .official-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } body.public-portal .club-stat-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 800px) { body.public-portal .portal-header-inner { display: flex; } body.public-portal .portal-nav-tools { display: block; margin-left: auto; } body.public-portal .portal-header nav { justify-content: flex-start; } body.public-portal .official-grid, body.app-body .operation-lineups { grid-template-columns: repeat(2, minmax(0, 1fr)); } body.public-portal .simulator-fixtures { grid-template-columns: 1fr; } }
+@media (max-width: 600px) { body.public-portal .portal-partners { width: min(100% - 1.5rem, 1200px); margin-top: 2rem; } body.public-portal .contact-grid, body.public-portal .official-grid, body.public-portal .club-history-grid, body.public-portal .profile-facts, body.public-portal .club-stat-grid, body.public-portal .athlete-stat-grid, body.app-body .operation-lineups { grid-template-columns: 1fr; } body.public-portal .simulator-fixtures span { grid-template-columns: minmax(0, 1fr) 2.2rem auto 1.25rem auto; } body.public-portal .simulator-fixtures span::after { content: ''; } }

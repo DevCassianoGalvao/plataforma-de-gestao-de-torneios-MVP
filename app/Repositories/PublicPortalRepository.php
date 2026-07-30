@@ -87,7 +87,54 @@ final class PublicPortalRepository
 
     public function athlete(int $championshipId, int $athleteId): ?array
     {
-        $statement = $this->pdo->prepare("SELECT DISTINCT a.id, a.full_name, a.sporting_name, a.photo_path, a.preferred_number, p.name AS position_name, t.name AS team_name, t.slug AS team_slug FROM athlete_registrations ar INNER JOIN athletes a ON a.id = ar.athlete_id INNER JOIN teams t ON t.id = ar.team_id INNER JOIN positions p ON p.id = a.primary_position_id WHERE ar.championship_id = ? AND ar.athlete_id = ? AND ar.status = 'approved' AND a.status = 'active' AND a.deleted_at IS NULL LIMIT 1"); $statement->execute([$championshipId, $athleteId]); return $statement->fetch() ?: null;
+        $statement = $this->pdo->prepare("SELECT DISTINCT a.id, a.full_name, a.sporting_name, a.photo_path, a.preferred_number, a.birth_date, p.name AS position_name, p.position_group AS position_group, t.name AS team_name, t.slug AS team_slug FROM athlete_registrations ar INNER JOIN athletes a ON a.id = ar.athlete_id INNER JOIN teams t ON t.id = ar.team_id INNER JOIN positions p ON p.id = a.primary_position_id WHERE ar.championship_id = ? AND ar.athlete_id = ? AND ar.status = 'approved' AND a.status = 'active' AND a.deleted_at IS NULL LIMIT 1"); $statement->execute([$championshipId, $athleteId]); return $statement->fetch() ?: null;
+    }
+
+    public function teamProfile(array $team): array
+    {
+        $name = (string) $team['name'];
+        $scores = "LEFT JOIN (SELECT e.match_id, SUM(CASE WHEN e.team_id = m.home_team_id THEN 1 ELSE 0 END) AS home_score, SUM(CASE WHEN e.team_id = m.away_team_id THEN 1 ELSE 0 END) AS away_score FROM match_operation_events e INNER JOIN matches m ON m.id = e.match_id WHERE e.valid = 1 AND e.event_type IN ('goal','own_goal') AND e.period <> 'penalties' GROUP BY e.match_id) score ON score.match_id = m.id LEFT JOIN match_operations mo ON mo.match_id = m.id";
+        $sql = "SELECT COUNT(*) AS matches_played, COALESCE(SUM(CASE WHEN (m.home_team_id = t.id AND COALESCE(mo.administrative_home_score, score.home_score, 0) > COALESCE(mo.administrative_away_score, score.away_score, 0)) OR (m.away_team_id = t.id AND COALESCE(mo.administrative_away_score, score.away_score, 0) > COALESCE(mo.administrative_home_score, score.home_score, 0)) THEN 1 ELSE 0 END),0) AS wins, COALESCE(SUM(CASE WHEN COALESCE(mo.administrative_home_score, score.home_score, 0) = COALESCE(mo.administrative_away_score, score.away_score, 0) THEN 1 ELSE 0 END),0) AS draws, COALESCE(SUM(CASE WHEN (m.home_team_id = t.id AND COALESCE(mo.administrative_home_score, score.home_score, 0) < COALESCE(mo.administrative_away_score, score.away_score, 0)) OR (m.away_team_id = t.id AND COALESCE(mo.administrative_away_score, score.away_score, 0) < COALESCE(mo.administrative_home_score, score.home_score, 0)) THEN 1 ELSE 0 END),0) AS losses, COALESCE(SUM(CASE WHEN m.home_team_id = t.id THEN COALESCE(mo.administrative_home_score, score.home_score, 0) ELSE COALESCE(mo.administrative_away_score, score.away_score, 0) END),0) AS goals_for, COALESCE(SUM(CASE WHEN m.home_team_id = t.id THEN COALESCE(mo.administrative_away_score, score.away_score, 0) ELSE COALESCE(mo.administrative_home_score, score.home_score, 0) END),0) AS goals_against FROM teams t INNER JOIN matches m ON m.home_team_id = t.id OR m.away_team_id = t.id {$scores} WHERE LOWER(TRIM(t.name)) = LOWER(TRIM(?)) AND m.status = 'homologated'";
+        $statement = $this->pdo->prepare($sql); $statement->execute([$name]);
+        $profile = $statement->fetch() ?: [];
+        $honours = $this->pdo->prepare("SELECT c.name AS championship_name, s.name AS season_name, CASE WHEN LOWER(TRIM(champion.name)) = LOWER(TRIM(?)) THEN 'Campeão' ELSE 'Vice-campeão' END AS honour FROM competition_results cr INNER JOIN championships c ON c.id = cr.championship_id INNER JOIN seasons s ON s.id = c.season_id LEFT JOIN teams champion ON champion.id = cr.champion_team_id LEFT JOIN teams runner ON runner.id = cr.runner_up_team_id WHERE LOWER(TRIM(champion.name)) = LOWER(TRIM(?)) OR LOWER(TRIM(runner.name)) = LOWER(TRIM(?)) ORDER BY c.ends_at DESC, c.id DESC LIMIT 12");
+        $honours->execute([$name, $name, $name]);
+        $recent = $this->pdo->prepare("SELECT m.id, m.match_date, c.name AS championship_name, ht.name AS home_team_name, at.name AS away_team_name, COALESCE(mo.administrative_home_score, score.home_score, 0) AS home_score, COALESCE(mo.administrative_away_score, score.away_score, 0) AS away_score FROM teams t INNER JOIN matches m ON m.home_team_id = t.id OR m.away_team_id = t.id INNER JOIN teams ht ON ht.id = m.home_team_id INNER JOIN teams at ON at.id = m.away_team_id INNER JOIN championships c ON c.id = m.championship_id {$scores} WHERE LOWER(TRIM(t.name)) = LOWER(TRIM(?)) AND m.status = 'homologated' ORDER BY m.match_date DESC, m.id DESC LIMIT 5");
+        $recent->execute([$name]);
+        return ['stats' => $profile, 'honours' => $honours->fetchAll(), 'recent' => $recent->fetchAll()];
+    }
+
+    public function athleteProfile(int $athleteId): array
+    {
+        $stats = $this->pdo->prepare("SELECT COALESCE(SUM(e.event_type = 'goal' AND e.period <> 'penalties'),0) AS goals, COALESCE(SUM(e.event_type = 'assist' AND e.period <> 'penalties'),0) AS assists, COALESCE(SUM(e.event_type IN ('yellow','second_yellow')),0) AS yellows, COALESCE(SUM(e.event_type IN ('red','second_yellow')),0) AS reds FROM match_operation_events e INNER JOIN matches m ON m.id = e.match_id WHERE e.athlete_id = ? AND e.valid = 1 AND m.status = 'homologated'");
+        $stats->execute([$athleteId]);
+        $teams = $this->pdo->prepare("SELECT DISTINCT t.name, t.slug, c.name AS championship_name, ar.decided_at FROM athlete_registrations ar INNER JOIN teams t ON t.id = ar.team_id INNER JOIN championships c ON c.id = ar.championship_id WHERE ar.athlete_id = ? AND ar.status = 'approved' ORDER BY ar.decided_at DESC, ar.id DESC");
+        $teams->execute([$athleteId]);
+        $transfers = $this->pdo->prepare("SELECT tm.type, tm.movement_date, previous.name AS previous_team_name, next.name AS next_team_name FROM transfer_movements tm LEFT JOIN teams previous ON previous.id = tm.previous_team_id LEFT JOIN teams next ON next.id = tm.new_team_id WHERE tm.athlete_id = ? AND tm.status IN ('approved','published') AND tm.deleted_at IS NULL ORDER BY tm.movement_date DESC, tm.id DESC");
+        $transfers->execute([$athleteId]);
+        $honours = $this->pdo->prepare("SELECT c.name AS championship_name, s.name AS season_name, CASE WHEN cr.champion_team_id = ar.team_id THEN 'Campeão' ELSE 'Vice-campeão' END AS honour FROM athlete_registrations ar INNER JOIN competition_results cr ON cr.championship_id = ar.championship_id AND (cr.champion_team_id = ar.team_id OR cr.runner_up_team_id = ar.team_id) INNER JOIN championships c ON c.id = cr.championship_id INNER JOIN seasons s ON s.id = c.season_id WHERE ar.athlete_id = ? AND ar.status = 'approved' ORDER BY c.ends_at DESC, c.id DESC LIMIT 12");
+        $honours->execute([$athleteId]);
+        return ['stats' => $stats->fetch() ?: [], 'teams' => $teams->fetchAll(), 'transfers' => $transfers->fetchAll(), 'honours' => $honours->fetchAll()];
+    }
+
+    public function simulator(int $championshipId): array
+    {
+        $regulation = $this->regulation($championshipId) ?: ['points_win' => 3, 'points_draw' => 1, 'points_loss' => 0];
+        $matches = $this->pdo->prepare("SELECT m.id, m.group_id, g.name AS group_name, m.status, ht.id AS home_team_id, ht.name AS home_team_name, at.id AS away_team_id, at.name AS away_team_name FROM matches m INNER JOIN competition_groups g ON g.id = m.group_id INNER JOIN competition_phases p ON p.id = m.phase_id INNER JOIN teams ht ON ht.id = m.home_team_id INNER JOIN teams at ON at.id = m.away_team_id WHERE m.championship_id = ? AND p.phase_type = 'groups' AND m.status NOT IN ('draft','cancelled') ORDER BY g.display_order, m.match_date, m.id");
+        $matches->execute([$championshipId]);
+        return ['points' => ['win' => (int) $regulation['points_win'], 'draw' => (int) $regulation['points_draw'], 'loss' => (int) $regulation['points_loss']], 'matches' => $matches->fetchAll()];
+    }
+
+    public function officials(int $championshipId): array
+    {
+        $statement = $this->pdo->prepare("SELECT id, full_name, public_name, role, photo_path FROM championship_officials WHERE championship_id = ? AND status = 'active' AND deleted_at IS NULL ORDER BY full_name");
+        $statement->execute([$championshipId]); return $statement->fetchAll();
+    }
+
+    public function official(int $championshipId, int $id): ?array
+    {
+        $statement = $this->pdo->prepare("SELECT id, photo_path FROM championship_officials WHERE id = ? AND championship_id = ? AND status = 'active' AND deleted_at IS NULL LIMIT 1");
+        $statement->execute([$id, $championshipId]); return $statement->fetch() ?: null;
     }
 
     public function leaderboard(int $championshipId, string $kind, int $limit = 10): array
@@ -108,8 +155,14 @@ final class PublicPortalRepository
 
     public function sponsors(int $championshipId): array
     {
-        $statement = $this->pdo->prepare("SELECT id, name, website_url, logo_path FROM championship_sponsors WHERE championship_id = ? AND status = 'active' AND deleted_at IS NULL ORDER BY display_order, id");
+        $statement = $this->pdo->prepare("SELECT id, partner_type, name, website_url, logo_path FROM championship_sponsors WHERE championship_id = ? AND status = 'active' AND deleted_at IS NULL ORDER BY partner_type, display_order, id");
         $statement->execute([$championshipId]); return $statement->fetchAll();
+    }
+
+    public function partner(int $championshipId, int $id): ?array
+    {
+        $statement = $this->pdo->prepare("SELECT id, logo_path FROM championship_sponsors WHERE id = ? AND championship_id = ? AND status = 'active' AND deleted_at IS NULL LIMIT 1");
+        $statement->execute([$id, $championshipId]); return $statement->fetch() ?: null;
     }
 
     public function regulation(int $championshipId): ?array

@@ -31,12 +31,19 @@ $assetUrl = static function (string $asset): string {
             </a>
             <div class="portal-nav-tools"><button class="icon-button portal-nav-toggle" type="button" data-portal-nav-toggle aria-label="Abrir navegação" aria-expanded="false" title="Abrir navegação">Menu</button></div>
             <nav class="portal-nav" data-portal-nav aria-label="Navegação do campeonato">
-                <a href="<?= $e($base) ?>">Início</a><a href="<?= $e($base . '/proximos-jogos') ?>">Jogos</a><a href="<?= $e($base . '/resultados') ?>">Resultados</a><a href="<?= $e($base . '/classificacao') ?>">Classificação</a><a href="<?= $e($base . '/equipes') ?>">Equipes</a><a href="<?= $e($base . '/noticias') ?>">Notícias</a><a href="<?= $e($base . '/vai-e-vem') ?>">Vai e Vem</a><?php if (!empty($hasKnockout)): ?><a href="<?= $e($base . '/mata-mata') ?>">Mata-mata</a><?php endif; ?>
+                <a href="<?= $e($base) ?>">Início</a><a href="<?= $e($base . '/proximos-jogos') ?>">Jogos</a><a href="<?= $e($base . '/resultados') ?>">Resultados</a><a href="<?= $e($base . '/classificacao') ?>">Classificação</a><a href="<?= $e($base . '/equipes') ?>">Equipes</a><a href="<?= $e($base . '/noticias') ?>">Notícias</a><a href="<?= $e($base . '/vai-e-vem') ?>">Vai e Vem</a><?php if (!empty($hasKnockout)): ?><a href="<?= $e($base . '/mata-mata') ?>">Mata-mata</a><?php endif; ?><a href="<?= $e($base . '/arbitragem') ?>">Arbitragem</a><a href="<?= $e($base . '/contato') ?>">Contato</a>
             </nav>
         </div>
     </header>
     <main class="portal-shell"><?= $content ?? '' ?></main>
-    <footer class="portal-footer"><div><strong><?= $e($championship['name']) ?></strong><span><?= $e($championship['category_name']) ?> | <?= $e($championship['season_name']) ?></span></div><nav aria-label="Informações do campeonato"><a href="<?= $e($base . '/atletas') ?>">Atletas</a><a href="<?= $e($base . '/artilharia') ?>">Artilharia</a><a href="<?= $e($base . '/regulamento') ?>">Regulamento</a></nav></footer>
+    <?php if (!empty($sponsors ?? [])): ?>
+        <section class="portal-partners" aria-label="Parceiros do campeonato">
+            <?php $partnerLabels = ['sponsor' => 'Patrocinadores', 'supporter' => 'Apoiadores', 'organizer' => 'Organização']; foreach ($partnerLabels as $type => $label): $items = array_values(array_filter($sponsors, static fn (array $partner): bool => ($partner['partner_type'] ?? 'sponsor') === $type)); if (!$items) continue; ?>
+                <div><p class="eyebrow"><?= $e($label) ?></p><div class="partner-logos"><?php foreach ($items as $partner): ?><?php if ($partner['website_url']): ?><a href="<?= $e($partner['website_url']) ?>" target="_blank" rel="noopener noreferrer"><?php else: ?><span><?php endif; ?><?php if ($partner['logo_path']): ?><img src="<?= $e($base . '/parceiros/' . $partner['id'] . '/logo') ?>" alt="<?= $e($partner['name']) ?>"><?php else: ?><b><?= $e($partner['name']) ?></b><?php endif; ?><?php if ($partner['website_url']): ?></a><?php else: ?></span><?php endif; ?><?php endforeach; ?></div></div>
+            <?php endforeach; ?>
+        </section>
+    <?php endif; ?>
+    <footer class="portal-footer"><div><strong><?= $e($championship['name']) ?></strong><span><?= $e($championship['category_name']) ?> | <?= $e($championship['season_name']) ?></span><small>Desenvolvido por Torneio Online Web App</small></div><nav aria-label="Informações do campeonato"><a href="<?= $e($base . '/atletas') ?>">Atletas</a><a href="<?= $e($base . '/artilharia') ?>">Artilharia</a><a href="<?= $e($base . '/regulamento') ?>">Regulamento</a></nav></footer>
     <script src="<?= $e($assetUrl('app.js')) ?>" defer></script>
 </body>
 </html>

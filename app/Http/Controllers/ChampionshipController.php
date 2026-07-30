@@ -109,9 +109,8 @@ final class ChampionshipController extends Controller
         $championship = $this->resolve($params[0] ?? '', $guard, true);
         if (!$championship) return Response::html('Campeonato nao encontrado ou sem acesso.', 404);
         if (!$this->validCsrf($request)) return Response::forbidden('A sessao expirou.');
-        $data = ['default_theme' => (string) ($request->body['default_theme'] ?? 'light'), 'primary_color' => (string) ($request->body['primary_color'] ?? ''), 'secondary_color' => (string) ($request->body['secondary_color'] ?? ''), 'accent_color' => (string) ($request->body['accent_color'] ?? ''), 'logo_path' => $championship['logo_path'], 'logo_light_path' => $championship['logo_light_path'], 'logo_dark_path' => $championship['logo_dark_path'], 'banner_path' => $championship['banner_path'], 'favicon_path' => $championship['favicon_path'], 'social_image_path' => $championship['social_image_path']];
+        $data = ['default_theme' => 'dark', 'primary_color' => (string) ($request->body['primary_color'] ?? ''), 'secondary_color' => (string) ($request->body['secondary_color'] ?? ''), 'accent_color' => (string) ($request->body['accent_color'] ?? ''), 'logo_path' => $championship['logo_path'], 'logo_light_path' => $championship['logo_light_path'], 'logo_dark_path' => $championship['logo_dark_path'], 'banner_path' => $championship['banner_path'], 'favicon_path' => $championship['favicon_path'], 'social_image_path' => $championship['social_image_path']];
         $errors = [];
-        if (!in_array($data['default_theme'], ['light', 'dark'], true)) $errors[] = 'Tema invalido.';
         foreach (['primary_color', 'secondary_color', 'accent_color'] as $color) if (!ColorRules::valid($data[$color])) $errors[] = 'Use cores no formato #RRGGBB.';
         $fields = ['logo_path', 'logo_light_path', 'logo_dark_path', 'banner_path', 'favicon_path', 'social_image_path'];
         foreach ($fields as $field) {
@@ -241,12 +240,12 @@ final class ChampionshipController extends Controller
 
     private function blank(): array
     {
-        return ['name' => '', 'short_name' => '', 'slug' => '', 'description' => '', 'season_id' => '', 'category_id' => '', 'starts_at' => '', 'ends_at' => '', 'registration_starts_at' => '', 'registration_ends_at' => '', 'visibility' => 'private', 'default_theme' => 'light', 'primary_color' => '#123C32', 'secondary_color' => '#245C4A', 'accent_color' => '#D9A441'];
+        return ['name' => '', 'short_name' => '', 'slug' => '', 'description' => '', 'season_id' => '', 'category_id' => '', 'starts_at' => '', 'ends_at' => '', 'registration_starts_at' => '', 'registration_ends_at' => '', 'visibility' => 'private', 'default_theme' => 'dark', 'primary_color' => '#123C32', 'secondary_color' => '#245C4A', 'accent_color' => '#D9A441'];
     }
 
     private function generalData(Request $request): array
     {
-        return ['name' => trim((string) ($request->body['name'] ?? '')), 'short_name' => trim((string) ($request->body['short_name'] ?? '')), 'slug' => Slugger::make((string) ($request->body['slug'] ?? $request->body['name'] ?? '')), 'description' => trim((string) ($request->body['description'] ?? '')), 'season_id' => (int) ($request->body['season_id'] ?? 0), 'category_id' => (int) ($request->body['category_id'] ?? 0), 'starts_at' => $request->body['starts_at'] ?? null, 'ends_at' => $request->body['ends_at'] ?? null, 'registration_starts_at' => $request->body['registration_starts_at'] ?? null, 'registration_ends_at' => $request->body['registration_ends_at'] ?? null, 'status' => 'draft', 'visibility' => (string) ($request->body['visibility'] ?? 'private'), 'default_theme' => (string) ($request->body['default_theme'] ?? 'light'), 'primary_color' => (string) ($request->body['primary_color'] ?? '#123C32'), 'secondary_color' => (string) ($request->body['secondary_color'] ?? '#245C4A'), 'accent_color' => (string) ($request->body['accent_color'] ?? '#D9A441')];
+        return ['name' => trim((string) ($request->body['name'] ?? '')), 'short_name' => trim((string) ($request->body['short_name'] ?? '')), 'slug' => Slugger::make((string) ($request->body['slug'] ?? $request->body['name'] ?? '')), 'description' => trim((string) ($request->body['description'] ?? '')), 'season_id' => (int) ($request->body['season_id'] ?? 0), 'category_id' => (int) ($request->body['category_id'] ?? 0), 'starts_at' => $request->body['starts_at'] ?? null, 'ends_at' => $request->body['ends_at'] ?? null, 'registration_starts_at' => $request->body['registration_starts_at'] ?? null, 'registration_ends_at' => $request->body['registration_ends_at'] ?? null, 'status' => 'draft', 'visibility' => (string) ($request->body['visibility'] ?? 'private'), 'default_theme' => 'dark', 'primary_color' => (string) ($request->body['primary_color'] ?? '#123C32'), 'secondary_color' => (string) ($request->body['secondary_color'] ?? '#245C4A'), 'accent_color' => (string) ($request->body['accent_color'] ?? '#D9A441')];
     }
 
     private function validateGeneral(array $data): array
@@ -256,7 +255,6 @@ final class ChampionshipController extends Controller
         if ($data['season_id'] < 1 || !$this->seasons->find($data['season_id'])) $errors[] = 'Escolha uma temporada valida.';
         if ($data['category_id'] < 1 || !$this->categories->find($data['category_id'])) $errors[] = 'Escolha uma categoria valida.';
         if (!in_array($data['visibility'], ['private', 'public'], true)) $errors[] = 'Visibilidade invalida.';
-        if (!in_array($data['default_theme'], ['light', 'dark'], true)) $errors[] = 'Tema invalido.';
         foreach (['primary_color', 'secondary_color', 'accent_color'] as $color) if (!ColorRules::valid($data[$color])) $errors[] = 'Use cores no formato #RRGGBB.';
         return array_merge($errors, DateRules::validate(['starts_at' => $data['starts_at'], 'ends_at' => $data['ends_at'], 'registration_starts_at' => $data['registration_starts_at'], 'registration_ends_at' => $data['registration_ends_at']]));
     }

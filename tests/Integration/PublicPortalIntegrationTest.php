@@ -5,6 +5,7 @@ namespace Tests\Integration;
 
 use App\Core\Database;
 use App\Database\NewsSeed;
+use App\Database\PortalEngagementSeed;
 use App\Database\ScheduleSeed;
 use App\Database\TransferSeed;
 use App\Repositories\PublicPortalRepository;
@@ -19,6 +20,8 @@ final class PublicPortalIntegrationTest
         ScheduleSeed::run($pdo);
         NewsSeed::run($pdo);
         TransferSeed::run($pdo);
+        PortalEngagementSeed::run($pdo);
+        PortalEngagementSeed::run($pdo);
         $repository = new PublicPortalRepository($pdo);
         $championship = $repository->championship('copa-brasil-de-talentos-2026');
         assert_true((bool) $championship, 'Campeonato publico ausente no read model');
@@ -47,5 +50,7 @@ final class PublicPortalIntegrationTest
         assert_same(null, $repository->championship('campeonato-inexistente'), 'Slug inexistente atravessou isolamento publico');
         assert_same(null, $repository->team($championshipId, 'equipe-inexistente'), 'Equipe inexistente atravessou isolamento publico');
         assert_same(null, $repository->athlete($championshipId, PHP_INT_MAX), 'Atleta inexistente atravessou isolamento publico');
+        assert_same(3, count($repository->officials($championshipId)), 'Arbitragem publica de demonstracao ausente ou duplicada');
+        assert_same(3, count($repository->sponsors($championshipId)), 'Parceiros publicos de demonstracao ausentes ou duplicados');
     }
 }

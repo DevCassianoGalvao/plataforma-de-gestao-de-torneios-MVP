@@ -3,7 +3,8 @@
     <?php foreach (($errors ?? []) as $error): ?><p class="alert" role="alert"><?= App\Core\View::e($error) ?></p><?php endforeach; ?>
     <form method="post" enctype="multipart/form-data" action="<?= App\Core\View::e(App\Core\Config::url('/admin/campeonatos/' . $championship['slug'] . '/identidade')) ?>">
         <input type="hidden" name="_csrf" value="<?= App\Core\View::e(App\Core\Security::csrfToken()) ?>">
-        <label>Tema padrao <select name="default_theme"><option value="light" <?= ($championship['default_theme'] ?? '') === 'light' ? 'selected' : '' ?>>Claro</option><option value="dark" <?= ($championship['default_theme'] ?? '') === 'dark' ? 'selected' : '' ?>>Escuro</option></select></label>
+        <input type="hidden" name="default_theme" value="dark">
+        <p class="muted">O portal e o painel usam o tema escuro como identidade unica do produto.</p>
         <label>Cor principal <input type="text" name="primary_color" value="<?= App\Core\View::e($championship['primary_color'] ?? '#123C32') ?>" pattern="#[0-9A-Fa-f]{6}" required></label>
         <label>Cor secundaria <input type="text" name="secondary_color" value="<?= App\Core\View::e($championship['secondary_color'] ?? '#245C4A') ?>" pattern="#[0-9A-Fa-f]{6}" required></label>
         <label>Cor de destaque <input type="text" name="accent_color" value="<?= App\Core\View::e($championship['accent_color'] ?? '#D9A441') ?>" pattern="#[0-9A-Fa-f]{6}" required></label>

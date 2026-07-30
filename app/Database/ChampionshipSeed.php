@@ -22,7 +22,7 @@ final class ChampionshipSeed
         $adminId = self::userId($pdo, 'admin@torneios.local');
         if (!$championshipId) {
             $statement = $pdo->prepare('INSERT INTO championships (name, short_name, slug, description, season_id, category_id, starts_at, ends_at, registration_starts_at, registration_ends_at, status, visibility, default_theme, primary_color, secondary_color, accent_color, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
-            $statement->execute(['Copa Brasil de Talentos 2026', 'Copa Brasil', 'copa-brasil-de-talentos-2026', 'Campeonato ficticio para validar a configuracao inicial do MVP.', $season, $category, '2026-06-01', '2026-08-30', '2026-04-01', '2026-05-20', 'configured', 'private', 'light', '#123C32', '#245C4A', '#D9A441', $adminId, $now, $now]);
+            $statement->execute(['Copa Brasil de Talentos 2026', 'Copa Brasil', 'copa-brasil-de-talentos-2026', 'Campeonato ficticio para validar a configuracao inicial do MVP.', $season, $category, '2026-06-01', '2026-08-30', '2026-04-01', '2026-05-20', 'configured', 'private', 'dark', '#123C32', '#245C4A', '#D9A441', $adminId, $now, $now]);
             $championshipId = (int) $pdo->lastInsertId();
         }
         $pdo->prepare('UPDATE championships SET category_id = ?, updated_at = ? WHERE id = ?')->execute([$category, $now, $championshipId]);
@@ -44,6 +44,14 @@ final class ChampionshipSeed
         foreach ($criteria as $index => $criterion) {
             $insertCriterion->execute([$regulation, $criterion, $index + 1, $now]);
         }
+        $pairings = [
+            ['quarterfinals', 1, 'A1', 'B4'], ['quarterfinals', 2, 'B1', 'A4'],
+            ['quarterfinals', 3, 'A2', 'B3'], ['quarterfinals', 4, 'B2', 'A3'],
+            ['semifinals', 1, 'QF1', 'QF3'], ['semifinals', 2, 'QF2', 'QF4'],
+            ['final', 1, 'SF1', 'SF2'],
+        ];
+        $insertPairing = $pdo->prepare('INSERT INTO regulation_knockout_pairings (regulation_id, stage, tie_number, home_source, away_source, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE home_source = VALUES(home_source), away_source = VALUES(away_source), updated_at = VALUES(updated_at)');
+        foreach ($pairings as [$stage, $number, $home, $away]) $insertPairing->execute([$regulation, $stage, $number, $home, $away, $now, $now]);
         $organizerId = self::userId($pdo, 'organizador@torneios.local');
         $accountabilityId = self::userId($pdo, 'prestacao@torneios.local');
         $assignment = $pdo->prepare('INSERT IGNORE INTO championship_user_assignments (championship_id, user_id, assignment_type, created_at, created_by) VALUES (?, ?, ?, ?, ?)');

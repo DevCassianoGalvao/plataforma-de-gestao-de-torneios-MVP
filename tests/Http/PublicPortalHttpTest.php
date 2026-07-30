@@ -7,6 +7,7 @@ use App\Core\Database;
 use App\Core\Request;
 use App\Core\Router;
 use App\Database\NewsSeed;
+use App\Database\PortalEngagementSeed;
 use App\Database\ScheduleSeed;
 use App\Database\TransferSeed;
 use function Tests\assert_same;
@@ -20,11 +21,12 @@ final class PublicPortalHttpTest
         ScheduleSeed::run($pdo);
         NewsSeed::run($pdo);
         TransferSeed::run($pdo);
+        PortalEngagementSeed::run($pdo);
         /** @var Router $router */
         $router = require dirname(__DIR__, 2) . '/routes/web.php';
         $slug = 'copa-brasil-de-talentos-2026';
         $base = '/torneio-online/campeonatos/' . $slug;
-        $paths = ['', '/proximos-jogos', '/resultados', '/classificacao', '/mata-mata', '/equipes', '/atletas', '/artilharia', '/assistencias', '/cartoes', '/regulamento', '/campeao', '/noticias', '/vai-e-vem'];
+        $paths = ['', '/proximos-jogos', '/resultados', '/classificacao', '/mata-mata', '/equipes', '/atletas', '/artilharia', '/assistencias', '/cartoes', '/regulamento', '/campeao', '/noticias', '/vai-e-vem', '/arbitragem', '/contato'];
         foreach ($paths as $path) {
             $response = $router->dispatch(Request::fake('GET', $base . $path));
             assert_same(200, $response->status, 'Rota publica falhou: ' . $path);

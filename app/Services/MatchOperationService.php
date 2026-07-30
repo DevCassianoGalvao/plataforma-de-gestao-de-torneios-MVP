@@ -20,6 +20,11 @@ final class MatchOperationService
     public function payload(array $match, int $userId): array
     {
         $operation = $this->ensure($match, $userId);
+        $lineups = [];
+        foreach ($this->lineups->listForMatch((int) $match['id']) as $summary) {
+            $fullLineup = $this->lineups->find((int) $match['id'], (int) $summary['team_id']);
+            $lineups[] = $fullLineup ? array_merge($summary, ['players' => $fullLineup['players']]) : $summary;
+        }
         return [
             'operation' => $operation,
             'events' => $this->operations->events((int) $match['id']),
@@ -29,7 +34,7 @@ final class MatchOperationService
             'score' => $this->operations->score($operation),
             'settings' => $this->operations->matchSettings((int) $match['championship_id']),
             'checklist' => $this->checklist($match, $operation),
-            'lineups' => $this->lineups->listForMatch((int) $match['id']),
+            'lineups' => $lineups,
             'players' => $this->playersForMatch($match),
             'staff' => $this->staffForMatch($match),
             'discipline' => $this->discipline ? ['home' => $this->discipline->activeForMatch((int) $match['championship_id'], (int) $match['id'], (int) $match['home_team_id']), 'away' => $this->discipline->activeForMatch((int) $match['championship_id'], (int) $match['id'], (int) $match['away_team_id'])] : ['home' => [], 'away' => []],

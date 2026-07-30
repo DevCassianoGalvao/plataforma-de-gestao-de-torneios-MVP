@@ -10,6 +10,7 @@ use App\Database\AthleteDocumentTypeSeed;
 use App\Database\AthleteSeed;
 use App\Database\ChampionshipSeed;
 use App\Database\PositionSeed;
+use App\Database\PortalEngagementSeed;
 use App\Database\RegistrationSeed;
 use App\Database\ScheduleSeed;
 use App\Database\LineupSeed;
@@ -59,6 +60,7 @@ if ($command === 'db:seed') {
     DisciplineSeed::run(Database::connection());
     NewsSeed::run(Database::connection());
     TransferSeed::run(Database::connection());
+    PortalEngagementSeed::run(Database::connection());
     echo "Seed de autenticacao concluido.\n";
     exit(0);
 }

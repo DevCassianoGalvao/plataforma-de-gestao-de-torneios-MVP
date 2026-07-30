@@ -52,11 +52,8 @@
             host.appendChild(text);
         }
     }
-    var savedTheme = null;
-    try { savedTheme = window.localStorage.getItem('torneios-theme'); } catch (error) { savedTheme = null; }
-    var preferred = savedTheme || (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
-    if (root.classList.contains('public-portal')) { preferred = 'dark'; }
-    root.dataset.theme = preferred;
+    var preferred = 'dark';
+    root.dataset.theme = 'dark';
 
     document.querySelectorAll('[data-icon]').forEach(function (element) {
         var name = navIconMap[element.dataset.icon] || element.dataset.icon;
@@ -78,19 +75,6 @@
         var key = element.classList.contains('status') ? element.textContent.trim() : element.value;
         if (statusLabels[key]) element.textContent = statusLabels[key];
     });
-
-    var themeButton = document.querySelector('[data-theme-toggle]');
-    if (themeButton) {
-        setIcon(themeButton, preferred === 'dark' ? 'sun' : 'moon', false);
-        themeButton.addEventListener('click', function () {
-            var next = root.dataset.theme === 'dark' ? 'light' : 'dark';
-            root.dataset.theme = next;
-            try { window.localStorage.setItem('torneios-theme', next); } catch (error) { /* preference is optional */ }
-            themeButton.setAttribute('aria-label', next === 'dark' ? 'Ativar tema claro' : 'Ativar tema escuro');
-            themeButton.setAttribute('title', themeButton.getAttribute('aria-label'));
-            setIcon(themeButton, next === 'dark' ? 'sun' : 'moon', false);
-        });
-    }
 
     var sidebar = document.querySelector('[data-sidebar]');
     var sidebarToggle = document.querySelector('[data-sidebar-toggle]');
@@ -120,7 +104,7 @@
             'proximos-jogos': 'next', resultados: 'results', classificacao: 'standings', grupos: 'groups',
             'mata-mata': 'knockout', equipes: 'teams', atletas: 'athletes', artilharia: 'goals',
             assistencias: 'assists', cartoes: 'cards', regulamento: 'regulation', campeao: 'champion',
-            noticias: 'news', 'vai-e-vem': 'transfers'
+            noticias: 'news', 'vai-e-vem': 'transfers', arbitragem: 'officials', contato: 'contact'
         };
         var portalPage = portalPages[portalLastPart] || 'home';
         if (portalParts.indexOf('partidas') !== -1) portalPage = 'match';
@@ -134,6 +118,47 @@
                 var linkPath = new URL(link.href, window.location.origin).pathname.replace(/\/+$/, '') || '/';
                 if (linkPath === portalPath) link.setAttribute('aria-current', 'page');
             });
+        }
+
+        var simulator = document.querySelector('[data-standings-simulator]');
+        if (simulator) {
+            var fixtures = [];
+            var points = { win: 3, draw: 1, loss: 0 };
+            try { fixtures = JSON.parse(simulator.dataset.fixtures || '[]'); points = JSON.parse(simulator.dataset.points || '{}'); } catch (error) { fixtures = []; }
+            var rows = {};
+            document.querySelectorAll('[data-standings-team]').forEach(function (row) {
+                var cells = row.querySelectorAll('td');
+                var number = function (index) { return parseInt((cells[index] && cells[index].textContent) || '0', 10) || 0; };
+                rows[row.dataset.standingsTeam] = { element: row, group: row.dataset.standingsGroup, base: { matches: number(2), wins: number(3), draws: number(4), losses: number(5), goalsFor: number(6), goalsAgainst: number(7), difference: number(8), points: number(9) } };
+            });
+            var writeRow = function (item, values, position) {
+                var cells = item.element.querySelectorAll('td');
+                if (cells[0]) cells[0].textContent = String(position);
+                [values.matches, values.wins, values.draws, values.losses, values.goalsFor, values.goalsAgainst, values.goalsFor - values.goalsAgainst].forEach(function (value, offset) { if (cells[offset + 2]) cells[offset + 2].textContent = String(value); });
+                if (cells[9]) cells[9].innerHTML = '<strong>' + String(values.points) + '</strong>';
+            };
+            var calculate = function () {
+                var current = {};
+                Object.keys(rows).forEach(function (key) { current[key] = Object.assign({}, rows[key].base); });
+                fixtures.forEach(function (fixture) {
+                    var home = simulator.querySelector('[data-simulator-score="home"][data-match="' + fixture.id + '"]');
+                    var away = simulator.querySelector('[data-simulator-score="away"][data-match="' + fixture.id + '"]');
+                    if (!home || !away || home.value === '' || away.value === '') return;
+                    var homeScore = parseInt(home.value, 10); var awayScore = parseInt(away.value, 10);
+                    if (homeScore < 0 || awayScore < 0 || !Number.isFinite(homeScore) || !Number.isFinite(awayScore) || !current[fixture.home_team_id] || !current[fixture.away_team_id]) return;
+                    var homeStats = current[fixture.home_team_id]; var awayStats = current[fixture.away_team_id];
+                    homeStats.matches++; awayStats.matches++; homeStats.goalsFor += homeScore; homeStats.goalsAgainst += awayScore; awayStats.goalsFor += awayScore; awayStats.goalsAgainst += homeScore;
+                    if (homeScore > awayScore) { homeStats.wins++; awayStats.losses++; homeStats.points += Number(points.win || 3); awayStats.points += Number(points.loss || 0); }
+                    else if (homeScore < awayScore) { awayStats.wins++; homeStats.losses++; awayStats.points += Number(points.win || 3); homeStats.points += Number(points.loss || 0); }
+                    else { homeStats.draws++; awayStats.draws++; homeStats.points += Number(points.draw || 1); awayStats.points += Number(points.draw || 1); }
+                });
+                var byGroup = {};
+                Object.keys(rows).forEach(function (key) { var row = rows[key]; (byGroup[row.group] = byGroup[row.group] || []).push({ key: key, row: row, values: current[key] }); });
+                Object.keys(byGroup).forEach(function (group) { byGroup[group].sort(function (a, b) { return b.values.points - a.values.points || (b.values.goalsFor - b.values.goalsAgainst) - (a.values.goalsFor - a.values.goalsAgainst) || b.values.goalsFor - a.values.goalsFor || a.row.element.textContent.localeCompare(b.row.element.textContent); }).forEach(function (item, index) { writeRow(item.row, item.values, index + 1); item.row.element.parentNode.appendChild(item.row.element); }); });
+            };
+            simulator.addEventListener('input', calculate);
+            var reset = simulator.querySelector('[data-simulator-reset]');
+            if (reset) reset.addEventListener('click', function () { simulator.querySelectorAll('input[data-simulator-score]').forEach(function (input) { input.value = ''; }); calculate(); });
         }
     }
 

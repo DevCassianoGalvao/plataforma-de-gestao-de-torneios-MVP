@@ -37,6 +37,7 @@ use App\Database\LineupSeed;
 use App\Database\MatchOperationSeed;
 use App\Database\NewsSeed;
 use App\Database\PositionSeed;
+use App\Database\PortalEngagementSeed;
 use App\Database\RegistrationSeed;
 use App\Database\ScheduleSeed;
 use App\Database\TacticalFormationSeed;
@@ -79,6 +80,7 @@ if (isset($options['seed'])) {
     DisciplineSeed::run($pdo);
     NewsSeed::run($pdo);
     TransferSeed::run($pdo);
+    PortalEngagementSeed::run($pdo);
     $seeded = true;
 }
 
