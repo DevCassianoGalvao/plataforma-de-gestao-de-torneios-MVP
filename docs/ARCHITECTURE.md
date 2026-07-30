@@ -65,7 +65,7 @@ O assistente recebe grupos, turno, periodo, dias, horarios e locais em campos es
 
 ## Noticias e blog
 
-`NewsRepository` separa consulta editorial de consulta publica. `NewsAccessService` exige `content.manage`/`content.publish` e valida atribuicao de comunicacao ou organizador ao campeonato. `NewsService` controla status, slug, publicacao, exclusao logica e auditoria. `NewsImageService` valida MIME real, dimensoes e reprocessa capas com GD; o portal so resolve capas por noticias publicadas.
+`NewsRepository` separa consulta editorial de consulta publica. `NewsAccessService` exige `content.manage`/`content.publish` e valida atribuicao de comunicacao ou organizador ao campeonato. `NewsService` controla status, slug, publicacao, exclusao logica e auditoria. `NewsImageService` usa a otimizacao central: valida MIME real, corrige EXIF, reduz proporcionalmente e grava WebP; o portal so resolve capas por noticias publicadas.
 
 ## Operacao e homologacao
 
@@ -75,7 +75,7 @@ A operacao usa open, awaiting_homologation e homologated. O operador finaliza co
 
 ## Uploads
 
-`StorageService` grava arquivos fora de `public/storage/private`, com nome aleatorio, MIME detectado por `finfo`, limite de tamanho e extensoes derivadas do MIME. SVG nao e aceito nesta etapa. Assets de identidade e PDFs de regulamento so sao servidos depois de autenticacao e autorizacao do campeonato.
+`StorageService` grava arquivos fora de `public/storage/private`, com nome aleatorio, MIME detectado por `finfo`, limite de tamanho e extensoes derivadas do MIME. `storeOptimizedImage` trata todos os assets visuais, limita a 12 MP, respeita orientacao EXIF, redimensiona sem corte e converte para WebP. SVG nao e aceito nesta etapa. Assets de identidade e PDFs de regulamento so sao servidos depois de autenticacao e autorizacao do campeonato.
 
 ## Limites atuais
 

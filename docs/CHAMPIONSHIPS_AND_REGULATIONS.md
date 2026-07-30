@@ -12,7 +12,7 @@ O dashboard mostra dados reais, identidade, versao do regulamento, organizadores
 
 ## Identidade e uploads
 
-Tema, tres cores, logo, logos para fundos, banner, favicon e imagem social sao armazenados. PNG, JPG, JPEG, WEBP e ICO sao aceitos conforme o campo. O MIME real e validado com `finfo`, o nome final e aleatorio e o arquivo fica em armazenamento privado. SVG nao e aceito.
+Tema, tres cores, logo, logos para fundos, banner, favicon e imagem social sao armazenados. PNG, JPG, JPEG, WEBP e ICO sao aceitos conforme o campo. Exceto favicon, imagens sao corrigidas, reduzidas proporcionalmente e convertidas para WebP. O MIME real e validado com `finfo`, o nome final e aleatorio e o arquivo fica em armazenamento privado. SVG nao e aceito.
 
 PDF de regulamento usa o mesmo armazenamento privado, com limite de 10 MB e acesso autenticado pelo escopo do campeonato.
 

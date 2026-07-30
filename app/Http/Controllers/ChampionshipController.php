@@ -111,20 +111,34 @@ final class ChampionshipController extends Controller
         if (!$this->validCsrf($request)) return Response::forbidden('A sessao expirou.');
         $data = ['default_theme' => 'dark', 'primary_color' => (string) ($request->body['primary_color'] ?? ''), 'secondary_color' => (string) ($request->body['secondary_color'] ?? ''), 'accent_color' => (string) ($request->body['accent_color'] ?? ''), 'logo_path' => $championship['logo_path'], 'logo_light_path' => $championship['logo_light_path'], 'logo_dark_path' => $championship['logo_dark_path'], 'banner_path' => $championship['banner_path'], 'favicon_path' => $championship['favicon_path'], 'social_image_path' => $championship['social_image_path']];
         $errors = [];
+        $uploadedAssets = [];
         foreach (['primary_color', 'secondary_color', 'accent_color'] as $color) if (!ColorRules::valid($data[$color])) $errors[] = 'Use cores no formato #RRGGBB.';
         $fields = ['logo_path', 'logo_light_path', 'logo_dark_path', 'banner_path', 'favicon_path', 'social_image_path'];
         foreach ($fields as $field) {
             if (!isset($request->files[$field]) || ($request->files[$field]['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) continue;
             try {
-                $allowed = $field === 'favicon_path' ? ['image/png', 'image/x-icon', 'image/vnd.microsoft.icon'] : ['image/png', 'image/jpeg', 'image/webp'];
-                $stored = $this->storage->store($request->files[$field], 'championships/' . $championship['id'], $allowed, 5242880);
+                if ($field === 'favicon_path') {
+                    $stored = $this->storage->store($request->files[$field], 'championships/' . $championship['id'], ['image/png', 'image/x-icon', 'image/vnd.microsoft.icon'], 5242880);
+                } else {
+                    $size = match ($field) {
+                        'banner_path' => ['max_width' => 1920, 'max_height' => 1080],
+                        'social_image_path' => ['max_width' => 1200, 'max_height' => 630],
+                        default => ['max_width' => 1400, 'max_height' => 1400, 'quality' => 86],
+                    };
+                    $stored = $this->storage->storeOptimizedImage($request->files[$field], 'championships/' . $championship['id'], $size);
+                }
                 $data[$field] = $stored['path'];
+                $uploadedAssets[$field] = $stored['path'];
             } catch (\Throwable $exception) {
                 $errors[] = $field . ': ' . $exception->getMessage();
             }
         }
-        if ($errors) return $this->errorPage('Identidade', 'admin/championships/identity', ['user' => $guard, 'championship' => array_merge($championship, $data), 'errors' => $errors], 422);
+        if ($errors) {
+            foreach ($uploadedAssets as $path) $this->storage->delete($path);
+            return $this->errorPage('Identidade', 'admin/championships/identity', ['user' => $guard, 'championship' => array_merge($championship, $data), 'errors' => $errors], 422);
+        }
         $this->championships->updateIdentity((int) $championship['id'], $data);
+        foreach ($uploadedAssets as $field => $path) if (!empty($championship[$field]) && $championship[$field] !== $path) $this->storage->delete((string) $championship[$field]);
         $this->audit->record('championships.identity_updated', (int) $guard['id'], 'championship', (int) $championship['id'], ['uploads' => array_values(array_filter(array_map(static fn ($field): ?string => $data[$field] !== $championship[$field] ? $field : null, $fields)))], $request);
         Session::flash('championship_message', 'Identidade atualizada.');
         return Response::redirect(Config::url('/admin/campeonatos/' . $championship['slug']));

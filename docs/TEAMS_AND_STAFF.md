@@ -29,7 +29,7 @@ O campo `document_number` permanece na estrutura para uma futura implementacao p
 
 ## Uploads e auditoria
 
-Escudo da equipe e foto de membro aceitam PNG, JPG, JPEG e WEBP. O MIME, a extensao e o tamanho sao validados; SVG e executaveis sao recusados. Os arquivos recebem nomes aleatorios, ficam fora da area publica e sao acessiveis somente por rota autenticada e autorizada. Substituicoes usam armazenamento privado e limpeza segura do arquivo anterior.
+Escudo da equipe e foto de membro aceitam PNG, JPG, JPEG e WEBP. O MIME, a extensao e o tamanho sao validados; imagens sao corrigidas, reduzidas proporcionalmente e convertidas para WebP. SVG e executaveis sao recusados. Os arquivos recebem nomes aleatorios, ficam fora da area publica e sao acessiveis somente por rota autenticada e autorizada. Substituicoes usam armazenamento privado e limpeza segura do arquivo anterior.
 
 A auditoria cobre criacao, edicao, identidade, status, atribuicao e encerramento de responsaveis, criacao/edicao/status da comissao e alteracao da formacao padrao. A interface mostra textos compreensiveis, sem exibir metadata JSON bruto.
 

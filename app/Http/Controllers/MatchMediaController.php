@@ -28,10 +28,11 @@ final class MatchMediaController extends Controller
         $user = $this->guard($request, 'match_operation.operate'); if ($user instanceof Response) return $user;
         $match = $this->access->matchForUser($user, (int) ($params[0] ?? 0)); if (!$match || !$this->access->canOperate($user, $match)) return Response::forbidden();
         if (!$this->validCsrf($request)) return Response::forbidden('A sessao expirou.');
+        $stored = null;
         try {
-            $stored = $this->storage->store($request->files['photo'] ?? [], 'match-media/' . (int) $match['id'], ['image/png', 'image/jpeg', 'image/webp'], 6291456);
+            $stored = $this->storage->storeOptimizedImage($request->files['photo'] ?? [], 'match-media/' . (int) $match['id'], ['max_width' => 1920, 'max_height' => 1440]);
             $id = $this->media->create(['match_id' => $match['id'], 'championship_id' => $match['championship_id'], 'title' => trim((string) ($request->body['title'] ?? '')) ?: 'Registro da partida', 'caption' => trim((string) ($request->body['caption'] ?? '')) ?: null, 'storage_path' => $stored['path'], 'original_name' => $stored['original_name'], 'mime_type' => $stored['mime'], 'visibility' => in_array($request->body['visibility'] ?? '', ['private', 'accountability', 'public'], true) ? $request->body['visibility'] : 'accountability', 'captured_at' => trim((string) ($request->body['captured_at'] ?? '')) ?: null, 'uploaded_by' => $user['id']]);
-        } catch (\Throwable $exception) { return Response::html('Nao foi possivel enviar a evidencia: ' . $exception->getMessage(), 422); }
+        } catch (\Throwable $exception) { if ($stored) $this->storage->delete($stored['path']); return Response::html('Nao foi possivel enviar a evidencia: ' . $exception->getMessage(), 422); }
         $this->audit->record('match_media.uploaded', (int) $user['id'], 'match_media', $id, ['match_id' => (int) $match['id'], 'mime' => $stored['mime'], 'size' => $stored['size']], $request);
         Session::flash('media_message', 'Evidencia enviada.'); return Response::redirect(Config::url('/admin/partidas/' . $match['id'] . '/evidencias'));
     }

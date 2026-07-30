@@ -35,9 +35,11 @@ final class PartnerController extends Controller
         if (mb_strlen($data['name']) < 2 || mb_strlen($data['name']) > 180) $errors[] = 'Informe o nome do parceiro.';
         if ($data['website_url'] !== '' && !filter_var($data['website_url'], FILTER_VALIDATE_URL)) $errors[] = 'Informe um site válido ou deixe em branco.';
         if (!in_array($data['status'], ['active', 'inactive'], true)) $errors[] = 'Status inválido.';
-        if (isset($request->files['logo']) && ($request->files['logo']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) try { $data['logo_path'] = $this->storage->store($request->files['logo'], 'partners/' . $championship['id'], ['image/png', 'image/jpeg', 'image/webp'], 5242880)['path']; } catch (\Throwable $exception) { $errors[] = $exception->getMessage(); }
+        $newLogoPath = null;
+        if (isset($request->files['logo']) && ($request->files['logo']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) try { $stored = $this->storage->storeOptimizedImage($request->files['logo'], 'partners/' . $championship['id'], ['max_width' => 1200, 'max_height' => 600, 'quality' => 86]); $data['logo_path'] = $stored['path']; $newLogoPath = $stored['path']; } catch (\Throwable $exception) { $errors[] = $exception->getMessage(); }
+        if ($errors !== [] && $newLogoPath) $this->storage->delete($newLogoPath);
         if ($errors !== []) return $this->errorPage('Parceiros do campeonato', 'admin/championships/partners', ['user' => $user, 'championship' => $championship, 'items' => $this->partners->listForChampionship((int) $championship['id']), 'errors' => $errors], 422);
-        if ($existing) { $this->partners->update((int) $existing['id'], $data); $id = (int) $existing['id']; $action = 'updated'; } else { $id = $this->partners->create($data, (int) $user['id']); $action = 'created'; }
+        if ($existing) { $this->partners->update((int) $existing['id'], $data); $id = (int) $existing['id']; $action = 'updated'; if ($newLogoPath && !empty($existing['logo_path']) && $existing['logo_path'] !== $newLogoPath) $this->storage->delete((string) $existing['logo_path']); } else { $id = $this->partners->create($data, (int) $user['id']); $action = 'created'; }
         $this->audit->record('championship_partner.' . $action, (int) $user['id'], 'championship_sponsor', $id, ['championship_id' => $championship['id'], 'partner_type' => $data['partner_type']], $request);
         Session::flash('partner_message', 'Parceiro salvo.');
         return Response::redirect(Config::url('/admin/campeonatos/' . $championship['slug'] . '/parceiros'));

@@ -33,7 +33,7 @@ O portal exige campeonato publico e noticia publicada/agendada com `published_at
 
 ## Upload
 
-`NewsImageService` usa `finfo`, `getimagesize` e GD. Aceita JPEG, PNG e WebP ate 5 MB, bloqueia dimensoes acima de 6000x6000, reamostra para no maximo 1600x1000 e grava JPEG com nome aleatorio fora de `public`. A rota publica so le o caminho associado a uma noticia publicada.
+`NewsImageService` usa o processador central com `finfo`, `getimagesize`, EXIF e GD. Aceita JPEG, PNG e WebP ate o limite configurado (12 MiB por padrao), bloqueia imagens acima de 12 MP, reamostra para no maximo 1600x1000 e grava WebP com nome aleatorio fora de `public`. A rota publica so le o caminho associado a uma noticia publicada.
 
 ## Seed e testes
 

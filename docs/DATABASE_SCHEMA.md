@@ -144,7 +144,7 @@ O PDF nao fica em coluna binaria. `storage_path` aponta para armazenamento priva
 |---|---|
 | `news_articles` | noticias por campeonato, autor, conteudo, capa, status, publicacao, destaque e exclusao logica |
 
-Capas sao reprocessadas para JPEG e ficam fora de `public`. O portal consulta apenas campeonatos publicos e noticias publicadas cuja data ja chegou.
+Capas sao reprocessadas para WebP e ficam fora de `public`. O portal consulta apenas campeonatos publicos e noticias publicadas cuja data ja chegou.
 
 ## Tabelas da Etapa 14
 

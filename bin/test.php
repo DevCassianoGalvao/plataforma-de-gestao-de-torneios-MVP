@@ -19,6 +19,7 @@ require dirname(__DIR__) . '/tests/Unit/AuthTest.php';
 require dirname(__DIR__) . '/tests/Unit/ChampionshipTest.php';
 require dirname(__DIR__) . '/tests/Unit/TeamTest.php';
 require dirname(__DIR__) . '/tests/Unit/AthleteTest.php';
+require dirname(__DIR__) . '/tests/Unit/ImageUploadTest.php';
 require dirname(__DIR__) . '/tests/Unit/RegistrationTest.php';
 require dirname(__DIR__) . '/tests/Unit/ScheduleTest.php';
 require dirname(__DIR__) . '/tests/Unit/LineupTest.php';
@@ -71,6 +72,7 @@ use Tests\Unit\AuthTest;
 use Tests\Unit\ChampionshipTest;
 use Tests\Unit\TeamTest;
 use Tests\Unit\AthleteTest;
+use Tests\Unit\ImageUploadTest;
 use Tests\Unit\RegistrationTest;
 use Tests\Unit\ScheduleTest;
 use Tests\Unit\LineupTest;
@@ -123,6 +125,7 @@ try {
     ChampionshipTest::run();
     TeamTest::run();
     AthleteTest::run();
+    ImageUploadTest::run();
     RegistrationTest::run();
     ScheduleTest::run();
     LineupTest::run();
@@ -166,7 +169,7 @@ try {
     PublicPortalHttpTest::run();
     ProductionReadinessHttpTest::run();
     TournamentProgressSeedIntegrationTest::run();
-    echo "MVP_TESTS_OK unit=16 integration=16 http=16\n";
+    echo "MVP_TESTS_OK unit=17 integration=16 http=16\n";
 } finally {
     Database::disconnect();
     $server->exec('DROP DATABASE IF EXISTS ' . $quoted);

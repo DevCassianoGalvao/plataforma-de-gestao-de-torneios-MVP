@@ -160,17 +160,21 @@ final class TeamController extends Controller
         if (!$this->validCsrf($request)) return Response::forbidden('A sessao expirou.');
         $data = ['primary_color' => (string) ($request->body['primary_color'] ?? ''), 'secondary_color' => (string) ($request->body['secondary_color'] ?? ''), 'shield_path' => $team['shield_path']];
         $errors = [];
+        $stored = null;
         foreach (['primary_color', 'secondary_color'] as $color) if (!ColorRules::valid($data[$color])) $errors[] = 'Use cores no formato #RRGGBB.';
         $file = $request->files['shield'] ?? [];
         if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
             try {
-                $stored = $this->storage->store($file, 'teams/' . $team['id'], ['image/png', 'image/jpeg', 'image/webp'], 5242880);
+                $stored = $this->storage->storeOptimizedImage($file, 'teams/' . $team['id'], ['max_width' => 1200, 'max_height' => 1200, 'quality' => 86]);
                 $data['shield_path'] = $stored['path'];
             } catch (\Throwable $exception) {
                 $errors[] = $exception->getMessage();
             }
         }
-        if ($errors) return $this->errorPage('Identidade da equipe', 'admin/teams/identity', ['user' => $guard, 'team' => array_merge($team, $data), 'errors' => $errors], 422);
+        if ($errors) {
+            if ($stored) $this->storage->delete($stored['path']);
+            return $this->errorPage('Identidade da equipe', 'admin/teams/identity', ['user' => $guard, 'team' => array_merge($team, $data), 'errors' => $errors], 422);
+        }
         $this->teams->updateIdentity((int) $team['id'], $data);
         if ($team['shield_path'] && $team['shield_path'] !== $data['shield_path']) $this->storage->delete((string) $team['shield_path']);
         $this->audit->record('teams.identity_updated', (int) $guard['id'], 'team', (int) $team['id'], ['shield_changed' => $team['shield_path'] !== $data['shield_path']], $request);
@@ -289,19 +293,24 @@ final class TeamController extends Controller
             if (!$candidate || $candidate['status'] !== 'active' || !in_array('team_manager', $this->authorization->roleKeys($candidate), true)) $errors[] = 'O usuario vinculado deve estar ativo e possuir perfil de treinador ou gestor.';
         }
         $file = $request->files['photo'] ?? [];
+        $stored = null;
         if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
             try {
-                $stored = $this->storage->store($file, 'team-staff/' . $team['id'], ['image/png', 'image/jpeg', 'image/webp'], 5242880);
+                $stored = $this->storage->storeOptimizedImage($file, 'team-staff/' . $team['id'], ['max_width' => 1200, 'max_height' => 1200]);
                 $data['photo_path'] = $stored['path'];
             } catch (\Throwable $exception) {
                 $errors[] = $exception->getMessage();
             }
         }
-        if ($errors) return $this->staffError($guard, $team, $data, $errors, $editing);
+        if ($errors) {
+            if ($stored) $this->storage->delete($stored['path']);
+            return $this->staffError($guard, $team, $data, $errors, $editing);
+        }
         try {
             $id = $editing ? (int) $record['id'] : $this->staff->create((int) $team['id'], $data);
             if ($editing) $this->staff->update($id, $data);
         } catch (\PDOException) {
+            if ($stored) $this->storage->delete($stored['path']);
             return $this->staffError($guard, $team, $data, ['Ja existe um membro com esse nome nesta equipe.'], $editing);
         }
         if ($editing && $record['photo_path'] && $record['photo_path'] !== $data['photo_path']) $this->storage->delete((string) $record['photo_path']);

@@ -31,7 +31,7 @@ final class NewsIntegrationTest
         $temporary = tempnam(sys_get_temp_dir(), 'news-inline-'); file_put_contents($temporary, base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII='));
         $inline = ['error' => UPLOAD_ERR_OK, 'size' => filesize($temporary), 'tmp_name' => $temporary, 'name' => 'inline.png'];
         $withImage = $service->save($admin, ['championship_id' => $championshipId, 'title' => 'Noticia com imagem', 'slug' => 'noticia-com-imagem', 'summary' => 'Resumo', 'content' => "Primeiro paragrafo\n[[imagem]]\nUltimo paragrafo", 'status' => 'draft'], null, null, $inline); assert_true($withImage['ok'], 'Imagem no conteudo nao foi salva');
-        $imageArticle = $repository->find((int) $withImage['id']); assert_true($imageArticle !== null && preg_match('/\[\[imagem:news\/content\/[a-f0-9]{32}\.jpg\]\]/', (string) $imageArticle['content']) === 1, 'Marcador da imagem no conteudo nao foi persistido');
+        $imageArticle = $repository->find((int) $withImage['id']); assert_true($imageArticle !== null && preg_match('/\[\[imagem:news\/content\/[a-f0-9]{32}\.webp\]\]/', (string) $imageArticle['content']) === 1, 'Marcador da imagem no conteudo nao foi persistido');
         if ($imageArticle && preg_match('/\[\[imagem:(news\/content\/[^\]]+)\]\]/', (string) $imageArticle['content'], $match) === 1) $storage->delete($match[1]); @unlink($temporary);
         $service->delete($newsId, (int) $admin['id']); assert_true($repository->find($newsId) === null, 'Exclusao logica nao ocultou noticia');
     }

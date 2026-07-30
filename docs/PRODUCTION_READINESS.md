@@ -2,7 +2,7 @@
 
 ## Instalacao limpa
 
-Requisitos: PHP 8.2 com PDO MySQL, fileinfo, openssl, cURL, GD e ZipArchive; MySQL 8 ou MariaDB compativel; acesso de escrita somente em `storage` e `public/uploads`.
+Requisitos: PHP 8.2 com PDO MySQL, fileinfo, openssl, cURL, GD com suporte a WebP e EXIF, ZipArchive; MySQL 8 ou MariaDB compativel; acesso de escrita somente em `storage` e `public/uploads`.
 
 1. Copie `.env.example` para `.env`.
 2. Gere uma chave exclusiva: `php -r "echo 'base64:'.base64_encode(random_bytes(32)), PHP_EOL;"`.
@@ -23,6 +23,7 @@ O instalador nao inventa credenciais, nao executa seed em producao e falha se `A
 - Guardas de permissao e escopo permanecem no servidor; IDs nao substituem autorizacao.
 - Storage rejeita caminhos absolutos, nulos e segmentos `..`; arquivos privados ficam fora de `public`.
 - Uploads verificam MIME real, extensao, tamanho e processamento; arquivos executaveis nao sao aceitos.
+- Fotos, escudos, logos, banners, capas, avatares, patrocinadores e evidencias passam por correcao EXIF, limite de 12 MP, redimensionamento proporcional e conversao para WebP. O envio aceita ate 12 MiB por padrao (`IMAGE_UPLOAD_MAX_BYTES`); documentos e favicon permanecem no formato original.
 - Login possui limite por janela, registro de tentativas, bloqueio temporario e mensagem generica.
 - Redirects de login aceitam somente caminhos locais normalizados.
 - Em producao, stack trace e mensagens de excecao nao sao exibidos.

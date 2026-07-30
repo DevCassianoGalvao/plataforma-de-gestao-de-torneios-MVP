@@ -80,14 +80,16 @@ final class AthleteController extends Controller
         $stored = null;
         if (($request->files['photo']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
             try {
-                UploadRules::validate($request->files['photo'], ['image/png' => ['png'], 'image/jpeg' => ['jpg', 'jpeg'], 'image/webp' => ['webp']], 5242880);
-                $stored = $this->storage->store($request->files['photo'], 'athletes/' . $data['team_id'], ['image/png', 'image/jpeg', 'image/webp'], 5242880);
+                $stored = $this->storage->storeOptimizedImage($request->files['photo'], 'athletes/' . $data['team_id'], ['max_width' => 1400, 'max_height' => 1400]);
                 $data['photo_path'] = $stored['path'];
             } catch (\Throwable $exception) {
                 $errors[] = $exception->getMessage();
             }
         }
-        if ($errors) return $this->formError($guard, $data, $guardianData, $errors, false, 422);
+        if ($errors) {
+            if ($stored) $this->storage->delete($stored['path']);
+            return $this->formError($guard, $data, $guardianData, $errors, false, 422);
+        }
         try {
             $id = $this->athletes->create($data, (int) $guard['id']);
             $this->athletes->syncSecondaryPositions($id, $data['secondary_position_ids']);
@@ -147,15 +149,17 @@ final class AthleteController extends Controller
         $stored = null;
         if (($request->files['photo']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
             try {
-                UploadRules::validate($request->files['photo'], ['image/png' => ['png'], 'image/jpeg' => ['jpg', 'jpeg'], 'image/webp' => ['webp']], 5242880);
-                $stored = $this->storage->store($request->files['photo'], 'athletes/' . $data['team_id'], ['image/png', 'image/jpeg', 'image/webp'], 5242880);
+                $stored = $this->storage->storeOptimizedImage($request->files['photo'], 'athletes/' . $data['team_id'], ['max_width' => 1400, 'max_height' => 1400]);
                 $data['photo_path'] = $stored['path'];
             } catch (\Throwable $exception) {
                 $errors[] = $exception->getMessage();
             }
         }
         if ($this->athletes->duplicateExists((int) $data['team_id'], $data['full_name'], $data['birth_date'], (int) $athlete['id'])) $errors[] = 'Ja existe atleta com este nome e data de nascimento nesta equipe.';
-        if ($errors) return $this->formError($guard, array_merge($athlete, $data), $guardianData, $errors, true, 422);
+        if ($errors) {
+            if ($stored) $this->storage->delete($stored['path']);
+            return $this->formError($guard, array_merge($athlete, $data), $guardianData, $errors, true, 422);
+        }
         try {
             $this->athletes->update((int) $athlete['id'], $data);
             $this->athletes->syncSecondaryPositions((int) $athlete['id'], $data['secondary_position_ids']);

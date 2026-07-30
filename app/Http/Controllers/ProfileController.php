@@ -82,7 +82,7 @@ final class ProfileController extends Controller
             return $this->errorPage('Meu perfil', 'admin/profile', ['user' => $guard, 'message' => null, 'errors' => ['A sessão expirou.']], 419);
         }
         try {
-            $stored = $this->storage->store($request->files['avatar'] ?? [], 'profiles/' . (int) $guard['id'], ['image/png', 'image/jpeg', 'image/webp'], 2097152);
+            $stored = $this->storage->storeOptimizedImage($request->files['avatar'] ?? [], 'profiles/' . (int) $guard['id'], ['max_width' => 800, 'max_height' => 800]);
         } catch (\Throwable $exception) {
             return $this->errorPage('Meu perfil', 'admin/profile', ['user' => $guard, 'message' => null, 'errors' => ['Foto de perfil: ' . $exception->getMessage()]], 422);
         }

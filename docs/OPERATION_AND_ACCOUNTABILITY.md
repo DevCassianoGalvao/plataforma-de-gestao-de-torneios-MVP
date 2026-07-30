@@ -8,7 +8,7 @@ Na homologacao, o sistema executa a cadeia derivada: processa disciplina, gera a
 
 ## Operador e evidencias
 
-`/minhas-partidas` mostra somente partidas atribuidas ao usuario operador. A atribuicao e feita pelo organizador na pagina da partida. O operador pode enviar fotografias PNG, JPEG ou WebP de ate 6 MiB em `Evidencias`; o MIME e verificado no servidor, o arquivo vai para armazenamento privado e cada upload gera auditoria.
+`/minhas-partidas` mostra somente partidas atribuidas ao usuario operador. A atribuicao e feita pelo organizador na pagina da partida. O operador pode enviar fotografias PNG, JPEG ou WebP de ate 12 MiB por padrao em `Evidencias`; o MIME e verificado no servidor, a orientacao e corrigida, a imagem e reduzida e convertida para WebP no armazenamento privado. Cada upload gera auditoria.
 
 Visibilidades: `private`, `accountability` e `public`. A interface publica nao carrega arquivos privados. A publicacao de uma foto exige rota publica especifica em etapa posterior; nesta entrega ela permanece protegida no painel e no modulo de prestacao.
 

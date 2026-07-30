@@ -74,7 +74,7 @@ final class NewsController extends Controller
 
     public function adminCover(Request $request, array $params = []): Response
     {
-        $guard = $this->guard($request, 'content.manage'); if ($guard instanceof Response) return $guard; $article = $this->articleForUser($guard, (int) ($params[0] ?? 0)); if (!$article || !$article['cover_image_path']) return Response::html('Imagem nao encontrada.', 404); $file = $this->storage->read((string) $article['cover_image_path']); if (!$file) return Response::html('Imagem nao encontrada.', 404); return Response::binary($file['body'], $file['mime'], 'capa-noticia.jpg');
+        $guard = $this->guard($request, 'content.manage'); if ($guard instanceof Response) return $guard; $article = $this->articleForUser($guard, (int) ($params[0] ?? 0)); if (!$article || !$article['cover_image_path']) return Response::html('Imagem nao encontrada.', 404); $file = $this->storage->read((string) $article['cover_image_path']); if (!$file) return Response::html('Imagem nao encontrada.', 404); return Response::binary($file['body'], $file['mime'], 'capa-noticia.webp');
     }
 
     public function adminContentImage(Request $request, array $params = []): Response

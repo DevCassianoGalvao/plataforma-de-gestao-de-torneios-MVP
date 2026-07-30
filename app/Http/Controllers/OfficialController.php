@@ -46,9 +46,11 @@ final class OfficialController extends Controller
         if (mb_strlen($data['full_name']) < 3 || mb_strlen($data['full_name']) > 180) $errors[] = 'Informe o nome completo.';
         if (!in_array($data['role'], ['referee', 'assistant', 'fourth_official', 'scorekeeper', 'coordinator'], true)) $errors[] = 'Função inválida.';
         if (!in_array($data['status'], ['active', 'inactive'], true)) $errors[] = 'Status inválido.';
-        if (isset($request->files['photo']) && ($request->files['photo']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) try { $data['photo_path'] = $this->storage->store($request->files['photo'], 'officials/' . $data['championship_id'], ['image/png', 'image/jpeg', 'image/webp'], 5242880)['path']; } catch (\Throwable $exception) { $errors[] = $exception->getMessage(); }
+        $newPhotoPath = null;
+        if (isset($request->files['photo']) && ($request->files['photo']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) try { $stored = $this->storage->storeOptimizedImage($request->files['photo'], 'officials/' . $data['championship_id'], ['max_width' => 1200, 'max_height' => 1200]); $data['photo_path'] = $stored['path']; $newPhotoPath = $stored['path']; } catch (\Throwable $exception) { $errors[] = $exception->getMessage(); }
+        if ($errors !== [] && $newPhotoPath) $this->storage->delete($newPhotoPath);
         if ($errors !== []) return $this->errorPage($existing ? 'Editar árbitro' : 'Novo árbitro', 'admin/officials/form', ['user' => $user, 'record' => array_merge($existing ?: [], $data), 'championships' => $this->available($user), 'errors' => $errors], 422);
-        if ($existing) { $this->officials->update((int) $existing['id'], $data); $id = (int) $existing['id']; $action = 'updated'; } else { $id = $this->officials->create($data, (int) $user['id']); $action = 'created'; }
+        if ($existing) { $this->officials->update((int) $existing['id'], $data); $id = (int) $existing['id']; $action = 'updated'; if ($newPhotoPath && !empty($existing['photo_path']) && $existing['photo_path'] !== $newPhotoPath) $this->storage->delete((string) $existing['photo_path']); } else { $id = $this->officials->create($data, (int) $user['id']); $action = 'created'; }
         $this->audit->record('official.' . $action, (int) $user['id'], 'championship_official', $id, ['championship_id' => $data['championship_id']], $request);
         Session::flash('official_message', 'Cadastro de arbitragem salvo.');
         return Response::redirect(Config::url('/admin/arbitros?championship_id=' . $data['championship_id']));

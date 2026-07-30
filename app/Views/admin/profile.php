@@ -11,7 +11,7 @@
             <div><strong><?= $e($user['name']) ?></strong><small><?= $e($user['email']) ?></small></div>
             <form method="post" enctype="multipart/form-data" action="<?= $e(App\Core\Config::url('/admin/perfil/foto')) ?>">
                 <input type="hidden" name="_csrf" value="<?= $e(App\Core\Security::csrfToken()) ?>">
-                <label class="file-picker">Foto do perfil <input type="file" name="avatar" accept="image/png,image/jpeg,image/webp" required><span>PNG, JPG ou WebP, até 2 MB</span></label>
+                <label class="file-picker">Foto do perfil <input type="file" name="avatar" accept="image/png,image/jpeg,image/webp" required><span>PNG, JPG ou WebP. Otimizada e convertida para WebP automaticamente.</span></label>
                 <button type="submit" class="button secondary">Atualizar foto</button>
             </form>
         </aside>

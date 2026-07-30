@@ -50,6 +50,68 @@ final class StorageService
         return ['path' => str_replace('\\', '/', $relativeDirectory . '/' . $filename), 'mime' => $mime, 'size' => $size, 'original_name' => basename((string) ($file['name'] ?? 'arquivo'))];
     }
 
+    /**
+     * Validates, orients, scales and converts a user supplied image to WebP before storage.
+     * Original files are deliberately not retained to keep private storage and transfer costs low.
+     */
+    public function storeOptimizedImage(array $file, string $directory, array $options = []): array
+    {
+        if (!function_exists('imagecreatefromstring') || !function_exists('imagewebp')) {
+            throw new \RuntimeException('O servidor precisa da extensao GD com suporte a WebP para receber imagens.');
+        }
+
+        $maxBytes = (int) ($options['max_bytes'] ?? self::imageUploadLimit());
+        $maxWidth = max(1, (int) ($options['max_width'] ?? 1920));
+        $maxHeight = max(1, (int) ($options['max_height'] ?? 1440));
+        $maxPixels = max(1, (int) ($options['max_pixels'] ?? 12000000));
+        $quality = min(100, max(1, (int) ($options['quality'] ?? 82)));
+        $validated = UploadRules::validate($file, ['image/jpeg' => ['jpg', 'jpeg'], 'image/png' => ['png'], 'image/webp' => ['webp']], $maxBytes);
+        $temporary = (string) $file['tmp_name'];
+        $dimensions = @getimagesize($temporary);
+        if ($dimensions === false || (int) $dimensions[0] < 1 || (int) $dimensions[1] < 1 || ((int) $dimensions[0] * (int) $dimensions[1]) > $maxPixels) {
+            throw new \RuntimeException('A imagem possui dimensoes invalidas ou excede o limite de 12 megapixels.');
+        }
+
+        $source = @imagecreatefromstring((string) file_get_contents($temporary));
+        if ($source === false) {
+            throw new \RuntimeException('Nao foi possivel processar a imagem enviada.');
+        }
+
+        $optimized = null;
+        $output = tempnam(sys_get_temp_dir(), 'torneio-image-');
+        if ($output === false) {
+            imagedestroy($source);
+            throw new \RuntimeException('Nao foi possivel preparar a otimizacao da imagem.');
+        }
+
+        try {
+            $source = $this->orientImage($source, $temporary, $validated['mime']);
+            $width = imagesx($source);
+            $height = imagesy($source);
+            $scale = min(1, $maxWidth / $width, $maxHeight / $height);
+            $targetWidth = max(1, (int) round($width * $scale));
+            $targetHeight = max(1, (int) round($height * $scale));
+            $optimized = imagecreatetruecolor($targetWidth, $targetHeight);
+            imagealphablending($optimized, false);
+            imagesavealpha($optimized, true);
+            $transparent = imagecolorallocatealpha($optimized, 0, 0, 0, 127);
+            imagefill($optimized, 0, 0, $transparent);
+            if (!imagecopyresampled($optimized, $source, 0, 0, 0, 0, $targetWidth, $targetHeight, $width, $height) || !imagewebp($optimized, $output, $quality)) {
+                throw new \RuntimeException('Nao foi possivel otimizar a imagem enviada.');
+            }
+            clearstatcache(true, $output);
+            $stored = $this->store(['error' => UPLOAD_ERR_OK, 'size' => (int) filesize($output), 'tmp_name' => $output, 'name' => 'imagem.webp'], $directory, ['image/webp'], $maxBytes);
+            $baseName = preg_replace('/[^A-Za-z0-9._-]+/', '-', pathinfo(basename((string) ($file['name'] ?? 'imagem')), PATHINFO_FILENAME)) ?: 'imagem';
+            $baseName = trim($baseName, '.-') ?: 'imagem';
+            $stored['original_name'] = $baseName . '.webp';
+            return $stored;
+        } finally {
+            imagedestroy($source);
+            if ($optimized !== null) imagedestroy($optimized);
+            @unlink($output);
+        }
+    }
+
     public function read(string $relativePath): ?array
     {
         $path = $this->absolutePath($relativePath);
@@ -128,6 +190,39 @@ final class StorageService
             'application/pdf' => 'pdf',
             default => throw new \RuntimeException('Extensao de arquivo nao permitida.'),
         };
+    }
+
+    private static function imageUploadLimit(): int
+    {
+        $configured = filter_var(getenv('IMAGE_UPLOAD_MAX_BYTES') ?: 12582912, FILTER_VALIDATE_INT);
+        return is_int($configured) && $configured >= 1048576 && $configured <= 20971520 ? $configured : 12582912;
+    }
+
+    private function orientImage($image, string $path, string $mime)
+    {
+        if ($mime !== 'image/jpeg' || !function_exists('exif_read_data')) {
+            return $image;
+        }
+        $exif = @exif_read_data($path, 'IFD0');
+        $orientation = (int) (is_array($exif) ? ($exif['Orientation'] ?? 1) : 1);
+        if ($orientation === 2 && function_exists('imageflip')) imageflip($image, IMG_FLIP_HORIZONTAL);
+        if ($orientation === 3) return $this->rotateImage($image, 180);
+        if ($orientation === 4 && function_exists('imageflip')) imageflip($image, IMG_FLIP_VERTICAL);
+        if ($orientation === 5 && function_exists('imageflip')) { imageflip($image, IMG_FLIP_VERTICAL); return $this->rotateImage($image, -90); }
+        if ($orientation === 6) return $this->rotateImage($image, -90);
+        if ($orientation === 7 && function_exists('imageflip')) { imageflip($image, IMG_FLIP_HORIZONTAL); return $this->rotateImage($image, -90); }
+        if ($orientation === 8) return $this->rotateImage($image, 90);
+        return $image;
+    }
+
+    private function rotateImage($image, int $degrees)
+    {
+        $rotated = imagerotate($image, $degrees, 0);
+        if ($rotated === false) {
+            throw new \RuntimeException('Nao foi possivel corrigir a orientacao da imagem.');
+        }
+        imagedestroy($image);
+        return $rotated;
     }
 
     private function prepareDirectory(string $directory): void

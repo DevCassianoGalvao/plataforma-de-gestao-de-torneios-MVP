@@ -24,6 +24,19 @@ O nome do banco pode conter letras, numeros, underscore e hifen, por exemplo `xd
 6. Nao execute `--seed` em producao.
 7. Teste `/login`, uma rota administrativa autorizada, um download privado autorizado e `/torneio-online/campeonatos/{slug}`.
 
+## Imagens otimizadas
+
+No `MultiPHP INI Editor` do cPanel, mantenha a extensao `gd` com suporte a WebP e `exif` habilitadas. Para aceitar o limite padrao do sistema, configure pelo menos:
+
+```text
+upload_max_filesize = 12M
+post_max_size = 14M
+memory_limit = 256M
+max_execution_time = 60
+```
+
+O sistema aceita JPEG, PNG e WebP, corrige orientacao de celulares, limita imagens a 12 MP, redimensiona proporcionalmente e salva WebP. `IMAGE_UPLOAD_MAX_BYTES=12582912` controla o limite de entrada da aplicacao; nao defina valor maior que o `upload_max_filesize` do PHP. Favicon e documentos permanecem no formato enviado.
+
 O `.htaccess` da raiz impede listagem, bloqueia o codigo privado e encaminha as requisicoes para `public`. O `public/.htaccess` trata as requisicoes quando `public` e o Document Root. O `public/uploads/.htaccess` impede execucao de scripts em uploads publicos.
 
 ## Cron e operacao
