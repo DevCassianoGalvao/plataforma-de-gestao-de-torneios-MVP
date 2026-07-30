@@ -190,6 +190,16 @@
         });
     });
 
+    document.querySelectorAll('[data-color-field]').forEach(function (field) {
+        var picker = field.querySelector('input[type="color"]');
+        var code = field.querySelector('[data-color-code]');
+        if (!picker || !code) return;
+        var renderColor = function () { code.textContent = picker.value.toUpperCase(); };
+        picker.addEventListener('input', renderColor);
+        picker.addEventListener('change', renderColor);
+        renderColor();
+    });
+
     var portalBody = document.querySelector('[data-portal-primary]');
     if (portalBody) {
         ['primary', 'secondary', 'accent'].forEach(function (key) {

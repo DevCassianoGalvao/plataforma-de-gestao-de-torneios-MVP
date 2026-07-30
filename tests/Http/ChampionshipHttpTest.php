@@ -62,6 +62,9 @@ final class ChampionshipHttpTest
         $publish = $router->dispatch(Request::fake('POST', '/torneio-online/admin/campeonatos/copa-brasil-de-talentos-2026/regulamento/publicar', ['_csrf' => Security::csrfToken()]));
         assert_same(302, $publish->status, 'Organizador nao publicou regulamento');
         assert_same(200, $router->dispatch(Request::fake('GET', '/torneio-online/admin/campeonatos/copa-brasil-de-talentos-2026/regulamento/versoes'))->status, 'Historico de regulamentos nao abriu');
+        $identityPage = $router->dispatch(Request::fake('GET', '/torneio-online/admin/campeonatos/copa-brasil-de-talentos-2026/identidade'));
+        assert_same(200, $identityPage->status, 'Organizador nao abriu identidade do campeonato');
+        assert_true(str_contains($identityPage->body, 'data-color-field') && str_contains($identityPage->body, 'Paleta do campeonato'), 'Seletor visual de cores nao foi renderizado');
         $tmp = tempnam(sys_get_temp_dir(), 'mvp-http-logo-');
         file_put_contents($tmp, base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII='));
         $identity = $router->dispatch(Request::fake('POST', '/torneio-online/admin/campeonatos/copa-brasil-de-talentos-2026/identidade', ['_csrf' => Security::csrfToken(), 'default_theme' => 'light', 'primary_color' => '#123C32', 'secondary_color' => '#245C4A', 'accent_color' => '#D9A441'], ['logo_path' => ['error' => UPLOAD_ERR_OK, 'size' => filesize($tmp), 'tmp_name' => $tmp, 'name' => 'logo.png']]));

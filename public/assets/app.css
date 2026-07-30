@@ -140,6 +140,20 @@ button.danger, .button.danger { background: var(--ui-danger); border-color: var(
 .check input, .checkbox-line input, .choice-grid input { width: auto; }
 fieldset { display: grid; gap: .75rem; padding: 1rem; border: 1px solid var(--ui-border); border-radius: var(--ui-radius); }
 legend { padding: 0 .35rem; color: var(--ui-text-muted); font: 600 .75rem "Hanken Grotesk", sans-serif; text-transform: uppercase; letter-spacing: .08em; }
+.color-settings { gap: 1rem; padding: 1.1rem; background: color-mix(in srgb, var(--ui-surface-2) 78%, var(--ui-bg-deep)); }
+.color-settings-help { margin: -.2rem 0 0; font-size: .84rem; }
+.color-picker-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem; }
+.color-control { display: flex; min-height: 6.4rem; align-items: center; justify-content: space-between; gap: .9rem; padding: .9rem; background: var(--ui-surface); border: 1px solid var(--ui-border); border-radius: var(--ui-radius-lg); cursor: pointer; transition: border-color var(--ui-speed), background var(--ui-speed), transform var(--ui-speed); }
+.color-control:hover { background: var(--ui-surface-3); border-color: var(--ui-border-strong); transform: translateY(-1px); }
+.color-control-copy { display: grid; gap: .2rem; min-width: 0; }
+.color-control-copy strong { color: var(--ui-text); font-size: .9rem; }
+.color-control-copy small { color: var(--ui-text-muted); font-size: .73rem; font-weight: 400; }
+.color-control-picker { display: grid; justify-items: center; gap: .35rem; flex: 0 0 auto; }
+input.color-picker { width: 3.25rem; height: 3.25rem; min-height: 3.25rem; padding: .18rem; cursor: pointer; background: var(--ui-bg-deep); border: 1px solid var(--ui-border-strong); border-radius: 50%; }
+input.color-picker::-webkit-color-swatch-wrapper { padding: 0; }
+input.color-picker::-webkit-color-swatch { border: 0; border-radius: 50%; }
+input.color-picker::-moz-color-swatch { border: 0; border-radius: 50%; }
+.color-control output { color: var(--ui-text-soft); font: 600 .68rem/1 "JetBrains Mono", monospace; letter-spacing: .02em; }
 .grid-links, .portal-card-grid, .news-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; margin-top: 1.35rem; }
 .link-card, .portal-card, .news-card { display: grid; gap: .35rem; min-width: 0; padding: 1rem; background: var(--ui-surface-2); border: 1px solid var(--ui-border); border-radius: var(--ui-radius); color: var(--ui-text); text-decoration: none; }
 .link-card:hover, .portal-card:hover, .news-card:hover { background: var(--ui-surface-3); border-color: var(--ui-border-strong); color: var(--ui-text); }
@@ -1969,6 +1983,8 @@ body.public-portal .public-lineup-reserves b { color: var(--portal-copy); }
     .actions button, .actions .button, .inline-actions button, .inline-actions .button, .action-nav button, .action-nav .button { width: 100%; }
     .inline-form, .search-form, .filter-bar, .filters { align-items: stretch; }
     .inline-form label, .search-form label, .filter-bar label, .filters label { min-width: 0; flex-basis: 100%; }
+    .color-picker-grid { grid-template-columns: 1fr; }
+    .color-control { min-height: 5.35rem; }
     .inline-form button, .search-form button, .filter-bar button, .filters button { width: 100%; }
     input:not([type="checkbox"]):not([type="radio"]), select, textarea { font-size: 16px; }
     .table-wrap, .ranking-table { width: 100%; overscroll-behavior-inline: contain; -webkit-overflow-scrolling: touch; }
