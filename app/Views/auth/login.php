@@ -1,8 +1,7 @@
 <div class="auth-screen">
     <section class="auth-visual" aria-label="Plataforma de gestão de torneios">
         <a class="auth-brand" href="<?= App\Core\View::e(App\Core\Config::url('/')) ?>">
-            <span class="brand-mark" aria-hidden="true">TM</span>
-            <span>TORNEIOS<small>MVP / COMMAND</small></span>
+            <img class="auth-brand-logo" src="<?= App\Core\View::e(App\Core\Config::url('/assets/branding/torneio-online-web-app.png')) ?>" alt="Torneio Online Web App">
         </a>
         <div class="auth-visual-copy">
             <p class="eyebrow">Centro de comando esportivo</p>
@@ -29,7 +28,7 @@
                 <button type="submit">Entrar no painel</button>
             </form>
             <div class="auth-meta"><span>Ambiente protegido</span><a href="<?= App\Core\View::e(App\Core\Config::url('/senha/esqueci')) ?>">Esqueci minha senha</a></div>
-            <p class="auth-footer">Plataforma de Gestão de Torneios MVP</p>
+            <p class="auth-footer">Torneio Online Web App</p>
         </div>
     </section>
 </div>

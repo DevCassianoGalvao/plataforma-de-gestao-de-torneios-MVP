@@ -14,9 +14,10 @@ $assetUrl = static function (string $asset): string {
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?= $e($seo['title'] ?? $title) ?></title>
+    <title><?= $e(($seo['title'] ?? $title) . ' | Torneio Online Web App') ?></title>
     <meta name="description" content="<?= $e($seo['description'] ?? '') ?>">
     <link rel="canonical" href="<?= $e($seo['canonical'] ?? '') ?>">
+    <link rel="icon" type="image/png" href="<?= $e($assetUrl('branding/favicon.png')) ?>">
     <?php if (!empty($seo['favicon'])): ?><link rel="icon" href="<?= $e($seo['favicon']) ?>"><?php endif; ?>
     <?php if (!empty($seo['image'])): ?><meta property="og:image" content="<?= $e($seo['image']) ?>"><meta name="twitter:card" content="summary_large_image"><?php endif; ?>
     <meta property="og:title" content="<?= $e($seo['title'] ?? $title) ?>">
@@ -44,7 +45,7 @@ $assetUrl = static function (string $asset): string {
             <?php endforeach; ?>
         </section>
     <?php endif; ?>
-    <footer class="portal-footer"><div><strong><?= $e($championship['name']) ?></strong><span><?= $e($championship['category_name']) ?> | <?= $e($championship['season_name']) ?></span><small>Desenvolvido por Torneio Online Web App</small></div><nav aria-label="Informações do campeonato"><a href="<?= $e($base . '/atletas') ?>">Atletas</a><a href="<?= $e($base . '/artilharia') ?>">Artilharia</a><a href="<?= $e($base . '/regulamento') ?>">Regulamento</a></nav></footer>
+    <footer class="portal-footer"><div><strong><?= $e($championship['name']) ?></strong><span><?= $e($championship['category_name']) ?> | <?= $e($championship['season_name']) ?></span></div><nav aria-label="Informações do campeonato"><a href="<?= $e($base . '/atletas') ?>">Atletas</a><a href="<?= $e($base . '/artilharia') ?>">Artilharia</a><a href="<?= $e($base . '/regulamento') ?>">Regulamento</a></nav><span class="portal-product-brand"><img src="<?= $e($assetUrl('branding/torneio-online-web-app.png')) ?>" alt="Torneio Online Web App"><small>Desenvolvido por Torneio Online Web App</small></span></footer>
     <script src="<?= $e($assetUrl('app.js')) ?>" defer></script>
 </body>
 </html>

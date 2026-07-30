@@ -56,6 +56,7 @@ small, .muted { color: var(--ui-text-muted); }
 .brand-mark { display: grid; width: 2.55rem; height: 2.55rem; place-items: center; flex: 0 0 auto; background: var(--ui-primary); color: #fff; border-radius: var(--ui-radius); font: 800 1rem/1 "Hanken Grotesk", sans-serif; letter-spacing: .04em; }
 .brand-copy { display: grid; gap: 0; font: 800 .9rem/1 "Hanken Grotesk", sans-serif; letter-spacing: .09em; }
 .brand-copy small { color: var(--ui-primary-soft); font: 600 .62rem/1.5 Inter, sans-serif; letter-spacing: .18em; }
+.app-brand-logo { display: block; width: min(100%, 13.5rem); height: auto; }
 .sidebar-context { padding: .8rem .7rem; background: var(--ui-surface-2); border: 1px solid var(--ui-border); border-radius: var(--ui-radius); }
 .sidebar-context small { display: block; margin-bottom: .2rem; font-size: .68rem; letter-spacing: .09em; text-transform: uppercase; }
 .sidebar-context strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -203,6 +204,7 @@ td a { color: var(--ui-primary-soft); }
 .auth-brand .brand-mark { width: 3rem; height: 3rem; }
 .auth-brand span:last-child { display: grid; gap: .15rem; font: 800 1.05rem/1 "Hanken Grotesk", sans-serif; letter-spacing: .12em; }
 .auth-brand small { color: var(--ui-primary-soft); font: 600 .65rem/1 Inter, sans-serif; letter-spacing: .18em; }
+.auth-brand-logo { display: block; width: min(100%, 22rem); height: auto; }
 .auth-visual-copy { max-width: 34rem; }
 .auth-visual-copy h1 { max-width: 12ch; margin: 1rem 0; font-size: clamp(2.6rem, 5vw, 5.4rem); line-height: .95; }
 .auth-visual-copy p:last-child { max-width: 42ch; color: var(--ui-text-muted); font-size: 1rem; }
@@ -1804,6 +1806,9 @@ body.public-portal .partner-logos a, body.public-portal .partner-logos > span { 
 body.public-portal .partner-logos img { max-width: 7.5rem; max-height: 3rem; object-fit: contain; }
 body.public-portal .portal-footer { margin-top: auto; }
 body.public-portal .portal-footer small { display: block; margin-top: .8rem; color: var(--portal-dim); font-size: .78rem; }
+.portal-product-brand { display: flex; width: fit-content; align-items: center; gap: .55rem; margin-top: 1rem; }
+.portal-product-brand img { display: block; width: min(11rem, 100%); height: auto; object-fit: contain; }
+.portal-product-brand small { margin: 0 !important; color: var(--portal-dim); font-size: .7rem !important; }
 body.public-portal .portal-contact { max-width: 54rem; margin: 2.4rem 0 0; padding: 1.6rem; border: 1px solid var(--portal-line); border-radius: 12px; background: var(--portal-panel); }
 body.public-portal .portal-contact form { display: grid; gap: 1rem; }
 body.public-portal .contact-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }

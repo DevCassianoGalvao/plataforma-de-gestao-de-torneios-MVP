@@ -31,7 +31,8 @@ $isRegistrationsActive = $isActive('/admin/inscricoes');
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?= $e($title ?? 'Plataforma de Torneios') ?></title>
+    <title><?= $e(!empty($title) ? $title . ' | Torneio Online Web App' : 'Torneio Online Web App') ?></title>
+    <link rel="icon" type="image/png" href="<?= $e($assetUrl('branding/favicon.png')) ?>">
     <link rel="stylesheet" href="<?= $e($assetUrl('app.css')) ?>">
 </head>
 <body class="<?= $currentUser ? 'app-body' : 'auth-body' ?>" data-theme="dark">
@@ -40,8 +41,7 @@ $isRegistrationsActive = $isActive('/admin/inscricoes');
     <aside id="app-sidebar" class="app-sidebar" data-sidebar aria-label="Navegação administrativa">
         <button class="sidebar-close" type="button" data-sidebar-dismiss aria-label="Fechar menu" title="Fechar menu">Fechar</button>
         <a class="app-brand" href="<?= $e(App\Core\Config::url('/admin')) ?>">
-            <span class="brand-mark" aria-hidden="true">TM</span>
-            <span class="brand-copy">TORNEIOS<small>MVP / OPERAÇÃO</small></span>
+            <img class="app-brand-logo" src="<?= $e($assetUrl('branding/torneio-online-web-app.png')) ?>" alt="Torneio Online Web App">
         </a>
         <div class="sidebar-context">
             <small>Espaço ativo</small>

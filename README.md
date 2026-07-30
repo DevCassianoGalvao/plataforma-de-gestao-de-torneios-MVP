@@ -1,4 +1,4 @@
-# Plataforma de Gestao de Torneios MVP
+# Torneio Online Web App
 
 Sistema web planejado para administrar campeonatos de futebol e publicar informacoes esportivas.
 

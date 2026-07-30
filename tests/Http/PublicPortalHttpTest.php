@@ -45,6 +45,8 @@ final class PublicPortalHttpTest
         $publicMatch = $router->dispatch(Request::fake('GET', $base . '/partidas/' . $matchId));
         assert_true(str_contains($publicMatch->body, 'Escala&ccedil;&otilde;es da partida') && str_contains($publicMatch->body, 'football-field.svg'), 'Campo tático não foi carregado no registro público da partida.');
 
+        assert_true(str_contains($publicMatch->body, 'assets/branding/favicon.png') && str_contains($publicMatch->body, 'torneio-online-web-app.png') && str_contains($publicMatch->body, 'Torneio Online Web App'), 'Marca da plataforma nao foi aplicada ao portal publico.');
+
         $home = $router->dispatch(Request::fake('GET', $base));
         assert_true(str_contains($home->body, 'canonical') && str_contains($home->body, 'og:title'), 'SEO basico ausente na home publica');
         assert_true(str_contains($home->body, 'https://www.cassianogalvao.com.br/torneio-online/campeonatos/' . $slug), 'Canonical nao usa o dominio final');
