@@ -42,7 +42,8 @@ final class TacticalFormationSeed
 
     private static function slot(string $key, string $code, string $label, string $group, int $horizontal, int $vertical, int $order): array
     {
-        return ['slot_key' => $key, 'position_code' => $code, 'label' => $label, 'position_group' => $group, 'horizontal_position' => $horizontal, 'vertical_position' => $vertical, 'display_order' => $order];
+        // Preserve a safe edge around the player card, not just its coordinate point.
+        return ['slot_key' => $key, 'position_code' => $code, 'label' => $label, 'position_group' => $group, 'horizontal_position' => max(13, min(87, $horizontal)), 'vertical_position' => max(8, min(88, $vertical)), 'display_order' => $order];
     }
 
     private static function formations(): array

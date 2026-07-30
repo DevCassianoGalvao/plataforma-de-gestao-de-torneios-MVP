@@ -33,6 +33,7 @@ final class TeamIntegrationTest
         assert_same(11, (int) $pdo->query('SELECT COUNT(*) FROM staff_roles')->fetchColumn(), 'Seed duplicou funcoes');
         assert_same(9, (int) $pdo->query('SELECT COUNT(*) FROM tactical_formations')->fetchColumn(), 'Seed duplicou formacoes');
         assert_same(99, (int) $pdo->query('SELECT COUNT(*) FROM tactical_formation_slots')->fetchColumn(), 'Cada formacao deve possuir 11 slots');
+        assert_same(0, (int) $pdo->query('SELECT COUNT(*) FROM tactical_formation_slots WHERE horizontal_position < 13 OR horizontal_position > 87 OR vertical_position < 8 OR vertical_position > 88')->fetchColumn(), 'Slots taticos ultrapassaram a area segura do campo');
         assert_same(10, (int) $pdo->query('SELECT COUNT(*) FROM teams')->fetchColumn(), 'Seed duplicou equipes');
         assert_same(10, (int) $pdo->query('SELECT COUNT(*) FROM team_user_assignments WHERE status = \'active\'')->fetchColumn(), 'Seed duplicou responsaveis');
         assert_same(20, (int) $pdo->query('SELECT COUNT(*) FROM team_staff')->fetchColumn(), 'Seed duplicou comissao');

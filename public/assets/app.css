@@ -1877,7 +1877,7 @@ body.app-body .operation-lineup-reserves { padding: .8rem 1rem 1rem; }
 /* Shared tactical field: SVG keeps markings consistent in editor, operation and portal. */
 .tactical-field { position: relative; isolation: isolate; width: min(100%, 31rem); aspect-ratio: 74 / 111; margin: 0 auto; overflow: hidden; border: 1px solid #3a8067; border-radius: 10px; background: #00a000; box-shadow: inset 0 0 0 1px rgba(255,255,255,.12), 0 16px 34px rgba(0,0,0,.22); }
 .tactical-field > img { position: absolute; z-index: -1; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.tactical-player, .tactical-editor-slot { position: absolute; left: var(--slot-x); top: var(--slot-y); z-index: 1; transform: translate(-50%, -50%); }
+.tactical-player, .tactical-editor-slot { position: absolute; left: clamp(13%, var(--slot-x), 87%); top: clamp(8%, var(--slot-y), 88%); z-index: 1; transform: translate(-50%, -50%); }
 .tactical-player { display: grid; width: 4.9rem; justify-items: center; color: #fff; text-align: center; text-decoration: none; text-shadow: 0 1px 3px rgba(0,0,0,.92); }
 .tactical-player > img, .tactical-player > span { display: grid; width: 2.7rem; height: 2.7rem; place-items: center; overflow: hidden; border: 2px solid #e9fff2; border-radius: 50%; background: #1d3345; color: #d8f7e7; font: 800 .7rem/1 "Hanken Grotesk", sans-serif; box-shadow: 0 3px 10px rgba(0,0,0,.3); object-fit: cover; }
 .tactical-player small { display: block; max-width: 5.1rem; overflow: hidden; margin-top: .22rem; color: #fff; font: 750 .63rem/1.12 Inter, sans-serif; text-overflow: ellipsis; white-space: nowrap; }
