@@ -54,6 +54,17 @@ final class AthleteHttpTest
         assert_same(200, $router->dispatch(Request::fake('GET', '/torneio-online/admin/atletas/' . $athleteId))->status, 'Detalhe do atleta nao abriu');
         assert_same(200, $router->dispatch(Request::fake('GET', '/torneio-online/admin/atletas/' . $athleteId . '/responsaveis'))->status, 'Responsaveis nao abriram');
 
+        $athletePhoto = tempnam(sys_get_temp_dir(), 'mvp-athlete-photo-');
+        file_put_contents($athletePhoto, base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII='));
+        $photoUpdate = $router->dispatch(Request::fake('POST', '/torneio-online/admin/atletas/' . $athleteId, ['_csrf' => Security::csrfToken(), 'full_name' => 'Atleta HTTP Completo', 'sporting_name' => 'HTTP', 'birth_date' => '2012-06-15', 'gender' => 'male', 'primary_position_id' => $positionId, 'preferred_number' => '17', 'dominant_foot' => 'right', 'private_notes' => 'Nota privada'], ['photo' => ['error' => UPLOAD_ERR_OK, 'size' => filesize($athletePhoto), 'tmp_name' => $athletePhoto, 'name' => 'atleta-atualizado.png']]));
+        assert_same(302, $photoUpdate->status, 'Foto do atleta nao foi atualizada');
+        $athletePhotoPath = (string) $pdo->query("SELECT photo_path FROM athletes WHERE id = {$athleteId}")->fetchColumn();
+        assert_true($athletePhotoPath !== '', 'Caminho da foto do atleta nao foi persistido');
+        $photoResponse = $router->dispatch(Request::fake('GET', '/torneio-online/admin/atletas/' . $athleteId . '/assets/photo'));
+        assert_same(200, $photoResponse->status, 'Foto atualizada nao foi servida');
+        (new StorageService())->delete($athletePhotoPath);
+        @unlink($athletePhoto);
+
         $temporary = tempnam(sys_get_temp_dir(), 'mvp-athlete-http-');
         file_put_contents($temporary, base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII='));
         $document = $router->dispatch(Request::fake('POST', '/torneio-online/admin/atletas/' . $athleteId . '/documentos', ['_csrf' => Security::csrfToken(), 'document_type_id' => $documentTypeId, 'observation' => 'Comprovante HTTP'], ['document' => ['error' => UPLOAD_ERR_OK, 'size' => filesize($temporary), 'tmp_name' => $temporary, 'name' => 'comprovante.png']]));

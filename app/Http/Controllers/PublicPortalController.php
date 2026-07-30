@@ -50,7 +50,7 @@ final class PublicPortalController
 
     public function athleteAsset(Request $request, array $params = []): Response
     {
-        $championship = $this->championship($params[0] ?? ''); if ($championship instanceof Response) return $championship; $athlete = $this->portal->athlete((int) $championship['id'], (int) ($params[1] ?? 0)); if (!$athlete || empty($athlete['photo_path'])) return $this->notFound('Foto nao encontrada.'); $file = $this->storage->read((string) $athlete['photo_path']); if (!$file) return $this->notFound('Foto nao encontrada.'); return new Response($file['body'], 200, ['Content-Type' => $file['mime'], 'Cache-Control' => 'public, max-age=3600']);
+        $championship = $this->championship($params[0] ?? ''); if ($championship instanceof Response) return $championship; $athlete = $this->portal->athlete((int) $championship['id'], (int) ($params[1] ?? 0)); if (!$athlete || empty($athlete['photo_path'])) return $this->notFound('Foto nao encontrada.'); $file = $this->storage->read((string) $athlete['photo_path']); if (!$file) return $this->notFound('Foto nao encontrada.'); return new Response($file['body'], 200, ['Content-Type' => $file['mime'], 'Cache-Control' => 'public, no-cache, must-revalidate']);
     }
 
     public function sitemap(Request $request, array $params = []): Response
