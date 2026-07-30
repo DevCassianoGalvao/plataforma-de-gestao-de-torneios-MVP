@@ -891,27 +891,23 @@ body.public-portal .team-roster-grid { grid-template-columns: repeat(4, minmax(0
     position: relative;
     display: inline-grid;
     width: 2.35rem;
-    height: 2.55rem;
+    height: 2.35rem;
     place-items: center;
     margin-right: .6rem;
     overflow: hidden;
-    clip-path: polygon(50% 1%, 89% 13%, 84% 64%, 50% 99%, 16% 64%, 11% 13%);
-    border: 0;
-    border-radius: 0;
-    background: linear-gradient(145deg, #9aa5b2, #6c7786) !important;
-    color: transparent !important;
-    font-size: 0 !important;
+    clip-path: none;
+    border: 1px solid #4b5664;
+    border-radius: 50%;
+    background: #3a4451 !important;
+    color: #cbd3cc !important;
     vertical-align: middle;
 }
-.team-shield.team-mark-fallback { width: 5rem; height: 5.35rem; margin-right: 0; }
+.team-shield.team-mark-fallback { width: 5rem; height: 5rem; margin-right: 0; }
 .team-mark-fallback::after,
-.team-list-mark::after {
-    width: 39%;
-    height: 47%;
-    content: '';
-    border: 1px solid rgba(255,255,255,.62);
-    clip-path: polygon(50% 0, 100% 14%, 91% 65%, 50% 100%, 9% 65%, 0 14%);
-}
+.team-list-mark::after { display: none; }
+.team-mark-fallback .ui-icon,
+.team-list-mark .ui-icon { width: 58%; height: 58%; stroke: #d0d8d1; fill: #d0d8d1; stroke-width: 1.2; }
+.operation-team .operation-team-shield { width: 4rem; height: 4rem; margin: 0; }
 
 /* Profile is a working account surface, not a stack of unrelated forms. */
 .profile-layout { display: grid; grid-template-columns: minmax(14rem, .65fr) minmax(0, 1.35fr); gap: 1.25rem; margin-top: 1.35rem; }

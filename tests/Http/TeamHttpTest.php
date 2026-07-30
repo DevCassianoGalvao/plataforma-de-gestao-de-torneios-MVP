@@ -54,6 +54,9 @@ final class TeamHttpTest
         $identity = $router->dispatch(Request::fake('POST', '/torneio-online/admin/equipes/equipe-http-admin/identidade', ['_csrf' => Security::csrfToken(), 'primary_color' => '#245C4A', 'secondary_color' => '#D9A441'], ['shield' => ['error' => UPLOAD_ERR_OK, 'size' => filesize($tmp), 'tmp_name' => $tmp, 'name' => 'escudo.png']]));
         assert_same(302, $identity->status, 'Upload de escudo valido foi rejeitado');
         assert_same(200, $router->dispatch(Request::fake('GET', '/torneio-online/admin/equipes/equipe-http-admin/assets/shield_path'))->status, 'Escudo privado nao foi servido');
+        $listWithShield = $router->dispatch(Request::fake('GET', '/torneio-online/admin/equipes'));
+        assert_true(str_contains($listWithShield->body, '/admin/equipes/equipe-http-admin/assets/shield_path'), 'Lista administrativa nao exibiu o escudo enviado');
+        assert_true(str_contains($listWithShield->body, 'data-icon="shield"'), 'Lista administrativa nao exibiu fallback visual de escudo');
         $stored = (string) $pdo->query("SELECT shield_path FROM teams WHERE id = {$teamId}")->fetchColumn();
         if ($stored) @unlink(dirname(__DIR__, 2) . '/storage/private/' . $stored);
         @unlink($tmp);
