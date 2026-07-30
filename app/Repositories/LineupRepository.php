@@ -29,6 +29,15 @@ final class LineupRepository
         return $statement->fetchAll();
     }
 
+    public function latestConfirmedForTeam(int $championshipId, int $teamId, int $exceptMatchId): ?array
+    {
+        $statement = $this->pdo->prepare("SELECT ml.match_id, m.match_date, m.match_time, f.name AS formation_name FROM match_lineups ml INNER JOIN matches m ON m.id = ml.match_id INNER JOIN tactical_formations f ON f.id = ml.tactical_formation_id WHERE m.championship_id = ? AND ml.team_id = ? AND ml.match_id <> ? AND ml.status = 'confirmed' ORDER BY ml.confirmed_at DESC, m.match_date DESC, m.match_time DESC, ml.id DESC LIMIT 1");
+        $statement->execute([$championshipId, $teamId, $exceptMatchId]);
+        $row = $statement->fetch();
+        if (!$row) return null;
+        return array_merge($row, ['lineup' => $this->find((int) $row['match_id'], $teamId)]);
+    }
+
     public function formationSlots(int $formationId): array
     {
         $statement = $this->pdo->prepare('SELECT slot_key, position_code, label, position_group, horizontal_position, vertical_position, display_order FROM tactical_formation_slots WHERE tactical_formation_id = ? ORDER BY display_order, id');

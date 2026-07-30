@@ -73,6 +73,21 @@ final class LineupController extends Controller
         return Response::redirect(Config::url('/admin/partidas/' . $match['id'] . '/escalacao/' . $teamId));
     }
 
+    public function reusePrevious(Request $request, array $params = []): Response
+    {
+        [$guard, $match, $teamId] = $this->context($request, $params, 'lineups.update');
+        if ($guard instanceof Response) return $guard;
+        if (!$this->access->canManageTeam($guard, $match, $teamId)) return Response::forbidden();
+        if (!$this->validCsrf($request)) return Response::forbidden('A sessao expirou.');
+        $result = $this->service->reuseLatestConfirmed($guard, $match, $teamId);
+        if (!$result['ok']) {
+            $lineup = $this->lineups->find((int) $match['id'], $teamId) ?? $this->service->ensureDraft($guard, $match, $teamId);
+            return $this->editPage($guard, $match, $teamId, $lineup, $this->service->formData($lineup), $result['errors'], 422);
+        }
+        Session::flash('lineup_message', 'Última escalação confirmada copiada para este rascunho. Revise antes de confirmar.');
+        return Response::redirect(Config::url('/admin/partidas/' . $match['id'] . '/escalacao/' . $teamId));
+    }
+
     public function reopen(Request $request, array $params = []): Response
     {
         [$guard, $match, $teamId] = $this->context($request, $params, 'lineups.reopen');
@@ -105,7 +120,7 @@ final class LineupController extends Controller
             $full = $this->formations->findWithSlots((int) $item['id']);
             if ($full) $formationCatalog[] = $full;
         }
-        return $this->errorPage('Escalacao de ' . $lineup['team_name'], 'admin/lineups/edit', ['user' => $user, 'match' => $match, 'teamId' => $teamId, 'lineup' => $lineup, 'formData' => $formData, 'formations' => $formations, 'formationCatalog' => $formationCatalog, 'formation' => $this->formations->findWithSlots((int) ($formData['formation_id'] ?? $lineup['tactical_formation_id'])), 'athletes' => $this->lineups->eligibleAthletes((int) $match['championship_id'], $teamId), 'staff' => $this->lineups->staff($teamId), 'history' => $this->lineups->history((int) $lineup['id']), 'canReopen' => $this->access->canReopen($user, $match, $teamId), 'errors' => $errors, 'message' => Session::consumeFlash('lineup_message')], $status);
+        return $this->errorPage('Escalacao de ' . $lineup['team_name'], 'admin/lineups/edit', ['user' => $user, 'match' => $match, 'teamId' => $teamId, 'lineup' => $lineup, 'formData' => $formData, 'formations' => $formations, 'formationCatalog' => $formationCatalog, 'formation' => $this->formations->findWithSlots((int) ($formData['formation_id'] ?? $lineup['tactical_formation_id'])), 'athletes' => $this->lineups->eligibleAthletes((int) $match['championship_id'], $teamId), 'staff' => $this->lineups->staff($teamId), 'history' => $this->lineups->history((int) $lineup['id']), 'previousLineup' => $this->lineups->latestConfirmedForTeam((int) $match['championship_id'], $teamId, (int) $match['id']), 'canReopen' => $this->access->canReopen($user, $match, $teamId), 'errors' => $errors, 'message' => Session::consumeFlash('lineup_message')], $status);
     }
 
     private function input(Request $request): array

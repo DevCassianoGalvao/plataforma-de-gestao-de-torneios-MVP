@@ -321,6 +321,7 @@ $router->get('/admin/partidas/{id}/escalacoes', [$lineup, 'match']);
 $router->get('/admin/partidas/{id}/escalacao/{teamId}', [$lineup, 'edit']);
 $router->post('/admin/partidas/{id}/escalacao/{teamId}', [$lineup, 'save']);
 $router->post('/admin/partidas/{id}/escalacao/{teamId}/automatico', [$lineup, 'automatic']);
+$router->post('/admin/partidas/{id}/escalacao/{teamId}/reutilizar-anterior', [$lineup, 'reusePrevious']);
 $router->post('/admin/partidas/{id}/escalacao/{teamId}/reabrir', [$lineup, 'reopen']);
 
 $operation = new MatchOperationController($users, $authorization, $audit, $operationAccess, $operationService, $operations);

@@ -63,6 +63,13 @@ final class LineupIntegrationTest
         assert_true(count($lineups->history((int) $lineup['id'])) >= 3, 'Historico minimo nao foi registrado');
         assert_true(!$service->save($admin, $match, $lineup, array_merge(['formation_id' => $formationId], $suggestion), false)['ok'], 'Escalacao confirmada aceitou edicao comum');
 
+        $nextMatch = (new ScheduleRepository($pdo))->matchById((int) $pdo->query('SELECT id FROM matches WHERE (home_team_id = ' . $teamId . ' OR away_team_id = ' . $teamId . ') AND id <> ' . (int) $match['id'] . ' ORDER BY id DESC LIMIT 1')->fetchColumn());
+        $copied = $service->reuseLatestConfirmed($admin, $nextMatch, $teamId);
+        assert_true($copied['ok'], 'Última escalação confirmada não foi copiada para o próximo jogo');
+        $copiedLineup = $lineups->find((int) $nextMatch['id'], $teamId);
+        assert_same('draft', $copiedLineup['status'], 'Escalação reutilizada precisa permanecer em rascunho');
+        assert_same(11, count(array_filter($copiedLineup['players'], static fn (array $player): bool => $player['role'] === 'starter')), 'Titulares não foram copiados para o próximo jogo');
+
         $draftAgain = $service->reopen($admin, $match, $lineup, 'Ajuste autorizado');
         assert_true($draftAgain['ok'], 'Reabertura autorizada falhou');
         $reopened = $lineups->find((int) $match['id'], $teamId);

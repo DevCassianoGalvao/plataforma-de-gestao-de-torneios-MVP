@@ -5,6 +5,7 @@ namespace Tests\Integration;
 
 use App\Core\Database;
 use App\Database\TournamentProgressSeed;
+use App\Database\MatchLineupDemoSeed;
 use function Tests\assert_same;
 use function Tests\assert_true;
 
@@ -14,6 +15,7 @@ final class TournamentProgressSeedIntegrationTest
     {
         $pdo = Database::connection();
         TournamentProgressSeed::run($pdo);
+        MatchLineupDemoSeed::run($pdo);
 
         $championship = $pdo->query("SELECT id, status, visibility FROM championships WHERE slug = 'copa-brasil-de-talentos-2026' LIMIT 1")->fetch();
         assert_true((bool) $championship, 'Campeonato ficticio ausente para a simulacao');
@@ -27,9 +29,11 @@ final class TournamentProgressSeedIntegrationTest
         assert_same(8, (int) $pdo->query("SELECT COUNT(*) FROM competition_standings WHERE phase_id = {$groupPhaseId} AND situation = 'qualified'")->fetchColumn(), 'Classificados da fase de grupos incorretos');
         assert_same(4, (int) $pdo->query("SELECT COUNT(*) FROM knockout_ties kt INNER JOIN knockout_rounds kr ON kr.id = kt.knockout_round_id WHERE kr.phase_id = {$knockoutPhaseId} AND kr.stage = 'quarterfinals' AND kt.status = 'finished'")->fetchColumn(), 'Quartas de final nao foram concluidas');
         assert_same(2, (int) $pdo->query("SELECT COUNT(*) FROM knockout_ties kt INNER JOIN knockout_rounds kr ON kr.id = kt.knockout_round_id INNER JOIN matches m ON m.id = kt.match_id WHERE kr.phase_id = {$knockoutPhaseId} AND kr.stage = 'semifinals' AND kt.home_team_id IS NOT NULL AND kt.away_team_id IS NOT NULL AND m.status = 'scheduled'")->fetchColumn(), 'Semifinais nao foram agendadas');
+        assert_same(4, (int) $pdo->query("SELECT COUNT(*) FROM match_lineups ml INNER JOIN matches m ON m.id = ml.match_id INNER JOIN knockout_ties kt ON kt.match_id = m.id INNER JOIN knockout_rounds kr ON kr.id = kt.knockout_round_id WHERE kr.phase_id = {$knockoutPhaseId} AND kr.stage = 'semifinals' AND ml.status = 'confirmed'")->fetchColumn(), 'Escalações da simulação não foram confirmadas');
 
         $first = self::snapshot($pdo, $championshipId, $knockoutPhaseId);
         TournamentProgressSeed::run($pdo);
+        MatchLineupDemoSeed::run($pdo);
         assert_same($first, self::snapshot($pdo, $championshipId, $knockoutPhaseId), 'Reexecucao da simulacao alterou a quantidade de dados');
     }
 

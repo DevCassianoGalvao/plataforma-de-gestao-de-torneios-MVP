@@ -47,13 +47,14 @@ Depois da confirmacao, edicao comum e bloqueada. Administrador com permissao pod
 - GET /admin/partidas/{id}/escalacao/{teamId}: campo funcional e dados da equipe;
 - POST na mesma rota: salvar rascunho ou confirmar;
 - POST /automatico: gerar uma sugestao sem persistir;
+- POST /reutilizar-anterior: copia a ultima escalação confirmada para um novo rascunho;
 - POST /reabrir: reabrir uma confirmada com motivo.
 
 O campo usa coordenadas normalizadas da formacao. Cada slot mostra foto quando existente, nome esportivo, numero, posicao e aviso posicional. A troca de formacao no rascunho reorganiza a visualizacao imediatamente no navegador e preserva os atletas selecionados sempre que houver slot equivalente; somente Salvar rascunho persiste a mudanca. Os dados de rascunho ficam privados da equipe; operadores visualizam somente confirmadas.
 
 ## Visualizacao da partida
 
-O mesmo campo SVG e usado no editor, na central operacional e no portal publico. A central mostra um campo por equipe com os titulares da escalacao confirmada. O registro publico da partida tambem mostra os dois campos, com foto circular ou iniciais e nome curto; cada atleta aponta para seu perfil publico. O read model publico entrega apenas coordenadas, identificacao esportiva e indicador de foto, nunca caminho do arquivo ou outros dados privados.
+O mesmo campo SVG e usado no editor, na central operacional e no portal publico. A central mostra um campo por equipe com os titulares da escalacao confirmada. O registro publico da partida sempre mostra a secao de escalacoes: com confirmacao, exibe os dois campos, foto circular ou iniciais, nome curto e reservas; sem confirmacao, exibe campo com aviso explicito, sem inventar atletas ou formacao oficial. Cada atleta aponta para seu perfil publico. O read model publico entrega apenas coordenadas, identificacao esportiva e indicador de foto, nunca caminho do arquivo ou outros dados privados.
 
 ## Escopo
 
@@ -67,4 +68,4 @@ Nao ha rota publica para rascunhos, documentos ou dados privados. Escalacoes con
 
 ## Seed e testes
 
-LineupSeed e idempotente e cria atletas ficticios aprovados para as dez equipes, com posicoes variadas, reservas e comissao disponivel. Os testes cobrem seed duplo, titulares, reservas, goleiro, capitao, posicoes principal/secundaria, fora de posicao, ajuste manual, equipe alheia, duplicidade, confirmacao, reabertura, historico, escopo, IDOR, CSRF e APP_BASE_PATH=/torneio-online.
+LineupSeed e idempotente e cria atletas ficticios aprovados para as dez equipes, com posicoes variadas, reservas e comissao disponivel. Para a simulacao autorizada, `db:seed:simulation-lineups` cria somente as quatro escalacoes faltantes das semifinais, sem sobrescrever qualquer escalacao existente. Em producao, exige `ALLOW_DEMO_SIMULATION=1` no comando. Os testes cobrem seed duplo, titulares, reservas, goleiro, capitao, posicoes principal/secundaria, fora de posicao, ajuste manual, reutilizacao entre partidas, equipe alheia, duplicidade, confirmacao, reabertura, historico, escopo, IDOR, CSRF e APP_BASE_PATH=/torneio-online.

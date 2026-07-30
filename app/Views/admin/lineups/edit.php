@@ -27,6 +27,13 @@ $athletePayload = array_map(static fn (array $athlete): array => [
     </div>
     <?php if ($errors !== []): ?><div class="error" role="alert"><ul><?php foreach ($errors as $error): ?><li><?= App\Core\View::e($error) ?></li><?php endforeach; ?></ul></div><?php endif; ?>
     <?php if (!empty($message)): ?><p class="success" role="status"><?= App\Core\View::e($message) ?></p><?php endif; ?>
+    <?php if ($lineup['status'] === 'draft' && !empty($previousLineup)): ?>
+        <form class="lineup-reuse-action" method="post" action="<?= App\Core\View::e(App\Core\Config::url('/admin/partidas/' . $match['id'] . '/escalacao/' . $teamId . '/reutilizar-anterior')) ?>">
+            <input type="hidden" name="_csrf" value="<?= App\Core\View::e(App\Core\Security::csrfToken()) ?>">
+            <div><strong>Reutilizar última escalação</strong><small>Formação, titulares, reservas, capitão e comissão da partida #<?= (int) $previousLineup['match_id'] ?>.</small></div>
+            <button class="secondary" type="submit">Copiar para rascunho</button>
+        </form>
+    <?php endif; ?>
     <form method="post" action="<?= App\Core\View::e(App\Core\Config::url('/admin/partidas/' . $match['id'] . '/escalacao/' . $teamId)) ?>">
         <input type="hidden" name="_csrf" value="<?= App\Core\View::e(App\Core\Security::csrfToken()) ?>">
         <fieldset>

@@ -83,6 +83,19 @@ final class LineupService
         return ['ok' => true, 'errors' => []];
     }
 
+    public function reuseLatestConfirmed(array $user, array $match, int $teamId): array
+    {
+        $lineup = $this->ensureDraft($user, $match, $teamId);
+        if (!LineupRules::canEdit((string) $lineup['status'])) return ['ok' => false, 'errors' => ['Reabra a escalação antes de substituir seus dados.']];
+        $source = $this->lineups->latestConfirmedForTeam((int) $match['championship_id'], $teamId, (int) $match['id']);
+        $sourceLineup = $source['lineup'] ?? null;
+        if (!$sourceLineup) return ['ok' => false, 'errors' => ['Nenhuma escalação confirmada anterior foi encontrada para esta equipe.']];
+        $data = $this->formData($sourceLineup);
+        $result = $this->save($user, $match, $lineup, $data, false, 'Escalação reutilizada da partida #' . (int) $source['match_id'] . '.');
+        if ($result['ok']) $result['source'] = $source;
+        return $result;
+    }
+
     public function formData(array $lineup): array
     {
         $starters = [];

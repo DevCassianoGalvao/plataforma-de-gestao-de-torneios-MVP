@@ -14,6 +14,7 @@ use App\Database\PortalEngagementSeed;
 use App\Database\RegistrationSeed;
 use App\Database\ScheduleSeed;
 use App\Database\LineupSeed;
+use App\Database\MatchLineupDemoSeed;
 use App\Database\MatchOperationSeed;
 use App\Database\DisciplineSeed;
 use App\Database\TacticalFormationSeed;
@@ -67,9 +68,16 @@ if ($command === 'db:seed') {
 
 if ($command === 'db:seed:simulation') {
     TournamentProgressSeed::run(Database::connection());
-    echo "SIMULATION_OK fase_de_grupos=concluida quartas=concluidas semifinais=agendadas\n";
+    MatchLineupDemoSeed::run(Database::connection());
+    echo "SIMULATION_OK fase_de_grupos=concluida quartas=concluidas semifinais=agendadas escalacoes=confirmadas\n";
     exit(0);
 }
 
-echo "Comandos: migrate | migrate:status | db:seed | db:seed:simulation\n";
+if ($command === 'db:seed:simulation-lineups') {
+    MatchLineupDemoSeed::run(Database::connection());
+    echo "SIMULATION_LINEUPS_OK semifinais=escalacoes_confirmadas\n";
+    exit(0);
+}
+
+echo "Comandos: migrate | migrate:status | db:seed | db:seed:simulation | db:seed:simulation-lineups\n";
 exit($command === 'help' ? 0 : 1);

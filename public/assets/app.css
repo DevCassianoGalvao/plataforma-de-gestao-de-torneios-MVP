@@ -1793,17 +1793,22 @@ body.app-body .tactical-editor-slot select { min-width: 0; padding: .26rem .32re
 body.app-body .tactical-field--operation { width: min(100%, 22rem); margin: 0 auto; }
 body.app-body .operation-lineup-preview { padding-bottom: 0; }
 body.app-body .operation-lineup-reserves { margin: 0; padding: .9rem 1rem 1rem; }
+body.app-body .lineup-reuse-action { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin: 1rem 0; padding: .9rem 1rem; border: 1px solid var(--line); border-radius: 8px; background: var(--surface-raised); }
+body.app-body .lineup-reuse-action small { display: block; margin-top: .2rem; color: var(--muted); }
+body.app-body .lineup-reuse-action .secondary { flex: 0 0 auto; }
 body.public-portal .public-lineup-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.75rem; }
 body.public-portal .public-lineup-side { min-width: 0; padding: 1.1rem; border: 1px solid #344258; border-radius: 10px; background: #172130; }
 body.public-portal .public-lineup-side > header { display: flex; align-items: baseline; justify-content: space-between; gap: .75rem; margin-bottom: .9rem; }
 body.public-portal .public-lineup-side h3 { margin: 0; color: var(--portal-copy); font-size: 1.05rem; }
 body.public-portal .public-lineup-side header span { color: var(--portal-green); font-size: .78rem; font-weight: 750; }
 body.public-portal .tactical-field--public { width: min(100%, 24rem); }
+body.public-portal .tactical-field--pending { display: grid; place-items: center; min-height: 17rem; background: #176b35; }
+body.public-portal .tactical-field-pending-message { position: relative; z-index: 1; max-width: 13rem; margin: 0; padding: .7rem .85rem; border: 1px solid rgba(255,255,255,.42); border-radius: 999px; background: rgba(5,15,10,.75); color: #fff; font-size: .78rem; font-weight: 750; line-height: 1.3; text-align: center; }
 body.public-portal .tactical-player { cursor: pointer; }
 body.public-portal .tactical-player:hover > img, body.public-portal .tactical-player:hover > span { transform: translateY(-2px); border-color: var(--portal-green); }
 body.public-portal .public-lineup-reserves { margin: 1rem 0 0; color: var(--portal-muted); font-size: .79rem; line-height: 1.5; }
 body.public-portal .public-lineup-reserves b { color: var(--portal-copy); }
-@media (max-width: 720px) { body.public-portal .public-lineup-fields { grid-template-columns: 1fr; } body.app-body .tactical-field--editor { width: min(100%, 27rem); } body.app-body .tactical-editor-slot { width: 6.1rem; } body.app-body .tactical-editor-slot label span { display: none; } }
+@media (max-width: 720px) { body.public-portal .public-lineup-fields { grid-template-columns: 1fr; } body.app-body .lineup-reuse-action { align-items: flex-start; flex-direction: column; } body.app-body .tactical-field--editor { width: min(100%, 27rem); } body.app-body .tactical-editor-slot { width: 6.1rem; } body.app-body .tactical-editor-slot label span { display: none; } }
 
 /* Mobile audit pass: navigation behaves as drawers; dense admin controls remain touchable. */
 .sidebar-close,
