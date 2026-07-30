@@ -76,25 +76,42 @@
         if (statusLabels[key]) element.textContent = statusLabels[key];
     });
 
+    function setupMobileNavigation(drawer, toggle, dismissSelector, bodyClass, openLabel, closeLabel) {
+        if (!drawer || !toggle) return;
+        setIcon(toggle, 'menu', false);
+        var dismissers = document.querySelectorAll(dismissSelector);
+        var close = function (returnFocus) {
+            if (!drawer.classList.contains('is-open')) return;
+            drawer.classList.remove('is-open');
+            root.classList.remove(bodyClass);
+            toggle.setAttribute('aria-expanded', 'false');
+            toggle.setAttribute('aria-label', openLabel);
+            toggle.setAttribute('title', openLabel);
+            if (returnFocus) toggle.focus();
+        };
+        var open = function () {
+            drawer.classList.add('is-open');
+            root.classList.add(bodyClass);
+            toggle.setAttribute('aria-expanded', 'true');
+            toggle.setAttribute('aria-label', closeLabel);
+            toggle.setAttribute('title', closeLabel);
+            var firstLink = drawer.querySelector('a');
+            if (firstLink) firstLink.focus();
+        };
+        toggle.addEventListener('click', function () { drawer.classList.contains('is-open') ? close(false) : open(); });
+        dismissers.forEach(function (button) { button.addEventListener('click', function () { close(true); }); });
+        drawer.querySelectorAll('a').forEach(function (link) { link.addEventListener('click', function () { close(false); }); });
+        document.addEventListener('keydown', function (event) { if (event.key === 'Escape') close(true); });
+        window.matchMedia('(min-width: 801px)').addEventListener('change', function (event) { if (event.matches) close(false); });
+    }
+
     var sidebar = document.querySelector('[data-sidebar]');
     var sidebarToggle = document.querySelector('[data-sidebar-toggle]');
-    if (sidebar && sidebarToggle) {
-        setIcon(sidebarToggle, 'menu', false);
-        sidebarToggle.addEventListener('click', function () {
-            var open = sidebar.classList.toggle('is-open');
-            sidebarToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-        });
-    }
+    setupMobileNavigation(sidebar, sidebarToggle, '[data-sidebar-dismiss]', 'has-mobile-menu', 'Abrir menu', 'Fechar menu');
 
     var portalNav = document.querySelector('[data-portal-nav]');
     var portalNavToggle = document.querySelector('[data-portal-nav-toggle]');
-    if (portalNav && portalNavToggle) {
-        setIcon(portalNavToggle, 'menu', false);
-        portalNavToggle.addEventListener('click', function () {
-            var open = portalNav.classList.toggle('is-open');
-            portalNavToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-        });
-    }
+    setupMobileNavigation(portalNav, portalNavToggle, '[data-portal-nav-dismiss]', 'has-portal-menu', 'Abrir navegação', 'Fechar navegação');
 
     if (root.classList.contains('public-portal')) {
         var portalPath = window.location.pathname.replace(/\/+$/, '') || '/';

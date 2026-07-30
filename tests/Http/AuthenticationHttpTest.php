@@ -33,6 +33,7 @@ final class AuthenticationHttpTest
         assert_true(Auth::authenticated(), 'Sessao nao criada');
         $admin = $router->dispatch(Request::fake('GET', '/torneio-online/admin/usuarios'));
         assert_same(200, $admin->status, 'Administrador nao acessou usuarios');
+        assert_true(str_contains($admin->body, 'id="app-sidebar"') && str_contains($admin->body, 'data-sidebar-dismiss') && str_contains($admin->body, 'aria-controls="app-sidebar"'), 'Navegacao administrativa movel nao possui controles acessiveis.');
         $logout = $router->dispatch(Request::fake('POST', '/torneio-online/logout', ['_csrf' => Security::csrfToken()]));
         assert_same(302, $logout->status, 'Logout nao redirecionou');
         $csrf = Security::csrfToken();

@@ -48,6 +48,7 @@ final class PublicPortalHttpTest
         $home = $router->dispatch(Request::fake('GET', $base));
         assert_true(str_contains($home->body, 'canonical') && str_contains($home->body, 'og:title'), 'SEO basico ausente na home publica');
         assert_true(str_contains($home->body, 'https://www.cassianogalvao.com.br/torneio-online/campeonatos/' . $slug), 'Canonical nao usa o dominio final');
+        assert_true(str_contains($home->body, 'id="portal-navigation"') && str_contains($home->body, 'data-portal-nav-dismiss'), 'Navegacao publica movel nao possui dialogo descartavel.');
         $sitemap = $router->dispatch(Request::fake('GET', '/sitemap.xml'));
         assert_same(200, $sitemap->status, 'Sitemap publico falhou');
         assert_true(str_contains($sitemap->body, 'https://www.cassianogalvao.com.br/torneio-online/campeonatos/' . $slug), 'Sitemap nao usa o dominio final');

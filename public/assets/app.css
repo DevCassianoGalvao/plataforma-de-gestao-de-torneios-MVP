@@ -1803,3 +1803,158 @@ body.public-portal .tactical-player:hover > img, body.public-portal .tactical-pl
 body.public-portal .public-lineup-reserves { margin: 1rem 0 0; color: var(--portal-muted); font-size: .79rem; line-height: 1.5; }
 body.public-portal .public-lineup-reserves b { color: var(--portal-copy); }
 @media (max-width: 720px) { body.public-portal .public-lineup-fields { grid-template-columns: 1fr; } body.app-body .tactical-field--editor { width: min(100%, 27rem); } body.app-body .tactical-editor-slot { width: 6.1rem; } body.app-body .tactical-editor-slot label span { display: none; } }
+
+/* Mobile audit pass: navigation behaves as drawers; dense admin controls remain touchable. */
+.sidebar-close,
+.app-navigation-scrim,
+.portal-navigation-scrim { display: none; }
+
+@media (max-width: 800px) {
+    body.app-body.has-mobile-menu,
+    body.public-portal.has-portal-menu { overflow: hidden; }
+
+    body.app-body .app-sidebar {
+        z-index: 90;
+        width: min(calc(100vw - 2.75rem), 21rem);
+        padding: 1rem .85rem 1.25rem;
+        transform: translateX(-105%);
+        transition: transform 180ms ease-out;
+        box-shadow: 18px 0 42px rgba(0,0,0,.35);
+    }
+    body.app-body .app-sidebar.is-open { transform: translateX(0); }
+    body.app-body .sidebar-close {
+        display: inline-flex;
+        width: fit-content;
+        min-height: 2.5rem;
+        margin-left: auto;
+        padding: .4rem .65rem;
+        border-color: var(--ui-border);
+        background: var(--ui-surface-2);
+        color: var(--ui-text-muted);
+        font-size: .78rem;
+    }
+    body.app-body .app-navigation-scrim {
+        position: fixed;
+        z-index: 80;
+        inset: 0;
+        display: block;
+        border: 0;
+        border-radius: 0;
+        background: rgba(3, 9, 16, .64);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 180ms ease-out;
+    }
+    body.app-body.has-mobile-menu .app-navigation-scrim { opacity: 1; pointer-events: auto; }
+    body.app-body .sidebar-toggle { display: inline-grid; order: -1; }
+    body.app-body .app-topbar { min-height: 64px; padding: .7rem .85rem; }
+    body.app-body .topbar-actions { gap: .4rem; }
+    body.app-body .topbar-user { display: none; }
+
+    body.public-portal .portal-header { z-index: 90; }
+    body.public-portal .portal-header-inner { position: relative; z-index: 92; display: flex; min-height: 64px; align-items: center; padding: .7rem 0; }
+    body.public-portal .portal-nav-tools { display: flex; margin-left: auto; }
+    body.public-portal .portal-nav-toggle { display: inline-grid; width: 2.7rem; height: 2.7rem; }
+    body.public-portal .portal-header nav { display: none !important; }
+    body.public-portal .portal-header nav.is-open {
+        position: fixed;
+        z-index: 94;
+        top: 4.85rem;
+        right: .75rem;
+        left: .75rem;
+        display: grid !important;
+        width: auto !important;
+        height: fit-content;
+        max-height: calc(100dvh - 5.7rem);
+        padding: .55rem;
+        overflow-y: auto;
+        border: 1px solid #324154;
+        border-radius: 12px;
+        background: #121b28;
+        box-shadow: 0 22px 50px rgba(0,0,0,.45);
+    }
+    body.public-portal .portal-header nav.is-open a {
+        display: flex;
+        height: auto;
+        min-height: 3rem;
+        padding: .7rem .85rem;
+        align-items: center;
+        justify-content: flex-start;
+        border-radius: 7px;
+        color: var(--portal-copy);
+        font-size: .95rem;
+    }
+    body.public-portal .portal-header nav.is-open a::after { display: none; }
+    body.public-portal .portal-header nav.is-open a[aria-current="page"] { background: rgba(56,224,141,.12); color: var(--portal-green); }
+    body.public-portal .portal-navigation-scrim {
+        position: fixed;
+        z-index: 91;
+        inset: 0;
+        display: block;
+        border: 0;
+        border-radius: 0;
+        background: rgba(3, 9, 16, .62);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 180ms ease-out;
+    }
+    body.public-portal.has-portal-menu .portal-navigation-scrim { opacity: 1; pointer-events: auto; }
+}
+
+@media (max-width: 600px) {
+    html, body { max-width: 100%; overflow-x: hidden; }
+    .page-shell, .portal-shell { padding-bottom: 2.5rem; }
+    .page-shell > section, .page-shell > .panel { min-width: 0; }
+    .section-heading, .panel-heading, .card-header { gap: .7rem; }
+    .section-heading > *, .panel-heading > *, .card-header > * { min-width: 0; }
+    .section-heading h1 { font-size: clamp(1.65rem, 9vw, 2.2rem); overflow-wrap: anywhere; }
+    .page-shell h2, .portal-shell h2 { overflow-wrap: anywhere; }
+    .actions, .inline-actions, .action-nav { display: flex; flex-wrap: wrap; gap: .6rem; }
+    .actions > *, .inline-actions > *, .action-nav > * { flex: 1 1 10rem; }
+    .actions button, .actions .button, .inline-actions button, .inline-actions .button, .action-nav button, .action-nav .button { width: 100%; }
+    .inline-form, .search-form, .filter-bar, .filters { align-items: stretch; }
+    .inline-form label, .search-form label, .filter-bar label, .filters label { min-width: 0; flex-basis: 100%; }
+    .inline-form button, .search-form button, .filter-bar button, .filters button { width: 100%; }
+    input:not([type="checkbox"]):not([type="radio"]), select, textarea { font-size: 16px; }
+    .table-wrap, .ranking-table { width: 100%; overscroll-behavior-inline: contain; -webkit-overflow-scrolling: touch; }
+    .table-wrap table, .ranking-table table { min-width: max-content; }
+    .status { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    body.public-portal .portal-shell { width: min(100% - 1.25rem, 1200px); }
+    body.public-portal .portal-page-heading, body.public-portal .portal-hero { padding: 1.25rem; }
+    body.public-portal .portal-hero h1 { font-size: clamp(1.8rem, 10vw, 2.45rem); }
+    body.public-portal .portal-search, body.public-portal .filter-bar { display: grid !important; grid-template-columns: 1fr; gap: .7rem; }
+    body.public-portal .portal-search label { min-width: 0; }
+    body.public-portal .portal-search button, body.public-portal .filter-bar button { width: 100%; }
+    body.public-portal .portal-footer { gap: 1.4rem; }
+
+    /* Preserve hierarchy in the match centre without squeezing teams or scores. */
+    body.app-body .operation-scoreboard,
+    body.public-portal .match-detail-score { padding: 1rem; }
+    body.app-body .operation-score,
+    body.public-portal .match-detail-score strong { font-size: clamp(1.55rem, 9vw, 2.2rem); }
+    body.app-body .operation-lineups { grid-template-columns: 1fr; }
+    body.app-body .operation-pitch { min-height: 19rem; margin-inline: .7rem; }
+    body.app-body .report-page { margin-inline: -.15rem; }
+
+    /* Long tables remain usable through horizontal scrolling, never page overflow. */
+    .table-wrap { padding: .2rem; }
+    .table-wrap th, .table-wrap td { padding: .65rem .6rem; }
+    .status-tabs { margin-inline: -.15rem; padding-inline: .15rem; }
+}
+
+@media (max-width: 380px) {
+    body.app-body .topbar-context small { display: none; }
+    body.app-body .topbar-context strong { font-size: .95rem; }
+    body.app-body .notification-button { display: none; }
+    body.public-portal .portal-header-inner { min-height: 58px; }
+    body.public-portal .portal-brand--logo-only img,
+    body.public-portal .portal-brand--logo-only .portal-mark-fallback { width: 2.4rem; height: 2.4rem; }
+    body.public-portal .portal-header nav.is-open { top: 4.35rem; }
+    body.app-body .tactical-field--editor { width: min(100%, 19rem); }
+    body.app-body .tactical-editor-slot { width: 4.65rem; }
+    body.app-body .tactical-editor-slot select { padding: .2rem; font-size: .58rem; }
+    .tactical-player { width: 3.95rem; }
+    .tactical-player > img,
+    .tactical-player > span { width: 2.25rem; height: 2.25rem; }
+    .tactical-player small { max-width: 4.1rem; font-size: .55rem; }
+}
