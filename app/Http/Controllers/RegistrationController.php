@@ -134,8 +134,9 @@ final class RegistrationController extends Controller
     {
         $guard = $this->guard($request, 'rosters.view');
         if ($guard instanceof Response) return $guard;
-        $items = $this->access->list($guard, ['status' => 'approved', 'championship_id' => (string) ($request->query['championship_id'] ?? ''), 'team_id' => (string) ($request->query['team_id'] ?? '')]);
-        return $this->page('Elenco oficial', 'admin/registrations/roster', ['user' => $guard, 'items' => $items, 'championships' => $this->access->authorizedChampionships($guard), 'teams' => $this->availableTeams($guard)]);
+        $filters = ['championship_id' => (string) ($request->query['championship_id'] ?? ''), 'team_id' => (string) ($request->query['team_id'] ?? '')];
+        $items = $this->access->list($guard, ['status' => 'approved', ...$filters]);
+        return $this->page('Elenco oficial', 'admin/registrations/roster', ['user' => $guard, 'items' => $items, 'filters' => $filters, 'championships' => $this->access->authorizedChampionships($guard), 'teams' => $this->availableTeams($guard)]);
     }
 
     private function reviewAction(Request $request, array $params, string $to, ?string $notes): Response

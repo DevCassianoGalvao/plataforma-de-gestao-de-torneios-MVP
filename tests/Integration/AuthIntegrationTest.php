@@ -30,6 +30,9 @@ final class AuthIntegrationTest
         $users = new UserRepository($pdo);
         $admin = $users->findByEmail('admin@torneios.local');
         assert_true($admin !== null && password_verify($password, $admin['password_hash']), 'Senha seed nao pode ser verificada');
+        $users->updateAvatar((int) $admin['id'], 'profiles/' . (int) $admin['id'] . '/avatar.png');
+        assert_same('profiles/' . (int) $admin['id'] . '/avatar.png', (string) $users->findById((int) $admin['id'])['avatar_path'], 'Avatar de perfil nao foi atualizado');
+        $users->updateAvatar((int) $admin['id'], '');
         assert_true(in_array('users.manage_roles', $users->permissions((int) $admin['id']), true), 'Permissao de administrador ausente');
         $organizer = $users->findByEmail('organizador@torneios.local');
         assert_true(!in_array('users.view', $users->permissions((int) $organizer['id']), true), 'Organizador recebeu permissao administrativa');

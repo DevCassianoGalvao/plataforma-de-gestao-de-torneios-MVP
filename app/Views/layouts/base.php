@@ -18,6 +18,8 @@ $assetUrl = static function (string $asset): string {
 };
 $currentPath = (string) parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
 $isActive = static fn (string $path): bool => $path === '/' ? $currentPath === App\Core\Config::url('/') : str_starts_with($currentPath, App\Core\Config::url($path));
+$isExactActive = static fn (string $path): bool => $currentPath === App\Core\Config::url($path);
+$isRegistrationsActive = $isActive('/admin/inscricoes') && !$isExactActive('/admin/inscricoes/elenco');
 ?>
 <!doctype html>
 <html lang="pt-BR">
@@ -47,8 +49,8 @@ $isActive = static fn (string $path): bool => $path === '/' ? $currentPath === A
             <span class="sidebar-section-label">Competição</span>
             <?php if ($menuAuth && $menuAuth->can($currentUser, 'teams.view')): ?><a href="<?= $e(App\Core\Config::url('/admin/equipes')) ?>"<?= $isActive('/admin/equipes') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="team" aria-hidden="true">EQ</span><span class="nav-label">Equipes</span></a><?php endif; ?>
             <?php if ($menuAuth && $menuAuth->can($currentUser, 'athletes.view')): ?><a href="<?= $e(App\Core\Config::url('/admin/atletas')) ?>"<?= $isActive('/admin/atletas') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="athlete" aria-hidden="true">AT</span><span class="nav-label">Atletas</span></a><?php endif; ?>
-            <?php if ($menuAuth && $menuAuth->can($currentUser, 'registrations.view')): ?><a href="<?= $e(App\Core\Config::url('/admin/inscricoes')) ?>"<?= $isActive('/admin/inscricoes') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="registration" aria-hidden="true">IN</span><span class="nav-label">Inscrições</span></a><?php endif; ?>
-            <?php if ($menuAuth && $menuAuth->can($currentUser, 'rosters.view')): ?><a href="<?= $e(App\Core\Config::url('/admin/inscricoes/elenco')) ?>"><span class="nav-icon" data-icon="roster" aria-hidden="true">EL</span><span class="nav-label">Elenco oficial</span></a><?php endif; ?>
+            <?php if ($menuAuth && $menuAuth->can($currentUser, 'registrations.view')): ?><a href="<?= $e(App\Core\Config::url('/admin/inscricoes')) ?>"<?= $isRegistrationsActive ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="registration" aria-hidden="true">IN</span><span class="nav-label">Inscrições</span></a><?php endif; ?>
+            <?php if ($menuAuth && $menuAuth->can($currentUser, 'rosters.view')): ?><a href="<?= $e(App\Core\Config::url('/admin/inscricoes/elenco')) ?>"<?= $isExactActive('/admin/inscricoes/elenco') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="roster" aria-hidden="true">EL</span><span class="nav-label">Elenco oficial</span></a><?php endif; ?>
             <?php if ($menuAuth && $menuAuth->can($currentUser, 'transfers.manage')): ?><a href="<?= $e(App\Core\Config::url('/admin/vai-e-vem')) ?>"<?= $isActive('/admin/vai-e-vem') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="transfer" aria-hidden="true">VV</span><span class="nav-label">Vai e Vem</span></a><?php endif; ?>
             <span class="sidebar-section-label">Conteúdo e acesso</span>
             <?php if ($menuAuth && $menuAuth->can($currentUser, 'content.manage')): ?><a href="<?= $e(App\Core\Config::url('/admin/noticias')) ?>"<?= $isActive('/admin/noticias') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="news" aria-hidden="true">NT</span><span class="nav-label">Notícias</span></a><?php endif; ?>
@@ -56,7 +58,7 @@ $isActive = static fn (string $path): bool => $path === '/' ? $currentPath === A
             <?php if ($menuAuth && $menuAuth->can($currentUser, 'audit.view')): ?><a href="<?= $e(App\Core\Config::url('/admin/auditoria')) ?>"<?= $isActive('/admin/auditoria') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="audit" aria-hidden="true">AU</span><span class="nav-label">Auditoria</span></a><?php endif; ?>
         </nav>
         <div class="sidebar-footer">
-            <a class="sidebar-nav" href="<?= $e(App\Core\Config::url('/admin/perfil')) ?>"><span class="nav-icon" data-icon="profile" aria-hidden="true">PF</span><span class="nav-label">Meu perfil</span></a>
+            <a class="sidebar-nav" href="<?= $e(App\Core\Config::url('/admin/perfil')) ?>"<?= $isExactActive('/admin/perfil') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="profile" aria-hidden="true">PF</span><span class="nav-label">Meu perfil</span></a>
         </div>
     </aside>
     <div class="app-main">
@@ -68,7 +70,7 @@ $isActive = static fn (string $path): bool => $path === '/' ? $currentPath === A
             <div class="topbar-actions">
                 <button class="icon-button sidebar-toggle" type="button" data-sidebar-toggle aria-label="Abrir menu" aria-expanded="false" title="Abrir menu">☰</button>
                 <button class="icon-button" type="button" data-theme-toggle aria-label="Ativar tema claro" title="Ativar tema claro">◐</button>
-                <div class="topbar-user"><span class="user-avatar" aria-hidden="true"><?= $e($userInitials((string) ($currentUser['name'] ?? 'TM'))) ?></span><strong><?= $e($currentUser['name'] ?? '') ?></strong><span><?= $e($currentUser['role_name'] ?? 'Acesso autorizado') ?></span></div>
+                <div class="topbar-user"><?php if (!empty($currentUser['avatar_path'])): ?><img class="user-avatar user-avatar-photo" src="<?= $e(App\Core\Config::url('/admin/perfil/foto?v=' . rawurlencode((string) ($currentUser['updated_at'] ?? '0')))) ?>" alt=""><?php else: ?><span class="user-avatar" aria-hidden="true"><?= $e($userInitials((string) ($currentUser['name'] ?? 'TM'))) ?></span><?php endif; ?><strong><?= $e($currentUser['name'] ?? '') ?></strong><span><?= $e($currentUser['role_name'] ?? 'Acesso autorizado') ?></span></div>
                 <form class="logout-form" method="post" action="<?= $e(App\Core\Config::url('/logout')) ?>"><input type="hidden" name="_csrf" value="<?= $e(App\Core\Security::csrfToken()) ?>"><button type="submit" aria-label="Sair" title="Sair">Sair</button></form>
             </div>
         </header>

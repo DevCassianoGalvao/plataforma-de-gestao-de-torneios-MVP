@@ -71,7 +71,7 @@
         active: 'Ativo', inactive: 'Inativo', blocked: 'Bloqueado', transferred: 'Transferido', archived: 'Arquivado',
         scheduled: 'Agendada', confirmed: 'Confirmada', postponed: 'Adiada', finished: 'Encerrada', homologated: 'Homologada',
         published: 'Publicada', unpublished: 'Despublicada', pending: 'Pendente', replaced: 'Substituído', expired: 'Expirado',
-        configured: 'Configurada', in_progress: 'Em andamento'
+        configured: 'Configurada', in_progress: 'Em andamento', wo: 'W.O.', withdrawn: 'Retirada'
     };
     document.querySelectorAll('.status, select option').forEach(function (element) {
         var key = element.classList.contains('status') ? element.textContent.trim() : element.value;

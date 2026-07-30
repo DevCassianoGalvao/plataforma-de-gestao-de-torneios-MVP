@@ -73,6 +73,12 @@ final class UserRepository
         $statement->execute([$passwordHash, date('Y-m-d H:i:s'), $id]);
     }
 
+    public function updateAvatar(int $id, string $path): void
+    {
+        $statement = $this->pdo->prepare('UPDATE users SET avatar_path = ?, updated_at = ? WHERE id = ? AND deleted_at IS NULL');
+        $statement->execute([$path, date('Y-m-d H:i:s'), $id]);
+    }
+
     public function markSuccessfulLogin(int $id): void
     {
         $statement = $this->pdo->prepare('UPDATE users SET last_login_at = ?, failed_login_attempts = 0, locked_until = NULL, updated_at = ? WHERE id = ?');

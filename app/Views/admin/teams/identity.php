@@ -1,7 +1,7 @@
 <section>
     <p class="eyebrow">Identidade</p><h1><?= App\Core\View::e($team['name']) ?></h1>
     <?php foreach (($errors ?? []) as $error): ?><p class="alert" role="alert"><?= App\Core\View::e($error) ?></p><?php endforeach; ?>
-    <?php if (!empty($team['shield_path'])): ?><p><img class="team-shield" src="<?= App\Core\View::e(App\Core\Config::url('/admin/equipes/' . $team['slug'] . '/assets/shield_path')) ?>" alt="Escudo de <?= App\Core\View::e($team['name']) ?>"></p><?php endif; ?>
+    <p><?php if (!empty($team['shield_path'])): ?><img class="team-shield" src="<?= App\Core\View::e(App\Core\Config::url('/admin/equipes/' . $team['slug'] . '/assets/shield_path')) ?>" alt="Escudo de <?= App\Core\View::e($team['name']) ?>"><?php else: ?><span class="team-shield team-mark-fallback" aria-label="Equipe sem escudo cadastrado"></span><?php endif; ?></p>
     <form method="post" enctype="multipart/form-data" action="<?= App\Core\View::e(App\Core\Config::url('/admin/equipes/' . $team['slug'] . '/identidade')) ?>">
         <input type="hidden" name="_csrf" value="<?= App\Core\View::e(App\Core\Security::csrfToken()) ?>">
         <label>Cor principal <input type="color" name="primary_color" value="<?= App\Core\View::e($team['primary_color']) ?>"></label>

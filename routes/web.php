@@ -168,10 +168,12 @@ $router->post('/admin/usuarios/{id}/status', [$userController, 'status']);
 $router->post('/admin/usuarios/{id}/perfis', [$userController, 'roles']);
 $router->post('/admin/usuarios/{id}/reset-password', [$userController, 'resetPassword']);
 
-$profile = new ProfileController($users, $authorization, $audit);
+$profile = new ProfileController($users, $authorization, $audit, $storage);
 $router->get('/admin/perfil', [$profile, 'show']);
 $router->post('/admin/perfil', [$profile, 'update']);
 $router->post('/admin/perfil/senha', [$profile, 'changePassword']);
+$router->post('/admin/perfil/foto', [$profile, 'uploadAvatar']);
+$router->get('/admin/perfil/foto', [$profile, 'avatar']);
 
 $auditController = new AuditController($users, $authorization, $audit);
 $router->get('/admin/auditoria', [$auditController, 'index']);
