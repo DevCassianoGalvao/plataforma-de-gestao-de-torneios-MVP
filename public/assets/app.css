@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap');
 
 :root {
     color-scheme: dark;
@@ -823,4 +823,216 @@ button.secondary, .button.secondary, .actions button { background: var(--ui-surf
     .dashboard-hero-aside { width: 8rem; }
     .dashboard-hero-aside strong { font-size: 2.2rem; }
     .dashboard-panel { padding: 1.15rem; }
+}
+
+/* Stitch public portal: compact matchday editorial system. */
+.public-portal {
+    --portal-bg: #0b1018;
+    --portal-panel: #151e2b;
+    --portal-panel-strong: #1b2636;
+    --portal-panel-soft: #101823;
+    --portal-line: #2d3748;
+    --portal-copy: #f4f7fb;
+    --portal-muted: #9aa8b9;
+    --portal-dim: #708096;
+    --portal-green: #38e08d;
+    --portal-green-deep: #19c37d;
+    --portal-yellow: #ffb967;
+    color-scheme: dark;
+    background: var(--portal-bg);
+    background-image: linear-gradient(135deg, rgba(56, 224, 141, .025) 0 1px, transparent 1px 100%);
+    background-size: 36px 36px;
+    color: var(--portal-copy);
+    font-family: Manrope, Inter, sans-serif;
+}
+.public-portal[data-theme="light"] {
+    --portal-bg: #f5f7f6;
+    --portal-panel: #fff;
+    --portal-panel-strong: #eef3f0;
+    --portal-panel-soft: #f9fbfa;
+    --portal-line: #d8e2dc;
+    --portal-copy: #122a21;
+    --portal-muted: #5d7168;
+    --portal-dim: #71847b;
+    --portal-green: #11805a;
+    --portal-green-deep: #0b9b68;
+    --portal-yellow: #956b06;
+    color-scheme: light;
+}
+.public-portal h1,
+.public-portal h2,
+.public-portal h3,
+.public-portal h4,
+.public-portal .portal-brand,
+.public-portal .eyebrow,
+.public-portal th {
+    font-family: Sora, Manrope, sans-serif;
+}
+.public-portal h1,
+.public-portal h2,
+.public-portal h3,
+.public-portal h4 { color: var(--portal-copy); }
+.public-portal a { color: var(--portal-copy); }
+.public-portal a:hover { color: var(--portal-green); }
+.public-portal .eyebrow { color: var(--portal-green); font-size: .62rem; font-weight: 700; letter-spacing: .12em; }
+.public-portal .portal-header {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: rgba(15, 23, 34, .94);
+    border-bottom: 1px solid var(--portal-line);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, .16);
+    backdrop-filter: blur(16px);
+}
+.public-portal[data-theme="light"] .portal-header { background: rgba(255, 255, 255, .94); }
+.public-portal .portal-header-inner,
+.public-portal .portal-footer { width: min(100% - 2rem, 1248px); }
+.public-portal .portal-header-inner { min-height: 60px; gap: 1rem; }
+.public-portal .portal-brand { gap: .55rem; font-size: .83rem; font-weight: 800; letter-spacing: -.02em; }
+.public-portal .portal-brand img,
+.public-portal .portal-mark-fallback { width: 1.8rem; height: 1.8rem; border-radius: 7px; }
+.public-portal .portal-mark-fallback { background: var(--portal-green-deep); color: #06140e; font-size: .62rem; }
+.public-portal .portal-header nav { gap: .08rem; }
+.public-portal .portal-header nav a {
+    padding: .55rem .5rem;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
+    color: var(--portal-muted);
+    font-size: .66rem;
+    font-weight: 700;
+    text-decoration: none;
+}
+.public-portal .portal-header nav a:hover { background: transparent; border-bottom-color: var(--portal-green); color: var(--portal-copy); }
+.public-portal .portal-nav-tools .icon-button { width: 1.9rem; height: 1.9rem; background: transparent; border: 1px solid var(--portal-line); border-radius: 6px; color: var(--portal-muted); font-size: 0; }
+.public-portal .portal-nav-tools .icon-button::before { content: '◐'; font-size: .82rem; }
+.public-portal .portal-nav-toggle::before { content: '☰' !important; }
+.public-portal .portal-shell { width: min(100% - 2rem, 1248px); padding: 1.4rem 0 3.5rem; }
+.public-portal .portal-shell section,
+.public-portal .portal-page-heading,
+.public-portal .portal-card-grid > a,
+.public-portal .portal-table-block,
+.public-portal .knockout-tie,
+.public-portal .champion-grid article {
+    background: var(--portal-panel);
+    border: 1px solid var(--portal-line);
+    border-radius: 8px;
+    box-shadow: none;
+}
+.public-portal .portal-hero {
+    min-height: 15.5rem;
+    margin-bottom: 1rem;
+    padding: 2rem;
+    background-color: #111b27;
+    border: 1px solid var(--portal-line);
+    border-radius: 8px;
+    box-shadow: none;
+}
+.public-portal .portal-hero::after { opacity: .42; }
+.public-portal .portal-hero h1 { max-width: 24ch; margin: .35rem 0 .5rem; font-size: 2rem; letter-spacing: -.045em; }
+.public-portal .portal-hero p:not(.eyebrow) { max-width: 54ch; color: var(--portal-muted); font-size: .78rem; }
+.public-portal .portal-badge { margin-top: .45rem; padding: .3rem .5rem; border: 1px solid var(--portal-green); border-radius: 4px; color: var(--portal-green); font-size: .62rem; font-weight: 700; }
+.public-portal .portal-grid { gap: 1rem; margin-bottom: 1rem; }
+.public-portal .portal-grid-main { grid-template-columns: 1.35fr .85fr; }
+.public-portal .portal-grid section { padding: 1rem; }
+.public-portal .section-heading { margin-bottom: .75rem; }
+.public-portal .section-heading h2 { font-size: .92rem; letter-spacing: -.02em; }
+.public-portal .section-heading a { color: var(--portal-green); font-size: .62rem; font-weight: 700; text-decoration: none; }
+.public-portal .match-cards { gap: .45rem; }
+.public-portal .match-cards-large { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 1rem; }
+.public-portal .match-card {
+    gap: .26rem;
+    padding: .8rem;
+    background: var(--portal-panel-strong);
+    border: 1px solid var(--portal-line);
+    border-radius: 6px;
+}
+.public-portal .match-card:hover { background: #223044; border-color: var(--portal-green); }
+.public-portal[data-theme="light"] .match-card:hover { background: #e7f1eb; }
+.public-portal .match-card span,
+.public-portal .match-card small { color: var(--portal-muted); font: 500 .62rem/1.4 "JetBrains Mono", monospace; }
+.public-portal .match-card strong { font-size: .76rem; }
+.public-portal .match-card b { color: var(--portal-yellow); }
+.public-portal .standings-row,
+.public-portal .ranking-row { padding: .48rem 0; border-bottom-color: var(--portal-line); font-size: .7rem; }
+.public-portal .standings-row b { color: var(--portal-dim); font-family: "JetBrains Mono", monospace; }
+.public-portal .standings-row strong,
+.public-portal .ranking-row b { color: var(--portal-green); font-family: "JetBrains Mono", monospace; font-size: .7rem; }
+.public-portal .ranking-row small { color: var(--portal-dim); font-size: .6rem; }
+.public-portal .result-list { gap: 0; }
+.public-portal .result-list a { padding: .62rem 0; border-bottom-color: var(--portal-line); font-size: .7rem; }
+.public-portal .result-list a strong { padding: .25rem .48rem; background: var(--portal-panel-strong); border: 1px solid var(--portal-line); border-radius: 4px; font: 700 .76rem "JetBrains Mono", monospace; }
+.public-portal .portal-list-item { padding: .65rem 0; border-bottom-color: var(--portal-line); }
+.public-portal .portal-list-item h3 { margin: .15rem 0; font-size: .75rem; }
+.public-portal .portal-list-item p { color: var(--portal-muted); font-size: .68rem; }
+.public-portal .knockout-strip,
+.public-portal .knockout-grid,
+.public-portal .champion-grid { gap: .7rem; }
+.public-portal .knockout-strip > div { padding: .7rem; background: var(--portal-panel-strong); border: 1px solid var(--portal-line); border-radius: 6px; }
+.public-portal .knockout-strip > div strong,
+.public-portal .knockout-tie strong { font-size: .7rem; }
+.public-portal .portal-page-heading { margin-bottom: 1rem; padding: 1.1rem 1.25rem; }
+.public-portal .portal-page-heading h1 { margin: .25rem 0 .35rem; font-size: 1.65rem; letter-spacing: -.045em; }
+.public-portal .portal-page-heading > p:last-child { color: var(--portal-muted); font-size: .7rem; }
+.public-portal .portal-search {
+    max-width: 100%;
+    margin: 0 0 1rem !important;
+    padding: .7rem;
+    background: var(--portal-panel);
+    border: 1px solid var(--portal-line);
+    border-radius: 7px;
+}
+.public-portal .portal-search label { flex: 1 1 16rem; color: var(--portal-muted); font-size: .62rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+.public-portal .portal-search input { min-height: 2.25rem; padding: .45rem .6rem; background: var(--portal-bg); border: 1px solid var(--portal-line); border-radius: 5px; font-size: .72rem; }
+.public-portal .portal-search button { min-height: 2.25rem; padding: .45rem .9rem; background: var(--portal-green); border: 0; border-radius: 5px; color: #06140e; font-size: .68rem; font-weight: 800; }
+.public-portal .portal-table-block { margin-bottom: 1rem; padding: .8rem; }
+.public-portal .portal-table-block h2 { margin: .2rem 0 .7rem; font-size: .82rem; }
+.public-portal .table-wrap,
+.public-portal .ranking-table { padding: 0; background: transparent; border: 1px solid var(--portal-line); border-radius: 5px; box-shadow: none; }
+.public-portal table { min-width: 38rem; }
+.public-portal th { padding: .55rem .6rem; background: var(--portal-panel-soft); color: var(--portal-dim); font-size: .58rem; letter-spacing: .08em; text-transform: uppercase; }
+.public-portal td { padding: .58rem .6rem; border-bottom-color: var(--portal-line); color: var(--portal-muted); font-size: .68rem; }
+.public-portal td:first-child,
+.public-portal td:last-child,
+.public-portal td strong { color: var(--portal-copy); font-family: "JetBrains Mono", monospace; }
+.public-portal tbody tr:nth-child(even) { background: rgba(255,255,255,.018); }
+.public-portal tbody tr:hover { background: rgba(56,224,141,.06); }
+.public-portal .portal-card-grid { gap: 1rem; margin-top: 1rem; }
+.public-portal .portal-card-grid > a { min-height: 8rem; padding: 1rem; }
+.public-portal .portal-card-grid > a:hover { border-color: var(--portal-green); transform: translateY(-2px); box-shadow: none; }
+.public-portal .portal-card h2 { margin: .55rem 0 .15rem; font-size: .78rem; }
+.public-portal .portal-card p { color: var(--portal-muted); font-size: .66rem; }
+.public-portal .portal-shield,
+.public-portal .team-mark-fallback { width: 3.25rem; height: 3.55rem; }
+.public-portal .portal-athlete-photo,
+.public-portal .athlete-avatar-fallback { width: 3.25rem; height: 3.25rem; }
+.public-portal .team-mark-fallback { background: linear-gradient(145deg, #8995a4, #596575) !important; }
+.public-portal .athlete-avatar-fallback { background: linear-gradient(145deg, #2d6bff, #19c37d); font-size: .84rem; }
+.public-portal .portal-score { min-height: 9rem; margin-bottom: 1rem; padding: 1.25rem; background: var(--portal-panel-strong); border: 1px solid var(--portal-line); border-radius: 8px; color: var(--portal-copy); box-shadow: none; }
+.public-portal .portal-score strong { color: var(--portal-copy); font: 700 2.4rem "JetBrains Mono", monospace; }
+.public-portal .portal-footer { padding: 1.4rem 0 2rem; border-top: 1px solid var(--portal-line); color: var(--portal-copy); }
+.public-portal .portal-footer::before { display: none; }
+.public-portal .portal-footer strong { color: var(--portal-green); font-family: Sora, sans-serif; font-size: .76rem; }
+.public-portal .portal-footer span,
+.public-portal .portal-footer a { color: var(--portal-muted); font-size: .62rem; }
+
+@media (max-width: 800px) {
+    .public-portal .portal-header-inner { min-height: 56px; padding: .7rem 0; }
+    .public-portal .portal-header nav { gap: .15rem; }
+    .public-portal .portal-header nav a { padding: .55rem .4rem; }
+    .public-portal .portal-grid-main,
+    .public-portal .portal-grid { grid-template-columns: 1fr; }
+    .public-portal .portal-hero { min-height: 14rem; }
+}
+@media (max-width: 600px) {
+    .public-portal .portal-shell { width: min(100% - 1rem, 1248px); padding-top: .8rem; }
+    .public-portal .portal-hero { min-height: 13rem; padding: 1.1rem; }
+    .public-portal .portal-hero h1 { font-size: 1.7rem; }
+    .public-portal .portal-page-heading { padding: .95rem; }
+    .public-portal .portal-page-heading h1 { font-size: 1.4rem; }
+    .public-portal .match-cards-large,
+    .public-portal .portal-card-grid,
+    .public-portal .knockout-strip,
+    .public-portal .knockout-grid,
+    .public-portal .champion-grid { grid-template-columns: 1fr; }
+    .public-portal .portal-footer { width: min(100% - 1rem, 1248px); }
 }
