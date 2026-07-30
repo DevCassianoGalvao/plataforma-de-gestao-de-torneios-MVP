@@ -24,7 +24,7 @@ $assetUrl = static function (string $asset): string {
 $currentPath = (string) parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
 $isActive = static fn (string $path): bool => $path === '/' ? $currentPath === App\Core\Config::url('/') : str_starts_with($currentPath, App\Core\Config::url($path));
 $isExactActive = static fn (string $path): bool => $currentPath === App\Core\Config::url($path);
-$isRegistrationsActive = $isActive('/admin/inscricoes') && !$isExactActive('/admin/inscricoes/elenco');
+$isRegistrationsActive = $isActive('/admin/inscricoes');
 ?>
 <!doctype html>
 <html lang="pt-BR">
@@ -50,13 +50,13 @@ $isRegistrationsActive = $isActive('/admin/inscricoes') && !$isExactActive('/adm
             <span class="sidebar-section-label">Visão geral</span>
             <a href="<?= $e(App\Core\Config::url('/admin')) ?>"<?= $isActive('/admin') && !$isActive('/admin/usuarios') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="overview" aria-hidden="true">OV</span><span class="nav-label">Visão geral</span></a>
             <?php if ($menuAuth && $menuAuth->can($currentUser, 'championships.view')): ?><a href="<?= $e(App\Core\Config::url('/admin/campeonatos')) ?>"<?= $isActive('/admin/campeonatos') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="championship" aria-hidden="true">CP</span><span class="nav-label">Campeonatos</span></a><?php endif; ?>
+            <span class="sidebar-section-label">Operação</span>
             <?php if ($menuAuth && $menuAuth->can($currentUser, 'schedule.view')): ?><a href="<?= $e(App\Core\Config::url('/admin/tabela')) ?>"<?= $isActive('/admin/tabela') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="schedule" aria-hidden="true">TB</span><span class="nav-label">Tabela e partidas</span></a><?php endif; ?>
-            <?php if ($menuAuth && $menuAuth->can($currentUser, 'matches.operate')): ?><a href="<?= $e(App\Core\Config::url('/minhas-partidas')) ?>"<?= $isActive('/minhas-partidas') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="clipboard-check" aria-hidden="true">OP</span><span class="nav-label">Minhas partidas</span></a><?php endif; ?>
-            <span class="sidebar-section-label">Competição</span>
+            <?php if ($menuAuth && $menuAuth->can($currentUser, 'matches.operate')): ?><a href="<?= $e(App\Core\Config::url('/minhas-partidas')) ?>"<?= $isActive('/minhas-partidas') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="clipboard-check" aria-hidden="true">OP</span><span class="nav-label">Partidas para operar</span></a><?php endif; ?>
+            <span class="sidebar-section-label">Cadastro esportivo</span>
             <?php if ($menuAuth && $menuAuth->can($currentUser, 'teams.view')): ?><a href="<?= $e(App\Core\Config::url('/admin/equipes')) ?>"<?= $isActive('/admin/equipes') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="team" aria-hidden="true">EQ</span><span class="nav-label">Equipes</span></a><?php endif; ?>
             <?php if ($menuAuth && $menuAuth->can($currentUser, 'athletes.view')): ?><a href="<?= $e(App\Core\Config::url('/admin/atletas')) ?>"<?= $isActive('/admin/atletas') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="athlete" aria-hidden="true">AT</span><span class="nav-label">Atletas</span></a><?php endif; ?>
-            <?php if ($menuAuth && $menuAuth->can($currentUser, 'registrations.view')): ?><a href="<?= $e(App\Core\Config::url('/admin/inscricoes')) ?>"<?= $isRegistrationsActive ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="registration" aria-hidden="true">IN</span><span class="nav-label">Inscrições</span></a><?php endif; ?>
-            <?php if ($menuAuth && $menuAuth->can($currentUser, 'rosters.view')): ?><a href="<?= $e(App\Core\Config::url('/admin/inscricoes/elenco')) ?>"<?= $isExactActive('/admin/inscricoes/elenco') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="roster" aria-hidden="true">EL</span><span class="nav-label">Elenco oficial</span></a><?php endif; ?>
+            <?php if ($menuAuth && ($menuAuth->can($currentUser, 'registrations.view') || $menuAuth->can($currentUser, 'rosters.view'))): ?><a href="<?= $e(App\Core\Config::url('/admin/inscricoes')) ?>"<?= $isRegistrationsActive ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="registration" aria-hidden="true">IN</span><span class="nav-label">Inscrições e elenco</span></a><?php endif; ?>
             <?php if ($menuAuth && $menuAuth->can($currentUser, 'transfers.manage')): ?><a href="<?= $e(App\Core\Config::url('/admin/vai-e-vem')) ?>"<?= $isActive('/admin/vai-e-vem') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="transfer" aria-hidden="true">VV</span><span class="nav-label">Vai e Vem</span></a><?php endif; ?>
             <span class="sidebar-section-label">Conteúdo e acesso</span>
             <?php if ($menuAuth && $menuAuth->can($currentUser, 'content.manage')): ?><a href="<?= $e(App\Core\Config::url('/admin/noticias')) ?>"<?= $isActive('/admin/noticias') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="news" aria-hidden="true">NT</span><span class="nav-label">Notícias</span></a><?php endif; ?>

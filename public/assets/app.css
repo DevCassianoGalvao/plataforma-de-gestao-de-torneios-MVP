@@ -798,6 +798,26 @@ button.secondary, .button.secondary, .actions button { background: var(--ui-surf
 .page-shell > section + section { margin-top: 1.5rem; }
 .page-shell > section > .panel + .panel, .page-shell > section > section + section { margin-top: 1rem; }
 
+/* Match operations are a queue of decisions, so each card needs a clear pause. */
+.match-grid { display: grid; gap: 1rem; margin-top: 1.35rem; }
+.match-operation-card { display: grid; gap: .8rem; padding: clamp(1.15rem, 2vw, 1.6rem); background: var(--ui-surface); border: 1px solid var(--ui-border-strong); border-radius: var(--ui-radius-lg); box-shadow: 0 10px 26px rgba(0, 0, 0, .12); }
+.match-card-heading { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.match-operation-card .eyebrow { margin: 0; }
+.match-operation-card h2 { margin: 0; font-size: clamp(1.15rem, 2vw, 1.45rem); }
+.match-card-meta { display: flex; flex-wrap: wrap; gap: .5rem 1.25rem; color: var(--ui-text-muted); font-size: .88rem; }
+.match-card-meta span { display: inline-flex; flex-wrap: wrap; gap: .35rem; }
+.match-card-meta b { color: var(--ui-text-soft); font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; }
+.match-card-actions { gap: .7rem; margin-top: .2rem; padding-top: .9rem; border-top: 1px solid var(--ui-border); }
+.match-card-actions a.button { min-height: 2.55rem; padding-inline: 1rem; color: #fff; }
+.match-card-actions a.button.secondary { color: var(--ui-text); background: var(--ui-surface-3); border-color: var(--ui-border-strong); }
+.match-card-actions a.button.secondary:hover { color: var(--ui-text); background: var(--ui-surface-4); }
+
+@media (max-width: 600px) {
+    .match-card-heading { align-items: flex-start; flex-direction: column; gap: .4rem; }
+    .match-card-actions { align-items: stretch; flex-direction: column; }
+    .match-card-actions a.button { width: 100%; }
+}
+
 @media (max-width: 600px) {
     .dashboard-hero { grid-template-columns: 1fr; gap: 1.25rem; }
     .dashboard-hero-aside { width: 8rem; }

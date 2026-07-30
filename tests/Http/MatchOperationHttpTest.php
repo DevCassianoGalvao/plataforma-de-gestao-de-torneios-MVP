@@ -25,7 +25,9 @@ final class MatchOperationHttpTest
 
         Session::destroy();
         self::login($router, 'admin@torneios.local');
-        assert_same(200, $router->dispatch(Request::fake('GET', '/torneio-online/minhas-partidas'))->status, 'Administrador nao abriu suas partidas');
+        $adminMatches = $router->dispatch(Request::fake('GET', '/torneio-online/minhas-partidas'));
+        assert_same(200, $adminMatches->status, 'Administrador nao abriu suas partidas');
+        assert_true(str_contains($adminMatches->body, 'Partidas para operar') && str_contains($adminMatches->body, 'Vis&atilde;o administrativa'), 'Administrador nao recebeu a visao de todas as partidas');
         assert_same(200, $router->dispatch(Request::fake('GET', '/torneio-online/admin/notificacoes'))->status, 'Administrador nao abriu a central de notificacoes');
         $central = $router->dispatch(Request::fake('GET', '/torneio-online/admin/partidas/' . $matchId . '/operacao'));
         assert_same(200, $central->status, 'Central operacional nao abriu');
@@ -34,6 +36,9 @@ final class MatchOperationHttpTest
         self::logout($router);
 
         self::login($router, 'operador@torneios.local');
+        $operatorMatches = $router->dispatch(Request::fake('GET', '/torneio-online/minhas-partidas'));
+        assert_same(200, $operatorMatches->status, 'Operador nao abriu suas partidas');
+        assert_true(str_contains($operatorMatches->body, 'Minhas partidas') && str_contains($operatorMatches->body, 'partidas atribu'), 'Operador nao recebeu a visao atribuida');
         assert_same(200, $router->dispatch(Request::fake('GET', '/torneio-online/admin/partidas/' . $matchId . '/operacao'))->status, 'Operador nao visualizou a central atribuida');
         self::logout($router);
 
