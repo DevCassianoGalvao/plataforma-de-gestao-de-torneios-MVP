@@ -3,6 +3,11 @@
     <div class="section-heading"><div><h1><?= App\Core\View::e($championship['name']) ?></h1><p><?= App\Core\View::e($championship['short_name']) ?> · <?= App\Core\View::e($championship['season_name']) ?> · <?= App\Core\View::e($championship['category_name']) ?></p></div><a class="button" href="<?= App\Core\View::e(App\Core\Config::url('/admin/campeonatos/' . $championship['slug'] . '/editar')) ?>">Editar</a></div>
     <?php if (!empty($message)): ?><p class="success" role="status"><?= App\Core\View::e($message) ?></p><?php endif; ?>
     <p><span class="status status-<?= App\Core\View::e($championship['status']) ?>">Status: <?= App\Core\View::e($championship['status']) ?></span> <span class="status">Visibilidade: <?= App\Core\View::e($championship['visibility']) ?></span></p>
+    <?php if ($championship['visibility'] === 'public' && $championship['status'] !== 'draft'): ?>
+        <p><a href="<?= App\Core\View::e(App\Core\Config::absoluteUrl('/campeonatos/' . $championship['slug'])) ?>" target="_blank" rel="noopener">Ver portal público ↗</a></p>
+    <?php else: ?>
+        <p class="muted">O portal público fica disponível quando a visibilidade for "Pública" e o status sair de rascunho.</p>
+    <?php endif; ?>
     <p><?= App\Core\View::e($championship['description'] ?: 'Sem descricao.') ?></p>
     <div class="grid-links">
         <a class="link-card" href="<?= App\Core\View::e(App\Core\Config::url('/admin/campeonatos/' . $championship['slug'] . '/identidade')) ?>"><strong>Identidade</strong><span>Cores, tema e arquivos</span></a>

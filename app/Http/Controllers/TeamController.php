@@ -108,7 +108,7 @@ final class TeamController extends Controller
             'canFormation' => $this->canFormation($guard, (int) $team['id']),
             'canStatus' => $this->access->scope($guard) !== 'team' && $this->authorization->can($guard, 'teams.deactivate'),
             'canRestore' => $this->access->scope($guard) !== 'team' && $this->authorization->can($guard, 'teams.restore'),
-            'canIdentity' => $this->access->scope($guard) !== 'team' && $this->authorization->can($guard, 'teams.manage_identity'),
+            'canIdentity' => $this->access->find($guard, (int) $team['id'], 'teams.manage_identity', true) !== null,
             'message' => Session::consumeFlash('team_message'),
         ]);
     }

@@ -96,6 +96,9 @@ final class TeamHttpTest
         self::login($router, 'treinador@torneios.local');
         assert_same(200, $router->dispatch(Request::fake('GET', '/torneio-online/admin/equipes/estrela-norte-fc'))->status, 'Treinador nao abriu propria equipe');
         assert_same(403, $router->dispatch(Request::fake('GET', '/torneio-online/admin/equipes/serra-azul-futebol'))->status, 'Treinador abriu equipe alheia');
+        assert_true(str_contains($router->dispatch(Request::fake('GET', '/torneio-online/admin/equipes/estrela-norte-fc'))->body, 'identidade'), 'Treinador nao viu o link de identidade da propria equipe');
+        assert_same(200, $router->dispatch(Request::fake('GET', '/torneio-online/admin/equipes/estrela-norte-fc/identidade'))->status, 'Treinador nao abriu a identidade da propria equipe');
+        assert_same(403, $router->dispatch(Request::fake('GET', '/torneio-online/admin/equipes/serra-azul-futebol/identidade'))->status, 'Treinador abriu identidade de equipe alheia');
         assert_same(302, $router->dispatch(Request::fake('POST', '/torneio-online/logout', ['_csrf' => Security::csrfToken()]))->status, 'Logout do treinador falhou');
         self::login($router, 'operador@torneios.local');
         assert_same(403, $router->dispatch(Request::fake('GET', '/torneio-online/admin/equipes'))->status, 'Operador acessou equipes');

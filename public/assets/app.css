@@ -107,6 +107,7 @@ small, .muted { color: var(--ui-text-muted); }
 .attention-list strong, .attention-list small { display: block; }
 .attention-list small { color: var(--ui-text-muted); font-size: .75rem; }
 .attention-list b { color: var(--ui-primary-soft); }
+.attention-list-item-disabled { display: grid; grid-template-columns: 2rem 1fr auto; align-items: center; gap: .7rem; padding: .7rem .5rem; border-bottom: 1px solid var(--ui-border); color: var(--ui-text-muted); }
 .attention-icon { display: grid; width: 2rem; height: 2rem; place-items: center; background: rgba(96, 165, 250, .14); border: 1px solid rgba(96, 165, 250, .26); border-radius: var(--ui-radius); color: var(--ui-info); font: 700 .58rem "Hanken Grotesk", sans-serif; }
 .attention-warning { background: rgba(246, 196, 83, .13); border-color: rgba(246, 196, 83, .3); color: var(--ui-warning); }
 .attention-danger { background: rgba(255, 107, 107, .13); border-color: rgba(255, 107, 107, .3); color: var(--ui-danger); }

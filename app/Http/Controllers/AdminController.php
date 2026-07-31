@@ -15,7 +15,13 @@ final class AdminController extends Controller
         if ($guard instanceof Response) {
             return $guard;
         }
-        return $this->page('Painel administrativo', 'admin/dashboard', ['user' => $guard, 'role' => $this->authorization->primaryRole($guard), 'metrics' => $this->metrics()]);
+        return $this->page('Painel administrativo', 'admin/dashboard', ['user' => $guard, 'role' => $this->authorization->primaryRole($guard), 'metrics' => $this->metrics(), 'championships' => $this->championshipLinks()]);
+    }
+
+    private function championshipLinks(): array
+    {
+        $pdo = Database::connection();
+        return $pdo->query("SELECT slug, name, visibility, status FROM championships WHERE deleted_at IS NULL ORDER BY name")->fetchAll();
     }
 
     private function metrics(): array

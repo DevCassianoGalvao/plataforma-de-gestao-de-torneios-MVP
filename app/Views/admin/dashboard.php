@@ -34,3 +34,17 @@
         <p class="muted">Use a navegação lateral para entrar em competição, conteúdo e acesso.</p>
     </div>
 </section>
+<?php if (!empty($championships)): ?>
+<section class="dashboard-panel">
+    <div class="section-heading"><div><p class="eyebrow">Divulgação</p><h2>Portal público de cada campeonato</h2></div></div>
+    <div class="attention-list">
+        <?php foreach ($championships as $item): ?>
+            <?php if ($item['visibility'] === 'public' && $item['status'] !== 'draft'): ?>
+                <a href="<?= $e(App\Core\Config::absoluteUrl('/campeonatos/' . $item['slug'])) ?>" target="_blank" rel="noopener"><span class="attention-icon" data-icon="globe" aria-hidden="true"></span><span><strong><?= $e($item['name']) ?></strong><small><?= $e(App\Core\Config::absoluteUrl('/campeonatos/' . $item['slug'])) ?></small></span><b aria-hidden="true">↗</b></a>
+            <?php else: ?>
+                <span class="attention-list-item-disabled"><span class="attention-icon" data-icon="globe" aria-hidden="true"></span><span><strong><?= $e($item['name']) ?></strong><small>ainda não público (visibilidade: <?= $e($item['visibility']) ?>, status: <?= $e($item['status']) ?>)</small></span></span>
+            <?php endif; ?>
+        <?php endforeach; ?>
+    </div>
+</section>
+<?php endif; ?>
