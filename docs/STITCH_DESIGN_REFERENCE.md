@@ -1,4 +1,4 @@
-# Referencia visual do Stitch
+# Referência visual do Stitch
 
 ## Consulta
 
@@ -7,7 +7,7 @@
 - Data da consulta: 2026-07-29
 - Origem: projeto privado acessivel pelo servidor MCP do Google Stitch
 
-Nenhuma chave, token, credencial ou dado interno de autenticacao foi registrado neste documento.
+Nenhuma chave, token, credencial ou dado interno de autenticação foi registrado neste documento.
 
 ## Telas encontradas
 
@@ -27,7 +27,7 @@ Nenhuma chave, token, credencial ou dado interno de autenticacao foi registrado 
 - `Match Results - Desktop`
 - `Match Detail & Tactical Field - Desktop`
 
-As telas esportivas sao referencias complementares. O projeto se concentra na linguagem visual e possui maior detalhe no login.
+As telas esportivas são referências complementares. O projeto se concentra na linguagem visual e possui maior detalhe no login.
 
 ## Elementos extraidos
 
@@ -38,61 +38,61 @@ As telas esportivas sao referencias complementares. O projeto se concentra na li
 - Superficie: `#101C2B` e `#16202F`
 - Superficie elevada: `#212A39` e `#2C3545`
 - Texto principal: `#D9E3F7`
-- Texto secundario: `#C3C6D7`
-- Primaria de acao: `#2563EB`
-- Primaria clara: `#B4C5FF`
-- Verde de confirmacao: `#22C55E` / `#4AE176`
+- Texto secundário: `#C3C6D7`
+- Primária de ação: `#2563EB`
+- Primária clara: `#B4C5FF`
+- Verde de confirmação: `#22C55E` / `#4AE176`
 - Azul de apoio: `#60A5FA`
 - Erro: `#FFB4AB`
 
 ### Tipografia
 
-- Hanken Grotesk para titulos, placares, numeros e labels taticos.
-- Inter para textos, formularios, tabelas e navegacao.
-- Display de referencia: 48/56px, peso 800.
+- Hanken Grotesk para títulos, placares, números e labels táticos.
+- Inter para textos, formulários, tabelas e navegação.
+- Display de referência: 48/56px, peso 800.
 - Headline principal: 32/40px, peso 700.
 - Headline compacto: 24/32px, peso 600.
 - Corpo: 16/24px.
-- Labels: 12-14px, peso 500-600, com leve espaco entre letras.
+- Labels: 12-14px, peso 500-600, com leve espaço entre letras.
 
-### Espacamento, grid e forma
+### Espaçamento, grid e forma
 
 - Ritmo base de 8px.
 - Escala recorrente: 4, 8, 12, 16, 24 e 40px.
 - Desktop com grid de 12 colunas e gutter de 24px.
 - Tablet com 8 colunas e gutter de 20px.
 - Mobile com 4 colunas e margens de 16px.
-- Conteudo administrativo limitado a 1280px.
-- Raios pequenos de 2px, padrao de 4px, controles maiores de 8px e destaque de 12px.
+- Conteúdo administrativo limitado a 1280px.
+- Raios pequenos de 2px, padrão de 4px, controles maiores de 8px e destaque de 12px.
 - Profundidade por camadas tonais e contornos brancos sutis, sem sombras pesadas.
 
 ### Componentes e estados
 
-- Login com painel visual forte, formulario escuro, campos em baixo relevo e foco azul.
-- Botoes primarios azuis com texto claro; secundarios em ghost com contorno discreto.
-- Cards com camadas de superficie, borda de baixa opacidade e hover com elevacao minima.
+- Login com painel visual forte, formulário escuro, campos em baixo relevo e foco azul.
+- Botões primários azuis com texto claro; secundários em ghost com contorno discreto.
+- Cards com camadas de superficie, borda de baixa opacidade e hover com elevação mínima.
 - Listas e tabelas com linhas discretas e destaque de linha no hover.
 - Badges de status com cor de apoio e texto explicativo, sem depender apenas de cor.
-- Campo tatico como superficie funcional, com coordenadas e controles visiveis.
+- Campo tático como superficie funcional, com coordenadas e controles visíveis.
 - Estados de erro, foco, loading e sucesso previstos no conjunto de componentes do login.
 
-## Aplicacao no produto real
+## Aplicação no produto real
 
 - O painel administrativo adota a atmosfera de centro de comando, com sidebar, header contextual, camadas tonais e acentos de campo.
-- O login recebe a maior fidelidade de composicao, mantendo os fluxos atuais de CSRF, sessao e recuperacao de senha.
-- O portal publico usa a mesma familia tipografica e acentos esportivos, mas possui hierarquia, navegacao e superficie proprias para leitura publica.
+- O login recebe a maior fidelidade de composição, mantendo os fluxos atuais de CSRF, sessão e recuperação de senha.
+- O portal público usa a mesma familia tipografica e acentos esportivos, mas possui hierarquia, navegação e superficie próprias para leitura pública.
 - As cores cadastradas por campeonato continuam soberanas no portal; o sistema limita contraste e aplica fallback seguro.
-- O campo tatico, a central da partida e a sumula recebem acabamento de produto, sem transformar operacao ou documento em decoracao.
+- O campo tático, a central da partida e a súmula recebem acabamento de produto, sem transformar operação ou documento em decoração.
 
-## O que nao deve ser copiado
+## O que não deve ser copiado
 
-- Nenhum logotipo, texto, nome, imagem proprietaria ou composicao identica do Stitch.
-- Nenhum layout de login deve ser duplicado em tabelas, formularios ou paginas publicas.
-- Nenhum dado ficticio da referencia substitui dados reais do campeonato.
-- Gradientes, texturas e acentos so entram quando servem a hierarquia e nao reduzem contraste ou leitura.
+- Nenhum logotipo, texto, nome, imagem proprietária ou composição identica do Stitch.
+- Nenhum layout de login deve ser duplicado em tabelas, formulários ou páginas públicas.
+- Nenhum dado ficticio da referência substitui dados reais do campeonato.
+- Gradientes, texturas e acentos só entram quando servem a hierarquia e não reduzem contraste ou leitura.
 
-## Limitacoes da referencia
+## Limitações da referência
 
-- O Stitch nao representa todos os modulos administrativos nem as regras de permissao do MVP.
-- A referencia de login nao define operacao completa, documentos privados, auditoria ou fluxos de homologacao.
-- A implementacao preserva a stack PHP/HTML/CSS/JavaScript existente e nao importa React, Tailwind ou codigo gerado sem adaptacao.
+- O Stitch não representa todos os módulos administrativos nem as regras de permissão do MVP.
+- A referência de login não define operação completa, documentos privados, auditoria ou fluxos de homologação.
+- A implementação preserva a stack PHP/HTML/CSS/JavaScript existente e não importa React, Tailwind ou código gerado sem adaptação.

@@ -1,59 +1,59 @@
-# Inscricoes e Elenco Oficial
+# Inscrições e Elenco Oficial
 
 ## Escopo
 
-Etapa 6 cobre inscricao de atleta por equipe e campeonato, analise, correcoes, decisoes e consulta do elenco oficial. Nao cobre grupos, partidas, escalacoes, cartoes, classificacao ou portal publico.
+Etapa 6 cobre inscrição de atleta por equipe e campeonato, análise, correções, decisões e consulta do elenco oficial. Não cobre grupos, partidas, escalações, cartões, classificação ou portal público.
 
-O cadastro do atleta continua independente de inscricao. A inscricao referencia campeonato, equipe, atleta e categoria, sem solicitar IDs manualmente: a interface usa selects por nome.
+O cadastro do atleta continua independente de inscrição. A inscrição referência campeonato, equipe, atleta e categoria, sem solicitar IDs manualmente: a interface usa selects por nome.
 
 ## Modelo
 
-`athlete_registrations` armazena campeonato, equipe, atleta, categoria, numero pretendido, datas, status, pendencias, motivo de rejeicao, analista, observacoes e timestamps. A chave de negocio impede duas inscricoes do mesmo atleta na mesma equipe e campeonato.
+`athlete_registrations` armazena campeonato, equipe, atleta, categoria, número pretendido, datas, status, pendências, motivo de rejeição, analista, observações e timestamps. A chave de negócio impede duas inscrições do mesmo atleta na mesma equipe e campeonato.
 
-`athlete_registration_history` registra criacao, envio, analise, pendencia, correcao, aprovacao, rejeicao, suspensao e cancelamento. Auditoria tambem registra eventos de negocio.
+`athlete_registration_history` registra criação, envio, análise, pendência, correção, aprovação, rejeição, suspensão e cancelamento. Auditoria também registra eventos de negócio.
 
-`regulation_roster_settings` configura `minimum_roster_size`, `maximum_roster_size`, `minimum_goalkeepers` e `allow_multiple_team_registration`. `regulation_required_documents` relaciona tipos de documento obrigatorios a uma versao de regulamento. Nenhuma regra de elenco fica fixada apenas no codigo e formularios nao usam JSON.
+`regulation_roster_settings` configura `minimum_roster_size`, `maximum_roster_size`, `minimum_goalkeepers` e `allow_multiple_team_registration`. `regulation_required_documents` relaciona tipos de documento obrigatórios a uma versão de regulamento. Nenhuma regra de elenco fica fixada apenas no código e formulários não usam JSON.
 
 ## Fluxo
 
 1. Treinador cria rascunho.
 2. Treinador envia.
-3. Organizador inicia analise.
-4. Organizador aprova, rejeita ou solicita correcao.
-5. Treinador corrige pendencias e reenvia.
-6. Sistema registra cada transicao e decisao.
-7. Aprovacao torna a inscricao parte do elenco oficial.
+3. Organizador inicia análise.
+4. Organizador aprova, rejeita ou solicita correção.
+5. Treinador corrige pendências e reenvia.
+6. Sistema registra cada transição e decisão.
+7. Aprovação torna a inscrição parte do elenco oficial.
 
 Estados: `draft`, `submitted`, `under_review`, `pending_correction`, `approved`, `rejected`, `suspended`, `cancelled`.
 
-Somente inscricoes `approved` entram no elenco oficial. A Etapa 8 podera usar essa consulta para escalacoes, sem permitir atletas pendentes ou rejeitados.
+Somente inscrições `approved` entram no elenco oficial. A Etapa 8 poderá usar essa consulta para escalações, sem permitir atletas pendentes ou rejeitados.
 
-## Validacoes no servidor
+## Validações no servidor
 
 - campeonato em status `registration` ou `configured`;
-- periodo de inscricao inclusivo, conforme datas do campeonato;
+- período de inscrição inclusivo, conforme datas do campeonato;
 - equipe ativa e pertencente ao campeonato;
-- atleta ativo, pertencente a equipe e dentro do escopo do usuario;
-- categoria por idade calculada com aniversario e regra de genero;
-- numero entre 1 e 99, sem duplicidade na equipe;
-- duplicidade de inscricao por outra equipe bloqueada quando regulamento nao permite;
-- documentos obrigatorios aprovados e dentro da validade;
-- limite maximo de elenco e minimos avaliados conforme regulamento;
-- aprovacao apenas em `under_review`;
-- CSRF e autorizacao aplicados em todas as alteracoes.
+- atleta ativo, pertencente a equipe e dentro do escopo do usuário;
+- categoria por idade calculada com aniversário e regra de gênero;
+- número entre 1 e 99, sem duplicidade na equipe;
+- duplicidade de inscrição por outra equipe bloqueada quando regulamento não permite;
+- documentos obrigatórios aprovados e dentro da validade;
+- limite máximo de elenco e mínimos avaliados conforme regulamento;
+- aprovação apenas em `under_review`;
+- CSRF e autorização aplicados em todas as alterações.
 
-Falta de inscricao nao bloqueia cadastro do atleta. Documento e dados de responsavel permanecem privados e nao sao servidos por rotas publicas.
+Falta de inscrição não bloqueia cadastro do atleta. Documento e dados de responsável permanecem privados e não são servidos por rotas públicas.
 
-## Escopo e paginas
+## Escopo e páginas
 
-Administrador acessa tudo. Organizador analisa somente campeonamentos autorizados. Treinador gerencia somente propria equipe e nunca aprova. Operador e comunicacao recebem `403`.
+Administrador acessa tudo. Organizador analisa somente campeonamentos autorizados. Treinador gerência somente própria equipe e nunca aprova. Operador e comunicação recebem `403`.
 
-O painel possui central por status, filtros por campeonato/equipe/status, formulario, detalhe com historico e central de elenco oficial. A pagina do atleta oferece atalhos para inscricoes, partidas e disciplina, que usam as mesmas regras de escopo do painel.
+O painel possui central por status, filtros por campeonato/equipe/status, formulário, detalhe com histórico e central de elenco oficial. A página do atleta oferece atalhos para inscrições, partidas e disciplina, que usam as mesmas regras de escopo do painel.
 
 ## Seed e testes
 
-`RegistrationSeed` cria dez inscricoes ficticias em estados diferentes, configura regras de elenco e exige autorizacao do responsavel. Execucao repetida e idempotente.
+`RegistrationSeed` cria dez inscrições ficticias em estados diferentes, configura regras de elenco e exige autorização do responsável. Execução repetida é idempotente.
 
-Testes cobrem migration, seed duplo, fluxo completo, correcoes, prazo fechado, idade, documento ausente/vencido, limite, duplicidade, escopo, IDOR, CSRF, historico, elenco aprovado, PHP lint e `APP_BASE_PATH=/torneio-online`.
+Testes cobrem migration, seed duplo, fluxo completo, correções, prazo fechado, idade, documento ausente/vencido, limite, duplicidade, escopo, IDOR, CSRF, histórico, elenco aprovado, PHP lint e `APP_BASE_PATH=/torneio-online`.
 
 Etapa 7 fica reservada para grupos, rodadas e tabela.

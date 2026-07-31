@@ -1,8 +1,8 @@
 # Design system da plataforma
 
-## Direcao
+## Direção
 
-O sistema visual combina precisao de quadro tatico com a sobriedade de um centro de operacao. A assinatura e a camada noturna azul, marcada por verde de campo em estados esportivos e por azul eletrico nas acoes. A tela de login concentra o gesto visual mais expressivo; o restante da aplicacao privilegia leitura, comparacao e acao.
+O sistema visual combina precisao de quadro tático com a sobriedade de um centro de operação. A assinatura e a camada noturna azul, marcada por verde de campo em estados esportivos e por azul eletrico nas ações. A tela de login concentra o gesto visual mais expressivo; o restante da aplicação privilegia leitura, comparação e ação.
 
 ## Tokens
 
@@ -35,39 +35,39 @@ O sistema visual combina precisao de quadro tatico com a sobriedade de um centro
 
 ## Tipografia
 
-- `Hanken Grotesk`: h1-h6, placares, numeros, labels de contexto e marcas.
-- `Inter`: paragrafo, formulario, tabela, ajuda e navegacao.
-- Nenhuma regra usa letter-spacing negativo. Labels podem usar espaco positivo discreto.
-- O tamanho responsivo usa limites fixos e `clamp` somente em titulos de destaque.
+- `Hanken Grotesk`: h1-h6, placares, números, labels de contexto e marcas.
+- `Inter`: paragrafo, formulário, tabela, ajuda e navegação.
+- Nenhuma regra usa letter-spacing negativo. Labels podem usar espaço positivo discreto.
+- O tamanho responsivo usa limites fixos e `clamp` somente em títulos de destaque.
 
 ## Layout
 
-- App administrativo: sidebar fixa de 264px no desktop, header de 72px e conteudo limitado a 1280px.
-- Portal: header proprio por campeonato, conteudo limitado a 1280px e leitura publica separada.
-- Mobile: sidebar vira drawer, tabelas usam rolagem horizontal, campo tatico preserva proporcao e controles alternativos continuam visiveis.
-- Secoes de pagina sao superficies abertas; cards ficam reservados a itens repetidos, modais e ferramentas enquadradas.
+- App administrativo: sidebar fixa de 264px no desktop, header de 72px e conteúdo limitado a 1280px.
+- Portal: header próprio por campeonato, conteúdo limitado a 1280px e leitura pública separada.
+- Mobile: sidebar vira drawer, tabelas usam rolagem horizontal, campo tático preserva proporção e controles alternativos continuam visíveis.
+- Seções de página são superficies abertas; cards ficam reservados a itens repetidos, modais e ferramentas enquadradas.
 
 ## Componentes
 
-- `button` primario azul, secundario ghost e acao critica vermelha.
+- `button` primário azul, secundário ghost e ação critica vermelha.
 - Inputs com superficie inset, foco em azul e erro acompanhado de texto.
 - `status` com texto + cor + forma, mantendo leitura em monocromia.
 - Cards de dados com borda sutil e hover tonal.
-- Tabelas com cabecalho fixo visualmente, linhas escaneaveis e wrapper responsivo.
-- Tabs, filtros, breadcrumbs, empty states e alertas usam a mesma escala de espacamento.
-- Icones de acao sao curtos e sempre recebem `aria-label` ou texto visivel.
+- Tabelas com cabeçalho fixo visualmente, linhas escaneáveis e wrapper responsivo.
+- Tabs, filtros, breadcrumbs, empty states e alertas usam a mesma escala de espaçamento.
+- Icones de ação são curtos e sempre recebem `aria-label` ou texto visivel.
 
 ## Temas
 
 - O administrador inicia no tema escuro do Stitch.
-- O portal inicia claro para leitura publica, mas ambos aceitam alternancia e salvam a preferencia em `localStorage`.
-- `prefers-color-scheme` e usado como fallback quando nao existe preferencia salva.
-- Contrastes de campeonato usam fallback azul/verde quando a cor cadastrada nao passa pelo limite seguro.
+- O portal inicia claro para leitura pública, mas ambos aceitam alternancia e salvam a preferência em `localStorage`.
+- `prefers-color-scheme` e usado como fallback quando não existe preferência salva.
+- Contrastes de campeonato usam fallback azul/verde quando a cor cadastrada não passa pelo limite seguro.
 
 ## Acessibilidade e movimento
 
 - Foco visivel com outline azul claro.
 - Respeito a `prefers-reduced-motion`.
-- Labels associados, mensagens de erro proximas e navegacao por teclado.
+- Labels associados, mensagens de erro proximas e navegação por teclado.
 - Estados nunca dependem apenas de cor.
-- Animacoes sao curtas e funcionais: drawer, hover, foco e troca de tema.
+- Animações são curtas e funcionais: drawer, hover, foco e troca de tema.

@@ -2,43 +2,45 @@
 
 ## Escopo auditado
 
-Esta auditoria cobre as Etapas 1 a 16: autenticacao, autorizacao por escopo, campeonamentos, equipes, atletas, inscricoes, tabela, escalacoes, operacao, disciplina, classificacao, sumula, noticias, Vai e Vem, portal publico e preparacao para producao.
+Esta auditoria cobre as Etapas 1 a 17: autenticação, autorização por escopo, campeonamentos, equipes, atletas, inscrições, tabela, escalações, operação, disciplina, classificação, súmula, notícias, Vai e Vem, portal público, preparação para produção e UI/UX definitiva.
 
-## Evidencias locais
+## Evidências locais
 
 - `php bin/lint.php`: lint PHP de todos os arquivos versionados.
-- `APP_ENV=test DB_NAME=torneios_mvp_test SEED_DEMO_PASSWORD=TestDemo123 php bin/test.php`: banco descartavel, migrations, seeds idempotentes, fluxo esportivo, privacidade, seguranca e portal.
-- `bin/http-test.php`: HTTP real por cURL, autenticacao, autorizacao, headers, portal, logout e open redirect; nao e busca textual nem teste E2E.
-- `php bin/install.php`: instalacao limpa, banco, migrations, diretorios e seed opcional.
-- `php bin/backup.php --verify`: dump, pacote de arquivos, manifest, verificacao e rotacao.
-- `php bin/restore.php --archive=... --confirm`: restauracao explicitamente confirmada.
+- `APP_ENV=test DB_NAME=torneios_mvp_test SEED_DEMO_PASSWORD=TestDemo123 php bin/test.php`: banco descartável, migrations, seeds idempotentes, fluxo esportivo, privacidade, segurança e portal.
+- `bin/http-test.php`: HTTP real por cURL, autenticação, autorização, headers, portal, logout e open redirect; não e busca textual nem teste E2E.
+- `php bin/install.php`: instalação limpa, banco, migrations, diretórios e seed opcional.
+- `php bin/backup.php --verify`: dump, pacote de arquivos, manifest, verificação e rotação.
+- `php bin/restore.php --archive=... --confirm`: restauração explicitamente confirmada.
 
-Resultados desta execucao:
+Resultados desta execução:
 
-- `LINT_OK files=259`;
-- `MVP_TESTS_OK unit=16 integration=15 http=16`;
+- `LINT_OK files=259` (execução original das Etapas 1 a 16; ver nota abaixo sobre a Etapa 17);
+- `MVP_TESTS_OK unit=17 integration=16 http=16` (17 unitários, 16 integração, 16 HTTP, conforme suíte atual);
 - `REAL_HTTP_TESTS_OK checks=31`;
-- `INSTALL_OK db=torneios_mvp_install_test migrations=14 seed=no`;
-- `BACKUP_VERIFY_OK`, `RESTORE_OK` e probe `backup-restore-ok` confirmados em bancos descartaveis.
+- `INSTALL_OK db=torneios_mvp_install_test migrations=21 seed=no`;
+- `BACKUP_VERIFY_OK`, `RESTORE_OK` e probe `backup-restore-ok` confirmados em bancos descartáveis.
+
+Nota: os números de lint e HTTP real acima refletem a execução original (Etapas 1 a 16). A Etapa 17 (UI/UX) foi entregue depois, sem regressao registrada nas suites; não ha reexecução formal de `bin/install.php` e `bin/backup.php --verify` pos-Etapa 17 documentada nesta auditoria.
 
 ## Controles verificados
 
-- prepared statements e validacao de identificadores de banco;
-- escape HTML, CSP e tratamento generico de excecao em producao;
-- CSRF, rotacao apos login e sessao com cookie HttpOnly/SameSite/Secure configuravel;
+- prepared statements e validação de identificadores de banco;
+- escape HTML, CSP e tratamento genérico de exceção em produção;
+- CSRF, rotação após login e sessão com cookie HttpOnly/SameSite/Secure configurável;
 - IDOR e escopo nas camadas existentes;
 - MIME real, tamanho, extensao, upload privado e bloqueio de traversal;
-- login com limite de tentativas e bloqueio temporario;
+- login com limite de tentativas e bloqueio temporário;
 - redirect local normalizado;
-- `.env`, logs, storage privado e backups fora da area versionada/publica;
-- headers de seguranca e HSTS condicional.
+- `.env`, logs, storage privado e backups fora da área versionada/pública;
+- headers de segurança e HSTS condicional.
 
-## Pendencias externas
+## Pendências externas
 
-Nao foram comprovados nesta execucao um cPanel real, certificado HTTPS emitido, SMTP de producao, cron real, backup off-site ou restauracao em servidor separado. Esses itens precisam de homologacao operacional antes do go-live.
+Não foram comprovados nesta execução um cPanel real, certificado HTTPS emitido, SMTP de produção, cron real, backup off-site ou restauração em servidor separado. Esses itens precisam de homologação operacional antes do go-live.
 
 ## Veredito
 
-# APROVADO PARA HOMOLOGACAO
+# APROVADO PARA HOMOLOGAÇÃO
 
-O codigo esta apto para ser instalado e validado em ambiente de homologacao. O veredito nao e `APROVADO PARA PRODUCAO` enquanto as pendencias externas acima nao forem executadas e registradas.
+O código está apto para ser instalado e validado em ambiente de homologação. O veredito não é `APROVADO PARA PRODUCAO` enquanto as pendências externas acima não forem executadas e registradas.

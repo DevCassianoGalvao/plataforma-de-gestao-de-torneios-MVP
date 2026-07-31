@@ -1,8 +1,8 @@
-# Formacoes Taticas
+# Formações Táticas
 
-## Catalogo inicial
+## Catálogo inicial
 
-O seed cria de forma idempotente estas nove formacoes:
+O seed cria de forma idempotente estas nove formações:
 
 - `4-4-2`
 - `4-3-3`
@@ -14,23 +14,23 @@ O seed cria de forma idempotente estas nove formacoes:
 - `5-3-2`
 - `5-4-1`
 
-Cada formacao possui exatamente 11 slots estruturados, incluindo exatamente um goleiro. Os slots armazenam codigo de posicao, rotulo, grupo, ordem e coordenadas; a regra nao depende apenas do texto do nome da formacao.
+Cada formação possui exatamente 11 slots estruturados, incluindo exatamente um goleiro. Os slots armazenam código de posição, rotulo, grupo, ordem e coordenadas; a regra não depende apenas do texto do nome da formação.
 
 ## Coordenadas
 
-As coordenadas sao normalizadas entre 0 e 100 e ficam em `DECIMAL(5,2)`:
+As coordenadas são normalizadas entre 0 e 100 e ficam em `DECIMAL(5,2)`:
 
 - `horizontal_position`: 0 e a esquerda, 100 e a direita;
 - `vertical_position`: 0 e a linha defensiva, 100 e a linha ofensiva.
 
-O campo funcional de escalacoes usa essas coordenadas para renderizar os slots da partida. A distribuicao automatica prioriza a posicao principal, depois secundarias e grupo posicional; a comissao pode ajustar qualquer slot manualmente, inclusive fora de posicao.
+O campo funcional de escalações usa essas coordenadas para renderizar os slots da partida. A distribuição automática prioriza a posição principal, depois secundárias e grupo posicional; a comissão pode ajustar qualquer slot manualmente, inclusive fora de posição.
 
 ## Service e uso
 
-`TacticalFormationService` lista formacoes ativas, carrega slots, valida quantidade, goleiro e coordenadas, seleciona a formacao padrao da equipe e devolve uma representacao estruturada para uso posterior. A equipe registra qual formacao e padrao, quando foi alterada e por qual usuario.
+`TacticalFormationService` lista formações ativas, carrega slots, valida quantidade, goleiro e coordenadas, seleciona a formação padrão da equipe e devolve uma representação estruturada para uso posterior. A equipe registra qual formação e padrão, quando foi alterada e por qual usuário.
 
-A tela `/admin/equipes/{slug}/formacao` mostra o catalogo e permite selecionar a formacao padrao da equipe. A partida pode sugerir essa formacao e substitui-la sem alterar a configuracao da equipe. A autorizacao segue o escopo da equipe: administrador, organizador autorizado e treinador/gestor vinculado podem consultar conforme suas permissoes; a selecao exige a permissao correspondente.
+A tela `/admin/equipes/{slug}/formacao` mostra o catálogo e permite selecionar a formação padrão da equipe. A partida pode sugerir essa formação e substitui-la sem alterar a configuração da equipe. A autorização segue o escopo da equipe: administrador, organizador autorizado e treinador/gestor vinculado podem consultar conforme suas permissões; a seleção exige a permissão correspondente.
 
 ## Limites
 
-Formacao padrao e uma sugestao da equipe, nao uma escalacao. Gols, cartoes, substituicoes e classificacao continuam fora da Etapa 8.
+Formação padrão e uma sugestao da equipe, não uma escalação. Gols, cartões, substituições e classificação continuam fora da Etapa 8.

@@ -1,35 +1,35 @@
-# Autenticacao e Acesso
+# Autenticação e Acesso
 
 ## Login
 
-O login normaliza o e-mail, verifica a senha com `password_verify`, registra a tentativa sem senha, aplica limite configuravel e retorna mensagem generica para qualquer falha. Depois do sucesso, o ID da sessao e regenerado e somente `user_id` e timestamp de atividade ficam na sessao.
+O login normaliza o e-mail, verifica a senha com `password_verify`, registra a tentativa sem senha, aplica limite configurável e retorna mensagem genérica para qualquer falha. Depois do sucesso, o ID da sessão é regenerado e somente `user_id` e timestamp de atividade ficam na sessão.
 
-Perfis redirecionam para: administrador em `/admin`, organizador em `/meus-campeonatos`, treinador/gestor em `/minha-equipe`, operador em `/minhas-partidas` e comunicacao em `/conteudo`.
+Perfis redirecionam para: administrador em `/admin`, organizador em `/meus-campeonatos`, treinador/gestor em `/minha-equipe`, operador em `/minhas-partidas` e comunicação em `/conteudo`.
 
-## Sessao e cookies
+## Sessão e cookies
 
-O cookie e HttpOnly, SameSite=Lax e Secure quando a requisicao usa HTTPS. O timeout padrao e 1800 segundos e pode ser alterado por `SESSION_TIMEOUT`. Logout remove os dados da sessao e invalida o cookie.
+O cookie é HttpOnly, SameSite=Lax e Secure quando a requisição usa HTTPS. O timeout padrão é 1800 segundos e pode ser alterado por `SESSION_TIMEOUT`. Logout remove os dados da sessão e invalida o cookie.
 
-## Recuperacao de senha
+## Recuperação de senha
 
-O pedido sempre retorna uma resposta generica. O sistema gera token aleatorio, grava somente o hash SHA-256, define expiracao de uma hora e marca o token como usado depois da redefinicao. O transporte padrao e `log`; o transporte `test` existe apenas para capturar mensagens em testes isolados. O token nao e escrito na interface como texto visivel.
+O pedido sempre retorna uma resposta genérica. O sistema gera token aleatório, grava somente o hash SHA-256, define expiração de uma hora e marca o token como usado depois da redefinição. O transporte padrão e `log`; o transporte `test` existe apenas para capturar mensagens em testes isolados. O token não e escrito na interface como texto visivel.
 
 ## Senhas
 
-Regra minima: 8 caracteres, uma letra, um numero e confirmacao igual. A senha nunca e armazenada em texto puro. O seed usa `SEED_DEMO_PASSWORD` somente em desenvolvimento/teste.
+Regra mínima: 8 caracteres, uma letra, um número e confirmação igual. A senha nunca e armazenada em texto puro. O seed usa `SEED_DEMO_PASSWORD` somente em desenvolvimento/teste.
 
-## Perfis e permissoes
+## Perfis e permissões
 
-Os perfis globais sao administrador, organizador, treinador/gestor de equipe, operador de partida e comunicacao. Toda rota protegida verifica permissao no servidor com `AuthorizationService`. Esconder um link do menu nao e a protecao.
+Os perfis globais são administrador, organizador, treinador/gestor de equipe, operador de partida e comunicação. Toda rota protegida verifica permissão no servidor com `AuthorizationService`. Esconder um link do menu não e a proteção.
 
 ## Auditoria
 
-Login, logout, falhas de login, recuperacao, alteracoes de usuario, status, perfis, senha e acessos negados sao registrados. A listagem traduz a acao e nao apresenta o JSON de metadata bruto.
+Login, logout, falhas de login, recuperação, alterações de usuário, status, perfis, senha e acessos negados são registrados. A listagem traduz a ação e não apresenta o JSON de metadata bruto.
 
 ## Seed
 
-Execute `db:seed` depois de `migrate` com `SEED_DEMO_PASSWORD` definido. Os e-mails `@torneios.local` sao ficticios e destinados somente a desenvolvimento. O seed e idempotente e e proibido em producao.
+Execute `db:seed` depois de `migrate` com `SEED_DEMO_PASSWORD` definido. Os e-mails `@torneios.local` são fictícios e destinados somente a desenvolvimento. O seed é idempotente e é proibido em produção.
 
-## Limitacoes atuais
+## Limitações atuais
 
-Papeis ainda sao globais. Nao existe escopo por campeonato, equipe ou partida. O dashboard e a gestao de acesso sao funcionais, mas o layout final, tema dark, design system e modulos esportivos pertencem a etapas posteriores.
+Papeis ainda são globais. Não existe escopo por campeonato, equipe ou partida. O dashboard e a gestão de acesso são funcionais, mas o layout final, tema dark, design system e módulos esportivos pertencem a etapas posteriores.
