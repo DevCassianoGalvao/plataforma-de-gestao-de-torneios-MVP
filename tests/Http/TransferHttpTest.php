@@ -27,8 +27,8 @@ final class TransferHttpTest
         $router = require dirname(__DIR__, 2) . '/routes/web.php';
 
         Session::destroy();
-        self::login($router, 'comunicacao@torneios.local');
-        assert_same(200, $router->dispatch(Request::fake('GET', '/torneio-online/admin/vai-e-vem'))->status, 'Comunicacao nao abriu Vai e Vem');
+        self::login($router, 'admin@torneios.local');
+        assert_same(200, $router->dispatch(Request::fake('GET', '/torneio-online/admin/vai-e-vem'))->status, 'Administrador nao abriu Vai e Vem');
         $date = date('Y-m-d', strtotime('+1 day'));
         $body = ['_csrf' => Security::csrfToken(), 'championship_id' => $championshipId, 'athlete_id' => (int) $athleteRow['id'], 'previous_team_id' => (int) $teamRows[0]['id'], 'new_team_id' => (int) $teamRows[1]['id'], 'type' => 'contratacao', 'movement_date' => $date, 'public_observation' => 'Anuncio seguro', 'internal_notes' => 'Segredo editorial', 'status' => 'pending'];
         assert_same(302, $router->dispatch(Request::fake('POST', '/torneio-online/admin/vai-e-vem', $body))->status, 'Criacao de movimentacao falhou');
@@ -43,13 +43,40 @@ final class TransferHttpTest
         $photoPath = (string) $pdo->query('SELECT photo_path FROM athletes WHERE id = ' . (int) $athleteRow['id'])->fetchColumn();
         $photoResponse = $router->dispatch(Request::fake('GET', '/torneio-online/campeonatos/' . $slug . '/vai-e-vem/' . $id . '/foto'));
         assert_same($photoPath === '' ? 404 : 200, $photoResponse->status, 'Rota de foto publica respondeu incorretamente');
+        self::logout($router);
 
-        self::logout($router);
+        $trainerTeamId = (int) $pdo->query("SELECT id FROM teams WHERE slug = 'estrela-norte-fc'")->fetchColumn();
+        $managerTeamId = (int) $pdo->query("SELECT id FROM teams WHERE slug = 'serra-azul-futebol'")->fetchColumn();
+        $trainerAthleteId = (int) $pdo->query("SELECT id FROM athletes WHERE team_id = {$trainerTeamId} AND deleted_at IS NULL ORDER BY id LIMIT 1")->fetchColumn();
+        $managerAthleteId = (int) $pdo->query("SELECT id FROM athletes WHERE team_id = {$managerTeamId} AND deleted_at IS NULL ORDER BY id LIMIT 1")->fetchColumn();
+        $requestDate = date('Y-m-d', strtotime('+5 days'));
+
         self::login($router, 'treinador@torneios.local');
-        assert_same(403, $router->dispatch(Request::fake('GET', '/torneio-online/admin/vai-e-vem'))->status, 'Treinador acessou transferencias');
+        assert_same(200, $router->dispatch(Request::fake('GET', '/torneio-online/admin/vai-e-vem'))->status, 'Treinador nao abriu Vai e Vem');
+        $foreignAttempt = $router->dispatch(Request::fake('POST', '/torneio-online/admin/vai-e-vem', ['_csrf' => Security::csrfToken(), 'championship_id' => $championshipId, 'athlete_id' => $managerAthleteId, 'previous_team_id' => $managerTeamId, 'new_team_id' => $trainerTeamId, 'type' => 'transferencia', 'movement_date' => $requestDate, 'status' => 'pending']));
+        assert_same(403, $foreignAttempt->status, 'Treinador criou solicitacao a partir de equipe alheia');
+        $ownRequest = $router->dispatch(Request::fake('POST', '/torneio-online/admin/vai-e-vem', ['_csrf' => Security::csrfToken(), 'championship_id' => $championshipId, 'athlete_id' => $trainerAthleteId, 'previous_team_id' => $trainerTeamId, 'new_team_id' => $managerTeamId, 'type' => 'transferencia', 'movement_date' => $requestDate, 'status' => 'pending']));
+        assert_same(302, $ownRequest->status, 'Treinador nao criou solicitacao da propria equipe');
+        $requestId = (int) $pdo->query("SELECT id FROM transfer_movements WHERE athlete_id = {$trainerAthleteId} AND movement_date = '{$requestDate}' AND type = 'transferencia' LIMIT 1")->fetchColumn();
+        assert_true($requestId > 0, 'Solicitacao do treinador nao foi persistida');
+        assert_same(200, $router->dispatch(Request::fake('GET', '/torneio-online/admin/vai-e-vem/' . $requestId))->status, 'Treinador nao visualizou a propria solicitacao');
+        assert_same(403, $router->dispatch(Request::fake('POST', '/torneio-online/admin/vai-e-vem/' . $requestId . '/aprovar', ['_csrf' => Security::csrfToken()]))->status, 'Treinador aprovou movimentacao');
+        assert_same(403, $router->dispatch(Request::fake('POST', '/torneio-online/admin/vai-e-vem/' . $requestId . '/publicar', ['_csrf' => Security::csrfToken()]))->status, 'Treinador publicou movimentacao');
+        assert_same(403, $router->dispatch(Request::fake('POST', '/torneio-online/admin/vai-e-vem/' . $requestId . '/aplicar-vinculo', ['_csrf' => Security::csrfToken()]))->status, 'Treinador aplicou vinculo oficial');
+        assert_same(403, $router->dispatch(Request::fake('GET', '/torneio-online/admin/vai-e-vem/' . $id))->status, 'Treinador visualizou movimentacao de outra equipe');
         self::logout($router);
-        self::login($router, 'organizador-sem-acesso@torneios.local');
-        assert_same(403, $router->dispatch(Request::fake('GET', '/torneio-online/admin/vai-e-vem/' . $id))->status, 'IDOR de transferencia aceito');
+
+        self::login($router, 'gestor@torneios.local');
+        assert_same(403, $router->dispatch(Request::fake('POST', '/torneio-online/admin/vai-e-vem/' . $requestId . '/cancelar', ['_csrf' => Security::csrfToken()]))->status, 'Gestor cancelou solicitacao de outro treinador');
+        self::logout($router);
+
+        self::login($router, 'treinador@torneios.local');
+        assert_same(302, $router->dispatch(Request::fake('POST', '/torneio-online/admin/vai-e-vem/' . $requestId . '/cancelar', ['_csrf' => Security::csrfToken()]))->status, 'Treinador nao cancelou a propria solicitacao');
+        assert_same('cancelled', (string) $pdo->query("SELECT status FROM transfer_movements WHERE id = {$requestId}")->fetchColumn(), 'Cancelamento nao persistiu');
+        self::logout($router);
+
+        self::login($router, 'operador@torneios.local');
+        assert_same(403, $router->dispatch(Request::fake('GET', '/torneio-online/admin/vai-e-vem'))->status, 'Operador acessou transferencias');
         self::logout($router);
     }
 

@@ -52,10 +52,8 @@ final class ChampionshipSeed
         ];
         $insertPairing = $pdo->prepare('INSERT INTO regulation_knockout_pairings (regulation_id, stage, tie_number, home_source, away_source, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE home_source = VALUES(home_source), away_source = VALUES(away_source), updated_at = VALUES(updated_at)');
         foreach ($pairings as [$stage, $number, $home, $away]) $insertPairing->execute([$regulation, $stage, $number, $home, $away, $now, $now]);
-        $organizerId = self::userId($pdo, 'organizador@torneios.local');
         $accountabilityId = self::userId($pdo, 'prestacao@torneios.local');
         $assignment = $pdo->prepare('INSERT IGNORE INTO championship_user_assignments (championship_id, user_id, assignment_type, created_at, created_by) VALUES (?, ?, ?, ?, ?)');
-        $assignment->execute([$championshipId, $organizerId, 'organizer', $now, $adminId]);
         $assignment->execute([$championshipId, $accountabilityId, 'accountability', $now, $adminId]);
     }
 

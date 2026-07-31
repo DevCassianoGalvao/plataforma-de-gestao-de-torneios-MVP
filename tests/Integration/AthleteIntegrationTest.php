@@ -60,11 +60,9 @@ final class AthleteIntegrationTest
         $championships = new ChampionshipRepository($pdo);
         $access = new AthleteAccessService($athletes, $teamRepository, $championships, $authorization);
         $admin = $users->findByEmail('admin@torneios.local');
-        $organizer = $users->findByEmail('organizador@torneios.local');
         $trainer = $users->findByEmail('treinador@torneios.local');
         $outsider = $users->findByEmail('treinador-sem-equipe@torneios.local');
         assert_same(20, count($access->list($admin)), 'Administrador nao ve todos os atletas');
-        assert_same(20, count($access->list($organizer)), 'Organizador nao ve atletas autorizados');
         assert_same(10, count($access->list($trainer)), 'Treinador recebeu escopo inesperado');
         assert_same(0, count($access->list($outsider)), 'Treinador sem equipe recebeu atletas');
 

@@ -18,14 +18,7 @@ final class NewsRepository
         if ($administrator) {
             return $this->pdo->query('SELECT c.id, c.name, c.slug FROM championships c WHERE c.deleted_at IS NULL ORDER BY c.name')->fetchAll();
         }
-        $types = [];
-        if (in_array('organizer', $roles, true)) $types[] = 'organizer';
-        if (in_array('communication', $roles, true)) $types[] = 'communication';
-        if ($types === []) return [];
-        $placeholders = implode(', ', array_fill(0, count($types), '?'));
-        $statement = $this->pdo->prepare('SELECT DISTINCT c.id, c.name, c.slug FROM championships c INNER JOIN championship_user_assignments cua ON cua.championship_id = c.id WHERE c.deleted_at IS NULL AND cua.user_id = ? AND cua.assignment_type IN (' . $placeholders . ') ORDER BY c.name');
-        $statement->execute(array_merge([$userId], $types));
-        return $statement->fetchAll();
+        return [];
     }
 
     public function find(int $id): ?array

@@ -17,7 +17,6 @@ final class AthleteAccessService
     {
         $roles = $this->authorization->roleKeys($user);
         if (in_array('administrator', $roles, true)) return 'administrator';
-        if (in_array('organizer', $roles, true)) return 'organizer';
         return 'team';
     }
 
@@ -47,7 +46,6 @@ final class AthleteAccessService
     public function authorizedChampionships(array $user): array
     {
         if ($this->scope($user) === 'administrator') return $this->championships->listForUser((int) $user['id'], true);
-        if ($this->scope($user) === 'organizer') return $this->championships->listForUser((int) $user['id'], false);
         return [];
     }
 }

@@ -17,7 +17,6 @@ final class RegistrationAccessService
     {
         $roles = $this->authorization->roleKeys($user);
         if (in_array('administrator', $roles, true)) return 'administrator';
-        if (in_array('organizer', $roles, true)) return 'organizer';
         return 'team';
     }
 
@@ -43,7 +42,6 @@ final class RegistrationAccessService
     {
         $scope = $this->scope($user);
         if ($scope === 'administrator') return $this->championships->findForUser($championshipId, 0, true);
-        if ($scope === 'organizer') return $this->championships->findForUser($championshipId, (int) $user['id'], false);
         return null;
     }
 
@@ -51,7 +49,6 @@ final class RegistrationAccessService
     {
         $scope = $this->scope($user);
         if ($scope === 'administrator') return $this->championships->listForUser(0, true);
-        if ($scope === 'organizer') return $this->championships->listForUser((int) $user['id'], false);
         return [];
     }
 

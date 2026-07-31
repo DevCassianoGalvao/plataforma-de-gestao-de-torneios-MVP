@@ -99,9 +99,6 @@ final class AthleteHttpTest
         assert_true((int) $pdo->query("SELECT COUNT(*) FROM athletes WHERE id = {$athleteId} AND deleted_at IS NOT NULL")->fetchColumn() === 1, 'Exclusao logica nao persistiu');
         self::logout($router);
 
-        self::login($router, 'organizador@torneios.local');
-        assert_same(200, $router->dispatch(Request::fake('GET', '/torneio-online/admin/atletas/' . $firstAthleteId))->status, 'Organizador nao acessou atleta autorizado');
-        self::logout($router);
         self::login($router, 'treinador@torneios.local');
         assert_same(200, $router->dispatch(Request::fake('GET', '/torneio-online/admin/atletas/' . $firstAthleteId))->status, 'Treinador nao acessou atleta da propria equipe');
         assert_same(403, $router->dispatch(Request::fake('GET', '/torneio-online/admin/atletas/' . $foreignAthleteId))->status, 'Treinador acessou atleta de outra equipe');
@@ -109,8 +106,8 @@ final class AthleteHttpTest
         self::login($router, 'operador@torneios.local');
         assert_same(403, $router->dispatch(Request::fake('GET', '/torneio-online/admin/atletas'))->status, 'Operador acessou atletas');
         self::logout($router);
-        self::login($router, 'comunicacao@torneios.local');
-        assert_same(403, $router->dispatch(Request::fake('GET', '/torneio-online/admin/atletas'))->status, 'Comunicacao acessou atletas');
+        self::login($router, 'prestacao@torneios.local');
+        assert_same(403, $router->dispatch(Request::fake('GET', '/torneio-online/admin/atletas'))->status, 'Prestacao de contas acessou atletas');
         self::logout($router);
         assert_same(302, $router->dispatch(Request::fake('GET', '/torneio-online/admin/atletas'))->status, 'Usuario sem login nao foi redirecionado');
     }

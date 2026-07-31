@@ -25,8 +25,8 @@ final class StandingsHttpTest
         assert_true(str_contains($response->body, 'Classificacao'), 'Classificacao nao renderizou');
         assert_same(403, $router->dispatch(Request::fake('POST', '/torneio-online/admin/classificacao/recalcular', ['phase_id' => $phaseId, '_csrf' => 'invalid']))->status, 'CSRF da classificacao foi aceito');
         self::logout($router);
-        self::login($router, 'comunicacao@torneios.local');
-        assert_same(403, $router->dispatch(new Request('GET', '/torneio-online/admin/classificacao', ['phase_id' => (string) $phaseId]))->status, 'Comunicacao recebeu classificacao');
+        self::login($router, 'prestacao@torneios.local');
+        assert_same(403, $router->dispatch(new Request('GET', '/torneio-online/admin/classificacao', ['phase_id' => (string) $phaseId]))->status, 'Prestacao de contas recebeu classificacao');
         self::logout($router);
     }
 

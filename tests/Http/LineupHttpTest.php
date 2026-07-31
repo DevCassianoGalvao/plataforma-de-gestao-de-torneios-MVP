@@ -54,11 +54,6 @@ final class LineupHttpTest
         assert_same(403, $router->dispatch(Request::fake('POST', '/torneio-online/admin/partidas/' . $matchId . '/escalacao/' . $teamId, ['_csrf' => 'invalid']))->status, 'CSRF de escalacao foi aceito');
         self::logout($router);
 
-        self::login($router, 'organizador@torneios.local');
-        assert_same(200, $router->dispatch(Request::fake('GET', '/torneio-online/admin/partidas/' . $matchId . '/escalacoes'))->status, 'Organizador nao visualizou escalacoes');
-        assert_same(403, $router->dispatch(Request::fake('GET', '/torneio-online/admin/partidas/' . $matchId . '/escalacao/' . $teamId))->status, 'Organizador recebeu edicao de escalacao');
-        self::logout($router);
-
         self::login($router, 'operador@torneios.local');
         assert_same(200, $router->dispatch(Request::fake('GET', '/torneio-online/admin/partidas/' . $matchId . '/escalacoes'))->status, 'Operador nao visualizou escalacoes confirmadas');
         assert_same(403, $router->dispatch(Request::fake('GET', '/torneio-online/admin/partidas/' . $matchId . '/escalacao/' . $teamId))->status, 'Operador recebeu edicao de escalacao');
@@ -71,8 +66,8 @@ final class LineupHttpTest
         assert_same(403, $router->dispatch(Request::fake('GET', '/torneio-online/admin/partidas/' . $foreignMatch . '/escalacoes'))->status, 'IDOR de escalacao foi aceito');
         self::logout($router);
 
-        self::login($router, 'comunicacao@torneios.local');
-        assert_same(403, $router->dispatch(Request::fake('GET', '/torneio-online/admin/partidas/' . $matchId . '/escalacoes'))->status, 'Comunicacao recebeu escalacoes');
+        self::login($router, 'prestacao@torneios.local');
+        assert_same(403, $router->dispatch(Request::fake('GET', '/torneio-online/admin/partidas/' . $matchId . '/escalacoes'))->status, 'Prestacao de contas recebeu escalacoes');
         self::logout($router);
     }
 

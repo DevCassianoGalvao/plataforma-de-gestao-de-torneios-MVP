@@ -24,9 +24,9 @@ final class AuthIntegrationTest
         $password = getenv('SEED_DEMO_PASSWORD') ?: 'TestDemo123';
         AuthSeed::run($pdo, $password);
         AuthSeed::run($pdo, $password);
-        assert_same(9, (int) $pdo->query('SELECT COUNT(*) FROM users')->fetchColumn(), 'Seed duplicou usuarios');
-        assert_same(6, (int) $pdo->query('SELECT COUNT(*) FROM roles')->fetchColumn(), 'Seed duplicou perfis');
-        assert_same(120, (int) $pdo->query('SELECT COUNT(*) FROM permissions')->fetchColumn(), 'Seed duplicou permissoes');
+        assert_same(6, (int) $pdo->query('SELECT COUNT(*) FROM users')->fetchColumn(), 'Seed duplicou usuarios');
+        assert_same(4, (int) $pdo->query('SELECT COUNT(*) FROM roles')->fetchColumn(), 'Seed duplicou perfis');
+        assert_same(121, (int) $pdo->query('SELECT COUNT(*) FROM permissions')->fetchColumn(), 'Seed duplicou permissoes');
         $users = new UserRepository($pdo);
         $admin = $users->findByEmail('admin@torneios.local');
         assert_true($admin !== null && password_verify($password, $admin['password_hash']), 'Senha seed nao pode ser verificada');
@@ -34,8 +34,8 @@ final class AuthIntegrationTest
         assert_same('profiles/' . (int) $admin['id'] . '/avatar.png', (string) $users->findById((int) $admin['id'])['avatar_path'], 'Avatar de perfil nao foi atualizado');
         $users->updateAvatar((int) $admin['id'], '');
         assert_true(in_array('users.manage_roles', $users->permissions((int) $admin['id']), true), 'Permissao de administrador ausente');
-        $organizer = $users->findByEmail('organizador@torneios.local');
-        assert_true(!in_array('users.view', $users->permissions((int) $organizer['id']), true), 'Organizador recebeu permissao administrativa');
+        $teamManager = $users->findByEmail('treinador@torneios.local');
+        assert_true(!in_array('users.view', $users->permissions((int) $teamManager['id']), true), 'Treinador recebeu permissao administrativa');
         try {
             $users->create('Duplicado', 'admin@torneios.local', password_hash($password, PASSWORD_DEFAULT));
             throw new \RuntimeException('E-mail duplicado foi aceito');
@@ -43,11 +43,11 @@ final class AuthIntegrationTest
             // Unicidade do e-mail validada pelo banco.
         }
         $auth = new AuthService($pdo, $users, new AuditService($pdo));
-        $users->updateStatus((int) $organizer['id'], 'inactive');
-        assert_true($auth->attempt('organizador@torneios.local', $password, Request::fake('POST', '/login'))['ok'] === false, 'Usuario inativo autenticou');
-        $users->updateStatus((int) $organizer['id'], 'blocked');
-        assert_true($auth->attempt('organizador@torneios.local', $password, Request::fake('POST', '/login'))['ok'] === false, 'Usuario bloqueado autenticou');
-        $users->updateStatus((int) $organizer['id'], 'active');
+        $users->updateStatus((int) $teamManager['id'], 'inactive');
+        assert_true($auth->attempt('treinador@torneios.local', $password, Request::fake('POST', '/login'))['ok'] === false, 'Usuario inativo autenticou');
+        $users->updateStatus((int) $teamManager['id'], 'blocked');
+        assert_true($auth->attempt('treinador@torneios.local', $password, Request::fake('POST', '/login'))['ok'] === false, 'Usuario bloqueado autenticou');
+        $users->updateStatus((int) $teamManager['id'], 'active');
         putenv('AUTH_MAX_ATTEMPTS=3');
         putenv('AUTH_LOCK_SECONDS=60');
         $limitId = $users->create('Rate Limit', 'rate-limit@torneios.local', password_hash($password, PASSWORD_DEFAULT));

@@ -41,9 +41,9 @@ final class RegistrationHttpTest
         assert_same(302, $router->dispatch(Request::fake('POST', '/torneio-online/admin/inscricoes/' . $registrationId . '/enviar', ['_csrf' => Security::csrfToken()]))->status, 'Envio HTTP falhou');
         self::logout($router);
 
-        self::login($router, 'organizador@torneios.local');
-        assert_same(302, $router->dispatch(Request::fake('POST', '/torneio-online/admin/inscricoes/' . $registrationId . '/iniciar-analise', ['_csrf' => Security::csrfToken()]))->status, 'Organizador nao iniciou analise');
-        assert_same(302, $router->dispatch(Request::fake('POST', '/torneio-online/admin/inscricoes/' . $registrationId . '/aprovar', ['_csrf' => Security::csrfToken()]))->status, 'Organizador nao aprovou inscricao');
+        self::login($router, 'admin@torneios.local');
+        assert_same(302, $router->dispatch(Request::fake('POST', '/torneio-online/admin/inscricoes/' . $registrationId . '/iniciar-analise', ['_csrf' => Security::csrfToken()]))->status, 'Administrador nao iniciou analise');
+        assert_same(302, $router->dispatch(Request::fake('POST', '/torneio-online/admin/inscricoes/' . $registrationId . '/aprovar', ['_csrf' => Security::csrfToken()]))->status, 'Administrador nao aprovou inscricao');
         $roster = $router->dispatch(Request::fake('GET', '/torneio-online/admin/inscricoes/elenco'));
         assert_same(200, $roster->status, 'Elenco HTTP nao abriu apos aprovacao');
         assert_true((int) $pdo->query("SELECT COUNT(*) FROM athlete_registrations WHERE id = {$registrationId} AND status = 'approved'")->fetchColumn() === 1, 'Aprovacao HTTP nao persistiu');
@@ -58,8 +58,8 @@ final class RegistrationHttpTest
         self::login($router, 'operador@torneios.local');
         assert_same(403, $router->dispatch(Request::fake('GET', '/torneio-online/admin/inscricoes'))->status, 'Operador acessou inscricoes');
         self::logout($router);
-        self::login($router, 'comunicacao@torneios.local');
-        assert_same(403, $router->dispatch(Request::fake('GET', '/torneio-online/admin/inscricoes'))->status, 'Comunicacao acessou inscricoes');
+        self::login($router, 'prestacao@torneios.local');
+        assert_same(403, $router->dispatch(Request::fake('GET', '/torneio-online/admin/inscricoes'))->status, 'Prestacao de contas acessou inscricoes');
         self::logout($router);
     }
 

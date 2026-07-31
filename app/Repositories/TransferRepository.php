@@ -15,11 +15,31 @@ final class TransferRepository
     public function championshipsForUser(int $userId, array $roles, bool $administrator): array
     {
         if ($administrator) return $this->pdo->query("SELECT id, name, slug FROM championships WHERE deleted_at IS NULL ORDER BY name")->fetchAll();
-        $types = array_values(array_intersect(['organizer', 'communication'], $roles));
-        if (!$types) return [];
-        $marks = implode(',', array_fill(0, count($types), '?'));
-        $s = $this->pdo->prepare("SELECT DISTINCT c.id, c.name, c.slug FROM championships c INNER JOIN championship_user_assignments a ON a.championship_id = c.id WHERE c.deleted_at IS NULL AND a.user_id = ? AND a.assignment_type IN ($marks) ORDER BY c.name");
-        $s->execute(array_merge([$userId], $types)); return $s->fetchAll();
+        return [];
+    }
+
+    public function isOwnTeam(int $teamId, int $userId): bool
+    {
+        $s = $this->pdo->prepare("SELECT EXISTS (SELECT 1 FROM team_user_assignments tua WHERE tua.team_id = ? AND tua.user_id = ? AND tua.assignment_type IN ('manager', 'head_coach') AND tua.status = 'active')");
+        $s->execute([$teamId, $userId]);
+        return (bool) $s->fetchColumn();
+    }
+
+    public function ownTeams(int $userId, ?int $championshipId = null): array
+    {
+        $where = ['t.deleted_at IS NULL', "EXISTS (SELECT 1 FROM team_user_assignments tua WHERE tua.team_id = t.id AND tua.user_id = ? AND tua.assignment_type IN ('manager', 'head_coach') AND tua.status = 'active')"];
+        $params = [$userId];
+        if ($championshipId !== null) { $where[] = 't.championship_id = ?'; $params[] = $championshipId; }
+        $s = $this->pdo->prepare('SELECT t.id, t.name, t.championship_id FROM teams t WHERE ' . implode(' AND ', $where) . ' ORDER BY t.name');
+        $s->execute($params);
+        return $s->fetchAll();
+    }
+
+    public function championshipsForOwnTeams(int $userId): array
+    {
+        $s = $this->pdo->prepare("SELECT DISTINCT c.id, c.name, c.slug FROM championships c INNER JOIN teams t ON t.championship_id = c.id WHERE c.deleted_at IS NULL AND EXISTS (SELECT 1 FROM team_user_assignments tua WHERE tua.team_id = t.id AND tua.user_id = ? AND tua.assignment_type IN ('manager', 'head_coach') AND tua.status = 'active') ORDER BY c.name");
+        $s->execute([$userId]);
+        return $s->fetchAll();
     }
 
     public function find(int $id): ?array
@@ -28,16 +48,16 @@ final class TransferRepository
         $s->execute([$id]); return $s->fetch() ?: null;
     }
 
-    public function listAdmin(?array $championshipIds, array $filters = [], int $limit = 20, int $offset = 0): array
+    public function listAdmin(?array $championshipIds, array $filters = [], int $limit = 20, int $offset = 0, ?array $ownTeamIds = null): array
     {
-        [$where, $params] = $this->where($championshipIds, $filters, false);
+        [$where, $params] = $this->where($championshipIds, $filters, false, $ownTeamIds);
         $sql = "SELECT m.*, c.name AS championship_name, a.full_name AS athlete_name, a.sporting_name, pt.name AS previous_team_name, nt.name AS new_team_name, u.name AS author_name FROM transfer_movements m INNER JOIN championships c ON c.id = m.championship_id INNER JOIN athletes a ON a.id = m.athlete_id LEFT JOIN teams pt ON pt.id = m.previous_team_id LEFT JOIN teams nt ON nt.id = m.new_team_id INNER JOIN users u ON u.id = m.author_id WHERE " . implode(' AND ', $where) . " ORDER BY m.movement_date DESC, m.id DESC LIMIT " . max(1, $limit) . " OFFSET " . max(0, $offset);
         $s = $this->pdo->prepare($sql); $s->execute($params); return $s->fetchAll();
     }
 
-    public function countAdmin(?array $championshipIds, array $filters = []): int
+    public function countAdmin(?array $championshipIds, array $filters = [], ?array $ownTeamIds = null): int
     {
-        [$where, $params] = $this->where($championshipIds, $filters, false); $s = $this->pdo->prepare('SELECT COUNT(*) FROM transfer_movements m INNER JOIN athletes a ON a.id = m.athlete_id LEFT JOIN teams pt ON pt.id = m.previous_team_id LEFT JOIN teams nt ON nt.id = m.new_team_id WHERE ' . implode(' AND ', $where)); $s->execute($params); return (int) $s->fetchColumn();
+        [$where, $params] = $this->where($championshipIds, $filters, false, $ownTeamIds); $s = $this->pdo->prepare('SELECT COUNT(*) FROM transfer_movements m INNER JOIN athletes a ON a.id = m.athlete_id LEFT JOIN teams pt ON pt.id = m.previous_team_id LEFT JOIN teams nt ON nt.id = m.new_team_id WHERE ' . implode(' AND ', $where)); $s->execute($params); return (int) $s->fetchColumn();
     }
 
     public function publicChampionship(string $slug): ?array
@@ -116,9 +136,13 @@ final class TransferRepository
         } catch (\Throwable $e) { $this->pdo->rollBack(); throw $e; }
     }
 
-    private function where(?array $championshipIds, array $filters, bool $public): array
+    private function where(?array $championshipIds, array $filters, bool $public, ?array $ownTeamIds = null): array
     {
         $where = ['m.deleted_at IS NULL']; $params = []; $this->scopeIds($championshipIds, 'm.championship_id', $where, $params);
+        if ($ownTeamIds !== null) {
+            if (!$ownTeamIds) { $where[] = '1 = 0'; }
+            else { $marks = implode(',', array_fill(0, count($ownTeamIds), '?')); $where[] = "(m.previous_team_id IN ($marks) OR m.new_team_id IN ($marks))"; array_push($params, ...$ownTeamIds, ...$ownTeamIds); }
+        }
         if (($filters['q'] ?? '') !== '') { $term = '%' . trim((string) $filters['q']) . '%'; $where[] = '(a.full_name LIKE ? OR a.sporting_name LIKE ? OR pt.name LIKE ? OR nt.name LIKE ? OR m.public_observation LIKE ?)'; array_push($params, $term, $term, $term, $term, $term); }
         if (($filters['type'] ?? '') !== '') { $where[] = 'm.type = ?'; $params[] = $filters['type']; }
         if (($filters['status'] ?? '') !== '' && !$public) { $where[] = 'm.status = ?'; $params[] = $filters['status']; }

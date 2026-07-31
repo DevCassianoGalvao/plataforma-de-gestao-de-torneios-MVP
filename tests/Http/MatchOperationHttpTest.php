@@ -42,18 +42,14 @@ final class MatchOperationHttpTest
         assert_same(200, $router->dispatch(Request::fake('GET', '/torneio-online/admin/partidas/' . $matchId . '/operacao'))->status, 'Operador nao visualizou a central atribuida');
         self::logout($router);
 
-        self::login($router, 'organizador@torneios.local');
-        assert_same(200, $router->dispatch(Request::fake('GET', '/torneio-online/admin/partidas/' . $matchId . '/operacao'))->status, 'Organizador nao visualizou a central autorizada');
-        self::logout($router);
-
         $trainerId = (int) $pdo->query("SELECT id FROM users WHERE email = 'treinador@torneios.local'")->fetchColumn();
         $foreignMatchId = (int) $pdo->query("SELECT m.id FROM matches m WHERE m.id <> {$matchId} AND NOT EXISTS (SELECT 1 FROM team_user_assignments tua WHERE tua.user_id = {$trainerId} AND tua.status = 'active' AND tua.team_id IN (m.home_team_id, m.away_team_id)) ORDER BY m.id LIMIT 1")->fetchColumn();
         self::login($router, 'treinador@torneios.local');
         assert_same(403, $router->dispatch(Request::fake('GET', '/torneio-online/admin/partidas/' . $foreignMatchId . '/operacao'))->status, 'IDOR da central foi aceito');
         self::logout($router);
 
-        self::login($router, 'comunicacao@torneios.local');
-        assert_same(403, $router->dispatch(Request::fake('GET', '/torneio-online/admin/partidas/' . $matchId . '/operacao'))->status, 'Comunicacao recebeu central operacional');
+        self::login($router, 'prestacao@torneios.local');
+        assert_same(403, $router->dispatch(Request::fake('GET', '/torneio-online/admin/partidas/' . $matchId . '/operacao'))->status, 'Prestacao de contas recebeu central operacional');
         self::logout($router);
     }
 

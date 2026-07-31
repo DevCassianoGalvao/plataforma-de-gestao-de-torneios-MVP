@@ -30,9 +30,7 @@ final class LineupIntegrationTest
         $users = new UserRepository($pdo);
         $admin = $users->findByEmail('admin@torneios.local');
         $trainer = $users->findByEmail('treinador@torneios.local');
-        $organizer = $users->findByEmail('organizador@torneios.local');
         $operator = $users->findByEmail('operador@torneios.local');
-        $communication = $users->findByEmail('comunicacao@torneios.local');
         $teamId = (int) $pdo->query("SELECT id FROM teams WHERE slug = 'estrela-norte-fc'")->fetchColumn();
         $foreignTeamId = (int) $pdo->query("SELECT id FROM teams WHERE slug = 'serra-azul-futebol'")->fetchColumn();
         $match = (new ScheduleRepository($pdo))->matchById((int) $pdo->query('SELECT id FROM matches WHERE home_team_id = ' . $teamId . ' OR away_team_id = ' . $teamId . ' ORDER BY id LIMIT 1')->fetchColumn());
@@ -82,10 +80,8 @@ final class LineupIntegrationTest
         $duplicate['starters'][$firstSlots[2]] = $duplicate['starters'][$firstSlots[1]];
         assert_true(!$service->save($admin, $match, $reopened, array_merge(['formation_id' => $formationId], $duplicate), false)['ok'], 'Atleta duplicado foi aceito');
         assert_true($access->canManageTeam($trainer, $match, $teamId), 'Treinador nao gerencia propria equipe');
-        assert_true(!$access->canManageTeam($organizer, $match, $teamId), 'Organizador recebeu edicao de escalacao');
-        assert_true($access->canView($organizer, $match, $lineup), 'Organizador nao visualiza escalacao');
+        assert_true(!$access->canManageTeam($operator, $match, $teamId), 'Operador recebeu edicao de escalacao');
         assert_true($access->canView($operator, $match, $lineup), 'Operador nao visualiza escalacao confirmada');
-        assert_true(!$access->canView($communication, $match, $lineup), 'Comunicacao recebeu dado privado');
         assert_true($access->matchForUser($trainer, (int) $pdo->query('SELECT id FROM matches WHERE home_team_id = ' . $foreignTeamId . ' AND away_team_id <> ' . $teamId . ' LIMIT 1')->fetchColumn()) === null, 'IDOR de partida de outra equipe aceito');
     }
 }

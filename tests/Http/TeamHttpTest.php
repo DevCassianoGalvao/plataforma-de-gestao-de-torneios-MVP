@@ -90,15 +90,9 @@ final class TeamHttpTest
         $foreignId = $foreignChampionships->create(['name' => 'Campeonato HTTP Externo', 'short_name' => 'HTTP Externo', 'slug' => 'campeonato-http-externo', 'description' => '', 'season_id' => $seasonId, 'category_id' => $categoryId, 'starts_at' => '2026-09-01', 'ends_at' => '2026-10-01', 'registration_starts_at' => '2026-08-01', 'registration_ends_at' => '2026-08-20', 'status' => 'draft', 'visibility' => 'private', 'default_theme' => 'light', 'primary_color' => '#123C32', 'secondary_color' => '#245C4A', 'accent_color' => '#D9A441'], (int) $pdo->query("SELECT id FROM users WHERE email = 'admin@torneios.local'")->fetchColumn());
         $teamRepository = new TeamRepository($pdo);
         $teamRepository->create(['championship_id' => $foreignId, 'name' => 'Equipe Externa', 'short_name' => 'Externa', 'slug' => 'equipe-externa', 'abbreviation' => 'EXT', 'description' => '', 'city' => '', 'state' => '', 'primary_color' => '#123C32', 'secondary_color' => '#D9A441', 'status' => 'draft', 'default_tactical_formation_id' => $formationId], (int) $pdo->query("SELECT id FROM users WHERE email = 'admin@torneios.local'")->fetchColumn());
-        $logout = $router->dispatch(Request::fake('POST', '/torneio-online/logout', ['_csrf' => Security::csrfToken()]));
-        assert_same(302, $logout->status, 'Logout do administrador falhou');
-        self::login($router, 'organizador@torneios.local');
-        $organizerTeam = $router->dispatch(Request::fake('POST', '/torneio-online/admin/equipes', ['_csrf' => Security::csrfToken(), 'championship_id' => $championshipId, 'name' => 'Equipe HTTP Organizador', 'short_name' => 'HTTP Org', 'slug' => 'equipe-http-organizador', 'abbreviation' => 'EHO', 'primary_color' => '#123C32', 'secondary_color' => '#D9A441', 'default_tactical_formation_id' => $formationId]));
-        assert_same(302, $organizerTeam->status, 'Organizador nao criou equipe autorizada');
-        assert_same(200, $router->dispatch(Request::fake('GET', '/torneio-online/admin/equipes/equipe-http-organizador'))->status, 'Organizador nao abriu equipe autorizada');
-        assert_same(403, $router->dispatch(Request::fake('GET', '/torneio-online/admin/equipes/equipe-externa'))->status, 'Organizador acessou equipe de campeonato alheio');
-        assert_same(419, $router->dispatch(Request::fake('POST', '/torneio-online/admin/equipes/equipe-http-organizador', ['_csrf' => 'invalid', 'name' => 'Alterada', 'short_name' => 'Alterada', 'slug' => 'alterada', 'abbreviation' => 'ALT', 'primary_color' => '#123C32', 'secondary_color' => '#D9A441']))->status, 'CSRF invalido de equipe foi aceito');
-        assert_same(302, $router->dispatch(Request::fake('POST', '/torneio-online/logout', ['_csrf' => Security::csrfToken()]))->status, 'Logout do organizador falhou');
+        assert_same(200, $router->dispatch(Request::fake('GET', '/torneio-online/admin/equipes/equipe-externa'))->status, 'Administrador nao acessou equipe de outro campeonato');
+        assert_same(419, $router->dispatch(Request::fake('POST', '/torneio-online/admin/equipes/equipe-http-admin', ['_csrf' => 'invalid', 'name' => 'Alterada', 'short_name' => 'Alterada', 'slug' => 'alterada', 'abbreviation' => 'ALT', 'primary_color' => '#123C32', 'secondary_color' => '#D9A441']))->status, 'CSRF invalido de equipe foi aceito');
+        assert_same(302, $router->dispatch(Request::fake('POST', '/torneio-online/logout', ['_csrf' => Security::csrfToken()]))->status, 'Logout do administrador falhou');
         self::login($router, 'treinador@torneios.local');
         assert_same(200, $router->dispatch(Request::fake('GET', '/torneio-online/admin/equipes/estrela-norte-fc'))->status, 'Treinador nao abriu propria equipe');
         assert_same(403, $router->dispatch(Request::fake('GET', '/torneio-online/admin/equipes/serra-azul-futebol'))->status, 'Treinador abriu equipe alheia');
@@ -106,8 +100,6 @@ final class TeamHttpTest
         self::login($router, 'operador@torneios.local');
         assert_same(403, $router->dispatch(Request::fake('GET', '/torneio-online/admin/equipes'))->status, 'Operador acessou equipes');
         assert_same(302, $router->dispatch(Request::fake('POST', '/torneio-online/logout', ['_csrf' => Security::csrfToken()]))->status, 'Logout do operador falhou');
-        self::login($router, 'comunicacao@torneios.local');
-        assert_same(403, $router->dispatch(Request::fake('GET', '/torneio-online/admin/equipes'))->status, 'Comunicacao acessou equipes');
         assert_true((int) $pdo->query("SELECT COUNT(*) FROM audit_logs WHERE action LIKE 'teams.%' OR action LIKE 'team_staff.%'")->fetchColumn() >= 6, 'Auditoria de equipes ausente');
     }
 

@@ -48,7 +48,6 @@ final class TeamIntegrationTest
 
         $users = new UserRepository($pdo);
         $admin = $users->findByEmail('admin@torneios.local');
-        $organizer = $users->findByEmail('organizador@torneios.local');
         $trainer = $users->findByEmail('treinador@torneios.local');
         $manager = $users->findByEmail('gestor@torneios.local');
         $outsider = $users->findByEmail('treinador-sem-equipe@torneios.local');
@@ -56,7 +55,6 @@ final class TeamIntegrationTest
         $championships = new ChampionshipRepository($pdo);
         $access = new TeamAccessService($teamRepository, $championships, $authorization);
         assert_same(10, count($teamRepository->listForUser((int) $admin['id'], 'administrator')), 'Administrador nao ve todas as equipes');
-        assert_same(10, count($teamRepository->listForUser((int) $organizer['id'], 'organizer')), 'Organizador nao ve equipes do campeonato autorizado');
         assert_same(5, count($teamRepository->listForUser((int) $trainer['id'], 'team')), 'Treinador recebeu escopo inesperado');
         assert_same(5, count($teamRepository->listForUser((int) $manager['id'], 'team')), 'Gestor recebeu escopo inesperado');
         assert_same(0, count($teamRepository->listForUser((int) $outsider['id'], 'team')), 'Treinador sem vinculo recebeu equipes');

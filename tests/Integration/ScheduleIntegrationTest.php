@@ -33,7 +33,6 @@ final class ScheduleIntegrationTest
 
         $users = new UserRepository($pdo);
         $admin = $users->findByEmail('admin@torneios.local');
-        $organizer = $users->findByEmail('organizador@torneios.local');
         $trainer = $users->findByEmail('treinador@torneios.local');
         $outsider = $users->findByEmail('treinador-sem-equipe@torneios.local');
         $operator = $users->findByEmail('operador@torneios.local');
@@ -44,7 +43,6 @@ final class ScheduleIntegrationTest
         $authorization = new AuthorizationService($users);
         $access = new ScheduleAccessService($repository, new ChampionshipRepository($pdo), new TeamRepository($pdo), $authorization);
         assert_same(20, count($access->listMatches($admin)), 'Administrador nao ve tabela completa');
-        assert_same(20, count($access->listMatches($organizer)), 'Organizador nao ve campeonato autorizado');
         assert_true(count($access->listMatches($trainer)) > 0, 'Treinador nao ve jogos da propria equipe');
         assert_same(0, count($access->listMatches($outsider)), 'Treinador sem equipe recebeu jogos');
         assert_same(0, count($access->listMatches($operator)), 'Operador recebeu escopo indevido');

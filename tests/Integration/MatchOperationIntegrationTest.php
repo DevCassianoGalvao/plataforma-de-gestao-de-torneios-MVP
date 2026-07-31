@@ -32,8 +32,6 @@ final class MatchOperationIntegrationTest
         $users = new UserRepository($pdo);
         $admin = $users->findByEmail('admin@torneios.local');
         $operator = $users->findByEmail('operador@torneios.local');
-        $organizer = $users->findByEmail('organizador@torneios.local');
-        $communication = $users->findByEmail('comunicacao@torneios.local');
         $matchId = (int) $pdo->query('SELECT id FROM matches ORDER BY id LIMIT 1')->fetchColumn();
         $schedules = new ScheduleRepository($pdo);
         $match = $schedules->matchById($matchId);
@@ -102,15 +100,13 @@ final class MatchOperationIntegrationTest
         assert_true(!$access->canOperate($operator, $match), 'Operador manteve edicao apos finalizacao');
         assert_true(!$access->canHomologate($operator, $match), 'Operador recebeu permissao de homologar');
         assert_true($service->saveAdministrativeResult($operator, $match, ['home_score' => 4, 'away_score' => 2, 'reason' => 'Retificacao tardia'])['ok'] === false, 'Resultado administrativo alterou partida finalizada');
-        assert_true(!$service->homologate($organizer, $match, false)['ok'], 'Homologacao sem confirmacao aceita');
-        assert_true($service->homologate($organizer, $match, true)['ok'], 'Homologacao valida falhou');
+        assert_true(!$service->homologate($admin, $match, false)['ok'], 'Homologacao sem confirmacao aceita');
+        assert_true($service->homologate($admin, $match, true)['ok'], 'Homologacao valida falhou');
         $homologated = $operations->find($matchId);
         assert_same('homologated', $homologated['status'], 'Operacao nao foi homologada');
         assert_same('homologated', $homologated['match_status'], 'Partida nao foi homologada');
-        assert_true(!$access->canView($communication, $match), 'Comunicacao recebeu central operacional');
         assert_same(2, (int) $pdo->query('SELECT COUNT(*) FROM match_operation_history')->fetchColumn(), 'Historico de transicao inconsistente');
         $foreignMatchId = (int) $pdo->query('SELECT m.id FROM matches m WHERE m.id <> ' . $matchId . ' AND NOT EXISTS (SELECT 1 FROM match_operator_assignments moa WHERE moa.match_id = m.id) ORDER BY m.id LIMIT 1')->fetchColumn();
         assert_true($foreignMatchId > 0 && $access->matchForUser($operator, $foreignMatchId) === null, 'IDOR do operador foi aceito');
-        assert_true($access->matchForUser($communication, $matchId) === null, 'Escopo de comunicacao nao foi bloqueado');
     }
 }

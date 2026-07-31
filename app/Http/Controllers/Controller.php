@@ -32,6 +32,21 @@ abstract class Controller
         return $user;
     }
 
+    protected function guardAny(Request $request, array $permissions): array|Response
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return Response::redirect(Config::url('/login') . '?next=' . urlencode($request->path));
+        }
+        foreach ($permissions as $permission) {
+            if ($this->authorization->can($user, $permission)) {
+                return $user;
+            }
+        }
+        $this->audit->record('authorization.denied', (int) $user['id'], 'permission', implode('|', $permissions), [], $request);
+        return Response::forbidden();
+    }
+
     protected function page(string $title, string $view, array $data = []): Response
     {
         return Response::html(View::page($title, View::render($view, $data)));

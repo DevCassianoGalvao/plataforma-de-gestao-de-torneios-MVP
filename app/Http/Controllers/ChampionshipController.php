@@ -53,10 +53,6 @@ final class ChampionshipController extends Controller
             $id = $this->championships->create($data, (int) $guard['id']);
             $this->regulations->createInitialDraft($id, (int) $guard['id'], $request);
             $this->audit->record('championships.created', (int) $guard['id'], 'championship', $id, [], $request);
-            if (!$this->access->isAdministrator($guard)) {
-                $this->championships->assign($id, (int) $guard['id'], 'organizer', (int) $guard['id']);
-                $this->audit->record('championships.organizer_assigned', (int) $guard['id'], 'championship', $id, ['user_id' => (int) $guard['id']], $request);
-            }
         } catch (\PDOException) {
             return $this->errorPage('Novo campeonato', 'admin/championships/form', ['record' => $data, 'seasons' => $this->seasons->list(), 'categories' => $this->categories->list(), 'errors' => ['Ja existe um campeonato com esse slug.']], 422);
         }
@@ -70,7 +66,7 @@ final class ChampionshipController extends Controller
         if ($guard instanceof Response) return $guard;
         $championship = $this->resolve($params[0] ?? '', $guard);
         if (!$championship) return $this->access->isAdministrator($guard) ? Response::html('Campeonato nao encontrado.', 404) : Response::forbidden();
-        return $this->page((string) $championship['name'], 'admin/championships/show', ['user' => $guard, 'championship' => $championship, 'assignments' => $this->championships->assignments((int) $championship['id']), 'regulation' => $this->regulationsFor($championship), 'message' => Session::consumeFlash('championship_message')]);
+        return $this->page((string) $championship['name'], 'admin/championships/show', ['user' => $guard, 'championship' => $championship, 'regulation' => $this->regulationsFor($championship), 'message' => Session::consumeFlash('championship_message')]);
     }
 
     public function editForm(Request $request, array $params = []): Response
@@ -178,46 +174,6 @@ final class ChampionshipController extends Controller
         if (!$result['ok']) return $this->errorPage('Arquivar campeonato', 'errors/simple', ['message' => $result['message']], 422);
         $this->audit->record('championships.archived', (int) $guard['id'], 'championship', (int) $championship['id'], [], $request);
         return Response::redirect(Config::url('/admin/campeonatos/' . $championship['slug']));
-    }
-
-    public function assignments(Request $request, array $params = []): Response
-    {
-        $guard = $this->guard($request, 'championships.manage_assignments');
-        if ($guard instanceof Response) return $guard;
-        $championship = $this->resolve($params[0] ?? '', $guard, true);
-        if (!$championship || !$this->access->canManageAssignments($guard, (int) $championship['id'])) return Response::forbidden();
-        return $this->page('Organizadores', 'admin/championships/assignments', ['user' => $guard, 'championship' => $championship, 'assignments' => $this->championships->assignments((int) $championship['id']), 'candidates' => $this->userRepository->listByRole('organizer'), 'errors' => []]);
-    }
-
-    public function assign(Request $request, array $params = []): Response
-    {
-        $guard = $this->guard($request, 'championships.manage_assignments');
-        if ($guard instanceof Response) return $guard;
-        $championship = $this->resolve($params[0] ?? '', $guard, true);
-        if (!$championship || !$this->access->canManageAssignments($guard, (int) $championship['id'])) return Response::forbidden();
-        if (!$this->validCsrf($request)) return Response::forbidden('A sessao expirou.');
-        $candidate = $this->userRepository->findById((int) ($request->body['user_id'] ?? 0));
-        if (!$candidate || !in_array('organizer', $this->authorization->roleKeys($candidate), true)) return $this->errorPage('Organizadores', 'admin/championships/assignments', ['championship' => $championship, 'assignments' => $this->championships->assignments((int) $championship['id']), 'candidates' => $this->userRepository->listByRole('organizer'), 'errors' => ['Escolha um organizador valido.']], 422);
-        try {
-            $this->championships->assign((int) $championship['id'], (int) $candidate['id'], 'organizer', (int) $guard['id']);
-        } catch (\PDOException) {
-            return $this->errorPage('Organizadores', 'admin/championships/assignments', ['championship' => $championship, 'assignments' => $this->championships->assignments((int) $championship['id']), 'candidates' => $this->userRepository->listByRole('organizer'), 'errors' => ['Este organizador ja esta vinculado.']], 422);
-        }
-        $this->audit->record('championships.organizer_assigned', (int) $guard['id'], 'championship', (int) $championship['id'], ['user_id' => (int) $candidate['id']], $request);
-        return Response::redirect(Config::url('/admin/campeonatos/' . $championship['slug'] . '/organizadores'));
-    }
-
-    public function unassign(Request $request, array $params = []): Response
-    {
-        $guard = $this->guard($request, 'championships.manage_assignments');
-        if ($guard instanceof Response) return $guard;
-        $championship = $this->resolve($params[0] ?? '', $guard, true);
-        if (!$championship || !$this->access->canManageAssignments($guard, (int) $championship['id'])) return Response::forbidden();
-        if (!$this->validCsrf($request)) return Response::forbidden('A sessao expirou.');
-        $userId = (int) ($params[1] ?? 0);
-        $this->championships->unassign((int) $championship['id'], $userId, 'organizer');
-        $this->audit->record('championships.organizer_unassigned', (int) $guard['id'], 'championship', (int) $championship['id'], ['user_id' => $userId], $request);
-        return Response::redirect(Config::url('/admin/campeonatos/' . $championship['slug'] . '/organizadores'));
     }
 
     public function asset(Request $request, array $params = []): Response

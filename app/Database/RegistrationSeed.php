@@ -13,7 +13,6 @@ final class RegistrationSeed
         $championship = $pdo->query("SELECT id, category_id FROM championships WHERE slug = 'copa-brasil-de-talentos-2026' LIMIT 1")->fetch();
         $type = $pdo->query("SELECT id FROM athlete_document_types WHERE `key` = 'guardian_authorization' LIMIT 1")->fetchColumn();
         $adminId = self::userId($pdo, 'admin@torneios.local');
-        $organizerId = self::userId($pdo, 'organizador@torneios.local');
         if (!$championship || !$type) throw new \RuntimeException('Dados necessarios ao seed de inscricoes nao foram encontrados.');
         $regulationStatement = $pdo->prepare("SELECT id FROM regulations WHERE championship_id = ? AND status = 'published' LIMIT 1");
         $regulationStatement->execute([(int) $championship['id']]);
@@ -39,14 +38,14 @@ final class RegistrationSeed
             if ($find->fetchColumn()) continue;
             $status = $states[$index];
             $submitted = in_array($status, ['submitted', 'under_review', 'pending_correction', 'approved', 'rejected', 'suspended'], true) ? $now : null;
-            $reviewed = in_array($status, ['under_review', 'pending_correction', 'approved', 'rejected', 'suspended'], true) ? $organizerId : null;
+            $reviewed = in_array($status, ['under_review', 'pending_correction', 'approved', 'rejected', 'suspended'], true) ? $adminId : null;
             $decided = in_array($status, ['approved', 'rejected', 'suspended'], true) ? $now : null;
             $issues = $status === 'pending_correction' ? 'Anexe o documento obrigatorio atualizado.' : null;
             $reason = $status === 'rejected' ? 'Dados ficticios rejeitados para demonstracao.' : null;
             $insert->execute([(int) $championship['id'], (int) $teamId, $athleteId, (int) $championship['category_id'], $index + 1, $status, $submitted, $issues, $reason, $reviewed, $reviewed ? $now : null, $decided, 'Inscricao ficticia da Etapa 6.', $adminId, $reviewed ?: $adminId, $now, $now]);
             $registrationId = (int) $pdo->lastInsertId();
             $history->execute([$registrationId, null, 'draft', 'created', null, $adminId, $now]);
-            foreach (self::path($status) as [$from, $to, $action, $user, $notes]) $history->execute([$registrationId, $from, $to, $action, $notes, $user === 'organizer' ? $organizerId : $adminId, $now]);
+            foreach (self::path($status) as [$from, $to, $action, $user, $notes]) $history->execute([$registrationId, $from, $to, $action, $notes, $adminId, $now]);
         }
     }
 

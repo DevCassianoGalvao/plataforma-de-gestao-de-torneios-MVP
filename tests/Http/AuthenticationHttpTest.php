@@ -37,11 +37,11 @@ final class AuthenticationHttpTest
         $logout = $router->dispatch(Request::fake('POST', '/torneio-online/logout', ['_csrf' => Security::csrfToken()]));
         assert_same(302, $logout->status, 'Logout nao redirecionou');
         $csrf = Security::csrfToken();
-        $organizer = $router->dispatch(Request::fake('POST', '/torneio-online/login', ['_csrf' => $csrf, 'email' => 'organizador@torneios.local', 'password' => getenv('SEED_DEMO_PASSWORD') ?: 'TestDemo123']));
-        assert_same(Config::url('/meus-campeonatos'), $organizer->headers['Location'] ?? null, 'Redirecionamento de organizador incorreto');
+        $trainer = $router->dispatch(Request::fake('POST', '/torneio-online/login', ['_csrf' => $csrf, 'email' => 'treinador@torneios.local', 'password' => getenv('SEED_DEMO_PASSWORD') ?: 'TestDemo123']));
+        assert_same(Config::url('/minha-equipe'), $trainer->headers['Location'] ?? null, 'Redirecionamento de treinador incorreto');
         $denied = $router->dispatch(Request::fake('GET', '/torneio-online/admin/usuarios'));
-        assert_same(403, $denied->status, 'Organizador acessou usuarios');
+        assert_same(403, $denied->status, 'Treinador acessou usuarios');
         $protected = $router->dispatch(Request::fake('GET', '/torneio-online/admin'));
-        assert_same(403, $protected->status, 'Organizador acessou painel global');
+        assert_same(403, $protected->status, 'Treinador acessou painel global');
     }
 }

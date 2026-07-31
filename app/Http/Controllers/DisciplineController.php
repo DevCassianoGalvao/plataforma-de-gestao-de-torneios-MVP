@@ -30,7 +30,7 @@ final class DisciplineController extends Controller
         $championshipId = (int) ($request->query['championship_id'] ?? ($options[0]['id'] ?? 0));
         if (!$this->access->canViewChampionship($guard, $championshipId)) return Response::forbidden();
         $scope = $this->access->scope($guard);
-        $teamScope = $scope === 'administrator' ? 'administrator' : ($scope === 'organizer' ? 'organizer' : 'team');
+        $teamScope = $scope === 'administrator' ? 'administrator' : 'team';
         $teams = $this->teams->listForUser((int) $guard['id'], $teamScope, ['championship_id' => $championshipId]);
         $athletes = [];
         $staff = [];

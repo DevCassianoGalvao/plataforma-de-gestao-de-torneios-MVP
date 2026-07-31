@@ -157,7 +157,7 @@ $newsAccess = new NewsAccessService($newsRepository, $authorization);
 $newsService = new NewsService($newsRepository, new NewsImageService($storage), $storage, $audit);
 $transferRepository = new TransferRepository($pdo);
 $transferAccess = new TransferAccessService($transferRepository, $authorization);
-$transferService = new TransferService($transferRepository, $audit);
+$transferService = new TransferService($transferRepository, $audit, $transferAccess);
 $publicPortalRepository = new PublicPortalRepository($pdo);
 $accountabilityRepository = new AccountabilityRepository($pdo);
 $governanceRepository = new GovernanceRepository($pdo);
@@ -438,9 +438,6 @@ $router->post('/admin/campeonatos/{slug}/identidade', [$championship, 'identity'
 $router->get('/admin/campeonatos/{slug}/assets/{field}', [$championship, 'asset']);
 $router->post('/admin/campeonatos/{slug}/status', [$championship, 'status']);
 $router->post('/admin/campeonatos/{slug}/arquivar', [$championship, 'archive']);
-$router->get('/admin/campeonatos/{slug}/organizadores', [$championship, 'assignments']);
-$router->post('/admin/campeonatos/{slug}/organizadores', [$championship, 'assign']);
-$router->post('/admin/campeonatos/{slug}/organizadores/{userId}/remover', [$championship, 'unassign']);
 $partner = new PartnerController($users, $authorization, $audit, $partners, $championships, $access, $storage);
 $router->get('/admin/campeonatos/{slug}/parceiros', [$partner, 'index']);
 $router->post('/admin/campeonatos/{slug}/parceiros', [$partner, 'save']);

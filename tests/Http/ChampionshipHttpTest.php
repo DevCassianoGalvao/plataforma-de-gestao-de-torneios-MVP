@@ -49,21 +49,21 @@ final class ChampionshipHttpTest
         assert_true((int) $pdo->query("SELECT id FROM championships WHERE slug = 'campeonato-http-admin' LIMIT 1")->fetchColumn() > 0, 'Campeonato HTTP admin nao foi persistido');
         $logout = $router->dispatch(Request::fake('POST', '/torneio-online/logout', ['_csrf' => Security::csrfToken()]));
         assert_same(302, $logout->status, 'Logout do admin falhou');
-        self::login($router, 'organizador@torneios.local');
+        self::login($router, 'admin@torneios.local');
         $assigned = $router->dispatch(Request::fake('GET', '/torneio-online/admin/campeonatos/copa-brasil-de-talentos-2026'));
-        assert_same(200, $assigned->status, 'Organizador atribuido nao abriu campeonato');
-        assert_same(200, $router->dispatch(Request::fake('GET', '/torneio-online/admin/campeonatos/copa-brasil-de-talentos-2026/regulamento'))->status, 'Organizador nao abriu resumo do regulamento');
-        assert_same(200, $router->dispatch(Request::fake('GET', '/torneio-online/admin/campeonatos/copa-brasil-de-talentos-2026/regulamento/editar'))->status, 'Organizador nao abriu editor do regulamento');
+        assert_same(200, $assigned->status, 'Administrador nao abriu campeonato');
+        assert_same(200, $router->dispatch(Request::fake('GET', '/torneio-online/admin/campeonatos/copa-brasil-de-talentos-2026/regulamento'))->status, 'Administrador nao abriu resumo do regulamento');
+        assert_same(200, $router->dispatch(Request::fake('GET', '/torneio-online/admin/campeonatos/copa-brasil-de-talentos-2026/regulamento/editar'))->status, 'Administrador nao abriu editor do regulamento');
         $preset = $router->dispatch(Request::fake('POST', '/torneio-online/admin/campeonatos/copa-brasil-de-talentos-2026/regulamento/preset', ['_csrf' => Security::csrfToken()]));
-        assert_same(302, $preset->status, 'Organizador nao aplicou preset');
+        assert_same(302, $preset->status, 'Administrador nao aplicou preset');
         $save = $router->dispatch(Request::fake('POST', '/torneio-online/admin/campeonatos/copa-brasil-de-talentos-2026/regulamento', ['_csrf' => Security::csrfToken(), 'name' => 'Regulamento HTTP', 'effective_from' => '2026-03-01', 'group_count' => '2', 'teams_per_group' => '5', 'qualified_per_group' => '4', 'group_rounds' => 'single', 'knockout_starts_at' => 'quarterfinals', 'final_format' => 'single_match', 'points_win' => '3', 'points_draw' => '1', 'points_loss' => '0', 'wo_winner_goals' => '3', 'wo_loser_goals' => '0', 'yellow_cards_for_suspension' => '2', 'yellow_suspension_matches' => '1', 'red_card_automatic_suspension' => 'on', 'red_card_suspension_matches' => '1', 'reset_cards_stage' => '', 'regular_time_minutes' => '40', 'halftime_minutes' => '10', 'substitutions_allowed' => '5', 'substitution_windows' => '3', 'extra_time_minutes' => '10', 'tiebreakers' => ['wins' => ['enabled' => 'on', 'priority' => '1'], 'goal_difference' => ['enabled' => 'on', 'priority' => '2']]]));
-        assert_same(302, $save->status, 'Organizador nao salvou rascunho');
+        assert_same(302, $save->status, 'Administrador nao salvou rascunho');
         assert_same(200, $router->dispatch(Request::fake('GET', '/torneio-online/admin/campeonatos/copa-brasil-de-talentos-2026/regulamento/revisar'))->status, 'Revisao do regulamento nao abriu');
         $publish = $router->dispatch(Request::fake('POST', '/torneio-online/admin/campeonatos/copa-brasil-de-talentos-2026/regulamento/publicar', ['_csrf' => Security::csrfToken()]));
-        assert_same(302, $publish->status, 'Organizador nao publicou regulamento');
+        assert_same(302, $publish->status, 'Administrador nao publicou regulamento');
         assert_same(200, $router->dispatch(Request::fake('GET', '/torneio-online/admin/campeonatos/copa-brasil-de-talentos-2026/regulamento/versoes'))->status, 'Historico de regulamentos nao abriu');
         $identityPage = $router->dispatch(Request::fake('GET', '/torneio-online/admin/campeonatos/copa-brasil-de-talentos-2026/identidade'));
-        assert_same(200, $identityPage->status, 'Organizador nao abriu identidade do campeonato');
+        assert_same(200, $identityPage->status, 'Administrador nao abriu identidade do campeonato');
         assert_true(str_contains($identityPage->body, 'data-color-field') && str_contains($identityPage->body, 'Paleta do campeonato'), 'Seletor visual de cores nao foi renderizado');
         assert_true(str_contains($identityPage->body, 'data-file-state') && str_contains($identityPage->body, '1920 × 720 px'), 'Estado de arquivos e orientação do banner nao foram renderizados');
         $tmp = tempnam(sys_get_temp_dir(), 'mvp-http-logo-');
@@ -82,18 +82,11 @@ final class ChampionshipHttpTest
         $invalidUpload = $router->dispatch(Request::fake('POST', '/torneio-online/admin/campeonatos/copa-brasil-de-talentos-2026/identidade', ['_csrf' => Security::csrfToken(), 'default_theme' => 'light', 'primary_color' => '#123C32', 'secondary_color' => '#245C4A', 'accent_color' => '#D9A441'], ['logo_path' => ['error' => UPLOAD_ERR_OK, 'size' => filesize($invalidFile), 'tmp_name' => $invalidFile, 'name' => 'logo.png']]));
         assert_same(422, $invalidUpload->status, 'Upload HTTP invalido foi aceito');
         @unlink($invalidFile);
-        $organizerCreated = $router->dispatch(Request::fake('POST', '/torneio-online/admin/campeonatos', ['_csrf' => Security::csrfToken(), 'name' => 'Campeonato HTTP Organizador', 'short_name' => 'HTTP Org', 'slug' => 'campeonato-http-organizador', 'description' => 'Teste de escopo.', 'season_id' => $seasonId, 'category_id' => $categoryId, 'starts_at' => '2026-09-01', 'ends_at' => '2026-10-01', 'registration_starts_at' => '2026-08-01', 'registration_ends_at' => '2026-08-20', 'visibility' => 'private']));
-        assert_same(302, $organizerCreated->status, 'Organizador nao criou campeonato');
-        $organizerCreatedId = (int) $pdo->query("SELECT id FROM championships WHERE slug = 'campeonato-http-organizador' LIMIT 1")->fetchColumn();
-        assert_same(1, (int) $pdo->query("SELECT COUNT(*) FROM championship_user_assignments WHERE championship_id = {$organizerCreatedId} AND user_id = (SELECT id FROM users WHERE email = 'organizador@torneios.local') AND assignment_type = 'organizer'")->fetchColumn(), 'Organizador criador nao recebeu vinculo automatico');
-        assert_same(403, $router->dispatch(Request::fake('GET', '/torneio-online/admin/campeonatos/campeonato-http-admin'))->status, 'Organizador acessou campeonato sem vinculo');
+        $secondCreated = $router->dispatch(Request::fake('POST', '/torneio-online/admin/campeonatos', ['_csrf' => Security::csrfToken(), 'name' => 'Campeonato HTTP Dois', 'short_name' => 'HTTP Dois', 'slug' => 'campeonato-http-dois', 'description' => 'Teste de criacao adicional.', 'season_id' => $seasonId, 'category_id' => $categoryId, 'starts_at' => '2026-09-01', 'ends_at' => '2026-10-01', 'registration_starts_at' => '2026-08-01', 'registration_ends_at' => '2026-08-20', 'visibility' => 'private']));
+        assert_same(302, $secondCreated->status, 'Administrador nao criou segundo campeonato');
+        assert_true((int) $pdo->query("SELECT id FROM championships WHERE slug = 'campeonato-http-dois' LIMIT 1")->fetchColumn() > 0, 'Segundo campeonato HTTP nao foi persistido');
         $logout = $router->dispatch(Request::fake('POST', '/torneio-online/logout', ['_csrf' => Security::csrfToken()]));
-        assert_same(302, $logout->status, 'Logout do organizador falhou');
-        self::login($router, 'organizador-sem-acesso@torneios.local');
-        $denied = $router->dispatch(Request::fake('GET', '/torneio-online/admin/campeonatos/copa-brasil-de-talentos-2026'));
-        assert_same(403, $denied->status, 'Organizador sem vinculo recebeu campeonato');
-        $logout = $router->dispatch(Request::fake('POST', '/torneio-online/logout', ['_csrf' => Security::csrfToken()]));
-        assert_same(302, $logout->status, 'Logout do organizador externo falhou');
+        assert_same(302, $logout->status, 'Logout do administrador falhou');
         self::login($router, 'treinador@torneios.local');
         $trainer = $router->dispatch(Request::fake('GET', '/torneio-online/admin/campeonatos'));
         assert_same(403, $trainer->status, 'Treinador acessou modulo de campeonatos');
@@ -103,8 +96,6 @@ final class ChampionshipHttpTest
         assert_same(403, $router->dispatch(Request::fake('GET', '/torneio-online/admin/campeonatos/copa-brasil-de-talentos-2026/regulamento'))->status, 'Operador acessou regulamento');
         $logout = $router->dispatch(Request::fake('POST', '/torneio-online/logout', ['_csrf' => Security::csrfToken()]));
         assert_same(302, $logout->status, 'Logout do operador falhou');
-        self::login($router, 'comunicacao@torneios.local');
-        assert_same(403, $router->dispatch(Request::fake('GET', '/torneio-online/admin/campeonatos/copa-brasil-de-talentos-2026/regulamento'))->status, 'Comunicacao acessou regulamento');
     }
 
     private static function login(Router $router, string $email): void

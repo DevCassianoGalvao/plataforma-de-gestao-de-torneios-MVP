@@ -33,7 +33,6 @@ final class RegistrationIntegrationTest
 
         $users = new UserRepository($pdo);
         $admin = $users->findByEmail('admin@torneios.local');
-        $organizer = $users->findByEmail('organizador@torneios.local');
         $trainer = $users->findByEmail('treinador@torneios.local');
         $outsider = $users->findByEmail('treinador-sem-equipe@torneios.local');
         $championshipId = (int) $pdo->query("SELECT id FROM championships WHERE slug = 'copa-brasil-de-talentos-2026'")->fetchColumn();
@@ -57,17 +56,17 @@ final class RegistrationIntegrationTest
         assert_true($registration !== null, 'Rascunho nao ficou no escopo do treinador');
         assert_true($service->submit($registration, (int) $trainer['id'])['ok'] === true, 'Envio de inscricao falhou');
         $registration = $repository->findByPair($championshipId, $teamId, $athleteId);
-        assert_true($service->startReview($registration, (int) $organizer['id'])['ok'] === true, 'Inicio de analise falhou');
+        assert_true($service->startReview($registration, (int) $admin['id'])['ok'] === true, 'Inicio de analise falhou');
         $registration = $repository->findByPair($championshipId, $teamId, $athleteId);
-        assert_true($service->requestCorrection($registration, (int) $organizer['id'], 'Atualize observacao')['ok'] === true, 'Pendencia nao foi registrada');
+        assert_true($service->requestCorrection($registration, (int) $admin['id'], 'Atualize observacao')['ok'] === true, 'Pendencia nao foi registrada');
         $registration = $repository->findByPair($championshipId, $teamId, $athleteId);
         assert_true($service->updateDraft($registration, (int) $trainer['id'], 88, 'Correcao enviada')['ok'] === true, 'Correcao nao foi persistida');
         $registration = $repository->findByPair($championshipId, $teamId, $athleteId);
         assert_true($service->submit($registration, (int) $trainer['id'])['ok'] === true, 'Reenvio apos correcao falhou');
         $registration = $repository->findByPair($championshipId, $teamId, $athleteId);
-        assert_true($service->startReview($registration, (int) $organizer['id'])['ok'] === true, 'Reanalise falhou');
+        assert_true($service->startReview($registration, (int) $admin['id'])['ok'] === true, 'Reanalise falhou');
         $registration = $repository->findByPair($championshipId, $teamId, $athleteId);
-        assert_true($service->approve($registration, (int) $organizer['id'])['ok'] === true, 'Aprovacao falhou');
+        assert_true($service->approve($registration, (int) $admin['id'])['ok'] === true, 'Aprovacao falhou');
         assert_true(count($service->history($registrationId)) >= 8, 'Correcao ou transicao sem historico');
         assert_true(count($service->officialRoster($championshipId, $teamId)) >= 2, 'Elenco oficial nao incluiu aprovado');
 

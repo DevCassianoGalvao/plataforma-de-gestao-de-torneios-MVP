@@ -26,7 +26,7 @@ final class MatchReportHttpTest
         assert_same(200, $router->dispatch(Request::fake('GET', '/torneio-online/admin/sumulas/versoes/' . $versionId . '/pdf'))->status, 'Download de versao historica falhou');
         $zip = $router->dispatch(Request::fake('GET', '/torneio-online/admin/sumulas/rodadas/' . $match['round_id'] . '.zip')); assert_same(200, $zip->status, 'Pacote por rodada nao abriu'); assert_true(str_starts_with($zip->body, 'PK'), 'Pacote HTTP nao retornou ZIP');
         assert_same(403, $router->dispatch(Request::fake('POST', '/torneio-online/admin/partidas/' . $matchId . '/sumula/gerar', ['_csrf' => 'invalid']))->status, 'CSRF da sumula foi aceito');
-        self::logout($router); self::login($router, 'comunicacao@torneios.local'); assert_same(403, $router->dispatch(Request::fake('GET', '/torneio-online/admin/partidas/' . $matchId . '/sumula'))->status, 'Comunicacao recebeu sumula privada'); self::logout($router);
+        self::logout($router); self::login($router, 'prestacao@torneios.local'); assert_same(403, $router->dispatch(Request::fake('GET', '/torneio-online/admin/partidas/' . $matchId . '/sumula'))->status, 'Prestacao de contas recebeu sumula privada'); self::logout($router);
         $repo = new MatchReportRepository($pdo); $storage = new StorageService(); foreach ($repo->versions($matchId) as $version) $storage->delete($version['storage_path']); foreach (glob(dirname(__DIR__, 2) . '/storage/private/reports/packages/*') ?: [] as $package) @unlink($package);
     }
 

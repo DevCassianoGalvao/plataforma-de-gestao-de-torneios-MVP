@@ -25,8 +25,8 @@ final class DisciplineHttpTest
         assert_true(str_contains($response->body, 'Disciplina e suspensoes'), 'Central disciplinar nao renderizou');
         assert_same(403, $router->dispatch(Request::fake('POST', '/torneio-online/admin/disciplina/suspensao', ['championship_id' => $championshipId, '_csrf' => 'invalid']))->status, 'CSRF disciplinar foi aceito');
         self::logout($router);
-        self::login($router, 'comunicacao@torneios.local');
-        assert_same(403, $router->dispatch(new Request('GET', '/torneio-online/admin/disciplina', ['championship_id' => (string) $championshipId]))->status, 'Comunicacao recebeu disciplina');
+        self::login($router, 'prestacao@torneios.local');
+        assert_same(403, $router->dispatch(new Request('GET', '/torneio-online/admin/disciplina', ['championship_id' => (string) $championshipId]))->status, 'Prestacao de contas recebeu disciplina');
         self::logout($router);
     }
 

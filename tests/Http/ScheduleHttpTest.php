@@ -45,8 +45,8 @@ final class ScheduleHttpTest
         self::login($router, 'operador@torneios.local');
         assert_same(403, $router->dispatch(Request::fake('GET', '/torneio-online/admin/tabela'))->status, 'Operador acessou tabela');
         self::logout($router);
-        self::login($router, 'comunicacao@torneios.local');
-        assert_same(403, $router->dispatch(Request::fake('GET', '/torneio-online/admin/tabela'))->status, 'Comunicacao acessou tabela');
+        self::login($router, 'prestacao@torneios.local');
+        assert_same(403, $router->dispatch(Request::fake('GET', '/torneio-online/admin/tabela'))->status, 'Prestacao de contas acessou tabela');
         self::logout($router);
     }
 

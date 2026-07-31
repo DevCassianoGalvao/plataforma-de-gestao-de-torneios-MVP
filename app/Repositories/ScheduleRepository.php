@@ -288,7 +288,6 @@ final class ScheduleRepository
     private function matchScope(int $userId, string $scope): array
     {
         if ($scope === 'administrator') return ['1 = 1', []];
-        if ($scope === 'organizer') return ['EXISTS (SELECT 1 FROM championship_user_assignments cua WHERE cua.championship_id = m.championship_id AND cua.user_id = ? AND cua.assignment_type = \'organizer\')', [$userId]];
         if ($scope === 'team') return ["EXISTS (SELECT 1 FROM team_user_assignments tua WHERE tua.user_id = ? AND tua.status = 'active' AND tua.assignment_type IN ('manager', 'head_coach') AND (tua.team_id = m.home_team_id OR tua.team_id = m.away_team_id))", [$userId]];
         return ['0 = 1', []];
     }

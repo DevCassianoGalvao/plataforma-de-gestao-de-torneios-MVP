@@ -16,7 +16,6 @@ final class MatchOperationAccessService
     {
         $roles = $this->authorization->roleKeys($user);
         if (in_array('administrator', $roles, true)) return 'administrator';
-        if (in_array('organizer', $roles, true)) return 'organizer';
         if (in_array('match_operator', $roles, true)) return 'operator';
         if (in_array('team_manager', $roles, true)) return 'team';
         return 'none';
@@ -42,7 +41,7 @@ final class MatchOperationAccessService
     public function canHomologate(array $user, array $match): bool
     {
         $scope = $this->scope($user);
-        return $this->authorization->can($user, 'match_operation.homologate') && in_array($scope, ['administrator', 'organizer'], true) && $this->matchForUser($user, (int) $match['id']) !== null;
+        return $this->authorization->can($user, 'match_operation.homologate') && $scope === 'administrator' && $this->matchForUser($user, (int) $match['id']) !== null;
     }
 
     public function canView(array $user, array $match): bool

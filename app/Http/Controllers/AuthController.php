@@ -49,11 +49,9 @@ final class AuthController extends Controller
         $role = $this->authorization->primaryRole($user);
         $fallbacks = [
             'administrator' => '/admin',
-            'organizer' => '/meus-campeonatos',
             'team_manager' => '/minha-equipe',
             'match_operator' => '/minhas-partidas',
             'accountability' => '/prestacao',
-            'communication' => '/conteudo',
         ];
         $next = Security::safeLocalPath((string) ($request->body['next'] ?? ''));
         if ($next !== null) {

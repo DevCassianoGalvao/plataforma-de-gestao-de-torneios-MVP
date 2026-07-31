@@ -28,7 +28,7 @@ final class AuthorizationService
 
     public function primaryRole(array $user): ?string
     {
-        $priority = ['administrator', 'organizer', 'team_manager', 'match_operator', 'accountability', 'communication'];
+        $priority = ['administrator', 'team_manager', 'match_operator', 'accountability'];
         $roles = $this->roleKeys($user);
         foreach ($priority as $key) {
             if (in_array($key, $roles, true)) {

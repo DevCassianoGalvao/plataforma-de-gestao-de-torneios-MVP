@@ -309,7 +309,6 @@ final class ScheduleController extends Controller
     {
         $scope = $this->access->scope($user);
         if ($scope === 'administrator') return $this->championships->listForUser(0, true);
-        if ($scope === 'organizer') return $this->championships->listForUser((int) $user['id'], false);
         return [];
     }
 
