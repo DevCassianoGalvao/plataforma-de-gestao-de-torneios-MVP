@@ -2303,6 +2303,12 @@ body.public-portal .filter-bar button:focus-visible {
 }
 
 @media (max-width: 600px) {
+    body.public-portal .portal-header nav.is-open {
+        right: 0;
+        left: 0;
+        width: 100dvw !important;
+        border-left: 0;
+    }
     body.public-portal .athlete-profile .portal-athlete-photo-large,
     body.public-portal .athlete-profile .athlete-avatar-fallback.portal-athlete-photo-large {
         display: grid;
