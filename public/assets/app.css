@@ -2248,8 +2248,25 @@ body.public-portal .filter-bar button:focus-visible {
 @media (max-width: 800px) {
     body.public-portal .portal-header { isolation: isolate; }
     body.public-portal .portal-header-inner { z-index: 96; }
+    body.app-body .sidebar-toggle,
+    body.app-body .notification-button {
+        box-sizing: border-box;
+        width: 2.5rem;
+        height: 2.5rem;
+        min-height: 2.5rem;
+    }
+    body.app-body .sidebar-toggle::before,
+    body.public-portal .portal-nav-toggle::before {
+        display: none !important;
+        content: none !important;
+        background: none !important;
+    }
     body.app-body .sidebar-toggle > .ui-icon,
-    body.public-portal .portal-nav-toggle > .ui-icon { display: none; }
+    body.public-portal .portal-nav-toggle > .ui-icon {
+        display: block !important;
+        width: 1.15rem;
+        height: 1.15rem;
+    }
     body.public-portal .portal-nav-tools .portal-nav-toggle {
         position: relative;
         z-index: 97;

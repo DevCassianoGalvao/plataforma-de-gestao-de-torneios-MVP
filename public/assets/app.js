@@ -23,6 +23,7 @@
         'sun': '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>',
         'moon': '<path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5 8.5 8.5 0 1 0 20.5 14.5Z"/>',
         'menu': '<path d="M4 6h16M4 12h16M4 18h16"/>',
+        'x': '<path d="M6 6l12 12M18 6 6 18"/>',
         'chevron-right': '<path d="m9 18 6-6-6-6"/>',
         'circle': '<circle cx="12" cy="12" r="9"/>'
     };
@@ -124,6 +125,7 @@
             toggle.setAttribute('aria-expanded', 'false');
             toggle.setAttribute('aria-label', openLabel);
             toggle.setAttribute('title', openLabel);
+            setIcon(toggle, 'menu', false);
             if (returnFocus) toggle.focus();
         };
         var open = function () {
@@ -132,6 +134,7 @@
             toggle.setAttribute('aria-expanded', 'true');
             toggle.setAttribute('aria-label', closeLabel);
             toggle.setAttribute('title', closeLabel);
+            setIcon(toggle, 'x', false);
             var firstLink = drawer.querySelector('a');
             if (firstLink) firstLink.focus();
         };
