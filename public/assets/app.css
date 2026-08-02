@@ -2078,6 +2078,9 @@ body.app-body .sidebar-user strong, body.app-body .sidebar-user span { overflow:
 body.app-body .sidebar-user strong { font-size: .78rem; }
 body.app-body .sidebar-user span { color: var(--ui-text-muted); font-size: .68rem; }
 body.app-body .sidebar-footer > .sidebar-nav { margin: 0; }
+body.app-body .sidebar-footer .sidebar-profile-link { display: flex; align-items: center; gap: .72rem; min-height: 2.65rem; padding: .55rem .65rem; border-left: 2px solid transparent; border-radius: 7px; color: var(--ui-text-muted); text-decoration: none; transition: background var(--ui-speed), color var(--ui-speed), transform var(--ui-speed); }
+body.app-body .sidebar-footer .sidebar-profile-link:hover, body.app-body .sidebar-footer .sidebar-profile-link[aria-current="page"] { background: rgba(25, 195, 125, .06); border-left-color: var(--ui-secondary); color: var(--ui-text); transform: none; }
+body.app-body .sidebar-footer .sidebar-profile-link[aria-current="page"] .nav-icon { color: var(--ui-secondary-soft); }
 body.app-body .sidebar-logout { display: block; }
 body.app-body .sidebar-logout button { width: 100%; min-height: 2.4rem; text-align: left; }
 body.app-body .topbar-user, body.app-body .app-topbar > .topbar-actions > .logout-form { display: none; }

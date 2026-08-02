@@ -75,7 +75,7 @@ $isRegistrationsActive = $isActive('/admin/inscricoes');
                 <?php else: ?><span class="user-avatar" aria-hidden="true"><?= $e($userInitials((string) ($currentUser['name'] ?? 'TM'))) ?></span><?php endif; ?>
                 <div><strong><?= $e($currentUser['name'] ?? '') ?></strong><span><?= $e($currentUser['role_name'] ?? 'Acesso autorizado') ?></span></div>
             </div>
-            <a class="sidebar-nav" href="<?= $e(App\Core\Config::url('/admin/perfil')) ?>"<?= $isExactActive('/admin/perfil') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="profile" aria-hidden="true">PF</span><span class="nav-label">Meu perfil</span></a>
+            <a class="sidebar-profile-link" href="<?= $e(App\Core\Config::url('/admin/perfil')) ?>"<?= $isExactActive('/admin/perfil') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="profile" aria-hidden="true">PF</span><span class="nav-label">Meu perfil</span></a>
             <form class="logout-form sidebar-logout" method="post" action="<?= $e(App\Core\Config::url('/logout')) ?>"><input type="hidden" name="_csrf" value="<?= $e(App\Core\Security::csrfToken()) ?>"><button type="submit">Sair</button></form>
         </div>
     </aside>
