@@ -24,7 +24,7 @@ $assetUrl = static function (string $asset): string {
     <meta property="og:description" content="<?= $e($seo['description'] ?? '') ?>">
     <link rel="stylesheet" href="<?= $e($assetUrl('app.css')) ?>">
 </head>
-<body class="public-portal" data-has-officials="<?= !empty($hasOfficials) ? '1' : '0' ?>" data-portal-primary="<?= $e($championship['primary_color'] ?? '') ?>" data-portal-secondary="<?= $e($championship['secondary_color'] ?? '') ?>" data-portal-accent="<?= $e($championship['accent_color'] ?? '') ?>">
+<body class="public-portal" data-has-officials="<?= !empty($hasOfficials) ? '1' : '0' ?>" data-portal-primary="<?= $e($championship['primary_color'] ?? '') ?>" data-portal-secondary="<?= $e($championship['secondary_color'] ?? '') ?>" data-portal-accent="<?= $e($championship['accent_color'] ?? '') ?>" style="--portal-primary:<?= $e($championship['primary_color'] ?? '#123C32') ?>;--portal-secondary:<?= $e($championship['secondary_color'] ?? '#245C4A') ?>;--portal-accent:<?= $e($championship['accent_color'] ?? '#D9A441') ?>">
     <header class="portal-header">
         <div class="portal-header-inner">
             <a class="portal-brand portal-brand--logo-only" href="<?= $e($base) ?>" aria-label="<?= $e($championship['name']) ?>">
