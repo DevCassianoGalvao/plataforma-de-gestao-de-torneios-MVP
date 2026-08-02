@@ -2229,6 +2229,44 @@ body.public-portal .transfer-route > em { color: var(--portal-green); font-size:
     }
 }
 
+/* Final mobile portal navigation: one off-canvas drawer, isolated from page content. */
+body.public-portal .portal-search button,
+body.public-portal .filter-bar button {
+    background: var(--portal-primary);
+    border-color: var(--portal-primary);
+    color: #fff;
+}
+
+@media (max-width: 800px) {
+    body.public-portal .portal-header { isolation: isolate; }
+    body.public-portal .portal-header-inner { z-index: 96; }
+    body.public-portal .portal-nav-tools .portal-nav-toggle {
+        position: relative;
+        z-index: 97;
+        border: 1px solid rgba(255, 255, 255, .24);
+        border-radius: 8px;
+        background: rgba(7, 14, 24, .24);
+        color: var(--portal-copy);
+    }
+    body.public-portal .portal-header nav.is-open {
+        z-index: 95;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: auto;
+        width: min(86vw, 22rem) !important;
+        max-height: none;
+        padding: 5.5rem 1rem 1rem;
+        border: 0;
+        border-left: 1px solid #324154;
+        border-radius: 0;
+        background: #121b28;
+        box-shadow: -20px 0 48px rgba(0, 0, 0, .42);
+    }
+    body.public-portal .portal-header nav.is-open a { min-height: 3.15rem; }
+    body.public-portal .portal-navigation-scrim { z-index: 94; }
+}
+
 @media (max-width: 700px) {
     body.app-body .color-picker-grid,
     body.app-body .asset-upload-grid { grid-template-columns: 1fr; }
