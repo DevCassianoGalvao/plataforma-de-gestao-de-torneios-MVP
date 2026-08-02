@@ -14,6 +14,6 @@
         <label>Início das inscricoes <input type="date" name="registration_starts_at" value="<?= App\Core\View::e($record['registration_starts_at'] ?? '') ?>"></label>
         <label>Fim das inscricoes <input type="date" name="registration_ends_at" value="<?= App\Core\View::e($record['registration_ends_at'] ?? '') ?>"></label>
         <label>Visibilidade <select name="visibility"><option value="private" <?= ($record['visibility'] ?? '') === 'private' ? 'selected' : '' ?>>Privado</option><option value="public" <?= ($record['visibility'] ?? '') === 'public' ? 'selected' : '' ?>>Publico</option></select></label>
-        <button type="submit">Salvar informacoes</button>
+        <button type="submit">Salvar informações</button>
     </form>
 </section>

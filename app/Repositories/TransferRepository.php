@@ -69,7 +69,7 @@ final class TransferRepository
     {
         [$where, $params] = $this->where([$championshipId], $filters, true); $where[] = "c.visibility = 'public' AND c.status <> 'draft'";
         $where[] = "m.status = 'published' AND m.published_at IS NOT NULL AND m.published_at <= ?"; $params[] = date('Y-m-d H:i:s');
-        $sql = "SELECT m.id, m.athlete_id, m.type, m.movement_date, m.public_observation, a.full_name AS athlete_name, a.sporting_name, a.photo_path, pt.name AS previous_team_name, nt.name AS new_team_name FROM transfer_movements m INNER JOIN athletes a ON a.id = m.athlete_id LEFT JOIN teams pt ON pt.id = m.previous_team_id LEFT JOIN teams nt ON nt.id = m.new_team_id INNER JOIN championships c ON c.id = m.championship_id WHERE " . implode(' AND ', $where) . " ORDER BY m.movement_date DESC, m.id DESC LIMIT " . max(1, $limit) . " OFFSET " . max(0, $offset);
+        $sql = "SELECT m.id, m.athlete_id, m.type, m.movement_date, m.public_observation, a.full_name AS athlete_name, a.sporting_name, a.photo_path, pt.name AS previous_team_name, pt.slug AS previous_team_slug, pt.shield_path AS previous_team_shield_path, nt.name AS new_team_name, nt.slug AS new_team_slug, nt.shield_path AS new_team_shield_path FROM transfer_movements m INNER JOIN athletes a ON a.id = m.athlete_id LEFT JOIN teams pt ON pt.id = m.previous_team_id LEFT JOIN teams nt ON nt.id = m.new_team_id INNER JOIN championships c ON c.id = m.championship_id WHERE " . implode(' AND ', $where) . " ORDER BY m.movement_date DESC, m.id DESC LIMIT " . max(1, $limit) . " OFFSET " . max(0, $offset);
         $s = $this->pdo->prepare($sql); $s->execute($params); return $s->fetchAll();
     }
 

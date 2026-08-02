@@ -9,6 +9,7 @@ use App\Core\Response;
 use App\Core\Session;
 use App\Repositories\CategoryRepository;
 use App\Repositories\ChampionshipRepository;
+use App\Repositories\ChampionshipCarouselRepository;
 use App\Repositories\SeasonRepository;
 use App\Repositories\UserRepository;
 use App\Services\AuditService;
@@ -22,7 +23,7 @@ use App\Services\Slugger;
 
 final class ChampionshipController extends Controller
 {
-    public function __construct($users, \App\Services\AuthorizationService $authorization, AuditService $audit, private readonly ChampionshipRepository $championships, private readonly SeasonRepository $seasons, private readonly CategoryRepository $categories, private readonly ChampionshipAccessService $access, private readonly ChampionshipStatusService $statusService, private readonly RegulationService $regulations, private readonly StorageService $storage, private readonly UserRepository $userRepository)
+    public function __construct($users, \App\Services\AuthorizationService $authorization, AuditService $audit, private readonly ChampionshipRepository $championships, private readonly ChampionshipCarouselRepository $carousel, private readonly SeasonRepository $seasons, private readonly CategoryRepository $categories, private readonly ChampionshipAccessService $access, private readonly ChampionshipStatusService $statusService, private readonly RegulationService $regulations, private readonly StorageService $storage, private readonly UserRepository $userRepository)
     {
         parent::__construct($users, $authorization, $audit);
     }
@@ -188,7 +189,46 @@ final class ChampionshipController extends Controller
         if ($guard instanceof Response) return $guard;
         $championship = $this->resolve($params[0] ?? '', $guard, true);
         if (!$championship) return Response::html('Campeonato nao encontrado ou sem acesso.', 404);
-        return $this->page('Identidade do campeonato', 'admin/championships/identity', ['user' => $guard, 'championship' => $championship, 'errors' => []]);
+        return $this->page('Identidade do campeonato', 'admin/championships/identity', ['user' => $guard, 'championship' => $championship, 'carouselSlides' => $this->carousel->listForChampionship((int) $championship['id']), 'errors' => []]);
+    }
+
+    public function createCarouselSlide(Request $request, array $params = []): Response
+    {
+        $guard = $this->guard($request, 'championships.manage_identity');
+        if ($guard instanceof Response) return $guard;
+        $championship = $this->resolve($params[0] ?? '', $guard, true);
+        if (!$championship) return Response::html('Campeonato não encontrado ou sem acesso.', 404);
+        if (!$this->validCsrf($request)) return Response::forbidden('A sessão expirou.');
+        $title = trim((string) ($request->body['title'] ?? ''));
+        $link = trim((string) ($request->body['link_url'] ?? ''));
+        if ($title === '' || mb_strlen($title) > 180) return Response::html('Informe um título de até 180 caracteres.', 422);
+        if ($link !== '' && !filter_var($link, FILTER_VALIDATE_URL) && !str_starts_with($link, '/')) return Response::html('Informe um link válido ou um caminho interno iniciado por /.', 422);
+        try {
+            $file = $request->files['image'] ?? [];
+            $stored = $this->storage->storeOptimizedImage($file, 'championships/' . $championship['id'] . '/carousel', ['max_width' => 1920, 'max_height' => 1080, 'quality' => 84]);
+            $id = $this->carousel->create((int) $championship['id'], $title, $link !== '' ? $link : null, $stored['path'], (int) ($request->body['display_order'] ?? 0));
+            $this->audit->record('championships.carousel_slide_created', (int) $guard['id'], 'championship_carousel_slide', $id, [], $request);
+            Session::flash('championship_message', 'Slide do carrossel adicionado.');
+        } catch (\Throwable $exception) {
+            return Response::html($exception->getMessage(), 422);
+        }
+        return Response::redirect(Config::url('/admin/campeonatos/' . $championship['slug'] . '/identidade'));
+    }
+
+    public function deleteCarouselSlide(Request $request, array $params = []): Response
+    {
+        $guard = $this->guard($request, 'championships.manage_identity');
+        if ($guard instanceof Response) return $guard;
+        $championship = $this->resolve($params[0] ?? '', $guard, true);
+        if (!$championship) return Response::html('Campeonato não encontrado ou sem acesso.', 404);
+        if (!$this->validCsrf($request)) return Response::forbidden('A sessão expirou.');
+        $slide = $this->carousel->findForChampionship((int) ($params[1] ?? 0), (int) $championship['id']);
+        if (!$slide) return Response::html('Slide não encontrado.', 404);
+        $this->carousel->delete((int) $slide['id'], (int) $championship['id']);
+        $this->storage->delete((string) $slide['image_path']);
+        $this->audit->record('championships.carousel_slide_deleted', (int) $guard['id'], 'championship_carousel_slide', (int) $slide['id'], [], $request);
+        Session::flash('championship_message', 'Slide removido.');
+        return Response::redirect(Config::url('/admin/campeonatos/' . $championship['slug'] . '/identidade'));
     }
 
     public function status(Request $request, array $params = []): Response

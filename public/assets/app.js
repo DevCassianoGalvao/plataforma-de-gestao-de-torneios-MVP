@@ -99,7 +99,7 @@
     }
 
     var mojibakeMap = { 'Ã¡': 'á', 'Ã£': 'ã', 'Ã§': 'ç', 'Ã©': 'é', 'Ãª': 'ê', 'Ã­': 'í', 'Ã³': 'ó', 'Ã´': 'ô', 'Ãµ': 'õ', 'Ãº': 'ú', 'Ã‰': 'É', 'Â·': '·', 'Â©': '©', 'Â': '' };
-    var plainLabels = { Prestacao: 'Prestação', Prestacao_de_contas: 'Prestação de contas', Notificacoes: 'Notificações', Atualizacao: 'Atualização', Organizacao: 'Organização', Inscricoes: 'Inscrições', Classificacao: 'Classificação', Arbitragem: 'Arbitragem', Administracao: 'Administração' };
+    var plainLabels = { Prestacao_de_contas: 'Prestação de contas', Prestacao: 'Prestação', prestacao: 'prestação', Notificacoes: 'Notificações', notificacoes: 'notificações', Atualizacao: 'Atualização', atualizacao: 'atualização', Organizacao: 'Organização', organizacao: 'organização', Inscricoes: 'Inscrições', inscricoes: 'inscrições', Classificacao: 'Classificação', classificacao: 'classificação', Informacoes: 'Informações', informacoes: 'informações', Configuracao: 'Configuração', configuracao: 'configuração', Publica: 'Pública', publica: 'pública', Sessao: 'Sessão', sessao: 'sessão', Administracao: 'Administração', administracao: 'administração', Comissao: 'Comissão', comissao: 'comissão', Responsaveis: 'Responsáveis', responsaveis: 'responsáveis', Operacao: 'Operação', operacao: 'operação', Situacao: 'Situação', situacao: 'situação', Atualizacoes: 'Atualizações', atualizacoes: 'atualizações' };
     var normalizeMojibake = function (value) {
         var normalized = Object.keys(mojibakeMap).reduce(function (result, key) { return result.split(key).join(mojibakeMap[key]); }, value);
         Object.keys(plainLabels).sort(function (a, b) { return b.length - a.length; }).forEach(function (key) { normalized = normalized.replace(new RegExp(key.replace(/_/g, '\\s+'), 'g'), plainLabels[key]); });
@@ -168,6 +168,8 @@
         if (portalParts.indexOf('atletas') !== -1 && !portalPages[portalLastPart]) portalPage = 'athlete';
         root.classList.add('portal-page--' + portalPage);
         var slides = document.querySelectorAll('.portal-feature-slide');
+        document.querySelectorAll('.portal-feature-slide a[href=""]').forEach(function (link) { link.removeAttribute('href'); link.classList.add('is-static'); var action = link.querySelector('span'); if (action) action.remove(); });
+        if (slides.length <= 1) { var onlyDot = document.querySelector('.portal-feature-dots'); if (onlyDot) onlyDot.hidden = true; }
         if (slides.length > 1) {
             var slideIndex = 0;
             var dots = document.querySelectorAll('.portal-feature-dots button');

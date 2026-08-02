@@ -2091,11 +2091,12 @@ body.public-portal .portal-footer:not(.portal-footer-modern) { display: none !im
 body.public-portal .portal-footer-modern { display: flex !important; }
 body.app-body .app-topbar { justify-content: space-between; }
 body.app-body .topbar-context { display: grid; gap: .2rem; }
-body.app-body .topbar-back { width: fit-content; padding: 0; border: 0; background: transparent; color: var(--ui-accent, #38e08d); font-size: .72rem; }
+body.app-body .topbar-back { width: fit-content; min-height: 0; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; color: var(--ui-accent, #38e08d); font-size: .72rem; }
+body.app-body .topbar-back:hover, body.app-body .topbar-back:focus-visible { background: transparent; box-shadow: none; color: #fff; text-decoration: underline; transform: none; }
 
 body.public-portal .portal-home-feature { display: grid; grid-template-columns: minmax(0, 1fr) minmax(18rem, .9fr); gap: 2rem; align-items: stretch; margin-bottom: 1.5rem; padding: clamp(1.5rem, 4vw, 3rem); border: 1px solid var(--portal-line); border-radius: 14px; background: linear-gradient(135deg, var(--portal-panel), var(--portal-panel-strong)); }
 body.public-portal .portal-home-feature-copy { display: grid; align-content: center; gap: .7rem; }
-body.public-portal .portal-home-feature-copy h1 { max-width: 12ch; margin: 0; color: var(--portal-copy); font-size: clamp(2.4rem, 5vw, 4.8rem); line-height: .98; }
+body.public-portal .portal-home-feature-copy h1 { max-width: 16ch; margin: 0; color: var(--portal-copy); font-size: clamp(2rem, 3.6vw, 3.65rem); line-height: 1.04; }
 body.public-portal.portal-page--home > .portal-shell > .portal-hero { display: none; }
 body.public-portal .portal-home-feature-copy p:not(.eyebrow) { max-width: 42rem; color: var(--portal-muted); font-size: 1.05rem; line-height: 1.55; }
 body.public-portal .portal-feature-carousel { position: relative; min-height: 20rem; overflow: hidden; border-radius: 12px; background: #101923; }
@@ -2109,6 +2110,7 @@ body.public-portal .portal-feature-dots { position: absolute; z-index: 2; right:
 body.public-portal .portal-feature-dots button { width: .55rem; height: .55rem; padding: 0; border: 0; border-radius: 50%; background: rgba(255,255,255,.45); }
 body.public-portal .portal-feature-dots button.is-active { background: var(--portal-green); }
 body.public-portal .portal-feature-slide a { color: inherit; text-decoration: none; }
+body.public-portal .portal-feature-slide a.is-static { pointer-events: none; }
 body.public-portal .transfer-observation { display: none; }
 body.public-portal .bracket-team.is-eliminated { opacity: .36; filter: grayscale(1); }
 body.public-portal .portal-footer { align-items: center; }
@@ -2122,3 +2124,24 @@ body.public-portal .portal-footer a[href$="/artilharia"] { display: none; }
 body.public-portal[data-has-officials="0"] .portal-nav a[href$="/arbitragem"] { display: none; }
 body.public-portal[data-has-officials="0"] .portal-nav a[href$="/arbitragem"] + * { margin-left: 0; }
 @media (max-width: 760px) { body.public-portal .portal-home-feature { grid-template-columns: 1fr; gap: 1.25rem; } body.public-portal .portal-feature-carousel { min-height: 15rem; } body.public-portal .portal-footer { align-items: flex-start; } body.public-portal .portal-product-brand { justify-items: start; } }
+
+body.app-body .carousel-manager { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--ui-border); }
+body.app-body .carousel-manager-list { display: grid; gap: .75rem; margin: 1rem 0; }
+body.app-body .carousel-manager-list article { display: grid; grid-template-columns: 8rem minmax(0, 1fr) auto; gap: 1rem; align-items: center; padding: .75rem; border: 1px solid var(--ui-border); border-radius: 9px; background: var(--ui-surface-2); }
+body.app-body .carousel-manager-list img { width: 8rem; height: 4.75rem; object-fit: cover; border-radius: 6px; }
+body.app-body .carousel-manager-list small { display: block; overflow: hidden; color: var(--ui-text-muted); text-overflow: ellipsis; white-space: nowrap; }
+body.app-body .carousel-manager-form { display: grid; grid-template-columns: minmax(10rem, 1fr) minmax(12rem, 1.5fr) 6rem minmax(12rem, 1fr) auto; gap: .75rem; align-items: end; }
+body.app-body .carousel-manager-form label { display: grid; gap: .35rem; }
+body.public-portal .transfer-card { gap: 1.25rem; padding: 1.35rem; }
+body.public-portal .transfer-card-head { display: flex; align-items: center; gap: .85rem; }
+body.public-portal .transfer-card-head > img, body.public-portal .transfer-card-head > span { width: 3.4rem; height: 3.4rem; flex: 0 0 auto; border: 1px solid var(--portal-line); border-radius: 50%; object-fit: cover; background: var(--portal-panel-strong); }
+body.public-portal .transfer-card-head > span { display: grid; place-items: center; color: var(--portal-green); font-weight: 800; }
+body.public-portal .transfer-route { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: .75rem; align-items: center; }
+body.public-portal .transfer-route > span { display: grid; grid-template-columns: 2.35rem minmax(0, 1fr); column-gap: .55rem; align-items: center; min-width: 0; padding: .75rem; border-radius: 8px; background: rgba(255,255,255,.035); }
+body.public-portal .transfer-route small { grid-column: 1 / -1; margin-bottom: .3rem; color: var(--portal-muted); font-size: .68rem; text-transform: uppercase; }
+body.public-portal .transfer-route i { display: grid; width: 2.35rem; height: 2.35rem; place-items: center; overflow: hidden; border: 1px solid var(--portal-line); border-radius: 50%; background: var(--portal-panel-strong); }
+body.public-portal .transfer-route i img { width: 100%; height: 100%; object-fit: contain; }
+body.public-portal .transfer-route i span { color: var(--portal-muted); }
+body.public-portal .transfer-route b { overflow: hidden; color: var(--portal-copy); font-size: .88rem; text-overflow: ellipsis; white-space: nowrap; }
+body.public-portal .transfer-route > em { color: var(--portal-green); font-size: 1.55rem; font-style: normal; }
+@media (max-width: 760px) { body.app-body .carousel-manager-form, body.public-portal .transfer-route { grid-template-columns: 1fr; } body.app-body .carousel-manager-list article { grid-template-columns: 1fr; } body.app-body .carousel-manager-list img { width: 100%; height: 8rem; } body.public-portal .transfer-route > em { justify-self: center; transform: rotate(90deg); } }

@@ -10,6 +10,7 @@ use App\Core\Security;
 use App\Core\Session;
 use App\Core\View;
 use App\Repositories\ContactRepository;
+use App\Repositories\ChampionshipCarouselRepository;
 use App\Repositories\NewsRepository;
 use App\Repositories\PublicPortalRepository;
 use App\Repositories\TransferRepository;
@@ -17,11 +18,11 @@ use App\Services\StorageService;
 
 final class PublicPortalController
 {
-    public function __construct(private readonly PublicPortalRepository $portal, private readonly NewsRepository $news, private readonly TransferRepository $transfers, private readonly StorageService $storage, private readonly ContactRepository $contacts, private readonly \App\Services\AuditService $audit) {}
+    public function __construct(private readonly PublicPortalRepository $portal, private readonly NewsRepository $news, private readonly TransferRepository $transfers, private readonly ChampionshipCarouselRepository $carousel, private readonly StorageService $storage, private readonly ContactRepository $contacts, private readonly \App\Services\AuditService $audit) {}
 
     public function home(Request $request, array $params = []): Response
     {
-        $championship = $this->championship($params[0] ?? ''); if ($championship instanceof Response) return $championship; $id = (int) $championship['id']; return $this->page($request, $championship['name'], 'public/portal/home', ['championship' => $championship, 'currentPhase' => $this->portal->currentPhase($id), 'nextMatches' => $this->portal->nextMatches($id), 'results' => $this->portal->results($id, 6), 'standings' => $this->portal->standings($id), 'knockout' => $this->portal->knockout($id), 'scorers' => $this->portal->leaderboard($id, 'goals', 5), 'assists' => $this->portal->leaderboard($id, 'assists', 5), 'news' => $this->publishedNews($championship), 'transfers' => $this->publishedTransfers($id), 'sponsors' => $this->portal->sponsors($id)]);
+        $championship = $this->championship($params[0] ?? ''); if ($championship instanceof Response) return $championship; $id = (int) $championship['id']; return $this->page($request, $championship['name'], 'public/portal/home', ['championship' => $championship, 'currentPhase' => $this->portal->currentPhase($id), 'nextMatches' => $this->portal->nextMatches($id), 'results' => $this->portal->results($id, 6), 'standings' => $this->portal->standings($id), 'knockout' => $this->portal->knockout($id), 'scorers' => $this->portal->leaderboard($id, 'goals', 5), 'assists' => $this->portal->leaderboard($id, 'assists', 5), 'news' => $this->publishedNews($championship), 'transfers' => $this->publishedTransfers($id), 'carouselSlides' => $this->carousel->listForChampionship($id, true), 'sponsors' => $this->portal->sponsors($id)]);
     }
 
     public function nextMatches(Request $request, array $params = []): Response { return $this->listPage($request, $params, 'Proximos jogos', 'next', $this->portal->nextMatches((int) $this->id($params[0] ?? ''))); }
@@ -84,6 +85,17 @@ final class PublicPortalController
     public function teamAsset(Request $request, array $params = []): Response
     {
         $championship = $this->championship($params[0] ?? ''); if ($championship instanceof Response) return $championship; $team = $this->portal->team((int) $championship['id'], (string) ($params[1] ?? '')); if (!$team || empty($team['shield_path'])) return $this->notFound('Escudo nao encontrado.'); $file = $this->storage->read((string) $team['shield_path']); if (!$file) return $this->notFound('Escudo nao encontrado.'); return new Response($file['body'], 200, ['Content-Type' => $file['mime'], 'Cache-Control' => 'public, max-age=3600']);
+    }
+
+    public function carouselAsset(Request $request, array $params = []): Response
+    {
+        $championship = $this->championship($params[0] ?? '');
+        if ($championship instanceof Response) return $championship;
+        $slide = $this->carousel->findForChampionship((int) ($params[1] ?? 0), (int) $championship['id']);
+        if (!$slide || empty($slide['is_active'])) return $this->notFound('Imagem não encontrada.');
+        $file = $this->storage->read((string) $slide['image_path']);
+        if (!$file) return $this->notFound('Imagem não encontrada.');
+        return new Response($file['body'], 200, ['Content-Type' => $file['mime'], 'Cache-Control' => 'public, max-age=3600']);
     }
 
     public function athleteAsset(Request $request, array $params = []): Response

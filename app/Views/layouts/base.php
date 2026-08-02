@@ -44,10 +44,6 @@ $isRegistrationsActive = $isActive('/admin/inscricoes');
         <a class="app-brand" href="<?= $e(App\Core\Config::url('/admin')) ?>">
             <img class="app-brand-logo" src="<?= $e($assetUrl('branding/torneio-online-web-app.png')) ?>" alt="Torneio Online Web App">
         </a>
-        <div class="sidebar-context">
-            <small>Espaço ativo</small>
-            <strong>Operação de campeonatos</strong>
-        </div>
         <nav class="sidebar-nav" aria-label="Módulos">
             <span class="sidebar-section-label">Visão geral</span>
             <a href="<?= $e(App\Core\Config::url('/admin')) ?>"<?= $isExactActive('/admin') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="overview" aria-hidden="true">OV</span><span class="nav-label">Visão geral</span></a>
@@ -66,8 +62,8 @@ $isRegistrationsActive = $isActive('/admin/inscricoes');
             <?php if ($isAdministrator): ?><a href="<?= $e(App\Core\Config::url('/admin/contatos')) ?>"<?= $isActive('/admin/contatos') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="mail" aria-hidden="true">CT</span><span class="nav-label">Contatos</span></a><?php endif; ?>
             <?php if ($menuAuth && $menuAuth->can($currentUser, 'users.view')): ?><a href="<?= $e(App\Core\Config::url('/admin/usuarios')) ?>"<?= $isActive('/admin/usuarios') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="user" aria-hidden="true">US</span><span class="nav-label">Usuários</span></a><?php endif; ?>
             <?php if ($menuAuth && $menuAuth->can($currentUser, 'audit.view')): ?><a href="<?= $e(App\Core\Config::url('/admin/auditoria')) ?>"<?= $isActive('/admin/auditoria') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="audit" aria-hidden="true">AU</span><span class="nav-label">Logs</span></a><?php endif; ?>
-            <?php if ($isAdministrator): ?><a href="<?= $e(App\Core\Config::url('/admin/notificacoes')) ?>"<?= $isActive('/admin/notificacoes') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="bell" aria-hidden="true">NO</span><span class="nav-label">Notificacoes<?php if ($notificationCount > 0): ?> <b class="nav-count"><?= (int) $notificationCount ?></b><?php endif; ?></span></a><?php endif; ?>
-            <?php if ($menuAuth && $menuAuth->can($currentUser, 'accountability.view')): ?><a href="<?= $e(App\Core\Config::url('/prestacao')) ?>"<?= $isActive('/prestacao') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="file-check-2" aria-hidden="true">PC</span><span class="nav-label">Prestacao de contas</span></a><?php endif; ?>
+            <?php if ($isAdministrator): ?><a href="<?= $e(App\Core\Config::url('/admin/notificacoes')) ?>"<?= $isActive('/admin/notificacoes') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="bell" aria-hidden="true">NO</span><span class="nav-label">Notificações<?php if ($notificationCount > 0): ?> <b class="nav-count"><?= (int) $notificationCount ?></b><?php endif; ?></span></a><?php endif; ?>
+            <?php if ($menuAuth && $menuAuth->can($currentUser, 'accountability.view')): ?><a href="<?= $e(App\Core\Config::url('/prestacao')) ?>"<?= $isActive('/prestacao') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="file-check-2" aria-hidden="true">PC</span><span class="nav-label">Prestação de contas</span></a><?php endif; ?>
         </nav>
         <div class="sidebar-footer">
             <div class="sidebar-user">
@@ -88,7 +84,7 @@ $isRegistrationsActive = $isActive('/admin/inscricoes');
                 <strong><?= $e($title ?? 'Centro de operação') ?></strong>
             </div>
             <div class="topbar-actions">
-                <?php if ($isAdministrator): ?><a class="icon-button notification-button" href="<?= $e(App\Core\Config::url('/admin/notificacoes')) ?>" aria-label="Abrir notificacoes" title="Notificacoes"><span data-icon="bell" aria-hidden="true">NO</span><?php if ($notificationCount > 0): ?><b class="notification-count"><?= (int) $notificationCount ?></b><?php endif; ?></a><?php endif; ?>
+                <?php if ($isAdministrator): ?><a class="icon-button notification-button" href="<?= $e(App\Core\Config::url('/admin/notificacoes')) ?>" aria-label="Abrir notificações" title="Notificações"><span data-icon="bell" aria-hidden="true">NO</span><?php if ($notificationCount > 0): ?><b class="notification-count"><?= (int) $notificationCount ?></b><?php endif; ?></a><?php endif; ?>
                 <button class="icon-button sidebar-toggle" type="button" data-sidebar-toggle aria-controls="app-sidebar" aria-label="Abrir menu" aria-expanded="false" title="Abrir menu">☰</button>
                 <div class="topbar-user"><?php if (!empty($currentUser['avatar_path'])): ?><img class="user-avatar user-avatar-photo" src="<?= $e(App\Core\Config::url('/admin/perfil/foto?v=' . rawurlencode((string) ($currentUser['updated_at'] ?? '0')))) ?>" alt=""><?php else: ?><span class="user-avatar" aria-hidden="true"><?= $e($userInitials((string) ($currentUser['name'] ?? 'TM'))) ?></span><?php endif; ?><strong><?= $e($currentUser['name'] ?? '') ?></strong><span><?= $e($currentUser['role_name'] ?? 'Acesso autorizado') ?></span></div>
                 <form class="logout-form" method="post" action="<?= $e(App\Core\Config::url('/logout')) ?>"><input type="hidden" name="_csrf" value="<?= $e(App\Core\Security::csrfToken()) ?>"><button type="submit" aria-label="Sair" title="Sair">Sair</button></form>
