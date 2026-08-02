@@ -5,6 +5,7 @@ $currentUser = App\Core\Auth::user();
 $menuAuth = $currentUser ? new App\Services\AuthorizationService(new App\Repositories\UserRepository(App\Core\Database::connection())) : null;
 $isAdministrator = $currentUser && $menuAuth && in_array('administrator', $menuAuth->roleKeys($currentUser), true);
 $isAccountabilityOnly = $currentUser && $menuAuth && !$isAdministrator && in_array('accountability', $menuAuth->roleKeys($currentUser), true);
+$showHistoryBack = ($title ?? '') !== 'Painel administrativo';
 $notificationCount = 0;
 if ($isAdministrator) {
     try { $notificationCount = (new App\Repositories\NotificationRepository(App\Core\Database::connection()))->unreadCount((int) $currentUser['id']); } catch (\Throwable) { $notificationCount = 0; }
@@ -79,7 +80,9 @@ $isRegistrationsActive = $isActive('/admin/inscricoes');
     <div class="app-main">
         <header class="app-topbar">
             <div class="topbar-context">
+                <?php if ($showHistoryBack): ?>
                 <button class="topbar-back" type="button" data-history-back aria-label="Voltar para a página anterior">← Voltar</button>
+                <?php endif; ?>
                 <small>Plataforma de gestão</small>
                 <strong><?= $e($title ?? 'Centro de operação') ?></strong>
             </div>
