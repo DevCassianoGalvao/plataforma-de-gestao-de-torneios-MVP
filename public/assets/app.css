@@ -2303,7 +2303,26 @@ body.public-portal .filter-bar button:focus-visible {
 }
 
 @media (max-width: 600px) {
+    body.public-portal .portal-header { z-index: 102; }
+    body.public-portal .portal-navigation-scrim {
+        position: fixed !important;
+        z-index: 101 !important;
+        top: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        width: 100vw !important;
+        height: 100dvh !important;
+        margin: 0 !important;
+        transform: none !important;
+    }
+    body.public-portal.has-portal-menu .portal-navigation-scrim {
+        opacity: 1;
+        pointer-events: auto;
+        background: rgba(3, 9, 16, .72);
+    }
     body.public-portal .portal-header nav.is-open {
+        z-index: 103;
         top: 4.85rem;
         right: 0;
         bottom: auto;

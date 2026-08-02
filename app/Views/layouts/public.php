@@ -35,8 +35,8 @@ $assetUrl = static function (string $asset): string {
                 <a href="<?= $e($base) ?>">Início</a><a href="<?= $e($base . '/proximos-jogos') ?>">Jogos</a><a href="<?= $e($base . '/resultados') ?>">Resultados</a><a href="<?= $e($base . '/classificacao') ?>">Classificação</a><a href="<?= $e($base . '/equipes') ?>">Equipes</a><a href="<?= $e($base . '/noticias') ?>">Notícias</a><a href="<?= $e($base . '/vai-e-vem') ?>">Vai e Vem</a><?php if (!empty($hasKnockout)): ?><a href="<?= $e($base . '/mata-mata') ?>">Mata-mata</a><?php endif; ?><a href="<?= $e($base . '/arbitragem') ?>">Arbitragem</a><a href="<?= $e($base . '/contato') ?>">Contato</a>
             </nav>
         </div>
-        <button class="portal-navigation-scrim" type="button" data-portal-nav-dismiss aria-label="Fechar navegação"></button>
     </header>
+    <button class="portal-navigation-scrim" type="button" data-portal-nav-dismiss aria-label="Fechar navegação"></button>
     <main class="portal-shell"><?= $content ?? '' ?></main>
     <?php if (!empty($sponsors ?? [])): ?>
         <section class="portal-partners" aria-label="Parceiros do campeonato">
