@@ -35,6 +35,8 @@ final class ChampionshipHttpTest
         assert_same(4, count((new UserRepository($pdo))->rolesCatalog()), 'Catalogo de perfis nao foi consolidado');
         $accountabilityPage = $router->dispatch(Request::fake('GET', '/torneio-online/admin/campeonatos/copa-brasil-de-talentos-2026/prestacao'));
         assert_same(200, $accountabilityPage->status, 'Administrador nao abriu vinculos de prestacao de contas');
+        $accountabilityReport = $router->dispatch(Request::fake('GET', '/torneio-online/prestacao/campeonatos/1'));
+        assert_same(200, $accountabilityReport->status, 'Administrador nao abriu o relatorio de prestacao');
         assert_true(str_contains($accountabilityPage->body, 'Usuários vinculados') && str_contains($accountabilityPage->body, 'Prestação de contas'), 'Tela de prestacao de contas nao foi renderizada');
         $accountabilityUserId = (int) $pdo->query("SELECT id FROM users WHERE email = 'prestacao@torneios.local' LIMIT 1")->fetchColumn();
         $unassign = $router->dispatch(Request::fake('POST', '/torneio-online/admin/campeonatos/copa-brasil-de-talentos-2026/prestacao/' . $accountabilityUserId . '/encerrar', ['_csrf' => Security::csrfToken()]));
