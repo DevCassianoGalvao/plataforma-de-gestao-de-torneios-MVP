@@ -5,7 +5,6 @@
         <h1>O campeonato, sob controle.</h1>
         <p class="muted">Acompanhe pendências, decisões e o próximo movimento da operação em um só lugar.</p>
     </div>
-    <div class="dashboard-hero-aside" aria-hidden="true"><span>JORNADA</span><strong>TM</strong><i></i></div>
 </section>
 <section class="metric-grid" aria-label="Resumo operacional">
     <article class="metric-card metric-card-primary"><span class="metric-icon" data-icon="trophy" aria-hidden="true"></span><span>Campeonatos</span><strong><?= $metric('championships') ?></strong><small>cadastros na plataforma</small></article>

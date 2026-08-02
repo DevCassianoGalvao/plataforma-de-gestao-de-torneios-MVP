@@ -980,8 +980,8 @@ body.public-portal .team-roster-grid { grid-template-columns: repeat(4, minmax(0
 .button > .ui-icon { width: 1rem; height: 1rem; }
 .button > span { line-height: 1; }
 .icon-button > .ui-icon { width: 1.1rem; height: 1.1rem; }
-.dashboard-hero { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; min-height: 14rem; gap: 2rem; }
-.dashboard-hero-copy { max-width: 54rem; }
+.dashboard-hero { display: grid; grid-template-columns: minmax(0, 1fr); align-items: center; min-height: 14rem; gap: 2rem; }
+.dashboard-hero-copy { max-width: 54rem; padding-inline-start: 3px; }
 .dashboard-hero h1 { max-width: 15ch; }
 .dashboard-hero-aside { position: relative; display: grid; width: 10rem; aspect-ratio: 1.25; place-items: center; overflow: hidden; border: 1px solid rgba(158,232,188,.34); border-radius: 12px; color: #9ee8bc; }
 .dashboard-hero-aside::before, .dashboard-hero-aside::after { position: absolute; content: ''; background: rgba(158,232,188,.32); }
