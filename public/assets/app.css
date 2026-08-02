@@ -2248,6 +2248,8 @@ body.public-portal .filter-bar button:focus-visible {
 @media (max-width: 800px) {
     body.public-portal .portal-header { isolation: isolate; }
     body.public-portal .portal-header-inner { z-index: 96; }
+    body.app-body .sidebar-toggle > .ui-icon,
+    body.public-portal .portal-nav-toggle > .ui-icon { display: none; }
     body.public-portal .portal-nav-tools .portal-nav-toggle {
         position: relative;
         z-index: 97;
