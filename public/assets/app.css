@@ -2232,9 +2232,17 @@ body.public-portal .transfer-route > em { color: var(--portal-green); font-size:
 /* Final mobile portal navigation: one off-canvas drawer, isolated from page content. */
 body.public-portal .portal-search button,
 body.public-portal .filter-bar button {
-    background: var(--portal-primary);
-    border-color: var(--portal-primary);
-    color: #fff;
+    background: var(--portal-primary) !important;
+    border-color: var(--portal-primary) !important;
+    color: #fff !important;
+}
+body.public-portal .portal-search button:hover,
+body.public-portal .portal-search button:focus-visible,
+body.public-portal .filter-bar button:hover,
+body.public-portal .filter-bar button:focus-visible {
+    background: color-mix(in srgb, var(--portal-primary) 84%, #000) !important;
+    border-color: color-mix(in srgb, var(--portal-primary) 84%, #000) !important;
+    color: #fff !important;
 }
 
 @media (max-width: 800px) {
