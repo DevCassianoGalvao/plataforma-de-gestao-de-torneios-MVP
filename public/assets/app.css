@@ -2069,3 +2069,53 @@ body.public-portal .public-lineup-reserves b { color: var(--portal-copy); }
     .tactical-player > span { width: 2.25rem; height: 2.25rem; }
     .tactical-player small { max-width: 4.1rem; font-size: .55rem; }
 }
+/* Final interface pass: role-aware navigation, clear separators and account actions. */
+body.app-body .sidebar-section-label { color: var(--ui-accent, #38e08d); margin-top: 1.1rem; }
+body.app-body .sidebar-footer { display: grid; gap: .7rem; }
+body.app-body .sidebar-user { display: flex; align-items: center; gap: .65rem; padding: .75rem; border: 1px solid var(--ui-border); border-radius: 10px; background: rgba(255,255,255,.035); }
+body.app-body .sidebar-user > div { display: grid; min-width: 0; gap: .15rem; }
+body.app-body .sidebar-user strong, body.app-body .sidebar-user span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+body.app-body .sidebar-user strong { font-size: .78rem; }
+body.app-body .sidebar-user span { color: var(--ui-text-muted); font-size: .68rem; }
+body.app-body .sidebar-footer > .sidebar-nav { margin: 0; }
+body.app-body .sidebar-logout { display: block; }
+body.app-body .sidebar-logout button { width: 100%; min-height: 2.4rem; text-align: left; }
+body.app-body .topbar-user, body.app-body .app-topbar > .topbar-actions > .logout-form { display: none; }
+body.app-body.accountability-only nav.sidebar-nav > * { display: none !important; }
+body.app-body.accountability-only nav.sidebar-nav > a[href*="/prestacao"] { display: flex !important; }
+body.app-body.accountability-only nav.sidebar-nav > a[href*="/prestacao"] .nav-label { color: var(--ui-accent, #38e08d); }
+body.public-portal .portal-footer:not(.portal-footer-modern) { display: none !important; }
+body.public-portal .portal-footer-modern { display: flex !important; }
+body.app-body .app-topbar { justify-content: space-between; }
+body.app-body .topbar-context { display: grid; gap: .2rem; }
+body.app-body .topbar-back { width: fit-content; padding: 0; border: 0; background: transparent; color: var(--ui-accent, #38e08d); font-size: .72rem; }
+
+body.public-portal .portal-home-feature { display: grid; grid-template-columns: minmax(0, 1fr) minmax(18rem, .9fr); gap: 2rem; align-items: stretch; margin-bottom: 1.5rem; padding: clamp(1.5rem, 4vw, 3rem); border: 1px solid var(--portal-line); border-radius: 14px; background: linear-gradient(135deg, var(--portal-panel), var(--portal-panel-strong)); }
+body.public-portal .portal-home-feature-copy { display: grid; align-content: center; gap: .7rem; }
+body.public-portal .portal-home-feature-copy h1 { max-width: 12ch; margin: 0; color: var(--portal-copy); font-size: clamp(2.4rem, 5vw, 4.8rem); line-height: .98; }
+body.public-portal.portal-page--home > .portal-shell > .portal-hero { display: none; }
+body.public-portal .portal-home-feature-copy p:not(.eyebrow) { max-width: 42rem; color: var(--portal-muted); font-size: 1.05rem; line-height: 1.55; }
+body.public-portal .portal-feature-carousel { position: relative; min-height: 20rem; overflow: hidden; border-radius: 12px; background: #101923; }
+body.public-portal .portal-feature-slide { position: absolute; inset: 0; display: grid; align-content: end; padding: 1.4rem; opacity: 0; background-size: cover; background-position: center; transition: opacity .35s ease; }
+body.public-portal .portal-feature-slide.is-active { opacity: 1; }
+body.public-portal .portal-feature-slide::before { position: absolute; inset: 0; content: ''; background: linear-gradient(180deg, transparent 25%, rgba(4,10,15,.88)); }
+body.public-portal .portal-feature-slide > * { position: relative; z-index: 1; }
+body.public-portal .portal-feature-slide strong { color: #fff; font-size: 1.1rem; }
+body.public-portal .portal-feature-slide span { margin-top: .25rem; color: rgba(255,255,255,.75); font-size: .8rem; }
+body.public-portal .portal-feature-dots { position: absolute; z-index: 2; right: 1rem; bottom: 1rem; display: flex; gap: .35rem; }
+body.public-portal .portal-feature-dots button { width: .55rem; height: .55rem; padding: 0; border: 0; border-radius: 50%; background: rgba(255,255,255,.45); }
+body.public-portal .portal-feature-dots button.is-active { background: var(--portal-green); }
+body.public-portal .portal-feature-slide a { color: inherit; text-decoration: none; }
+body.public-portal .transfer-observation { display: none; }
+body.public-portal .bracket-team.is-eliminated { opacity: .36; filter: grayscale(1); }
+body.public-portal .portal-footer { align-items: center; }
+body.public-portal .portal-product-brand { display: grid; justify-items: end; gap: .45rem; }
+body.public-portal .portal-product-brand img { width: min(12rem, 42vw); height: auto; }
+body.public-portal .portal-product-brand a { color: var(--portal-muted); }
+body.public-portal .portal-instagram-credit { width: min(100% - 2rem, 1248px); margin: -.75rem auto 1.5rem; color: var(--portal-muted); font-size: .78rem; text-align: right; }
+body.public-portal .portal-instagram-credit a { color: var(--portal-green); }
+body.public-portal .portal-header nav a[href$="/contato"] { display: none; }
+body.public-portal .portal-footer a[href$="/artilharia"] { display: none; }
+body.public-portal[data-has-officials="0"] .portal-nav a[href$="/arbitragem"] { display: none; }
+body.public-portal[data-has-officials="0"] .portal-nav a[href$="/arbitragem"] + * { margin-left: 0; }
+@media (max-width: 760px) { body.public-portal .portal-home-feature { grid-template-columns: 1fr; gap: 1.25rem; } body.public-portal .portal-feature-carousel { min-height: 15rem; } body.public-portal .portal-footer { align-items: flex-start; } body.public-portal .portal-product-brand { justify-items: start; } }

@@ -24,7 +24,7 @@ $assetUrl = static function (string $asset): string {
     <meta property="og:description" content="<?= $e($seo['description'] ?? '') ?>">
     <link rel="stylesheet" href="<?= $e($assetUrl('app.css')) ?>">
 </head>
-<body class="public-portal" data-portal-primary="<?= $e($championship['primary_color'] ?? '') ?>" data-portal-secondary="<?= $e($championship['secondary_color'] ?? '') ?>" data-portal-accent="<?= $e($championship['accent_color'] ?? '') ?>">
+<body class="public-portal" data-has-officials="<?= !empty($hasOfficials) ? '1' : '0' ?>" data-portal-primary="<?= $e($championship['primary_color'] ?? '') ?>" data-portal-secondary="<?= $e($championship['secondary_color'] ?? '') ?>" data-portal-accent="<?= $e($championship['accent_color'] ?? '') ?>">
     <header class="portal-header">
         <div class="portal-header-inner">
             <a class="portal-brand portal-brand--logo-only" href="<?= $e($base) ?>" aria-label="<?= $e($championship['name']) ?>">
@@ -46,6 +46,7 @@ $assetUrl = static function (string $asset): string {
         </section>
     <?php endif; ?>
     <footer class="portal-footer"><div><strong><?= $e($championship['name']) ?></strong><span><?= $e($championship['category_name']) ?> | <?= $e($championship['season_name']) ?></span></div><nav aria-label="Informações do campeonato"><a href="<?= $e($base . '/atletas') ?>">Atletas</a><a href="<?= $e($base . '/artilharia') ?>">Artilharia</a><a href="<?= $e($base . '/regulamento') ?>">Regulamento</a></nav><span class="portal-product-brand"><img src="<?= $e($assetUrl('branding/torneio-online-web-app.png')) ?>" alt="Torneio Online Web App"><small>Desenvolvido por Torneio Online Web App</small></span></footer>
+    <footer class="portal-footer portal-footer-modern"><div><strong><?= $e($championship['name']) ?></strong><span><?= $e($championship['season_name']) ?></span></div><nav aria-label="Informações do campeonato"><a href="<?= $e($base . '/atletas') ?>">Atletas</a><a href="<?= $e($base . '/regulamento') ?>">Regulamento</a><a href="<?= $e($base . '/contato') ?>">Contato</a></nav><span class="portal-product-brand"><img src="<?= $e($assetUrl('branding/torneio-online-web-app.png')) ?>" alt="Torneio Online Web App"><small>Desenvolvido por <a href="https://www.instagram.com/cassianogalvao.web" target="_blank" rel="noopener noreferrer">@cassianogalvao.web</a></small></span></footer>
     <script src="<?= $e($assetUrl('app.js')) ?>" defer></script>
 </body>
 </html>

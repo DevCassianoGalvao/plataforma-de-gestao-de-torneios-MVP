@@ -2,6 +2,7 @@
     'use strict';
 
     var root = document.body;
+    document.querySelectorAll('[data-history-back]').forEach(function (button) { button.addEventListener('click', function () { if (window.history.length > 1) window.history.back(); else window.location.href = '/'; }); });
     var iconPaths = {
         'layout-dashboard': '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="4" rx="1"/><rect x="14" y="10" width="7" height="11" rx="1"/><rect x="3" y="13" width="7" height="8" rx="1"/>',
         'trophy': '<path d="M8 21h8M12 17v4M7 4h10M5 4v3a7 7 0 0 0 14 0V4M5 4H3v2a4 4 0 0 0 4 4M19 4h2v2a4 4 0 0 1-4 4M7 4V2h10v2"/>',
@@ -61,6 +62,14 @@
         var name = navIconMap[element.dataset.icon] || element.dataset.icon;
         setIcon(element, name, element.matches('.button'));
     });
+    document.querySelectorAll('.knockout-tie').forEach(function (tie) {
+        var winnerText = tie.querySelector('small');
+        if (!winnerText || winnerText.textContent.indexOf('Classificado:') === -1) return;
+        var winner = winnerText.textContent.replace('Classificado:', '').trim();
+        tie.querySelectorAll('.bracket-team').forEach(function (team) {
+            if (team.textContent.trim() && team.textContent.indexOf(winner) === -1) team.classList.add('is-eliminated');
+        });
+    });
     document.querySelectorAll('.attention-list a').forEach(function (link) {
         var arrow = link.querySelector('b');
         if (arrow) setIcon(arrow, 'chevron-right', false);
@@ -69,13 +78,39 @@
         draft: 'Rascunho', submitted: 'Enviada', under_review: 'Em análise', pending_correction: 'Pendente',
         approved: 'Aprovada', rejected: 'Rejeitada', suspended: 'Suspensa', cancelled: 'Cancelada',
         active: 'Ativo', inactive: 'Inativo', blocked: 'Bloqueado', transferred: 'Transferido', archived: 'Arquivado',
-        scheduled: 'Agendada', confirmed: 'Confirmada', postponed: 'Adiada', finished: 'Encerrada', homologated: 'Homologada',
+        scheduled: 'Agendada', confirmed: 'Confirmada', postponed: 'Adiada', finished: 'Encerrada', homologated: 'Aprovada',
         published: 'Publicada', unpublished: 'Despublicada', pending: 'Pendente', replaced: 'Substituído', expired: 'Expirado',
-        configured: 'Configurada', in_progress: 'Em andamento', wo: 'W.O.', withdrawn: 'Retirada'
+        configured: 'Configurada', in_progress: 'Em andamento', wo: 'W.O.', withdrawn: 'Retirada', homologated: 'Aprovada', public: 'Pública', private: 'Privada', accountability: 'Prestação de contas', available: 'Disponível'
     };
     document.querySelectorAll('.status, select option').forEach(function (element) {
         var key = element.classList.contains('status') ? element.textContent.trim() : element.value;
         if (statusLabels[key]) element.textContent = statusLabels[key];
+    });
+    var technicalLabels = Object.assign({}, statusLabels, { visibility: 'Visibilidade', status: 'Situação', in_review: 'Em análise', organizer: 'Organização', communication: 'Comunicação', homologated: 'Aprovada', homologado: 'aprovado', homologada: 'aprovada', homologados: 'aprovados', homologadas: 'aprovadas' });
+    var textWalker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    var textNode;
+    while ((textNode = textWalker.nextNode())) {
+        if (textNode.parentElement && ['SCRIPT', 'STYLE', 'OPTION'].indexOf(textNode.parentElement.tagName) !== -1) continue;
+        Object.keys(technicalLabels).forEach(function (key) {
+            textNode.nodeValue = textNode.nodeValue.replace(new RegExp('(^|[^A-Za-z_])' + key + '($|[^A-Za-z_])', 'g'), '$1' + technicalLabels[key] + '$2');
+        });
+        textNode.nodeValue = textNode.nodeValue.replace(/A forma.{0,20}o fica registrada por jogo\. Titulares e reservas s.{0,12} aparecem ap.{0,18} confirma.{0,20}o t.{0,8}cnica\.?/i, 'Confira a formação escolhida para esta partida e os atletas relacionados.');
+        textNode.nodeValue = textNode.nodeValue.replace(/Movimenta.{0,8}o publicada de demonstra.{0,8}o\.?/i, 'Movimentação registrada no campeonato.');
+    }
+
+    var mojibakeMap = { 'Ã¡': 'á', 'Ã£': 'ã', 'Ã§': 'ç', 'Ã©': 'é', 'Ãª': 'ê', 'Ã­': 'í', 'Ã³': 'ó', 'Ã´': 'ô', 'Ãµ': 'õ', 'Ãº': 'ú', 'Ã‰': 'É', 'Â·': '·', 'Â©': '©', 'Â': '' };
+    var plainLabels = { Prestacao: 'Prestação', Prestacao_de_contas: 'Prestação de contas', Notificacoes: 'Notificações', Atualizacao: 'Atualização', Organizacao: 'Organização', Inscricoes: 'Inscrições', Classificacao: 'Classificação', Arbitragem: 'Arbitragem', Administracao: 'Administração' };
+    var normalizeMojibake = function (value) {
+        var normalized = Object.keys(mojibakeMap).reduce(function (result, key) { return result.split(key).join(mojibakeMap[key]); }, value);
+        Object.keys(plainLabels).sort(function (a, b) { return b.length - a.length; }).forEach(function (key) { normalized = normalized.replace(new RegExp(key.replace(/_/g, '\\s+'), 'g'), plainLabels[key]); });
+        return normalized;
+    };
+    document.querySelectorAll('body *').forEach(function (element) {
+        if (['SCRIPT', 'STYLE'].indexOf(element.tagName) !== -1) return;
+        Array.prototype.forEach.call(element.childNodes, function (node) {
+            if (node.nodeType === Node.TEXT_NODE) node.nodeValue = normalizeMojibake(node.nodeValue);
+        });
+        ['placeholder', 'aria-label', 'title'].forEach(function (attribute) { if (element.hasAttribute(attribute)) element.setAttribute(attribute, normalizeMojibake(element.getAttribute(attribute))); });
     });
 
     function setupMobileNavigation(drawer, toggle, dismissSelector, bodyClass, openLabel, closeLabel) {
@@ -132,6 +167,15 @@
         if (portalParts.indexOf('equipes') !== -1 && !portalPages[portalLastPart]) portalPage = 'team';
         if (portalParts.indexOf('atletas') !== -1 && !portalPages[portalLastPart]) portalPage = 'athlete';
         root.classList.add('portal-page--' + portalPage);
+        var slides = document.querySelectorAll('.portal-feature-slide');
+        if (slides.length > 1) {
+            var slideIndex = 0;
+            var dots = document.querySelectorAll('.portal-feature-dots button');
+            var showSlide = function (index) { slides.forEach(function (slide, i) { slide.classList.toggle('is-active', i === index); }); dots.forEach(function (dot, i) { dot.classList.toggle('is-active', i === index); }); };
+            dots.forEach(function (dot, i) { dot.addEventListener('click', function () { slideIndex = i; showSlide(slideIndex); }); });
+            showSlide(slideIndex);
+            window.setInterval(function () { slideIndex = (slideIndex + 1) % slides.length; showSlide(slideIndex); }, 6000);
+        }
         if (portalNav) {
             portalNav.querySelectorAll('a').forEach(function (link) {
                 var linkPath = new URL(link.href, window.location.origin).pathname.replace(/\/+$/, '') || '/';

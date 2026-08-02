@@ -4,7 +4,7 @@ $base = App\Core\Config::url('/campeonatos/' . $championship['slug']);
 $fieldAsset = App\Core\Config::url('/assets/football-field.svg');
 $events = ['goal' => 'Gol', 'own_goal' => 'Gol contra', 'assist' => 'Assist&ecirc;ncia', 'yellow' => 'Cart&atilde;o amarelo', 'second_yellow' => 'Segundo cart&atilde;o amarelo', 'red' => 'Cart&atilde;o vermelho'];
 $roles = ['starter' => 'Titular', 'substitute' => 'Reserva', 'captain' => 'Capit&atilde;o', 'goalkeeper' => 'Goleiro'];
-$statuses = ['scheduled' => 'Agendada', 'confirmed' => 'Confirmada', 'postponed' => 'Adiada', 'finished' => 'Encerrada', 'homologated' => 'Homologada'];
+$statuses = ['scheduled' => 'Agendada', 'confirmed' => 'Confirmada', 'postponed' => 'Adiada', 'finished' => 'Encerrada', 'homologated' => 'Aprovada'];
 $teamLink = static function (string $side) use ($match, $base, $e): string {
     $name = $match[$side . '_team_name'];
     $slug = $match[$side . '_team_slug'];

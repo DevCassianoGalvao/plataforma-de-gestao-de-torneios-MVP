@@ -4,6 +4,7 @@ $e = static fn (mixed $value): string => App\Core\View::e($value);
 $currentUser = App\Core\Auth::user();
 $menuAuth = $currentUser ? new App\Services\AuthorizationService(new App\Repositories\UserRepository(App\Core\Database::connection())) : null;
 $isAdministrator = $currentUser && $menuAuth && in_array('administrator', $menuAuth->roleKeys($currentUser), true);
+$isAccountabilityOnly = $currentUser && $menuAuth && !$isAdministrator && in_array('accountability', $menuAuth->roleKeys($currentUser), true);
 $notificationCount = 0;
 if ($isAdministrator) {
     try { $notificationCount = (new App\Repositories\NotificationRepository(App\Core\Database::connection()))->unreadCount((int) $currentUser['id']); } catch (\Throwable) { $notificationCount = 0; }
@@ -35,7 +36,7 @@ $isRegistrationsActive = $isActive('/admin/inscricoes');
     <link rel="icon" type="image/png" href="<?= $e($assetUrl('branding/favicon.png')) ?>">
     <link rel="stylesheet" href="<?= $e($assetUrl('app.css')) ?>">
 </head>
-<body class="<?= $currentUser ? 'app-body' : 'auth-body' ?>" data-theme="dark">
+<body class="<?= $currentUser ? 'app-body' . ($isAccountabilityOnly ? ' accountability-only' : '') : 'auth-body' ?>" data-theme="dark">
 <?php if ($currentUser): ?>
 <div class="app-shell">
     <aside id="app-sidebar" class="app-sidebar" data-sidebar aria-label="Navegação administrativa">
@@ -64,18 +65,25 @@ $isRegistrationsActive = $isActive('/admin/inscricoes');
             <?php if ($menuAuth && $menuAuth->can($currentUser, 'championships.view')): ?><a href="<?= $e(App\Core\Config::url('/admin/arbitros')) ?>"<?= $isActive('/admin/arbitros') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="whistle" aria-hidden="true">AR</span><span class="nav-label">Arbitragem</span></a><?php endif; ?>
             <?php if ($isAdministrator): ?><a href="<?= $e(App\Core\Config::url('/admin/contatos')) ?>"<?= $isActive('/admin/contatos') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="mail" aria-hidden="true">CT</span><span class="nav-label">Contatos</span></a><?php endif; ?>
             <?php if ($menuAuth && $menuAuth->can($currentUser, 'users.view')): ?><a href="<?= $e(App\Core\Config::url('/admin/usuarios')) ?>"<?= $isActive('/admin/usuarios') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="user" aria-hidden="true">US</span><span class="nav-label">Usuários</span></a><?php endif; ?>
-            <?php if ($menuAuth && $menuAuth->can($currentUser, 'audit.view')): ?><a href="<?= $e(App\Core\Config::url('/admin/auditoria')) ?>"<?= $isActive('/admin/auditoria') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="audit" aria-hidden="true">AU</span><span class="nav-label">Auditoria</span></a><?php endif; ?>
+            <?php if ($menuAuth && $menuAuth->can($currentUser, 'audit.view')): ?><a href="<?= $e(App\Core\Config::url('/admin/auditoria')) ?>"<?= $isActive('/admin/auditoria') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="audit" aria-hidden="true">AU</span><span class="nav-label">Logs</span></a><?php endif; ?>
             <?php if ($isAdministrator): ?><a href="<?= $e(App\Core\Config::url('/admin/notificacoes')) ?>"<?= $isActive('/admin/notificacoes') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="bell" aria-hidden="true">NO</span><span class="nav-label">Notificacoes<?php if ($notificationCount > 0): ?> <b class="nav-count"><?= (int) $notificationCount ?></b><?php endif; ?></span></a><?php endif; ?>
             <?php if ($menuAuth && $menuAuth->can($currentUser, 'accountability.view')): ?><a href="<?= $e(App\Core\Config::url('/prestacao')) ?>"<?= $isActive('/prestacao') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="file-check-2" aria-hidden="true">PC</span><span class="nav-label">Prestacao de contas</span></a><?php endif; ?>
         </nav>
         <div class="sidebar-footer">
+            <div class="sidebar-user">
+                <?php if (!empty($currentUser['avatar_path'])): ?><img class="user-avatar user-avatar-photo" src="<?= $e(App\Core\Config::url('/admin/perfil/foto?v=' . rawurlencode((string) ($currentUser['updated_at'] ?? '0')))) ?>" alt="">
+                <?php else: ?><span class="user-avatar" aria-hidden="true"><?= $e($userInitials((string) ($currentUser['name'] ?? 'TM'))) ?></span><?php endif; ?>
+                <div><strong><?= $e($currentUser['name'] ?? '') ?></strong><span><?= $e($currentUser['role_name'] ?? 'Acesso autorizado') ?></span></div>
+            </div>
             <a class="sidebar-nav" href="<?= $e(App\Core\Config::url('/admin/perfil')) ?>"<?= $isExactActive('/admin/perfil') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="profile" aria-hidden="true">PF</span><span class="nav-label">Meu perfil</span></a>
+            <form class="logout-form sidebar-logout" method="post" action="<?= $e(App\Core\Config::url('/logout')) ?>"><input type="hidden" name="_csrf" value="<?= $e(App\Core\Security::csrfToken()) ?>"><button type="submit">Sair</button></form>
         </div>
     </aside>
     <button class="app-navigation-scrim" type="button" data-sidebar-dismiss aria-label="Fechar menu"></button>
     <div class="app-main">
         <header class="app-topbar">
             <div class="topbar-context">
+                <button class="topbar-back" type="button" data-history-back aria-label="Voltar para a página anterior">← Voltar</button>
                 <small>Plataforma de gestão</small>
                 <strong><?= $e($title ?? 'Centro de operação') ?></strong>
             </div>

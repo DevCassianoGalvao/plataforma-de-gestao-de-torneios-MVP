@@ -17,6 +17,6 @@ final class AuditController extends Controller
         if ($guard instanceof Response) {
             return $guard;
         }
-        return $this->page('Auditoria', 'admin/audit', ['user' => $guard, 'entries' => $this->audit->recent()]);
+        return $this->page('Logs', 'admin/audit', ['user' => $guard, 'entries' => $this->audit->recent()]);
     }
 }
