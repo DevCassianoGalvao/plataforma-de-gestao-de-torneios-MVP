@@ -2305,18 +2305,18 @@ body.public-portal .filter-bar button:focus-visible {
 @media (max-width: 600px) {
     body.public-portal .portal-header nav.is-open {
         top: 4.85rem;
-        right: .75rem;
+        right: 0;
         bottom: auto;
-        left: .75rem;
+        left: 0;
         display: grid !important;
         width: auto !important;
         max-height: calc(100dvh - 6rem);
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: .45rem;
-        padding: .8rem;
+        grid-template-columns: 1fr;
+        gap: .3rem;
+        padding: .9rem 1rem 1rem;
         overflow-y: auto;
         border: 1px solid #34445a;
-        border-radius: 14px;
+        border-radius: 0 0 14px 14px;
         background: #142030;
         box-shadow: 0 24px 54px rgba(0, 0, 0, .48);
     }
@@ -2331,7 +2331,7 @@ body.public-portal .filter-bar button:focus-visible {
         text-transform: uppercase;
     }
     body.public-portal .portal-header nav.is-open a {
-        min-height: 3.25rem;
+        min-height: 3rem;
         padding: .75rem .8rem;
         border: 1px solid transparent;
         border-radius: 8px;
