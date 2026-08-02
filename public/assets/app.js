@@ -168,7 +168,6 @@
         if (portalParts.indexOf('atletas') !== -1 && !portalPages[portalLastPart]) portalPage = 'athlete';
         root.classList.add('portal-page--' + portalPage);
         var slides = document.querySelectorAll('.portal-feature-slide');
-        document.querySelectorAll('.portal-feature-slide a[href=""]').forEach(function (link) { link.removeAttribute('href'); link.classList.add('is-static'); var action = link.querySelector('span'); if (action) action.remove(); });
         if (slides.length <= 1) { var onlyDot = document.querySelector('.portal-feature-dots'); if (onlyDot) onlyDot.hidden = true; }
         if (slides.length > 1) {
             var slideIndex = 0;
