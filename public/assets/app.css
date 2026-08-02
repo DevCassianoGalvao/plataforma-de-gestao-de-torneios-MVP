@@ -2304,10 +2304,48 @@ body.public-portal .filter-bar button:focus-visible {
 
 @media (max-width: 600px) {
     body.public-portal .portal-header nav.is-open {
-        right: 0;
-        left: 0;
-        width: 100dvw !important;
-        border-left: 0;
+        top: 4.85rem;
+        right: .75rem;
+        bottom: auto;
+        left: .75rem;
+        display: grid !important;
+        width: auto !important;
+        max-height: calc(100dvh - 6rem);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: .45rem;
+        padding: .8rem;
+        overflow-y: auto;
+        border: 1px solid #34445a;
+        border-radius: 14px;
+        background: #142030;
+        box-shadow: 0 24px 54px rgba(0, 0, 0, .48);
+    }
+    body.public-portal .portal-header nav.is-open::before {
+        grid-column: 1 / -1;
+        padding: .2rem .25rem .45rem;
+        color: var(--portal-muted);
+        content: 'Navegação';
+        font-size: .68rem;
+        font-weight: 800;
+        letter-spacing: .1em;
+        text-transform: uppercase;
+    }
+    body.public-portal .portal-header nav.is-open a {
+        min-height: 3.25rem;
+        padding: .75rem .8rem;
+        border: 1px solid transparent;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, .025);
+        font-size: .88rem;
+    }
+    body.public-portal .portal-header nav.is-open a[aria-current="page"] {
+        border-color: color-mix(in srgb, var(--portal-primary) 62%, #fff);
+        background: color-mix(in srgb, var(--portal-primary) 24%, #142030);
+        color: #fff;
+    }
+    body.public-portal.has-portal-menu .portal-navigation-scrim {
+        background: rgba(3, 9, 16, .7);
+        backdrop-filter: blur(3px);
     }
     body.public-portal .athlete-profile .portal-athlete-photo-large,
     body.public-portal .athlete-profile .athlete-avatar-fallback.portal-athlete-photo-large {
