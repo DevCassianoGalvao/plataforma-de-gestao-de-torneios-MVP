@@ -69,6 +69,48 @@ final class ChampionshipController extends Controller
         return $this->page((string) $championship['name'], 'admin/championships/show', ['user' => $guard, 'championship' => $championship, 'regulation' => $this->regulationsFor($championship), 'message' => Session::consumeFlash('championship_message')]);
     }
 
+    public function accountability(Request $request, array $params = []): Response
+    {
+        $guard = $this->guard($request, 'championships.manage_assignments');
+        if ($guard instanceof Response) return $guard;
+        $championship = $this->resolve($params[0] ?? '', $guard, true);
+        if (!$championship) return Response::html('Campeonato nao encontrado ou sem acesso.', 404);
+        return $this->page('Prestação de contas do campeonato', 'admin/championships/accountability', $this->accountabilityViewData($guard, $championship));
+    }
+
+    public function assignAccountability(Request $request, array $params = []): Response
+    {
+        $guard = $this->guard($request, 'championships.manage_assignments');
+        if ($guard instanceof Response) return $guard;
+        $championship = $this->resolve($params[0] ?? '', $guard, true);
+        if (!$championship) return Response::html('Campeonato nao encontrado ou sem acesso.', 404);
+        if (!$this->validCsrf($request)) return Response::forbidden('A sessao expirou.');
+        $userId = (int) ($request->body['user_id'] ?? 0);
+        $candidate = $this->userRepository->findById($userId);
+        $roleKeys = $candidate ? array_map(static fn (array $role): string => (string) $role['key'], $this->userRepository->roles($userId)) : [];
+        if (!$candidate || $candidate['status'] !== 'active' || !in_array('accountability', $roleKeys, true)) {
+            return $this->errorPage('Prestação de contas', 'admin/championships/accountability', $this->accountabilityViewData($guard, $championship, ['Selecione um usuário ativo com o perfil Prestação de Contas.']), 422);
+        }
+        $this->championships->assignAccountability((int) $championship['id'], $userId, (int) $guard['id']);
+        $this->audit->record('championships.accountability_assigned', (int) $guard['id'], 'championship', (int) $championship['id'], ['user_id' => $userId], $request);
+        Session::flash('championship_accountability_message', 'Usuário vinculado à prestação de contas.');
+        return Response::redirect(Config::url('/admin/campeonatos/' . $championship['slug'] . '/prestacao'));
+    }
+
+    public function unassignAccountability(Request $request, array $params = []): Response
+    {
+        $guard = $this->guard($request, 'championships.manage_assignments');
+        if ($guard instanceof Response) return $guard;
+        $championship = $this->resolve($params[0] ?? '', $guard, true);
+        if (!$championship) return Response::html('Campeonato nao encontrado ou sem acesso.', 404);
+        if (!$this->validCsrf($request)) return Response::forbidden('A sessao expirou.');
+        $userId = (int) ($params[1] ?? 0);
+        $this->championships->unassignAccountability((int) $championship['id'], $userId);
+        $this->audit->record('championships.accountability_unassigned', (int) $guard['id'], 'championship', (int) $championship['id'], ['user_id' => $userId], $request);
+        Session::flash('championship_accountability_message', 'Vínculo de prestação de contas encerrado.');
+        return Response::redirect(Config::url('/admin/campeonatos/' . $championship['slug'] . '/prestacao'));
+    }
+
     public function editForm(Request $request, array $params = []): Response
     {
         $guard = $this->guard($request, 'championships.update');
@@ -206,6 +248,18 @@ final class ChampionshipController extends Controller
     private function regulationsRepository(): \App\Repositories\RegulationRepository
     {
         return new \App\Repositories\RegulationRepository(\App\Core\Database::connection());
+    }
+
+    private function accountabilityViewData(array $user, array $championship, array $errors = []): array
+    {
+        return [
+            'user' => $user,
+            'championship' => $championship,
+            'assignments' => $this->championships->accountabilityAssignments((int) $championship['id']),
+            'candidates' => $this->userRepository->listByRole('accountability'),
+            'errors' => $errors,
+            'message' => Session::consumeFlash('championship_accountability_message'),
+        ];
     }
 
     private function blank(): array

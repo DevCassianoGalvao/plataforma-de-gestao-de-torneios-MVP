@@ -37,7 +37,7 @@ final class AuthSeed
             ['championships.update', 'Editar campeonatos', 'Edita campeonamentos autorizados.', 'campeonatos'],
             ['championships.archive', 'Arquivar campeonatos', 'Arquiva campeonatos.', 'campeonatos'],
             ['championships.manage_identity', 'Gerenciar identidade do campeonato', 'Gerencia cores e arquivos de identidade.', 'campeonatos'],
-            ['championships.manage_assignments', 'Gerenciar organizadores', 'Vincula organizadores a campeonatos.', 'campeonatos'],
+            ['championships.manage_assignments', 'Gerenciar vínculos do campeonato', 'Vincula usuários de prestação de contas ao campeonato.', 'campeonatos'],
             ['teams.view', 'Visualizar equipes', 'Consulta equipes autorizadas.', 'equipes'],
             ['teams.create', 'Criar equipes', 'Cadastra equipes em campeonatos autorizados.', 'equipes'],
             ['teams.update', 'Editar equipes', 'Edita equipes autorizadas.', 'equipes'],

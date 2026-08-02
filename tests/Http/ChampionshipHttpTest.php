@@ -12,6 +12,7 @@ use App\Core\Security;
 use App\Core\Session;
 use App\Database\AuthSeed;
 use App\Database\ChampionshipSeed;
+use App\Repositories\UserRepository;
 use function Tests\assert_same;
 use function Tests\assert_true;
 
@@ -31,6 +32,16 @@ final class ChampionshipHttpTest
         $list = $router->dispatch(Request::fake('GET', '/torneio-online/admin/campeonatos'));
         assert_same(200, $list->status, 'Administrador nao abriu campeonatos');
         assert_true(str_contains($list->body, 'Copa Brasil de Talentos 2026'), 'Campeonato seed nao apareceu');
+        assert_same(4, count((new UserRepository($pdo))->rolesCatalog()), 'Catalogo de perfis nao foi consolidado');
+        $accountabilityPage = $router->dispatch(Request::fake('GET', '/torneio-online/admin/campeonatos/copa-brasil-de-talentos-2026/prestacao'));
+        assert_same(200, $accountabilityPage->status, 'Administrador nao abriu vinculos de prestacao de contas');
+        assert_true(str_contains($accountabilityPage->body, 'Usuários vinculados') && str_contains($accountabilityPage->body, 'Prestação de contas'), 'Tela de prestacao de contas nao foi renderizada');
+        $accountabilityUserId = (int) $pdo->query("SELECT id FROM users WHERE email = 'prestacao@torneios.local' LIMIT 1")->fetchColumn();
+        $unassign = $router->dispatch(Request::fake('POST', '/torneio-online/admin/campeonatos/copa-brasil-de-talentos-2026/prestacao/' . $accountabilityUserId . '/encerrar', ['_csrf' => Security::csrfToken()]));
+        assert_same(302, $unassign->status, 'Administrador nao encerrou vinculo de prestacao');
+        $assign = $router->dispatch(Request::fake('POST', '/torneio-online/admin/campeonatos/copa-brasil-de-talentos-2026/prestacao', ['_csrf' => Security::csrfToken(), 'user_id' => $accountabilityUserId]));
+        assert_same(302, $assign->status, 'Administrador nao criou vinculo de prestacao');
+        assert_same(1, (int) $pdo->query("SELECT COUNT(*) FROM championship_user_assignments WHERE assignment_type = 'accountability' AND user_id = {$accountabilityUserId}")->fetchColumn(), 'Vinculo de prestacao nao foi persistido');
         $season = $router->dispatch(Request::fake('GET', '/torneio-online/admin/temporadas'));
         assert_same(200, $season->status, 'Temporadas nao abriram');
         $newSeason = $router->dispatch(Request::fake('POST', '/torneio-online/admin/temporadas', ['_csrf' => Security::csrfToken(), 'name' => 'Temporada HTTP', 'year' => '2027', 'starts_at' => '2027-01-01', 'ends_at' => '2027-12-31', 'status' => 'draft']));
@@ -92,8 +103,15 @@ final class ChampionshipHttpTest
         assert_same(403, $trainer->status, 'Treinador acessou modulo de campeonatos');
         $logout = $router->dispatch(Request::fake('POST', '/torneio-online/logout', ['_csrf' => Security::csrfToken()]));
         assert_same(302, $logout->status, 'Logout do treinador falhou');
+        self::login($router, 'prestacao@torneios.local');
+        $accountability = $router->dispatch(Request::fake('GET', '/torneio-online/prestacao'));
+        assert_same(200, $accountability->status, 'Usuario de prestacao nao abriu o painel');
+        assert_true(str_contains($accountability->body, 'Copa Brasil de Talentos 2026'), 'Campeonato autorizado nao apareceu na prestacao');
+        $logout = $router->dispatch(Request::fake('POST', '/torneio-online/logout', ['_csrf' => Security::csrfToken()]));
+        assert_same(302, $logout->status, 'Logout da prestacao falhou');
         self::login($router, 'operador@torneios.local');
         assert_same(403, $router->dispatch(Request::fake('GET', '/torneio-online/admin/campeonatos/copa-brasil-de-talentos-2026/regulamento'))->status, 'Operador acessou regulamento');
+        assert_same(403, $router->dispatch(Request::fake('GET', '/torneio-online/admin/campeonatos/copa-brasil-de-talentos-2026/prestacao'))->status, 'Operador acessou vinculos de prestacao');
         $logout = $router->dispatch(Request::fake('POST', '/torneio-online/logout', ['_csrf' => Security::csrfToken()]));
         assert_same(302, $logout->status, 'Logout do operador falhou');
     }

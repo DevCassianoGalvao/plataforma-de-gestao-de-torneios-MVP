@@ -430,6 +430,9 @@ $championship = new ChampionshipController($users, $authorization, $audit, $cham
 $router->get('/admin/campeonatos', [$championship, 'index']);
 $router->get('/admin/campeonatos/novo', [$championship, 'createForm']);
 $router->post('/admin/campeonatos', [$championship, 'create']);
+$router->get('/admin/campeonatos/{slug}/prestacao', [$championship, 'accountability']);
+$router->post('/admin/campeonatos/{slug}/prestacao', [$championship, 'assignAccountability']);
+$router->post('/admin/campeonatos/{slug}/prestacao/{userId}/encerrar', [$championship, 'unassignAccountability']);
 $router->get('/admin/campeonatos/{slug}', [$championship, 'show']);
 $router->get('/admin/campeonatos/{slug}/editar', [$championship, 'editForm']);
 $router->post('/admin/campeonatos/{slug}', [$championship, 'update']);

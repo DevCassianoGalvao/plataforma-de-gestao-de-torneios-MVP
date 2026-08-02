@@ -90,6 +90,25 @@ final class ChampionshipRepository
         return $statement->fetchAll();
     }
 
+    public function accountabilityAssignments(int $championshipId): array
+    {
+        $statement = $this->pdo->prepare("SELECT cua.*, u.name, u.email, u.status AS user_status FROM championship_user_assignments cua INNER JOIN users u ON u.id = cua.user_id WHERE cua.championship_id = ? AND cua.assignment_type = 'accountability' ORDER BY u.name, u.id");
+        $statement->execute([$championshipId]);
+        return $statement->fetchAll();
+    }
+
+    public function assignAccountability(int $championshipId, int $userId, int $createdBy): void
+    {
+        $statement = $this->pdo->prepare("INSERT IGNORE INTO championship_user_assignments (championship_id, user_id, assignment_type, created_at, created_by) VALUES (?, ?, 'accountability', ?, ?)");
+        $statement->execute([$championshipId, $userId, date('Y-m-d H:i:s'), $createdBy]);
+    }
+
+    public function unassignAccountability(int $championshipId, int $userId): void
+    {
+        $statement = $this->pdo->prepare("DELETE FROM championship_user_assignments WHERE championship_id = ? AND user_id = ? AND assignment_type = 'accountability'");
+        $statement->execute([$championshipId, $userId]);
+    }
+
     public function assign(int $championshipId, int $userId, string $type, int $createdBy): void
     {
         $statement = $this->pdo->prepare('INSERT INTO championship_user_assignments (championship_id, user_id, assignment_type, created_at, created_by) VALUES (?, ?, ?, ?, ?)');
