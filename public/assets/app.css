@@ -542,7 +542,7 @@ button.secondary, .button.secondary, .actions button { background: var(--ui-surf
 /* Portal polish: match-day hierarchy, usable standings, and predictable fallbacks. */
 body.public-portal .portal-brand--logo-only { gap: 0; }
 body.public-portal .portal-brand--logo-only img,
-body.public-portal .portal-brand--logo-only .portal-mark-fallback { width: 3.15rem; height: 3.15rem; border-radius: 9px; }
+body.public-portal .portal-brand--logo-only .portal-mark-fallback { width: 3.65rem; height: 3.65rem; border-radius: 9px; }
 body.public-portal .portal-brand--logo-only .portal-mark-fallback { display: grid; place-items: center; color: var(--portal-green); }
 body.public-portal .portal-brand--logo-only .portal-mark-fallback .ui-icon { width: 1.5rem; height: 1.5rem; }
 body.public-portal .team-mark-fallback,
@@ -2095,10 +2095,12 @@ body.app-body .topbar-back { width: fit-content; min-height: 0; padding: 0; bord
 body.app-body .topbar-back:hover, body.app-body .topbar-back:focus-visible { background: transparent; box-shadow: none; color: #fff; text-decoration: underline; transform: none; }
 
 body.public-portal .portal-home-feature { display: grid; grid-template-columns: minmax(0, 1fr) minmax(18rem, .9fr); gap: 2rem; align-items: stretch; margin-bottom: 1.5rem; padding: clamp(1.5rem, 4vw, 3rem); border: 1px solid var(--portal-line); border-radius: 14px; background: linear-gradient(135deg, var(--portal-panel), var(--portal-panel-strong)); }
-body.public-portal .portal-home-feature-copy { display: grid; align-content: center; gap: .7rem; }
+body.public-portal .portal-home-feature-copy { display: grid; align-content: center; gap: .5rem; }
 body.public-portal .portal-home-feature-copy h1 { max-width: 16ch; margin: 0; color: var(--portal-copy); font-size: clamp(2rem, 3.6vw, 3.65rem); line-height: 1.04; }
 body.public-portal.portal-page--home > .portal-shell > .portal-hero { display: none; }
-body.public-portal .portal-home-feature-copy p:not(.eyebrow) { max-width: 42rem; color: var(--portal-muted); font-size: 1.05rem; line-height: 1.55; }
+body.public-portal .portal-home-feature-copy p:not(.eyebrow) { max-width: 42rem; margin: 0; color: var(--portal-muted); font-size: 1.05rem; line-height: 1.55; }
+body.public-portal .portal-home-feature-copy .eyebrow { margin: 0; }
+body.public-portal .portal-home-feature-copy .portal-badge { margin-top: .55rem; }
 body.public-portal .portal-feature-carousel { position: relative; min-height: 20rem; overflow: hidden; border-radius: 12px; background: #101923; }
 body.public-portal .portal-feature-slide { position: absolute; inset: 0; display: grid; align-content: end; padding: 1.4rem; opacity: 0; background-size: cover; background-position: center; transition: opacity .35s ease; }
 body.public-portal .portal-feature-slide.is-active { opacity: 1; }
@@ -2124,7 +2126,16 @@ body.public-portal .portal-header nav a[href$="/contato"] { display: none; }
 body.public-portal .portal-footer a[href$="/artilharia"] { display: none; }
 body.public-portal[data-has-officials="0"] .portal-nav a[href$="/arbitragem"] { display: none; }
 body.public-portal[data-has-officials="0"] .portal-nav a[href$="/arbitragem"] + * { margin-left: 0; }
-@media (max-width: 760px) { body.public-portal .portal-home-feature { grid-template-columns: 1fr; gap: 1.25rem; } body.public-portal .portal-feature-carousel { min-height: 15rem; } body.public-portal .portal-footer { align-items: flex-start; } body.public-portal .portal-product-brand { justify-items: start; } }
+@media (max-width: 760px) {
+    body.public-portal .portal-home-feature { grid-template-columns: 1fr; gap: 1.25rem; }
+    body.public-portal .portal-brand--logo-only img,
+    body.public-portal .portal-brand--logo-only .portal-mark-fallback { width: 3rem; height: 3rem; }
+    body.public-portal .portal-feature-carousel { min-height: 17.5rem; }
+    body.public-portal .portal-nav-tools .portal-nav-toggle { width: 2.5rem; min-width: 2.5rem; height: 2.5rem; min-height: 2.5rem; aspect-ratio: 1; padding: 0; border: 0; border-radius: 6px; background: transparent; color: var(--portal-green); font-size: 0; box-shadow: none; }
+    body.public-portal .portal-nav-tools .portal-nav-toggle::before { display: block; content: '☰' !important; font-size: 1.35rem; line-height: 1; }
+    body.public-portal .portal-footer { align-items: flex-start; }
+    body.public-portal .portal-product-brand { justify-items: start; }
+}
 
 body.app-body .carousel-manager { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--ui-border); }
 body.app-body .carousel-manager-list { display: grid; gap: .75rem; margin: 1rem 0; }
