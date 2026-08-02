@@ -189,7 +189,16 @@ final class ChampionshipController extends Controller
         if ($guard instanceof Response) return $guard;
         $championship = $this->resolve($params[0] ?? '', $guard, true);
         if (!$championship) return Response::html('Campeonato nao encontrado ou sem acesso.', 404);
-        return $this->page('Identidade do campeonato', 'admin/championships/identity', ['user' => $guard, 'championship' => $championship, 'carouselSlides' => $this->carousel->listForChampionship((int) $championship['id']), 'errors' => []]);
+        return $this->page('Identidade do campeonato', 'admin/championships/identity', ['user' => $guard, 'championship' => $championship, 'errors' => []]);
+    }
+
+    public function carouselForm(Request $request, array $params = []): Response
+    {
+        $guard = $this->guard($request, 'championships.manage_identity');
+        if ($guard instanceof Response) return $guard;
+        $championship = $this->resolve($params[0] ?? '', $guard, true);
+        if (!$championship) return Response::html('Campeonato não encontrado ou sem acesso.', 404);
+        return $this->page('Carrossel do campeonato', 'admin/championships/carousel', ['user' => $guard, 'championship' => $championship, 'carouselSlides' => $this->carousel->listForChampionship((int) $championship['id'])]);
     }
 
     public function createCarouselSlide(Request $request, array $params = []): Response
@@ -212,7 +221,7 @@ final class ChampionshipController extends Controller
         } catch (\Throwable $exception) {
             return Response::html($exception->getMessage(), 422);
         }
-        return Response::redirect(Config::url('/admin/campeonatos/' . $championship['slug'] . '/identidade'));
+        return Response::redirect(Config::url('/admin/campeonatos/' . $championship['slug'] . '/identidade/carrossel'));
     }
 
     public function deleteCarouselSlide(Request $request, array $params = []): Response
@@ -228,7 +237,7 @@ final class ChampionshipController extends Controller
         $this->storage->delete((string) $slide['image_path']);
         $this->audit->record('championships.carousel_slide_deleted', (int) $guard['id'], 'championship_carousel_slide', (int) $slide['id'], [], $request);
         Session::flash('championship_message', 'Slide removido.');
-        return Response::redirect(Config::url('/admin/campeonatos/' . $championship['slug'] . '/identidade'));
+        return Response::redirect(Config::url('/admin/campeonatos/' . $championship['slug'] . '/identidade/carrossel'));
     }
 
     public function status(Request $request, array $params = []): Response

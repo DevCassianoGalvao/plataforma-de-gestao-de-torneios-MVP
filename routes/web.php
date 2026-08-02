@@ -441,6 +441,7 @@ $router->get('/admin/campeonatos/{slug}/editar', [$championship, 'editForm']);
 $router->post('/admin/campeonatos/{slug}', [$championship, 'update']);
 $router->get('/admin/campeonatos/{slug}/identidade', [$championship, 'identityForm']);
 $router->post('/admin/campeonatos/{slug}/identidade', [$championship, 'identity']);
+$router->get('/admin/campeonatos/{slug}/identidade/carrossel', [$championship, 'carouselForm']);
 $router->post('/admin/campeonatos/{slug}/identidade/carrossel', [$championship, 'createCarouselSlide']);
 $router->post('/admin/campeonatos/{slug}/identidade/carrossel/{id}/excluir', [$championship, 'deleteCarouselSlide']);
 $router->get('/admin/campeonatos/{slug}/assets/{field}', [$championship, 'asset']);

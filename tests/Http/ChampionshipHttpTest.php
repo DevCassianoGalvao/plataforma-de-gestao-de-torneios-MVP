@@ -79,6 +79,9 @@ final class ChampionshipHttpTest
         assert_same(200, $identityPage->status, 'Administrador nao abriu identidade do campeonato');
         assert_true(str_contains($identityPage->body, 'data-color-field') && str_contains($identityPage->body, 'Paleta do campeonato'), 'Seletor visual de cores nao foi renderizado');
         assert_true(str_contains($identityPage->body, 'data-file-state') && str_contains($identityPage->body, '1920 × 720 px'), 'Estado de arquivos e orientação do banner nao foram renderizados');
+        $carouselPage = $router->dispatch(Request::fake('GET', '/torneio-online/admin/campeonatos/copa-brasil-de-talentos-2026/identidade/carrossel'));
+        assert_same(200, $carouselPage->status, 'Administrador nao abriu a gestao do carrossel');
+        assert_true(str_contains($carouselPage->body, 'Carrossel de destaques'), 'Pagina de carrossel nao foi renderizada');
         $tmp = tempnam(sys_get_temp_dir(), 'mvp-http-logo-');
         file_put_contents($tmp, base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII='));
         $identity = $router->dispatch(Request::fake('POST', '/torneio-online/admin/campeonatos/copa-brasil-de-talentos-2026/identidade', ['_csrf' => Security::csrfToken(), 'default_theme' => 'light', 'primary_color' => '#123C32', 'secondary_color' => '#245C4A', 'accent_color' => '#D9A441'], ['logo_path' => ['error' => UPLOAD_ERR_OK, 'size' => filesize($tmp), 'tmp_name' => $tmp, 'name' => 'logo.png']]));
