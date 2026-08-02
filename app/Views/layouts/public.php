@@ -30,7 +30,7 @@ $assetUrl = static function (string $asset): string {
             <a class="portal-brand portal-brand--logo-only" href="<?= $e($base) ?>" aria-label="<?= $e($championship['name']) ?>">
                 <?php if (!empty($championship['logo_path'])): ?><img src="<?= $e($base . '/assets/logo') ?>" alt="Logo de <?= $e($championship['name']) ?>"><?php else: ?><span class="portal-mark-fallback" data-icon="trophy" aria-hidden="true"></span><?php endif; ?>
             </a>
-            <div class="portal-nav-tools"><button class="icon-button portal-nav-toggle" type="button" data-portal-nav-toggle aria-controls="portal-navigation" aria-label="Abrir navegação" aria-expanded="false" title="Abrir navegação">Menu</button></div>
+            <div class="portal-nav-tools"><button class="icon-button portal-nav-toggle" type="button" data-portal-nav-toggle aria-controls="portal-navigation" aria-label="Abrir navegação" aria-expanded="false" title="Abrir navegação"><span aria-hidden="true"></span></button></div>
             <nav id="portal-navigation" class="portal-nav" data-portal-nav aria-label="Navegação do campeonato">
                 <a href="<?= $e($base) ?>">Início</a><a href="<?= $e($base . '/proximos-jogos') ?>">Jogos</a><a href="<?= $e($base . '/resultados') ?>">Resultados</a><a href="<?= $e($base . '/classificacao') ?>">Classificação</a><a href="<?= $e($base . '/equipes') ?>">Equipes</a><a href="<?= $e($base . '/noticias') ?>">Notícias</a><a href="<?= $e($base . '/vai-e-vem') ?>">Vai e Vem</a><?php if (!empty($hasKnockout)): ?><a href="<?= $e($base . '/mata-mata') ?>">Mata-mata</a><?php endif; ?><a href="<?= $e($base . '/arbitragem') ?>">Arbitragem</a><a href="<?= $e($base . '/contato') ?>">Contato</a>
             </nav>

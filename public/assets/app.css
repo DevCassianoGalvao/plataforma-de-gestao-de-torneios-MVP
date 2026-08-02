@@ -2157,3 +2157,119 @@ body.public-portal .transfer-route i span { color: var(--portal-muted); }
 body.public-portal .transfer-route b { overflow: hidden; color: var(--portal-copy); font-size: .88rem; text-overflow: ellipsis; white-space: nowrap; }
 body.public-portal .transfer-route > em { color: var(--portal-green); font-size: 1.55rem; font-style: normal; }
 @media (max-width: 760px) { body.app-body .carousel-manager-form, body.public-portal .transfer-route { grid-template-columns: 1fr; } body.app-body .carousel-manager-list article { grid-template-columns: 1fr; } body.app-body .carousel-manager-list img { width: 100%; height: 8rem; } body.public-portal .transfer-route > em { justify-self: center; transform: rotate(90deg); } }
+
+/* Mobile-first correction pass: one drawer, roomy cards, and unambiguous actions. */
+@media (max-width: 800px) {
+    body.app-body .topbar-actions { margin-left: auto; }
+    body.app-body .sidebar-toggle { order: initial; }
+    body.app-body .sidebar-toggle,
+    body.public-portal .portal-nav-toggle {
+        position: relative;
+        overflow: hidden;
+        color: var(--ui-text);
+        font-size: 0;
+    }
+    body.public-portal .portal-nav-toggle { color: var(--portal-copy); }
+    body.app-body .sidebar-toggle::before,
+    body.public-portal .portal-nav-toggle::before {
+        display: block !important;
+        width: 1.1rem;
+        height: .8rem;
+        margin: 0;
+        background: linear-gradient(currentColor 0 0) 0 0 / 100% 2px no-repeat,
+                    linear-gradient(currentColor 0 0) 0 50% / 100% 2px no-repeat,
+                    linear-gradient(currentColor 0 0) 0 100% / 100% 2px no-repeat;
+        content: '' !important;
+    }
+    body.app-body.has-mobile-menu .sidebar-toggle::before,
+    body.public-portal.has-portal-menu .portal-nav-toggle::before {
+        height: 1rem;
+        background: linear-gradient(45deg, transparent 46%, currentColor 47% 54%, transparent 55%),
+                    linear-gradient(-45deg, transparent 46%, currentColor 47% 54%, transparent 55%);
+    }
+    body.app-body .sidebar-close {
+        display: grid;
+        width: 2.5rem;
+        height: 2.5rem;
+        min-height: 2.5rem;
+        margin-left: auto;
+        padding: 0;
+        place-items: center;
+        border: 1px solid var(--ui-border);
+        border-radius: 7px;
+        background: var(--ui-surface-2);
+        color: var(--ui-text-muted);
+        font-size: 0;
+    }
+    body.app-body .sidebar-close::before {
+        width: 1rem;
+        height: 1rem;
+        background: linear-gradient(45deg, transparent 46%, currentColor 47% 54%, transparent 55%),
+                    linear-gradient(-45deg, transparent 46%, currentColor 47% 54%, transparent 55%);
+        content: '';
+    }
+    body.public-portal .portal-header nav.is-open {
+        top: 4.5rem;
+        right: .65rem;
+        left: auto;
+        width: min(calc(100vw - 1.3rem), 24rem) !important;
+        max-height: calc(100dvh - 5.2rem);
+        padding: .65rem;
+        border-radius: 10px;
+    }
+}
+
+@media (max-width: 700px) {
+    body.app-body .color-picker-grid,
+    body.app-body .asset-upload-grid { grid-template-columns: 1fr; }
+    body.app-body .color-control { min-height: 5.65rem; }
+    body.app-body .carousel-manager-form { grid-template-columns: 1fr; }
+    body.app-body .carousel-manager-form button { width: 100%; }
+}
+
+@media (max-width: 600px) {
+    body.public-portal .portal-header-inner { min-height: 62px; padding: .55rem 0; }
+    body.public-portal .portal-brand--logo-only img,
+    body.public-portal .portal-brand--logo-only .portal-mark-fallback { width: 3rem; height: 3rem; }
+    body.public-portal .match-cards-large { grid-template-columns: 1fr; gap: .9rem; margin-top: 1.25rem; }
+    body.public-portal .match-cards-large .match-card { min-height: 9.5rem; padding: 1.05rem; }
+    body.public-portal .match-cards-large .match-card strong { font-size: 1rem; line-height: 1.45; }
+    body.public-portal.portal-page--teams .portal-card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem .9rem; margin-top: 1.75rem; }
+    body.public-portal.portal-page--teams .portal-card-grid > a { min-height: 0; padding: .35rem; }
+    body.public-portal.portal-page--teams .portal-card-grid h2 { font-size: .92rem; line-height: 1.2; overflow-wrap: anywhere; }
+    body.public-portal.portal-page--teams .portal-card-grid p { font-size: .72rem; }
+    body.public-portal.portal-page--news .news-grid { grid-template-columns: 1fr; gap: 1rem; }
+    body.public-portal.portal-page--news .news-card { min-height: 0; padding: 1.1rem; }
+    body.public-portal .public-transfers .news-grid,
+    body.public-portal.portal-page--transfers .news-grid { grid-template-columns: 1fr; gap: 1rem; }
+    body.public-portal .transfer-card { width: 100%; gap: 1rem; padding: 1rem; }
+    body.public-portal .transfer-card-head { align-items: center; }
+    body.public-portal .transfer-card-head h2 { margin: .15rem 0 0; font-size: 1.08rem; }
+    body.public-portal .transfer-route { gap: .55rem; }
+    body.public-portal .transfer-route > span { grid-template-columns: 2.2rem minmax(0, 1fr); padding: .7rem; }
+    body.public-portal .transfer-route b { white-space: normal; overflow-wrap: anywhere; }
+    body.public-portal .portal-search button,
+    body.public-portal .filter-bar button { background: var(--portal-primary); border-color: var(--portal-primary); color: #fff; }
+    body.public-portal .portal-search button:hover,
+    body.public-portal .filter-bar button:hover { background: color-mix(in srgb, var(--portal-primary) 84%, #000); border-color: transparent; color: #fff; }
+    body.public-portal .portal-footer-modern { display: grid !important; grid-template-columns: 1fr; gap: 1.25rem; padding: 1.5rem 0 2rem; }
+    body.public-portal .portal-footer-modern nav { display: flex; flex-wrap: wrap; gap: .6rem 1rem; }
+    body.public-portal .portal-product-brand { justify-items: start; }
+    body.public-portal .portal-product-brand img { width: min(11rem, 65vw); }
+    body.app-body .schedule-table { min-width: 0; }
+    body.app-body .schedule-table thead { display: none; }
+    body.app-body .schedule-table,
+    body.app-body .schedule-table tbody,
+    body.app-body .schedule-table tr,
+    body.app-body .schedule-table td { display: block; width: 100%; }
+    body.app-body .schedule-table tr { margin-bottom: .8rem; padding: .9rem; border: 1px solid var(--ui-border); border-radius: 8px; background: var(--ui-surface-2); }
+    body.app-body .schedule-table td { display: grid; grid-template-columns: 6.1rem minmax(0, 1fr); gap: .6rem; padding: .48rem 0; border-bottom: 1px solid var(--ui-border); }
+    body.app-body .schedule-table td:last-child { padding-bottom: 0; border-bottom: 0; }
+    body.app-body .schedule-table td::before { color: var(--ui-text-soft); font-size: .68rem; font-weight: 750; letter-spacing: .07em; text-transform: uppercase; }
+    body.app-body .schedule-table td:nth-child(1)::before { content: 'Rodada'; }
+    body.app-body .schedule-table td:nth-child(2)::before { content: 'Confronto'; }
+    body.app-body .schedule-table td:nth-child(3)::before { content: 'Data'; }
+    body.app-body .schedule-table td:nth-child(4)::before { content: 'Local'; }
+    body.app-body .schedule-table td:nth-child(5)::before { content: 'Situação'; }
+    body.app-body .schedule-table td:nth-child(6)::before { content: 'Ações'; }
+}

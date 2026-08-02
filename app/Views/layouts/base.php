@@ -41,7 +41,7 @@ $isRegistrationsActive = $isActive('/admin/inscricoes');
 <?php if ($currentUser): ?>
 <div class="app-shell">
     <aside id="app-sidebar" class="app-sidebar" data-sidebar aria-label="Navegação administrativa">
-        <button class="sidebar-close" type="button" data-sidebar-dismiss aria-label="Fechar menu" title="Fechar menu">Fechar</button>
+        <button class="sidebar-close" type="button" data-sidebar-dismiss aria-label="Fechar menu" title="Fechar menu"><span aria-hidden="true"></span></button>
         <a class="app-brand" href="<?= $e(App\Core\Config::url('/admin')) ?>">
             <img class="app-brand-logo" src="<?= $e($assetUrl('branding/torneio-online-web-app.png')) ?>" alt="Torneio Online Web App">
         </a>
@@ -88,7 +88,7 @@ $isRegistrationsActive = $isActive('/admin/inscricoes');
             </div>
             <div class="topbar-actions">
                 <?php if ($isAdministrator): ?><a class="icon-button notification-button" href="<?= $e(App\Core\Config::url('/admin/notificacoes')) ?>" aria-label="Abrir notificações" title="Notificações"><span data-icon="bell" aria-hidden="true">NO</span><?php if ($notificationCount > 0): ?><b class="notification-count"><?= (int) $notificationCount ?></b><?php endif; ?></a><?php endif; ?>
-                <button class="icon-button sidebar-toggle" type="button" data-sidebar-toggle aria-controls="app-sidebar" aria-label="Abrir menu" aria-expanded="false" title="Abrir menu">☰</button>
+                <button class="icon-button sidebar-toggle" type="button" data-sidebar-toggle aria-controls="app-sidebar" aria-label="Abrir menu" aria-expanded="false" title="Abrir menu"><span aria-hidden="true"></span></button>
                 <div class="topbar-user"><?php if (!empty($currentUser['avatar_path'])): ?><img class="user-avatar user-avatar-photo" src="<?= $e(App\Core\Config::url('/admin/perfil/foto?v=' . rawurlencode((string) ($currentUser['updated_at'] ?? '0')))) ?>" alt=""><?php else: ?><span class="user-avatar" aria-hidden="true"><?= $e($userInitials((string) ($currentUser['name'] ?? 'TM'))) ?></span><?php endif; ?><strong><?= $e($currentUser['name'] ?? '') ?></strong><span><?= $e($currentUser['role_name'] ?? 'Acesso autorizado') ?></span></div>
                 <form class="logout-form" method="post" action="<?= $e(App\Core\Config::url('/logout')) ?>"><input type="hidden" name="_csrf" value="<?= $e(App\Core\Security::csrfToken()) ?>"><button type="submit" aria-label="Sair" title="Sair">Sair</button></form>
             </div>
