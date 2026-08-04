@@ -1,5 +1,9 @@
 # Auditoria final do MVP
 
+## Rodada ampla de validacao - 2026-08-04
+
+Relatorio atual: [FINAL_SYSTEM_VALIDATION.md](FINAL_SYSTEM_VALIDATION.md). Lint, suite descartavel, HTTP real, migration/seed e backup local foram executados sem tocar banco real. Veredito permanece **APROVADO PARA HOMOLOGACAO**. Google Drive real, cron, HTTPS, SMTP e restauracao fora do servidor de producao seguem como dependencias externas.
+
 Atualizacao de backup: historico, hash, lock, download autorizado e Google Drive opcional implementados. Cron, credencial remota e restauracao isolada ainda precisam de homologacao real.
 
 ## Escopo auditado

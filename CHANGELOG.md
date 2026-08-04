@@ -4,6 +4,13 @@
 
 ### Adicionado
 
+- Validacao final registrada: lint, suite descartavel, HTTP real, migration/seed e backup local.
+- Manuais operacionais separados para administrador e operador de partida.
+
+### Corrigido
+
+- Comando legado `bin/backup.php` unificado ao servico auditavel de backups.
+
 - Backups com historico auditavel, bloqueio de concorrencia, validacao ZIP e hash, download autorizado, retencao e destino Google Drive opcional.
 
 - Configuracoes avancadas de regulamento, regras de elegibilidade entre fases, excecoes administrativas auditadas e validacao no servidor durante confirmacao de escalacao.
