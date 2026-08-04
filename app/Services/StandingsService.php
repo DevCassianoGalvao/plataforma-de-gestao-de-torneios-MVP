@@ -115,25 +115,12 @@ final class StandingsService
     {
         $rows = [];
         foreach ($this->standings->groupTeams((int) $group['id']) as $team) $rows[(int) $team['team_id']] = ['team_id' => (int) $team['team_id'], 'matches_played' => 0, 'wins' => 0, 'draws' => 0, 'losses' => 0, 'goals_for' => 0, 'goals_against' => 0, 'goal_difference' => 0, 'points' => 0, 'win_percentage' => 0, 'position' => 0, 'situation' => 'pending', 'separated_by' => null, 'discipline_cards' => $this->standings->disciplineCards((int) $phase['championship_id'], (int) $team['team_id']), 'administrative_score' => $this->standings->administrativeScore((int) $group['id'], (int) $team['team_id'])];
-        foreach ($this->standings->homologatedMatches((int) $group['id']) as $match) {
-            if (!isset($rows[(int) $match['home_team_id']], $rows[(int) $match['away_team_id']])) continue;
-            $home = $match['administrative_home_score'] !== null ? (int) $match['administrative_home_score'] : (int) $match['event_home_score'];
-            $away = $match['administrative_away_score'] !== null ? (int) $match['administrative_away_score'] : (int) $match['event_away_score'];
-            $rows[(int) $match['home_team_id']]['matches_played']++;
-            $rows[(int) $match['away_team_id']]['matches_played']++;
-            $rows[(int) $match['home_team_id']]['goals_for'] += $home;
-            $rows[(int) $match['home_team_id']]['goals_against'] += $away;
-            $rows[(int) $match['away_team_id']]['goals_for'] += $away;
-            $rows[(int) $match['away_team_id']]['goals_against'] += $home;
-            if ($home > $away) $this->win($rows[(int) $match['home_team_id']], $rows[(int) $match['away_team_id']], $regulation);
-            elseif ($away > $home) $this->win($rows[(int) $match['away_team_id']], $rows[(int) $match['home_team_id']], $regulation);
-            else $this->draw($rows[(int) $match['home_team_id']], $rows[(int) $match['away_team_id']], $regulation);
-        }
-        foreach ($rows as &$row) { $row['goal_difference'] = $row['goals_for'] - $row['goals_against']; $row['win_percentage'] = $row['matches_played'] ? round(($row['wins'] / $row['matches_played']) * 100, 2) : 0; } unset($row);
-        $rows = $this->sortRows(array_values($rows), $group['id'], $regulation);
-        $qualified = (int) $regulation['qualified_per_group'];
-        foreach ($rows as $index => &$row) { $row['position'] = $index + 1; $row['situation'] = $index < $qualified ? 'qualified' : 'eliminated'; } unset($row);
-        return $rows;
+        $matches = array_map(static fn (array $match): array => [
+            'home_team_id' => (int) $match['home_team_id'], 'away_team_id' => (int) $match['away_team_id'],
+            'home_score' => $match['administrative_home_score'] !== null ? (int) $match['administrative_home_score'] : (int) $match['event_home_score'],
+            'away_score' => $match['administrative_away_score'] !== null ? (int) $match['administrative_away_score'] : (int) $match['event_away_score'],
+        ], $this->standings->homologatedMatches((int) $group['id']));
+        return (new StandingsCalculator())->calculate(array_values($rows), $matches, $regulation, (int) $regulation['qualified_per_group']);
     }
 
     private function sortRows(array $rows, int $groupId, array $regulation): array

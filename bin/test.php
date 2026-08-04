@@ -42,6 +42,7 @@ require dirname(__DIR__) . '/tests/Integration/LineupIntegrationTest.php';
 require dirname(__DIR__) . '/tests/Integration/MatchOperationIntegrationTest.php';
 require dirname(__DIR__) . '/tests/Integration/EvidenceChecklistIntegrationTest.php';
 require dirname(__DIR__) . '/tests/Integration/RoundMonitoringIntegrationTest.php';
+require dirname(__DIR__) . '/tests/Integration/SimulationIntegrationTest.php';
 require dirname(__DIR__) . '/tests/Integration/DisciplineIntegrationTest.php';
 require dirname(__DIR__) . '/tests/Integration/StandingsIntegrationTest.php';
 require dirname(__DIR__) . '/tests/Integration/MatchReportIntegrationTest.php';
@@ -65,6 +66,7 @@ require dirname(__DIR__) . '/tests/Http/NewsHttpTest.php';
 require dirname(__DIR__) . '/tests/Http/TransferHttpTest.php';
 require dirname(__DIR__) . '/tests/Http/PublicPortalHttpTest.php';
 require dirname(__DIR__) . '/tests/Http/ProductionReadinessHttpTest.php';
+require dirname(__DIR__) . '/tests/Http/SimulationHttpTest.php';
 
 use App\Core\Database;
 use Tests\Http\FoundationHttpTest;
@@ -96,6 +98,7 @@ use Tests\Integration\LineupIntegrationTest;
 use Tests\Integration\MatchOperationIntegrationTest;
 use Tests\Integration\EvidenceChecklistIntegrationTest;
 use Tests\Integration\RoundMonitoringIntegrationTest;
+use Tests\Integration\SimulationIntegrationTest;
 use Tests\Integration\DisciplineIntegrationTest;
 use Tests\Integration\StandingsIntegrationTest;
 use Tests\Integration\MatchReportIntegrationTest;
@@ -118,6 +121,7 @@ use Tests\Http\NewsHttpTest;
 use Tests\Http\TransferHttpTest;
 use Tests\Http\PublicPortalHttpTest;
 use Tests\Http\ProductionReadinessHttpTest;
+use Tests\Http\SimulationHttpTest;
 
 $server = Database::serverConnection();
 $quoted = '`' . str_replace('`', '``', $dbName) . '`';
@@ -152,6 +156,7 @@ try {
     MatchOperationIntegrationTest::run();
     EvidenceChecklistIntegrationTest::run();
     RoundMonitoringIntegrationTest::run();
+    SimulationIntegrationTest::run();
     DisciplineIntegrationTest::run();
     StandingsIntegrationTest::run();
     MatchReportIntegrationTest::run();
@@ -174,8 +179,9 @@ try {
     TransferHttpTest::run();
     PublicPortalHttpTest::run();
     ProductionReadinessHttpTest::run();
+    SimulationHttpTest::run();
     TournamentProgressSeedIntegrationTest::run();
-    echo "MVP_TESTS_OK unit=17 integration=18 http=16\n";
+    echo "MVP_TESTS_OK unit=17 integration=19 http=17\n";
 } finally {
     Database::disconnect();
     $server->exec('DROP DATABASE IF EXISTS ' . $quoted);

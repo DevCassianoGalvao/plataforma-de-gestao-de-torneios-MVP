@@ -2417,5 +2417,20 @@ body.public-portal .filter-bar button:focus-visible {
     body.app-body .schedule-table td:nth-child(3)::before { content: 'Data'; }
     body.app-body .schedule-table td:nth-child(4)::before { content: 'Local'; }
     body.app-body .schedule-table td:nth-child(5)::before { content: 'Situação'; }
-    body.app-body .schedule-table td:nth-child(6)::before { content: 'Ações'; }
+body.app-body .schedule-table td:nth-child(6)::before { content: 'Ações'; }
 }
+
+.simulation-notice { margin: 1rem 0; padding: .9rem 1rem; border: 1px solid color-mix(in srgb, var(--ui-primary) 42%, var(--ui-border)); border-radius: var(--ui-radius); background: color-mix(in srgb, var(--ui-primary) 10%, var(--ui-surface)); color: var(--ui-text); }
+.simulation-actions, .simulation-actions form, .inline-form, .simulation-workspace .actions { display: flex; align-items: end; flex-wrap: wrap; gap: .7rem; }
+.simulation-actions { margin: 1rem 0; padding: 1rem; border: 1px solid var(--ui-border); border-radius: var(--ui-radius-lg); background: var(--ui-surface); }
+.simulation-actions label { display: grid; gap: .35rem; min-width: min(100%, 18rem); color: var(--ui-text-muted); font-size: .78rem; font-weight: 700; }
+.inline-form input { width: 4rem; }
+.inline-form select { max-width: 12rem; }
+.simulation-standings { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-top: .8rem; }
+.simulation-standings article { min-width: 0; padding: 1rem; border: 1px solid var(--ui-border); border-radius: var(--ui-radius-lg); background: var(--ui-surface); }
+.simulation-standings h3 { margin-top: 0; }
+.simulation-crossings { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin: .8rem 0 1rem; }
+.simulation-crossings article { padding: 16px; border: 1px solid var(--ui-border); border-radius: var(--ui-radius-lg); background: var(--ui-surface); }
+.simulation-crossings p { margin: 0 0 10px; color: var(--ui-text-muted); font-size: .82rem; font-weight: 700; }
+.simulation-crossings span { margin: 0 8px; color: var(--ui-primary); }
+@media (max-width: 760px) { .simulation-standings { grid-template-columns: 1fr; } .simulation-actions, .simulation-actions form, .inline-form { align-items: stretch; flex-direction: column; } .simulation-actions label, .inline-form select, .inline-form input { max-width: none; width: 100%; } }

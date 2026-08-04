@@ -165,6 +165,12 @@ final class AuthSeed
             ['round.package.download', 'Baixar pacote documental da rodada', 'Baixa pacote de sumulas e evidencias autorizadas.', 'rodadas'],
             ['round.bulk.review', 'Enviar partidas para revisao em lote', 'Permite preparar envio seguro de partidas completas.', 'rodadas'],
             ['round.bulk.approve', 'Aprovar documentos em lote', 'Permite aprovar somente documentos ja validados.', 'rodadas'],
+            ['simulation.view', 'Visualizar simulacoes internas', 'Consulta cenarios internos sem alterar dados oficiais.', 'simulacoes'],
+            ['simulation.create', 'Criar simulacoes internas', 'Cria cenarios internos isolados.', 'simulacoes'],
+            ['simulation.edit', 'Editar simulacoes internas', 'Altera resultados e premissas de cenarios internos.', 'simulacoes'],
+            ['simulation.delete', 'Excluir simulacoes internas', 'Arquiva e exclui logicamente cenarios internos.', 'simulacoes'],
+            ['simulation.compare', 'Comparar simulacoes internas', 'Compara classificacao oficial e cenarios internos.', 'simulacoes'],
+            ['simulation.manage', 'Gerenciar simulacoes internas', 'Gerencia todos os cenarios internos.', 'simulacoes'],
             ['sponsors.manage', 'Gerenciar patrocinadores', 'Gerencia patrocinadores publicos do campeonato.', 'conteudo'],
         ];
         $roleIds = [];
