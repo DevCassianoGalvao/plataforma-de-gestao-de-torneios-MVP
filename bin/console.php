@@ -8,6 +8,10 @@ use App\Core\MigrationRunner;
 use App\Repositories\MatchPublicationRepository;
 use App\Services\AuditService;
 use App\Services\MatchPublicationService;
+use App\Repositories\BackupRepository;
+use App\Services\BackupService;
+use App\Services\GoogleDriveBackupProvider;
+use App\Core\Config;
 use App\Database\AuthSeed;
 use App\Database\AthleteDocumentTypeSeed;
 use App\Database\AthleteSeed;
@@ -76,6 +80,14 @@ if ($command === 'matches:publish-due') {
     exit(0);
 }
 
+if ($command === 'backup:run') {
+    $pdo = Database::connection();
+    $remote = Config::get('BACKUP_STORAGE_PROVIDER', 'local') === 'google_drive' ? new GoogleDriveBackupProvider() : null;
+    $backup = (new BackupService(new BackupRepository($pdo), new AuditService($pdo), $remote))->run(null, 'scheduled');
+    echo 'BACKUP_OK id=' . $backup['id'] . ' status=' . $backup['status'] . "\n";
+    exit(0);
+}
+
 if ($command === 'db:seed:simulation') {
     TournamentProgressSeed::run(Database::connection());
     MatchLineupDemoSeed::run(Database::connection());
@@ -89,5 +101,5 @@ if ($command === 'db:seed:simulation-lineups') {
     exit(0);
 }
 
-echo "Comandos: migrate | migrate:status | matches:publish-due | db:seed | db:seed:simulation | db:seed:simulation-lineups\n";
+echo "Comandos: migrate | migrate:status | matches:publish-due | backup:run | db:seed | db:seed:simulation | db:seed:simulation-lineups\n";
 exit($command === 'help' ? 0 : 1);

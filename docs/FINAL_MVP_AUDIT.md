@@ -1,5 +1,7 @@
 # Auditoria final do MVP
 
+Atualizacao de backup: historico, hash, lock, download autorizado e Google Drive opcional implementados. Cron, credencial remota e restauracao isolada ainda precisam de homologacao real.
+
 ## Escopo auditado
 
 Esta auditoria cobre as Etapas 1 a 17: autenticação, autorização por escopo, campeonamentos, equipes, atletas, inscrições, tabela, escalações, operação, disciplina, classificação, súmula, notícias, Vai e Vem, portal público, preparação para produção e UI/UX definitiva.

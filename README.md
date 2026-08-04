@@ -1,5 +1,7 @@
 # Torneio Online Web App
 
+Backup operacional: consulte [Backups da aplicacao](docs/APPLICATION_BACKUPS.md). Agendamento: `php bin/console.php backup:run`.
+
 Sistema web planejado para administrar campeonatos de futebol e publicar informações esportivas.
 
 URL configurada: https://www.cassianogalvao.com.br/torneio-online

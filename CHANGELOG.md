@@ -4,6 +4,8 @@
 
 ### Adicionado
 
+- Backups com historico auditavel, bloqueio de concorrencia, validacao ZIP e hash, download autorizado, retencao e destino Google Drive opcional.
+
 - Configuracoes avancadas de regulamento, regras de elegibilidade entre fases, excecoes administrativas auditadas e validacao no servidor durante confirmacao de escalacao.
 
 - Simulador interno isolado com cenários, partidas de referência, confrontos hipotéticos, placares, eventos e comparação com a classificação oficial.
