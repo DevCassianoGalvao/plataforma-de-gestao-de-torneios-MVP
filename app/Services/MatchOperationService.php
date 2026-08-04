@@ -31,6 +31,7 @@ final class MatchOperationService
             'substitutions' => $this->operations->substitutions((int) $match['id']),
             'officials' => $this->operations->officials((int) $match['id']),
             'history' => $this->operations->history((int) $operation['id']),
+            'rectifications' => $this->operations->rectifications((int) $match['id']),
             'score' => $this->operations->score($operation),
             'settings' => $this->operations->matchSettings((int) $match['championship_id']),
             'checklist' => $this->checklist($match, $operation),
@@ -99,6 +100,46 @@ final class MatchOperationService
         $id = $this->operations->createSubstitution(['match_id' => (int) $match['id'], 'team_id' => $teamId, 'athlete_out_id' => $outId, 'athlete_in_id' => $inId, 'period' => $period, 'window_number' => $window, 'minute' => $minute, 'notes' => trim((string) ($data['notes'] ?? '')) ?: null, 'created_by' => (int) $user['id']]);
         $this->audit->record('match_operation.substitution_created', (int) $user['id'], 'match_substitution', $id, ['match_id' => $match['id'], 'team_id' => $teamId], null);
         return ['ok' => true, 'errors' => [], 'id' => $id];
+    }
+
+    public function cancelEvent(array $user, array $match, int $eventId, string $reason): array
+    {
+        $operation = $this->operations->ensure((int) $match['id'], (int) $user['id']);
+        if ($operation['status'] !== 'open') return $this->fail('Registros so podem ser anulados enquanto a partida estiver em correcao.');
+        if (trim($reason) === '') return $this->fail('Informe o motivo da anulacao.');
+        $event = $this->operations->eventForMatch((int) $match['id'], $eventId);
+        if (!$event || !$this->operations->cancelEvent($eventId, (int) $user['id'], trim($reason))) return $this->fail('Registro nao encontrado ou ja anulado.');
+        $this->audit->record('match_operation.event_cancelled', (int) $user['id'], 'match_operation_event', $eventId, ['match_id' => $match['id'], 'reason' => trim($reason)], null);
+        return ['ok' => true, 'errors' => []];
+    }
+
+    public function review(array $user, array $match, string $decision, string $reason, bool $confirmed): array
+    {
+        if (!$confirmed) return $this->fail('Confirme a decisao de revisao.');
+        $operation = $this->operations->ensure((int) $match['id'], (int) $user['id']);
+        if ($operation['status'] !== 'awaiting_homologation') return $this->fail('A partida nao esta aguardando revisao.');
+        if (!in_array($decision, ['return', 'reject'], true) || trim($reason) === '') return $this->fail('Informe uma decisao e o motivo.');
+        if ($decision === 'return') $this->operations->returnForCorrection((int) $operation['id'], (int) $match['id'], (int) $user['id'], trim($reason));
+        else $this->operations->rejectReview((int) $operation['id'], (int) $user['id'], trim($reason));
+        $this->audit->record('match_operation.review_' . $decision, (int) $user['id'], 'match', (int) $match['id'], ['reason' => trim($reason)], null);
+        return ['ok' => true, 'errors' => []];
+    }
+
+    public function requestRectification(array $user, array $match, string $reason): array
+    {
+        $operation = $this->operations->ensure((int) $match['id'], (int) $user['id']);
+        if ($operation['status'] !== 'homologated') return $this->fail('Somente partidas aprovadas podem receber pedido de retificacao.');
+        if (trim($reason) === '') return $this->fail('Informe o motivo da retificacao.');
+        $id = $this->operations->requestRectification((int) $match['id'], (int) $operation['id'], (int) $user['id'], trim($reason));
+        $this->audit->record('match_operation.rectification_requested', (int) $user['id'], 'match_operation_rectification', $id, ['match_id' => $match['id']], null);
+        return ['ok' => true, 'errors' => []];
+    }
+
+    public function decideRectification(array $user, array $match, int $id, bool $approved, string $reason): array
+    {
+        if (!$this->operations->decideRectification($id, (int) $match['id'], (int) $user['id'], $approved, trim($reason))) return $this->fail('Pedido de retificacao nao encontrado ou ja decidido.');
+        $this->audit->record('match_operation.rectification_' . ($approved ? 'approved' : 'rejected'), (int) $user['id'], 'match_operation_rectification', $id, ['match_id' => $match['id']], null);
+        return ['ok' => true, 'errors' => []];
     }
 
     public function saveOfficials(array $user, array $match, array $data): array

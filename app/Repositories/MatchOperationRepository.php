@@ -57,6 +57,20 @@ final class MatchOperationRepository
         return $statement->fetchAll();
     }
 
+    public function rectifications(int $matchId): array
+    {
+        $statement = $this->pdo->prepare('SELECT rr.*, requester.name AS requested_by_name, decider.name AS decided_by_name FROM match_operation_rectifications rr INNER JOIN users requester ON requester.id = rr.requested_by LEFT JOIN users decider ON decider.id = rr.decided_by WHERE rr.match_id = ? ORDER BY rr.requested_at DESC, rr.id DESC');
+        $statement->execute([$matchId]);
+        return $statement->fetchAll();
+    }
+
+    public function eventForMatch(int $matchId, int $eventId): ?array
+    {
+        $statement = $this->pdo->prepare('SELECT * FROM match_operation_events WHERE id = ? AND match_id = ? LIMIT 1');
+        $statement->execute([$eventId, $matchId]);
+        return $statement->fetch() ?: null;
+    }
+
     public function score(array $operation): array
     {
         $statement = $this->pdo->prepare("SELECT COALESCE(SUM(CASE WHEN e.team_id = ? THEN 1 ELSE 0 END), 0) AS home_score, COALESCE(SUM(CASE WHEN e.team_id = ? THEN 1 ELSE 0 END), 0) AS away_score FROM match_operation_events e WHERE e.match_id = ? AND e.valid = 1 AND e.event_type IN ('goal', 'own_goal')");
@@ -96,6 +110,50 @@ final class MatchOperationRepository
         $now = date('Y-m-d H:i:s');
         $statement->execute([$userId, $now, $reason, $now, $eventId]);
         return $statement->rowCount() > 0;
+    }
+
+    public function returnForCorrection(int $operationId, int $matchId, int $userId, string $reason): void
+    {
+        $now = date('Y-m-d H:i:s');
+        $operation = $this->operationById($operationId);
+        $this->pdo->prepare("UPDATE match_operations SET status = 'open', review_status = 'returned', review_reason = ?, reviewed_by = ?, reviewed_at = ?, updated_at = ? WHERE id = ? AND status = 'awaiting_homologation'")->execute([$reason, $userId, $now, $now, $operationId]);
+        $this->pdo->prepare("UPDATE matches SET status = 'confirmed', updated_at = ? WHERE id = ? AND status = 'finished'")->execute([$now, $matchId]);
+        $this->historyInsert($operationId, 'returned_for_correction', $operation['status'], 'open', $reason, $userId);
+    }
+
+    public function rejectReview(int $operationId, int $userId, string $reason): void
+    {
+        $now = date('Y-m-d H:i:s');
+        $operation = $this->operationById($operationId);
+        $this->pdo->prepare("UPDATE match_operations SET review_status = 'rejected', review_reason = ?, reviewed_by = ?, reviewed_at = ?, updated_at = ? WHERE id = ? AND status = 'awaiting_homologation'")->execute([$reason, $userId, $now, $now, $operationId]);
+        $this->historyInsert($operationId, 'review_rejected', $operation['status'], $operation['status'], $reason, $userId);
+    }
+
+    public function requestRectification(int $matchId, int $operationId, int $userId, string $reason): int
+    {
+        $now = date('Y-m-d H:i:s');
+        $statement = $this->pdo->prepare("INSERT INTO match_operation_rectifications (match_id, operation_id, requested_by, requested_at, reason, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, 'pending', ?, ?)");
+        $statement->execute([$matchId, $operationId, $userId, $now, $reason, $now, $now]);
+        return (int) $this->pdo->lastInsertId();
+    }
+
+    public function decideRectification(int $rectificationId, int $matchId, int $userId, bool $approved, string $reason): bool
+    {
+        $statement = $this->pdo->prepare("SELECT * FROM match_operation_rectifications WHERE id = ? AND match_id = ? AND status = 'pending' LIMIT 1");
+        $statement->execute([$rectificationId, $matchId]);
+        $rectification = $statement->fetch();
+        if (!$rectification) return false;
+        $now = date('Y-m-d H:i:s');
+        $status = $approved ? 'approved' : 'rejected';
+        $this->pdo->prepare('UPDATE match_operation_rectifications SET status = ?, decided_by = ?, decided_at = ?, decision_reason = ?, updated_at = ? WHERE id = ?')->execute([$status, $userId, $now, $reason ?: null, $now, $rectificationId]);
+        if ($approved) {
+            $operation = $this->operationById((int) $rectification['operation_id']);
+            $this->pdo->prepare("UPDATE match_operations SET status = 'open', review_status = 'returned', review_reason = ?, reviewed_by = ?, reviewed_at = ?, updated_at = ? WHERE id = ? AND status = 'homologated'")->execute([$rectification['reason'], $userId, $now, $now, $operation['id']]);
+            $this->pdo->prepare("UPDATE matches SET status = 'confirmed', updated_at = ? WHERE id = ? AND status = 'homologated'")->execute([$now, $matchId]);
+            $this->pdo->prepare("UPDATE match_publications SET status = 'internal', cancelled_at = ?, cancelled_by = ?, reason = ?, updated_at = ? WHERE match_id = ? AND status = 'published'")->execute([$now, $userId, 'Retificacao aprovada: ' . $rectification['reason'], $now, $matchId]);
+            $this->historyInsert((int) $operation['id'], 'rectification_approved', 'homologated', 'open', $rectification['reason'], $userId);
+        }
+        return true;
     }
 
     public function createSubstitution(array $data): int
@@ -142,7 +200,7 @@ final class MatchOperationRepository
     {
         $now = date('Y-m-d H:i:s');
         $operation = $this->operationById($operationId);
-        $this->pdo->prepare("UPDATE match_operations SET status = 'awaiting_homologation', finalized_by = ?, finalized_at = ?, updated_at = ? WHERE id = ? AND status = 'open'")->execute([$userId, $now, $now, $operationId]);
+        $this->pdo->prepare("UPDATE match_operations SET status = 'awaiting_homologation', review_status = 'awaiting_review', review_reason = NULL, finalized_by = ?, finalized_at = ?, updated_at = ? WHERE id = ? AND status = 'open'")->execute([$userId, $now, $now, $operationId]);
         $this->pdo->prepare("UPDATE matches SET status = 'finished', updated_at = ? WHERE id = ? AND status NOT IN ('cancelled', 'homologated')")->execute([$now, $matchId]);
         $this->historyInsert($operationId, 'finished', $operation['status'], 'awaiting_homologation', 'Operacao finalizada e enviada para homologacao.', $userId);
     }
@@ -151,7 +209,7 @@ final class MatchOperationRepository
     {
         $now = date('Y-m-d H:i:s');
         $operation = $this->operationById($operationId);
-        $this->pdo->prepare("UPDATE match_operations SET status = 'homologated', homologated_by = ?, homologated_at = ?, updated_at = ? WHERE id = ? AND status = 'awaiting_homologation'")->execute([$userId, $now, $now, $operationId]);
+        $this->pdo->prepare("UPDATE match_operations SET status = 'homologated', review_status = 'approved', review_reason = NULL, reviewed_by = ?, reviewed_at = ?, homologated_by = ?, homologated_at = ?, updated_at = ? WHERE id = ? AND status = 'awaiting_homologation'")->execute([$userId, $now, $userId, $now, $now, $operationId]);
         $this->pdo->prepare("UPDATE matches SET status = 'homologated', updated_at = ? WHERE id = ? AND status = 'finished'")->execute([$now, $matchId]);
         $this->historyInsert($operationId, 'homologated', $operation['status'], 'homologated', 'Resultado homologado sem retificacao avancada.', $userId);
     }

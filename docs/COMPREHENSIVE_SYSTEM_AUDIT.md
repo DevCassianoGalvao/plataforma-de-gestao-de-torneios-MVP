@@ -2,11 +2,13 @@
 
 Data da revisao: 2026-08-04.
 
-## Decisao aplicada nesta rodada
+## Decisoes aplicadas nesta rodada
 
 O sistema ja possuia operacao esportiva, aprovacao de resultado, calculo de classificacao, sumula versionada, evidencias privadas, portal publico, auditoria e backup local. O risco principal era que uma partida aprovada passava a aparecer no portal sem uma decisao editorial independente.
 
 Foi criada a tabela `match_publications` e a permissao exclusiva de administrador para controlar a visibilidade de cada partida. Uma partida pode ficar interna, publicada, agendada ou retirada do portal. Agenda, resultado e detalhe publico agora exigem estado `published`. A publicacao agendada e processada por comando idempotente. O seed de demonstracao marca apenas seus proprios dados como publicados; partidas reais novas continuam internas ate decisao expressa.
+
+A migration `0029_match_review_rectification.sql` adiciona revisao formal, devolucao com motivo, rejeicao, pedidos de retificacao e anulacao justificada de eventos. Uma retificacao aprovada devolve a partida para correcao, retira sua publicacao e preserva as versoes anteriores de sumula.
 
 ## Confirmado na base atual
 
@@ -20,7 +22,7 @@ Foi criada a tabela `match_publications` e a permissao exclusiva de administrado
 
 ## Pendencias que nao podem ser declaradas como concluidas
 
-- Segunda aprovacao configuravel por tipo de evento, devolucao formal para correcao e retificacao completa de evento ja aprovado.
+- Segunda aprovacao configuravel por tipo de evento e edicao pontual de evento ja aprovado sem retorno completo para correcao.
 - Checklist configuravel de evidencias por modalidade/fase e painel de cobertura por rodada.
 - Publicacao independente para classificacao, rankings, chave e demais agregados. Nesta rodada a classificacao e ocultada quando existir resultado aprovado ainda nao publicado no grupo, evitando divulgar dado incompleto.
 - Integracao real com provedor externo de backup. A base atual possui backup local e documentacao de copia externa, nao uma integracao de armazenamento remoto.
@@ -37,7 +39,7 @@ Foi criada a tabela `match_publications` e a permissao exclusiva de administrado
 
 ## Validacao executada
 
-Em banco descartavel, a suite integrada foi executada apos a migration `0028_match_publication_lifecycle.sql`:
+Em banco descartavel, a suite integrada foi executada apos a migration `0029_match_review_rectification.sql`:
 
 ```text
 MVP_TESTS_OK unit=17 integration=16 http=16

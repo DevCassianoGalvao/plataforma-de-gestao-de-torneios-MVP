@@ -344,12 +344,16 @@ $router->post('/admin/partidas/{id}/evidencias', [$media, 'upload']);
 $router->get('/admin/partidas/{id}/evidencias/{mediaId}', [$media, 'asset']);
 $router->get('/admin/partidas/{id}/operacao', [$operation, 'show']);
 $router->post('/admin/partidas/{id}/operacao/evento', [$operation, 'event']);
+$router->post('/admin/partidas/{id}/operacao/evento/anular', [$operation, 'cancelEvent']);
 $router->post('/admin/partidas/{id}/operacao/substituicao', [$operation, 'substitution']);
 $router->post('/admin/partidas/{id}/operacao/arbitragem', [$operation, 'officials']);
 $router->post('/admin/partidas/{id}/operacao/horarios', [$operation, 'times']);
 $router->post('/admin/partidas/{id}/operacao/resultado-administrativo', [$operation, 'administrativeResult']);
 $router->post('/admin/partidas/{id}/operacao/finalizar', [$operation, 'finish']);
 $router->post('/admin/partidas/{id}/operacao/homologar', [$operation, 'homologate']);
+$router->post('/admin/partidas/{id}/operacao/revisar', [$operation, 'review']);
+$router->post('/admin/partidas/{id}/operacao/retificacao', [$operation, 'requestRectification']);
+$router->post('/admin/partidas/{id}/operacao/retificacao/decidir', [$operation, 'decideRectification']);
 
 $reports = new MatchReportController($users, $authorization, $audit, $matchReports, $matchReportService, $matchReportAccess, $storage);
 $router->get('/admin/partidas/{id}/sumula', [$reports, 'show']);

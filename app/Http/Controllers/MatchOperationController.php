@@ -70,6 +70,26 @@ final class MatchOperationController extends Controller
         return Response::redirect(Config::url('/admin/partidas/' . $match['id'] . '/operacao'));
     }
 
+    public function cancelEvent(Request $request, array $params = []): Response
+    {
+        return $this->reviewMutate($request, $params, 'match_operation.cancel_event', fn (array $user, array $match): array => $this->service->cancelEvent($user, $match, (int) ($request->body['event_id'] ?? 0), trim((string) ($request->body['reason'] ?? ''))));
+    }
+
+    public function review(Request $request, array $params = []): Response
+    {
+        return $this->reviewMutate($request, $params, 'match_operation.review', fn (array $user, array $match): array => $this->service->review($user, $match, (string) ($request->body['decision'] ?? ''), trim((string) ($request->body['reason'] ?? '')), ($request->body['confirm_review'] ?? '') === 'yes'));
+    }
+
+    public function requestRectification(Request $request, array $params = []): Response
+    {
+        return $this->reviewMutate($request, $params, 'match_operation.rectify', fn (array $user, array $match): array => $this->service->requestRectification($user, $match, trim((string) ($request->body['reason'] ?? ''))));
+    }
+
+    public function decideRectification(Request $request, array $params = []): Response
+    {
+        return $this->reviewMutate($request, $params, 'match_operation.rectify', fn (array $user, array $match): array => $this->service->decideRectification($user, $match, (int) ($request->body['rectification_id'] ?? 0), ($request->body['decision'] ?? '') === 'approve', trim((string) ($request->body['reason'] ?? ''))));
+    }
+
     private function mutate(Request $request, array $params, string $action, callable $callback): Response
     {
         $guard = $this->guard($request, 'match_operation.operate');
@@ -83,6 +103,19 @@ final class MatchOperationController extends Controller
         return Response::redirect(Config::url('/admin/partidas/' . $match['id'] . '/operacao'));
     }
 
+    private function reviewMutate(Request $request, array $params, string $permission, callable $callback): Response
+    {
+        $guard = $this->guard($request, $permission);
+        if ($guard instanceof Response) return $guard;
+        $match = $this->access->matchForUser($guard, (int) ($params[0] ?? 0));
+        if (!$match || !$this->access->canHomologate($guard, $match)) return Response::forbidden();
+        if (!$this->validCsrf($request)) return Response::forbidden('A sessao expirou.');
+        $result = $callback($guard, $match);
+        if (!$result['ok']) return $this->renderErrors($guard, $match, $result['errors']);
+        Session::flash('match_operation_message', 'Revisao da partida registrada.');
+        return Response::redirect(Config::url('/admin/partidas/' . $match['id'] . '/operacao'));
+    }
+
     private function renderErrors(array $user, array $match, array $errors): Response
     {
         return $this->errorPage('Central operacional', 'admin/matches/operation', array_merge($this->viewData($user, $match, $errors), ['errors' => $errors]), 422);
@@ -91,7 +124,7 @@ final class MatchOperationController extends Controller
     private function viewData(array $user, array $match, array $errors): array
     {
         $payload = $this->service->payload($match, (int) $user['id']);
-        return array_merge(['user' => $user, 'match' => $match, 'errors' => $errors, 'message' => Session::consumeFlash('match_operation_message'), 'canOperate' => $this->access->canOperate($user, $match), 'canHomologate' => $this->access->canHomologate($user, $match), 'operationBase' => Config::url('/admin/partidas/' . $match['id'] . '/operacao')], $payload);
+        return array_merge(['user' => $user, 'match' => $match, 'errors' => $errors, 'message' => Session::consumeFlash('match_operation_message'), 'canOperate' => $this->access->canOperate($user, $match), 'canHomologate' => $this->access->canHomologate($user, $match), 'canReview' => $this->authorization->can($user, 'match_operation.review'), 'canRectify' => $this->authorization->can($user, 'match_operation.rectify'), 'canCancelEvent' => $this->authorization->can($user, 'match_operation.cancel_event'), 'operationBase' => Config::url('/admin/partidas/' . $match['id'] . '/operacao')], $payload);
     }
 
     private function eventInput(Request $request): array

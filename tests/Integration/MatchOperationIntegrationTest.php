@@ -106,6 +106,15 @@ final class MatchOperationIntegrationTest
         assert_same('homologated', $homologated['status'], 'Operacao nao foi homologada');
         assert_same('homologated', $homologated['match_status'], 'Partida nao foi homologada');
         assert_same(2, (int) $pdo->query('SELECT COUNT(*) FROM match_operation_history')->fetchColumn(), 'Historico de transicao inconsistente');
+        $request = $service->requestRectification($admin, $match, 'Correcao de evento registrada pela arbitragem.');
+        assert_true($request['ok'], 'Pedido de retificacao nao foi registrado');
+        $rectification = $operations->rectifications($matchId)[0] ?? null;
+        assert_true($rectification !== null && $rectification['status'] === 'pending', 'Pedido de retificacao nao ficou pendente');
+        assert_true($service->decideRectification($admin, $match, (int) $rectification['id'], true, 'Retificacao autorizada.')['ok'], 'Retificacao nao foi aprovada');
+        $returned = $operations->find($matchId);
+        assert_same('open', $returned['status'], 'Retificacao aprovada nao devolveu a operacao');
+        assert_same('confirmed', $returned['match_status'], 'Retificacao aprovada nao devolveu a partida');
+        assert_same('internal', (string) $pdo->query('SELECT status FROM match_publications WHERE match_id = ' . $matchId)->fetchColumn(), 'Retificacao manteve resultado publicado');
         $foreignMatchId = (int) $pdo->query('SELECT m.id FROM matches m WHERE m.id <> ' . $matchId . ' AND NOT EXISTS (SELECT 1 FROM match_operator_assignments moa WHERE moa.match_id = m.id) ORDER BY m.id LIMIT 1')->fetchColumn();
         assert_true($foreignMatchId > 0 && $access->matchForUser($operator, $foreignMatchId) === null, 'IDOR do operador foi aceito');
     }
