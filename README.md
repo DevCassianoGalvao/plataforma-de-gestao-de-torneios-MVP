@@ -51,6 +51,7 @@ No Windows PowerShell, defina variáveis com `$env:NOME='valor'` e use `C:\xampp
 - [Formações e escalações táticas](docs/TACTICAL_LINEUPS.md)
 - [Central operacional e homologação](docs/MATCH_OPERATION.md)
 - [Checklist configurável de evidências](docs/CONFIGURABLE_MATCH_EVIDENCE_CHECKLIST.md)
+- [Acompanhamento por rodada](docs/ROUND_COVERAGE_MONITORING.md)
 - [Operação administrativa e notificações](docs/ADMIN_OPERATIONS.md)
 - [Arquitetura](docs/ARCHITECTURE.md)
 - [Schema](docs/DATABASE_SCHEMA.md)

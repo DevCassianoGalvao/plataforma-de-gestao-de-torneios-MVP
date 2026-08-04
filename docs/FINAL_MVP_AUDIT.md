@@ -37,6 +37,8 @@ Nota: os números de lint e HTTP real acima refletem a execução original (Etap
 
 ## Pendências externas
 
+Atualização posterior: a migration `0031_round_coverage_monitoring.sql` adiciona acompanhamento agregado por rodada, prazo documental configurável e exportação CSV. Execute a suíte completa novamente antes de emitir novo veredito operacional.
+
 Não foram comprovados nesta execução um cPanel real, certificado HTTPS emitido, SMTP de produção, cron real, backup off-site ou restauração em servidor separado. Esses itens precisam de homologação operacional antes do go-live.
 
 ## Veredito

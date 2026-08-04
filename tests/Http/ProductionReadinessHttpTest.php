@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Tests\Http;
 
 use App\Core\Auth;
+use App\Core\Database;
 use App\Core\Request;
 use App\Core\Router;
 use App\Core\Security;
@@ -35,6 +36,13 @@ final class ProductionReadinessHttpTest
         $notifications = $router->dispatch(Request::fake('GET', '/torneio-online/admin/notificacoes'));
         assert_same(200, $notifications->status, 'Central de notificacoes nao abriu para administrador');
         assert_true(str_contains($notifications->body, 'notification-center') && str_contains($notifications->body, 'Atividades recentes'), 'Central de notificacoes nao renderizou o feed operacional');
+        $monitoring = $router->dispatch(Request::fake('GET', '/torneio-online/admin/rodadas/acompanhamento'));
+        assert_same(200, $monitoring->status, 'Acompanhamento por rodada nao abriu para administrador');
+        assert_true(str_contains($monitoring->body, 'Acompanhamento por rodada'), 'Painel de acompanhamento nao renderizou');
+        $roundId = (int) Database::connection()->query('SELECT id FROM competition_rounds ORDER BY id LIMIT 1')->fetchColumn();
+        $export = $router->dispatch(Request::fake('GET', '/torneio-online/admin/rodadas/' . $roundId . '/acompanhamento/exportar'));
+        assert_same(200, $export->status, 'Exportacao de pendencias por rodada falhou');
+        assert_true(str_contains((string) ($export->headers['Content-Type'] ?? ''), 'text/csv'), 'Exportacao nao retornou CSV');
         $logout = $router->dispatch(Request::fake('POST', '/torneio-online/logout', ['_csrf' => Security::csrfToken()]));
         assert_same(302, $logout->status, 'Logout de smoke falhou');
         Session::destroy();
