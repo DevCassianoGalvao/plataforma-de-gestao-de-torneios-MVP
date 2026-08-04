@@ -62,6 +62,10 @@ final class ScheduleSeed
                 }
             }
         }
+
+        // Dados de demonstracao precisam ser visiveis no portal; operacao real exige publicacao explicita.
+        $pdo->prepare("INSERT INTO match_publications (match_id, status, published_at, created_at, updated_at) SELECT m.id, 'published', ?, ?, ? FROM matches m WHERE m.championship_id = ? ON DUPLICATE KEY UPDATE status = 'published', published_at = COALESCE(published_at, VALUES(published_at)), updated_at = VALUES(updated_at)")
+            ->execute([$now, $now, $now, $championshipId]);
     }
 
     private static function userId(PDO $pdo, string $email): int

@@ -141,6 +141,8 @@ final class AuthSeed
             ['matches.view', 'Visualizar partidas', 'Consulta partidas autorizadas.', 'partidas'],
             ['matches.operate', 'Operar partidas', 'Registra dados de partidas atribuidas.', 'partidas'],
             ['matches.homologate', 'Homologar partidas', 'Homologa resultados autorizados.', 'partidas'],
+            ['match_publication.manage', 'Gerenciar publicacao de partidas', 'Publica, agenda e retira partidas do portal.', 'partidas'],
+            ['match_publication.run', 'Processar publicacoes agendadas', 'Processa publicacoes de partidas no horario programado.', 'partidas'],
             ['content.manage', 'Gerenciar conteudo', 'Cria e edita conteudo.', 'conteudo'],
             ['content.publish', 'Publicar conteudo', 'Publica conteudo editorial.', 'conteudo'],
             ['transfers.manage', 'Gerenciar Vai e Vem', 'Gerencia movimentacoes.', 'vai-e-vem'],

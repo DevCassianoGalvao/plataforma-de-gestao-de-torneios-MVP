@@ -26,7 +26,7 @@ final class AuthIntegrationTest
         AuthSeed::run($pdo, $password);
         assert_same(6, (int) $pdo->query('SELECT COUNT(*) FROM users')->fetchColumn(), 'Seed duplicou usuarios');
         assert_same(4, (int) $pdo->query('SELECT COUNT(*) FROM roles')->fetchColumn(), 'Seed duplicou perfis');
-        assert_same(121, (int) $pdo->query('SELECT COUNT(*) FROM permissions')->fetchColumn(), 'Seed duplicou permissoes');
+        assert_same(123, (int) $pdo->query('SELECT COUNT(*) FROM permissions')->fetchColumn(), 'Seed duplicou permissoes');
         $users = new UserRepository($pdo);
         $admin = $users->findByEmail('admin@torneios.local');
         assert_true($admin !== null && password_verify($password, $admin['password_hash']), 'Senha seed nao pode ser verificada');
@@ -34,6 +34,7 @@ final class AuthIntegrationTest
         assert_same('profiles/' . (int) $admin['id'] . '/avatar.png', (string) $users->findById((int) $admin['id'])['avatar_path'], 'Avatar de perfil nao foi atualizado');
         $users->updateAvatar((int) $admin['id'], '');
         assert_true(in_array('users.manage_roles', $users->permissions((int) $admin['id']), true), 'Permissao de administrador ausente');
+        assert_true(in_array('match_publication.manage', $users->permissions((int) $admin['id']), true), 'Permissao de publicacao de partida ausente');
         $teamManager = $users->findByEmail('treinador@torneios.local');
         assert_true(!in_array('users.view', $users->permissions((int) $teamManager['id']), true), 'Treinador recebeu permissao administrativa');
         try {

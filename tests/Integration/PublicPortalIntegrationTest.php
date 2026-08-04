@@ -36,6 +36,10 @@ final class PublicPortalIntegrationTest
         assert_true(count($publicAthletes) >= 1, 'Atletas publicos ausentes');
         $matchRows = $repository->nextMatches($championshipId);
         assert_true(count($matchRows) >= 1, 'Proximos jogos publicos ausentes');
+        $hiddenMatchId = (int) $matchRows[0]['id'];
+        $pdo->prepare("UPDATE match_publications SET status = 'internal' WHERE match_id = ?")->execute([$hiddenMatchId]);
+        assert_same(null, $repository->match($championshipId, $hiddenMatchId), 'Partida interna vazou no portal publico');
+        $pdo->prepare("UPDATE match_publications SET status = 'published' WHERE match_id = ?")->execute([$hiddenMatchId]);
         $publicMatch = $repository->match($championshipId, (int) $matchRows[0]['id']);
         assert_true((bool) $publicMatch, 'Detalhe publico de partida ausente');
         foreach (['observation', 'private_notes', 'documents', 'guardian', 'phone', 'email', 'address', 'photo_path'] as $privateField) {

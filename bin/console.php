@@ -5,6 +5,9 @@ require dirname(__DIR__) . '/app/bootstrap.php';
 
 use App\Core\Database;
 use App\Core\MigrationRunner;
+use App\Repositories\MatchPublicationRepository;
+use App\Services\AuditService;
+use App\Services\MatchPublicationService;
 use App\Database\AuthSeed;
 use App\Database\AthleteDocumentTypeSeed;
 use App\Database\AthleteSeed;
@@ -66,6 +69,13 @@ if ($command === 'db:seed') {
     exit(0);
 }
 
+if ($command === 'matches:publish-due') {
+    $pdo = Database::connection();
+    $result = (new MatchPublicationService(new MatchPublicationRepository($pdo), new AuditService($pdo)))->publishDue();
+    echo "MATCH_PUBLICATION_DUE_OK published={$result['published']} at={$result['at']}\n";
+    exit(0);
+}
+
 if ($command === 'db:seed:simulation') {
     TournamentProgressSeed::run(Database::connection());
     MatchLineupDemoSeed::run(Database::connection());
@@ -79,5 +89,5 @@ if ($command === 'db:seed:simulation-lineups') {
     exit(0);
 }
 
-echo "Comandos: migrate | migrate:status | db:seed | db:seed:simulation | db:seed:simulation-lineups\n";
+echo "Comandos: migrate | migrate:status | matches:publish-due | db:seed | db:seed:simulation | db:seed:simulation-lineups\n";
 exit($command === 'help' ? 0 : 1);
