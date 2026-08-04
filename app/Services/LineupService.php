@@ -9,7 +9,7 @@ use App\Repositories\TeamRepository;
 
 final class LineupService
 {
-    public function __construct(private readonly LineupRepository $lineups, private readonly TacticalFormationRepository $formations, private readonly TeamRepository $teams, private readonly AuthorizationService $authorization, private readonly AuditService $audit, private readonly ?DisciplineService $discipline = null)
+    public function __construct(private readonly LineupRepository $lineups, private readonly TacticalFormationRepository $formations, private readonly TeamRepository $teams, private readonly AuthorizationService $authorization, private readonly AuditService $audit, private readonly ?DisciplineService $discipline = null, private readonly ?EligibilityService $eligibility = null)
     {
     }
 
@@ -150,6 +150,13 @@ final class LineupService
             foreach ($built['players'] as $player) {
                 $suspension = $this->discipline->activeSuspension((int) $match['championship_id'], 'athlete', (int) $player['athlete_id'], (int) $match['id']);
                 if ($suspension) $errors[] = 'Atleta suspenso: ' . ((int) $player['athlete_id']) . '.';
+            }
+        }
+        if ($this->eligibility) {
+            foreach ($built['players'] as $player) {
+                foreach ($this->eligibility->issues($match, $teamId, (int) $player['athlete_id']) as $issue) {
+                    $errors[] = $issue . ' Atleta: ' . (int) $player['athlete_id'] . '.';
+                }
             }
         }
         return array_values(array_unique($errors));

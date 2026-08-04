@@ -50,6 +50,12 @@ final class RegulationRepository
         $statement = $this->pdo->prepare('SELECT stage, tie_number, home_source, away_source FROM regulation_knockout_pairings WHERE regulation_id = ? ORDER BY FIELD(stage, \'quarterfinals\', \'semifinals\', \'final\'), tie_number');
         $statement->execute([$id]);
         $regulation['knockout_pairings'] = $statement->fetchAll();
+        $statement = $this->pdo->prepare('SELECT * FROM regulation_advanced_settings WHERE regulation_id = ? LIMIT 1');
+        $statement->execute([$id]);
+        $regulation['advanced_settings'] = $statement->fetch() ?: [];
+        $statement = $this->pdo->prepare('SELECT * FROM regulation_eligibility_rules WHERE regulation_id = ? ORDER BY id');
+        $statement->execute([$id]);
+        $regulation['eligibility_rules'] = $statement->fetchAll();
         return $regulation;
     }
 
@@ -149,6 +155,13 @@ final class RegulationRepository
         }
     }
 
+    public function phases(int $championshipId): array
+    {
+        $statement = $this->pdo->prepare('SELECT id, name, phase_type, sequence_number FROM competition_phases WHERE championship_id = ? ORDER BY sequence_number, id');
+        $statement->execute([$championshipId]);
+        return $statement->fetchAll();
+    }
+
     public function saveKnockoutPairings(int $id, array $pairings): void
     {
         $defaults = self::defaultKnockoutPairings();
@@ -156,6 +169,29 @@ final class RegulationRepository
         $this->pdo->prepare('DELETE FROM regulation_knockout_pairings WHERE regulation_id = ?')->execute([$id]);
         $insert = $this->pdo->prepare('INSERT INTO regulation_knockout_pairings (regulation_id, stage, tie_number, home_source, away_source, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)');
         foreach ($pairings as $pair) $insert->execute([$id, $pair['stage'], (int) $pair['tie_number'], $pair['home_source'], $pair['away_source'], $now, $now]);
+    }
+
+    public function saveAdvancedSettings(int $id, array $settings): void
+    {
+        $columns = ['maximum_staff_members','maximum_teams','allow_registration_after_start','registration_requires_approval','require_complete_documents','require_minor_authorization','roster_change_limit','roster_change_deadline','roster_change_phase_limit','transfers_enabled','transfers_blocked','block_athlete_played_other_team','allow_administrative_exception','exception_reason_required','abandoned_match_rule','cancelled_match_rule','postponed_match_rule'];
+        $now = date('Y-m-d H:i:s');
+        $updates = implode(', ', array_map(static fn (string $column): string => $column . '=VALUES(' . $column . ')', $columns));
+        $statement = $this->pdo->prepare('INSERT INTO regulation_advanced_settings (regulation_id,' . implode(',', $columns) . ',created_at,updated_at) VALUES (?,' . implode(',', array_fill(0, count($columns), '?')) . ',?,?) ON DUPLICATE KEY UPDATE ' . $updates . ',updated_at=VALUES(updated_at)');
+        $values = array_map(static fn (string $column): mixed => $settings[$column] ?? null, $columns);
+        $statement->execute(array_merge([$id], $values, [$now, $now]));
+    }
+
+    public function saveEligibilityRules(int $id, array $rules): void
+    {
+        $this->pdo->prepare('DELETE FROM regulation_eligibility_rules WHERE regulation_id = ?')->execute([$id]);
+        $statement = $this->pdo->prepare('INSERT INTO regulation_eligibility_rules (regulation_id,source_phase_id,destination_phase_id,minimum_participations,participation_type,registration_approved_before,require_no_suspension,require_same_team,require_complete_documents,allow_exception,release_permission,reason_required,status,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
+        $now = date('Y-m-d H:i:s');
+        foreach ($rules as $rule) $statement->execute([$id,(int)$rule['source_phase_id'],(int)$rule['destination_phase_id'],(int)($rule['minimum_participations'] ?? 0),$rule['participation_type'] ?? 'listed',$rule['registration_approved_before'] ?: null,!empty($rule['require_no_suspension']) ? 1 : 0,!empty($rule['require_same_team']) ? 1 : 0,!empty($rule['require_complete_documents']) ? 1 : 0,!empty($rule['allow_exception']) ? 1 : 0,'regulations.grant_exception',!empty($rule['reason_required']) ? 1 : 0,'active',$now,$now]);
+    }
+
+    public function changeLog(int $id, string $action, array $previous, array $next, int $userId): void
+    {
+        $this->pdo->prepare('INSERT INTO regulation_change_logs (regulation_id,action,previous_values,new_values,changed_by,created_at) VALUES (?,?,?,?,?,?)')->execute([$id,$action,json_encode($previous, JSON_UNESCAPED_UNICODE),json_encode($next, JSON_UNESCAPED_UNICODE),$userId,date('Y-m-d H:i:s')]);
     }
 
     public static function defaultKnockoutPairings(): array

@@ -117,12 +117,15 @@ final class RegistrationService
         $team = $this->teams->findForUser((int) $registration['team_id'], 0, 'administrator');
         $athlete = $this->athletes->findForUser((int) $registration['athlete_id'], 0, 'administrator');
         $issues = $this->baseIssues($championship, $team, $athlete);
+        $regulation = $this->publishedRegulation((int) $registration['championship_id']);
+        $advanced = $regulation['advanced_settings'] ?? [];
         if (!$championship || !in_array($championship['status'], ['registration', 'configured'], true)) $issues[] = 'O campeonato nao aceita inscricoes neste status.';
+        if ($championship && $advanced !== [] && empty($advanced['allow_registration_after_start']) && !empty($championship['starts_at']) && substr((string) $championship['starts_at'], 0, 10) <= date('Y-m-d')) $issues[] = 'O regulamento nao permite inscricoes apos o inicio do campeonato.';
         if ($championship && !RegistrationRules::windowOpen($championship)) $issues[] = 'O periodo de inscricoes esta fechado.';
         if ($athlete && $championship) $issues = array_merge($issues, $this->categoryIssues($athlete, $championship));
         if ($registration['requested_number'] !== null && $this->registrations->numberTaken((int) $registration['championship_id'], (int) $registration['team_id'], (int) $registration['requested_number'], (int) $registration['id'])) $issues[] = 'O numero pretendido ja esta em uso pela equipe.';
         if ($championship && $athlete) $issues = array_merge($issues, $this->duplicateIssues($registration, $championship));
-        if ($championship && $athlete) $issues = array_merge($issues, $this->documentIssues($athlete, $this->publishedRegulation((int) $championship['id'])));
+        if ($championship && $athlete && ($advanced === [] || !empty($advanced['require_complete_documents']))) $issues = array_merge($issues, $this->documentIssues($athlete, $regulation));
         return array_values(array_unique($issues));
     }
 

@@ -15,6 +15,8 @@ final class RegulationRules
             'discipline' => ['yellow_cards_for_suspension' => 3, 'yellow_suspension_matches' => 1, 'red_card_automatic_suspension' => 1, 'red_card_suspension_matches' => 1, 'reset_cards_enabled' => 0, 'reset_cards_stage' => ''],
             'match' => ['regular_time_minutes' => 40, 'halftime_minutes' => 10, 'substitutions_allowed' => 5, 'substitution_windows' => 3, 'extra_time_enabled' => 0, 'extra_time_minutes' => 10, 'penalty_shootout_enabled' => 1, 'direct_penalties' => 0],
             'roster' => ['minimum_roster_size' => 1, 'maximum_roster_size' => 25, 'minimum_goalkeepers' => 1, 'allow_multiple_team_registration' => 0, 'required_document_type_ids' => []],
+            'advanced' => ['maximum_staff_members' => 0, 'maximum_teams' => 0, 'allow_registration_after_start' => 1, 'registration_requires_approval' => 1, 'require_complete_documents' => 1, 'require_minor_authorization' => 1, 'roster_change_limit' => 0, 'roster_change_deadline' => null, 'roster_change_phase_limit' => null, 'transfers_enabled' => 1, 'transfers_blocked' => 0, 'block_athlete_played_other_team' => 0, 'allow_administrative_exception' => 0, 'exception_reason_required' => 1, 'abandoned_match_rule' => 'administrative_decision', 'cancelled_match_rule' => 'administrative_decision', 'postponed_match_rule' => 'reschedule'],
+            'eligibility_rules' => [],
             'tiebreakers' => array_map(static fn (string $criterion, int $index): array => ['criterion' => $criterion, 'priority' => $index + 1, 'enabled' => 1], self::CRITERIA, array_keys(self::CRITERIA)),
         ];
     }
@@ -58,6 +60,12 @@ final class RegulationRules
             if (count($documentTypes) !== count((array) ($roster['required_document_type_ids'] ?? []))) {
                 $errors[] = 'Tipos de documento obrigatorio invalidos.';
             }
+        }
+        $advanced = $data['advanced'] ?? [];
+        foreach (['maximum_staff_members','maximum_teams','roster_change_limit'] as $key) if ($advanced !== [] && (int) ($advanced[$key] ?? 0) < 0) $errors[] = 'Configuracao avancada invalida.';
+        foreach ((array) ($data['eligibility_rules'] ?? []) as $rule) {
+            if ((int) ($rule['source_phase_id'] ?? 0) <= 0 || (int) ($rule['destination_phase_id'] ?? 0) <= 0 || (int) ($rule['source_phase_id'] ?? 0) === (int) ($rule['destination_phase_id'] ?? 0)) $errors[] = 'Regra de elegibilidade precisa ter fases diferentes.';
+            if ((int) ($rule['minimum_participations'] ?? 0) < 0 || !in_array($rule['participation_type'] ?? '', ['listed','played','starter'], true)) $errors[] = 'Regra de participacao invalida.';
         }
         foreach ($integerRules as [$section, $key, $minimum, $message]) {
             if ((int) ($section[$key] ?? -1) < $minimum) {

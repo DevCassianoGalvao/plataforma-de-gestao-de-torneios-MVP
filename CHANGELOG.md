@@ -4,6 +4,8 @@
 
 ### Adicionado
 
+- Configuracoes avancadas de regulamento, regras de elegibilidade entre fases, excecoes administrativas auditadas e validacao no servidor durante confirmacao de escalacao.
+
 - Simulador interno isolado com cenários, partidas de referência, confrontos hipotéticos, placares, eventos e comparação com a classificação oficial.
 - Cálculo de classificação reutiliza o motor compartilhado e não grava em partidas, rankings, súmulas, publicação ou prestação de contas oficiais.
 - Acompanhamento administrativo por rodada com cobertura esportiva, documental e de publicação.

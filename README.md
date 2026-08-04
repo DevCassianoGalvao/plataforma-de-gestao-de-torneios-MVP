@@ -43,6 +43,7 @@ No Windows PowerShell, defina variáveis com `$env:NOME='valor'` e use `C:\xampp
 - [PRD](docs/PRD_PLATAFORMA_TORNEIOS.md)
 - [Autenticação](docs/AUTHENTICATION.md)
 - [Campeonamentos e regulamentos](docs/CHAMPIONSHIPS_AND_REGULATIONS.md)
+- [Regulamento avancado e elegibilidade](docs/ADVANCED_REGULATIONS_AND_ELIGIBILITY.md)
 - [Equipes e comissão técnica](docs/TEAMS_AND_STAFF.md)
 - [Formações táticas](docs/TACTICAL_FORMATIONS.md)
 - [Atletas, responsáveis e documentos](docs/ATHLETES_AND_DOCUMENTS.md)

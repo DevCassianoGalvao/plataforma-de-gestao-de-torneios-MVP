@@ -141,6 +141,8 @@ final class AuthSeed
             ['regulations.update', 'Editar regulamentos', 'Edita rascunhos de regulamento.', 'regulamentos'],
             ['regulations.publish', 'Publicar regulamentos', 'Publica versoes de regulamento.', 'regulamentos'],
             ['regulations.version_history', 'Consultar versoes de regulamento', 'Consulta historico de versoes.', 'regulamentos'],
+            ['regulations.manage_eligibility', 'Gerenciar elegibilidade', 'Configura regras de elegibilidade entre fases.', 'regulamentos'],
+            ['regulations.grant_exception', 'Liberar excecoes de elegibilidade', 'Libera excecoes administrativas justificadas.', 'regulamentos'],
             ['teams.view', 'Visualizar equipes', 'Consulta equipes.', 'equipes'],
             ['teams.manage', 'Gerenciar equipes', 'Gerencia equipes autorizadas.', 'equipes'],
             ['teams.manage_own', 'Gerenciar propria equipe', 'Gerencia somente sua equipe.', 'equipes'],

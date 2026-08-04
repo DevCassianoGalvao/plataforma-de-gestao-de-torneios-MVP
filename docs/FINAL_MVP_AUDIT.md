@@ -48,3 +48,7 @@ Não foram comprovados nesta execução um cPanel real, certificado HTTPS emitid
 # APROVADO PARA HOMOLOGAÇÃO
 
 O código está apto para ser instalado e validado em ambiente de homologação. O veredito não é `APROVADO PARA PRODUCAO` enquanto as pendências externas acima não forem executadas e registradas.
+# Atualizacao de regulamento avancado
+
+- Migration incremental `0033_advanced_regulation_and_eligibility.sql` adiciona regras novas sem alterar regulamentos publicados existentes.
+- Elegibilidade e excecoes possuem isolamento de dados, permissao, CSRF e auditoria. Validacao e executada no backend da escalacao.
