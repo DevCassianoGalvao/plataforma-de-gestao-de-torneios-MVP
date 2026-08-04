@@ -5,10 +5,11 @@ namespace App\Services;
 
 use App\Repositories\LineupRepository;
 use App\Repositories\MatchOperationRepository;
+use App\Repositories\MatchMediaRepository;
 
 final class MatchOperationService
 {
-    public function __construct(private readonly MatchOperationRepository $operations, private readonly LineupRepository $lineups, private readonly AuditService $audit, private readonly ?DisciplineService $discipline = null, private readonly ?MatchReportService $reports = null, private readonly ?CompetitionProgressService $competition = null)
+    public function __construct(private readonly MatchOperationRepository $operations, private readonly LineupRepository $lineups, private readonly AuditService $audit, private readonly ?DisciplineService $discipline = null, private readonly ?MatchReportService $reports = null, private readonly ?CompetitionProgressService $competition = null, private readonly ?MatchMediaRepository $evidence = null)
     {
     }
 
@@ -165,6 +166,8 @@ final class MatchOperationService
             if (!$date) return $this->fail('Horario invalido: ' . $field . '.');
             $times[$field] = $date->format('Y-m-d H:i:s');
         }
+        $startsNow = empty($operation['first_half_started_at']) && !empty($times['first_half_started_at']);
+        if ($startsNow && !$this->allowEvidenceGate($user, $match, 'start', $data)) return $this->fail($this->evidenceMessage($match, 'start'));
         $this->operations->updateTimes((int) $operation['id'], $times);
         return ['ok' => true, 'errors' => []];
     }
@@ -181,11 +184,12 @@ final class MatchOperationService
         return ['ok' => true, 'errors' => []];
     }
 
-    public function finish(array $user, array $match, bool $confirmed): array
+    public function finish(array $user, array $match, bool $confirmed, array $evidenceData = []): array
     {
         if (!$confirmed) return $this->fail('Confirme o checklist antes de finalizar.');
         $operation = $this->operations->ensure((int) $match['id'], (int) $user['id']);
         if ($operation['status'] !== 'open') return $this->fail('Operacao ja finalizada.');
+        if (!$this->allowEvidenceGate($user, $match, 'approval', $evidenceData)) return $this->fail($this->evidenceMessage($match, 'approval'));
         $checklist = $this->checklist($match, $operation);
         if ($checklist['errors'] !== []) return ['ok' => false, 'errors' => $checklist['errors']];
         $this->operations->finish((int) $operation['id'], (int) $match['id'], (int) $user['id']);
@@ -193,11 +197,12 @@ final class MatchOperationService
         return ['ok' => true, 'errors' => []];
     }
 
-    public function homologate(array $user, array $match, bool $confirmed): array
+    public function homologate(array $user, array $match, bool $confirmed, array $evidenceData = []): array
     {
         if (!$confirmed) return $this->fail('Confirme a homologacao.');
         $operation = $this->operations->ensure((int) $match['id'], (int) $user['id']);
         if ($operation['status'] !== 'awaiting_homologation') return $this->fail('A partida ainda nao esta aguardando homologacao.');
+        if (!$this->allowEvidenceGate($user, $match, 'document', $evidenceData)) return $this->fail($this->evidenceMessage($match, 'document'));
         $checklist = $this->checklist($match, $operation);
         if ($checklist['errors'] !== []) return ['ok' => false, 'errors' => $checklist['errors']];
         $this->operations->homologate((int) $operation['id'], (int) $match['id'], (int) $user['id']);
@@ -236,6 +241,26 @@ final class MatchOperationService
         }
         if (!$timesOk) $errors[] = 'Horarios de inicio e fim dos tempos sao obrigatorios.';
         return ['ready' => $errors === [], 'errors' => array_values(array_unique($errors)), 'lineups' => $lineupOk, 'score' => true, 'goals' => true, 'cards' => true, 'substitutions' => true, 'officials' => $hasReferee, 'times' => $timesOk, 'occurrences' => true, 'penalties' => true];
+    }
+
+    private function allowEvidenceGate(array $user, array $match, string $gate, array $data): bool
+    {
+        if (!$this->evidence || $this->evidence->missing((int) $match['championship_id'], (int) $match['id'], $gate) === []) return true;
+        $reason = trim((string) ($data['evidence_override_reason'] ?? ''));
+        if (($data['evidence_override_authorized'] ?? false) !== true || $reason === '') return false;
+        foreach ($this->evidence->missing((int) $match['championship_id'], (int) $match['id'], $gate) as $item) {
+            $this->evidence->exception((int) $match['id'], (int) $item['id'], $gate, $reason, (int) $user['id']);
+            $this->evidence->log((int) $match['id'], null, (int) $item['id'], 'excecao_'.$gate, $reason, (int) $user['id']);
+        }
+        $this->audit->record('match_evidence.override', (int) $user['id'], 'match', (int) $match['id'], ['gate' => $gate, 'reason' => $reason], null);
+        return true;
+    }
+
+    private function evidenceMessage(array $match, string $gate): string
+    {
+        if (!$this->evidence) return 'Há evidências obrigatórias pendentes.';
+        $names = array_map(static fn (array $item): string => (string) $item['name'], $this->evidence->missing((int) $match['championship_id'], (int) $match['id'], $gate));
+        return 'Evidências obrigatórias pendentes: ' . implode(', ', $names) . '. Um administrador pode registrar exceção com justificativa.';
     }
 
     private function playersForMatch(array $match): array

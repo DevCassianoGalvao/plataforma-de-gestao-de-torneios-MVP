@@ -44,7 +44,7 @@ final class MatchOperationController extends Controller
 
     public function times(Request $request, array $params = []): Response
     {
-        return $this->mutate($request, $params, 'times', fn (array $user, array $match): array => $this->service->saveTimes($user, $match, (array) $request->body));
+        return $this->mutate($request, $params, 'times', fn (array $user, array $match): array => $this->service->saveTimes($user, $match, array_merge((array) $request->body, ['evidence_override_authorized' => $this->authorization->can($user, 'evidence.override')])));
     }
 
     public function administrativeResult(Request $request, array $params = []): Response
@@ -54,7 +54,7 @@ final class MatchOperationController extends Controller
 
     public function finish(Request $request, array $params = []): Response
     {
-        return $this->mutate($request, $params, 'finish', fn (array $user, array $match): array => $this->service->finish($user, $match, ($request->body['confirm_checklist'] ?? '') === 'yes'));
+        return $this->mutate($request, $params, 'finish', fn (array $user, array $match): array => $this->service->finish($user, $match, ($request->body['confirm_checklist'] ?? '') === 'yes', array_merge((array) $request->body, ['evidence_override_authorized' => $this->authorization->can($user, 'evidence.override')])));
     }
 
     public function homologate(Request $request, array $params = []): Response
@@ -64,7 +64,7 @@ final class MatchOperationController extends Controller
         $match = $this->access->matchForUser($guard, (int) ($params[0] ?? 0));
         if (!$match || !$this->access->canHomologate($guard, $match)) return Response::forbidden();
         if (!$this->validCsrf($request)) return Response::forbidden('A sessao expirou.');
-        $result = $this->service->homologate($guard, $match, ($request->body['confirm_homologation'] ?? '') === 'yes');
+        $result = $this->service->homologate($guard, $match, ($request->body['confirm_homologation'] ?? '') === 'yes', array_merge((array) $request->body, ['evidence_override_authorized' => $this->authorization->can($guard, 'evidence.override')]));
         if (!$result['ok']) return $this->renderErrors($guard, $match, $result['errors']);
         Session::flash('match_operation_message', 'Partida homologada.');
         return Response::redirect(Config::url('/admin/partidas/' . $match['id'] . '/operacao'));
@@ -124,7 +124,7 @@ final class MatchOperationController extends Controller
     private function viewData(array $user, array $match, array $errors): array
     {
         $payload = $this->service->payload($match, (int) $user['id']);
-        return array_merge(['user' => $user, 'match' => $match, 'errors' => $errors, 'message' => Session::consumeFlash('match_operation_message'), 'canOperate' => $this->access->canOperate($user, $match), 'canHomologate' => $this->access->canHomologate($user, $match), 'canReview' => $this->authorization->can($user, 'match_operation.review'), 'canRectify' => $this->authorization->can($user, 'match_operation.rectify'), 'canCancelEvent' => $this->authorization->can($user, 'match_operation.cancel_event'), 'operationBase' => Config::url('/admin/partidas/' . $match['id'] . '/operacao')], $payload);
+        return array_merge(['user' => $user, 'match' => $match, 'errors' => $errors, 'message' => Session::consumeFlash('match_operation_message'), 'canOperate' => $this->access->canOperate($user, $match), 'canHomologate' => $this->access->canHomologate($user, $match), 'canReview' => $this->authorization->can($user, 'match_operation.review'), 'canRectify' => $this->authorization->can($user, 'match_operation.rectify'), 'canCancelEvent' => $this->authorization->can($user, 'match_operation.cancel_event'), 'canEvidenceOverride' => $this->authorization->can($user, 'evidence.override'), 'operationBase' => Config::url('/admin/partidas/' . $match['id'] . '/operacao')], $payload);
     }
 
     private function eventInput(Request $request): array

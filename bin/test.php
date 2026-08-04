@@ -40,6 +40,7 @@ require dirname(__DIR__) . '/tests/Integration/RegistrationIntegrationTest.php';
 require dirname(__DIR__) . '/tests/Integration/ScheduleIntegrationTest.php';
 require dirname(__DIR__) . '/tests/Integration/LineupIntegrationTest.php';
 require dirname(__DIR__) . '/tests/Integration/MatchOperationIntegrationTest.php';
+require dirname(__DIR__) . '/tests/Integration/EvidenceChecklistIntegrationTest.php';
 require dirname(__DIR__) . '/tests/Integration/DisciplineIntegrationTest.php';
 require dirname(__DIR__) . '/tests/Integration/StandingsIntegrationTest.php';
 require dirname(__DIR__) . '/tests/Integration/MatchReportIntegrationTest.php';
@@ -92,6 +93,7 @@ use Tests\Integration\RegistrationIntegrationTest;
 use Tests\Integration\ScheduleIntegrationTest;
 use Tests\Integration\LineupIntegrationTest;
 use Tests\Integration\MatchOperationIntegrationTest;
+use Tests\Integration\EvidenceChecklistIntegrationTest;
 use Tests\Integration\DisciplineIntegrationTest;
 use Tests\Integration\StandingsIntegrationTest;
 use Tests\Integration\MatchReportIntegrationTest;
@@ -146,6 +148,7 @@ try {
     ScheduleIntegrationTest::run();
     LineupIntegrationTest::run();
     MatchOperationIntegrationTest::run();
+    EvidenceChecklistIntegrationTest::run();
     DisciplineIntegrationTest::run();
     StandingsIntegrationTest::run();
     MatchReportIntegrationTest::run();
@@ -169,7 +172,7 @@ try {
     PublicPortalHttpTest::run();
     ProductionReadinessHttpTest::run();
     TournamentProgressSeedIntegrationTest::run();
-    echo "MVP_TESTS_OK unit=17 integration=16 http=16\n";
+    echo "MVP_TESTS_OK unit=17 integration=17 http=16\n";
 } finally {
     Database::disconnect();
     $server->exec('DROP DATABASE IF EXISTS ' . $quoted);

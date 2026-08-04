@@ -110,6 +110,13 @@ final class AuthSeed
             ['match_operation.review', 'Revisar partidas', 'Devolve, rejeita ou aprova operacoes enviadas.', 'partidas'],
             ['match_operation.rectify', 'Decidir retificacoes', 'Analisa pedidos de retificacao de partidas aprovadas.', 'partidas'],
             ['match_operation.cancel_event', 'Anular registros da partida', 'Anula registros antes da aprovacao com justificativa.', 'partidas'],
+            ['evidence.checklist.manage', 'Gerenciar checklist de evidências', 'Configura evidências exigidas por campeonato.', 'evidencias'],
+            ['evidence.upload', 'Enviar evidências', 'Envia arquivos da partida autorizada.', 'evidencias'],
+            ['evidence.remove', 'Remover evidências', 'Remove arquivos antes da aprovação.', 'evidencias'],
+            ['evidence.review', 'Revisar evidências', 'Consulta evidências enviadas para revisão.', 'evidencias'],
+            ['evidence.approve', 'Aprovar evidências', 'Aprova ou rejeita evidências de partida.', 'evidencias'],
+            ['evidence.override', 'Autorizar exceção de evidência', 'Libera bloqueios documentais com justificativa.', 'evidencias'],
+            ['evidence.download', 'Baixar evidências', 'Visualiza e baixa arquivos autorizados.', 'evidencias'],
             ['discipline.view', 'Visualizar disciplina', 'Consulta cartoes, acumulacoes e suspensoes autorizadas.', 'disciplina'],
             ['discipline.manage', 'Gerenciar disciplina', 'Gerencia registros disciplinares autorizados.', 'disciplina'],
             ['discipline.process', 'Processar disciplina', 'Processa cartoes apos homologacao.', 'disciplina'],
@@ -169,8 +176,8 @@ final class AuthSeed
         $rolePermissions = [
             'administrator' => array_keys($permissionIds),
             'team_manager' => ['teams.view', 'teams.manage_own', 'teams.select_default_formation', 'team_staff.view', 'team_staff.create', 'team_staff.update', 'team_staff.deactivate', 'team_staff.manage_own', 'tactical_formations.view', 'athletes.view', 'athletes.create', 'athletes.manage_own', 'positions.view', 'athlete_guardians.view', 'athlete_guardians.create', 'athlete_guardians.update', 'athlete_guardians.manage_own', 'athlete_documents.view', 'athlete_documents.create', 'athlete_documents.update', 'athlete_documents.manage_own', 'registrations.view', 'registrations.create', 'registrations.update', 'registrations.submit', 'registrations.correct', 'registrations.cancel', 'registrations.manage_own', 'rosters.view', 'matches.view', 'schedule.view', 'lineups.view', 'lineups.create', 'lineups.update', 'lineups.confirm', 'lineups.manage_own', 'match_operation.view', 'discipline.view', 'suspensions.view', 'standings.view', 'match_reports.view', 'match_reports.download', 'transfers.request', 'teams.manage_identity'],
-            'match_operator' => ['matches.view', 'matches.operate', 'lineups.view', 'match_operation.view', 'match_operation.operate', 'discipline.view', 'match_reports.view', 'match_reports.download'],
-            'accountability' => ['championships.view', 'matches.view', 'match_reports.view', 'match_reports.download', 'accountability.view', 'accountability.export'],
+            'match_operator' => ['matches.view', 'matches.operate', 'lineups.view', 'match_operation.view', 'match_operation.operate', 'discipline.view', 'match_reports.view', 'match_reports.download', 'evidence.upload', 'evidence.remove', 'evidence.download'],
+            'accountability' => ['championships.view', 'matches.view', 'match_reports.view', 'match_reports.download', 'accountability.view', 'accountability.export', 'evidence.download'],
         ];
         $link = $pdo->prepare('INSERT IGNORE INTO role_permissions (role_id, permission_id, created_at) VALUES (?, ?, ?)');
         foreach ($rolePermissions as $roleKey => $keys) {

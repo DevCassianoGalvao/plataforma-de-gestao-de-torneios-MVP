@@ -23,7 +23,7 @@ A migration `0029_match_review_rectification.sql` adiciona revisao formal, devol
 ## Pendencias que nao podem ser declaradas como concluidas
 
 - Segunda aprovacao configuravel por tipo de evento e edicao pontual de evento ja aprovado sem retorno completo para correcao.
-- Checklist configuravel de evidencias por modalidade/fase e painel de cobertura por rodada.
+- Painel consolidado de cobertura por rodada ainda é melhoria futura; o checklist configurável de evidências por campeonato, revisão, bloqueios e exceções foi entregue na migration `0030`.
 - Publicacao independente para classificacao, rankings, chave e demais agregados. Nesta rodada a classificacao e ocultada quando existir resultado aprovado ainda nao publicado no grupo, evitando divulgar dado incompleto.
 - Integracao real com provedor externo de backup. A base atual possui backup local e documentacao de copia externa, nao uma integracao de armazenamento remoto.
 - Cobertura completa de exclusao logica para todas as entidades historicas e politica formal de retencao por tipo de dado.
