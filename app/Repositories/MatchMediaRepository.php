@@ -40,6 +40,8 @@ final class MatchMediaRepository
     }
     public function review(int $id, int $userId, string $status, ?string $reason): bool
     { $s=$this->pdo->prepare('UPDATE match_media SET review_status=?, reviewed_by=?, reviewed_at=?, rejection_reason=?, updated_at=? WHERE id=? AND deleted_at IS NULL'); $now=date('Y-m-d H:i:s'); return $s->execute([$status,$userId,$now,$reason,$now,$id]); }
+    public function submit(int $id): bool
+    { $s=$this->pdo->prepare("UPDATE match_media SET review_status='submitted', updated_at=? WHERE id=? AND review_status='draft' AND deleted_at IS NULL"); return $s->execute([date('Y-m-d H:i:s'),$id]); }
     public function updateNotes(int $id, string $caption): bool
     { $s=$this->pdo->prepare('UPDATE match_media SET caption=?, updated_at=? WHERE id=? AND deleted_at IS NULL'); return $s->execute([$caption ?: null,date('Y-m-d H:i:s'),$id]); }
     public function remove(int $id, int $userId, string $reason): bool

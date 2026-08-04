@@ -349,6 +349,7 @@ $router->get('/admin/partidas/{id}/evidencias/{mediaId}', [$media, 'asset']);
 $router->post('/admin/partidas/{id}/evidencias/{mediaId}/observacao', [$media, 'updateNotes']);
 $router->post('/admin/partidas/{id}/evidencias/{mediaId}/remover', [$media, 'remove']);
 $router->post('/admin/partidas/{id}/evidencias/{mediaId}/revisar', [$media, 'review']);
+$router->post('/admin/partidas/{id}/evidencias/{mediaId}/enviar', [$media, 'submit']);
 $router->get('/admin/partidas/{id}/operacao', [$operation, 'show']);
 $router->post('/admin/partidas/{id}/operacao/evento', [$operation, 'event']);
 $router->post('/admin/partidas/{id}/operacao/evento/anular', [$operation, 'cancelEvent']);
