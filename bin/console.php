@@ -9,6 +9,7 @@ use App\Repositories\MatchPublicationRepository;
 use App\Services\AuditService;
 use App\Services\MatchPublicationService;
 use App\Repositories\BackupRepository;
+use App\Repositories\BackupSettingsRepository;
 use App\Services\BackupService;
 use App\Services\GoogleDriveBackupProvider;
 use App\Core\Config;
@@ -82,9 +83,33 @@ if ($command === 'matches:publish-due') {
 
 if ($command === 'backup:run') {
     $pdo = Database::connection();
-    $remote = Config::get('BACKUP_STORAGE_PROVIDER', 'local') === 'google_drive' ? new GoogleDriveBackupProvider() : null;
+    $settings = (new BackupSettingsRepository($pdo))->get();
+    $remote = ($settings['provider'] ?? 'local') === 'google_drive' ? new GoogleDriveBackupProvider((string) ($settings['google_drive_folder_id'] ?? '')) : null;
     $backup = (new BackupService(new BackupRepository($pdo), new AuditService($pdo), $remote))->run(null, 'scheduled');
     echo 'BACKUP_OK id=' . $backup['id'] . ' status=' . $backup['status'] . "\n";
+    exit(0);
+}
+
+if ($command === 'backup:schedule') {
+    $pdo = Database::connection();
+    $settings = (new BackupSettingsRepository($pdo))->get();
+    if (empty($settings['schedule_enabled'])) {
+        echo "BACKUP_SCHEDULE_DISABLED\n";
+        exit(0);
+    }
+    $now = date('H:i');
+    if ($now < (string) $settings['schedule_time']) {
+        echo 'BACKUP_SCHEDULE_WAITING now=' . $now . ' at=' . $settings['schedule_time'] . "\n";
+        exit(0);
+    }
+    $latest = (new BackupRepository($pdo))->latestCompleted();
+    if ($latest && substr((string) ($latest['completed_at'] ?? ''), 0, 10) === date('Y-m-d')) {
+        echo "BACKUP_SCHEDULE_ALREADY_RAN\n";
+        exit(0);
+    }
+    $remote = ($settings['provider'] ?? 'local') === 'google_drive' ? new GoogleDriveBackupProvider((string) ($settings['google_drive_folder_id'] ?? '')) : null;
+    $backup = (new BackupService(new BackupRepository($pdo), new AuditService($pdo), $remote))->run(null, 'scheduled');
+    echo 'BACKUP_SCHEDULE_OK id=' . $backup['id'] . ' status=' . $backup['status'] . "\n";
     exit(0);
 }
 
@@ -101,5 +126,5 @@ if ($command === 'db:seed:simulation-lineups') {
     exit(0);
 }
 
-echo "Comandos: migrate | migrate:status | matches:publish-due | backup:run | db:seed | db:seed:simulation | db:seed:simulation-lineups\n";
+echo "Comandos: migrate | migrate:status | matches:publish-due | backup:run | backup:schedule | db:seed | db:seed:simulation | db:seed:simulation-lineups\n";
 exit($command === 'help' ? 0 : 1);

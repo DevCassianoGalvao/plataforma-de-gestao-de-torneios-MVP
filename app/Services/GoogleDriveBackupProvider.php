@@ -3,8 +3,9 @@ declare(strict_types=1);
 namespace App\Services;
 use App\Core\Config;
 final class GoogleDriveBackupProvider implements BackupRemoteProvider {
+    public function __construct(private readonly ?string $configuredFolderId = null) {}
     private function token(): string { return trim((string)Config::get('GOOGLE_DRIVE_ACCESS_TOKEN','')); }
-    private function folder(): string { return trim((string)Config::get('GOOGLE_DRIVE_FOLDER_ID','')); }
+    private function folder(): string { return trim($this->configuredFolderId ?: (string)Config::get('GOOGLE_DRIVE_FOLDER_ID','')); }
     public function testConnection(): array { if($this->token()===''||$this->folder()==='')return ['ok'=>false,'error'=>'Google Drive nao configurado.']; return $this->request('GET','https://www.googleapis.com/drive/v3/files/'.$this->folder().'?fields=id'); }
     public function upload(string $path,string $name,string $hash): array { if(!is_file($path))return ['ok'=>false,'error'=>'Arquivo local ausente.']; $meta=json_encode(['name'=>$name,'parents'=>[$this->folder()],'appProperties'=>['sha256'=>$hash]],JSON_UNESCAPED_SLASHES); $body="--backup\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n$meta\r\n--backup\r\nContent-Type: application/zip\r\n\r\n".file_get_contents($path)."\r\n--backup--"; return $this->request('POST','https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart','multipart/related; boundary=backup',$body); }
     public function delete(string $remoteId): bool { return ($this->request('DELETE','https://www.googleapis.com/drive/v3/files/'.rawurlencode($remoteId))['ok']??false); }

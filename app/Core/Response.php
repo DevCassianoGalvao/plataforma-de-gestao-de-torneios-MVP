@@ -48,6 +48,15 @@ final class Response
         return new self($body, 200, $headers);
     }
 
+    public static function download(string $body, string $contentType, string $downloadName): self
+    {
+        $response = self::binary($body, $contentType, $downloadName);
+        $headers = $response->headers;
+        $headers['Content-Disposition'] = 'attachment; filename="' . addcslashes($downloadName, '"\\') . '"';
+        $headers['Cache-Control'] = 'private, no-store';
+        return new self($body, 200, $headers);
+    }
+
     public function send(): never
     {
         http_response_code($this->status);

@@ -41,6 +41,7 @@ use App\Http\Controllers\PartnerController;
 use App\Http\Controllers\EligibilityController;
 use App\Repositories\CategoryRepository;
 use App\Repositories\BackupRepository;
+use App\Repositories\BackupSettingsRepository;
 use App\Repositories\AthleteDocumentRepository;
 use App\Repositories\AthleteDocumentTypeRepository;
 use App\Repositories\AthleteRepository;
@@ -196,7 +197,9 @@ $contacts = new ContactRepository($pdo);
 $officials = new OfficialRepository($pdo);
 $partners = new PartnerRepository($pdo);
 $backupRepository = new BackupRepository($pdo);
-$backupRemote = Config::get('BACKUP_STORAGE_PROVIDER', 'local') === 'google_drive' ? new GoogleDriveBackupProvider() : null;
+$backupSettings = new BackupSettingsRepository($pdo);
+$backupConfig = $backupSettings->get();
+$backupRemote = ($backupConfig['provider'] ?? 'local') === 'google_drive' ? new GoogleDriveBackupProvider((string) ($backupConfig['google_drive_folder_id'] ?? '')) : null;
 $backupService = new BackupService($backupRepository, $audit, $backupRemote);
 
 $router->get('/', [new HomeController(), 'index']);
@@ -262,8 +265,9 @@ $router->post('/admin/partidas/{id}/elegibilidade/excecoes', [$eligibilityContro
 
 $auditController = new AuditController($users, $authorization, $audit);
 $router->get('/admin/auditoria', [$auditController, 'index']);
-$backupController = new BackupController($users, $authorization, $audit, $backupRepository, $backupService);
+$backupController = new BackupController($users, $authorization, $audit, $backupRepository, $backupService, $backupSettings);
 $router->get('/admin/backups', [$backupController, 'index']);
+$router->post('/admin/backups/configuracao', [$backupController, 'saveSettings']);
 $router->post('/admin/backups/executar', [$backupController, 'run']);
 $router->post('/admin/backups/testar-conexao', [$backupController, 'test']);
 $router->get('/admin/backups/{id}/download', [$backupController, 'download']);

@@ -22,7 +22,15 @@ GOOGLE_DRIVE_ACCESS_TOKEN=
 GOOGLE_DRIVE_CREDENTIALS_PATH=storage/private/google-drive-service-account.json
 ```
 
-Para Google Drive, configure `BACKUP_STORAGE_PROVIDER=google_drive`, pasta privada e token de acesso provisionado fora do repositorio. Nunca versione token, credencial de conta de servico ou `.env`. O caminho de credencial existe para operacao controlada do servidor; o provedor atual usa token injetado pelo ambiente e nunca o registra em logs.
+Para Google Drive, selecione Google Drive na tela de Backups e cole o link da pasta. O sistema extrai o identificador da pasta, mas o link não é uma credencial: para gravar, a pasta deve estar compartilhada com a conta autorizada e o servidor deve receber `GOOGLE_DRIVE_ACCESS_TOKEN` no `.env`. Nunca versione token, credencial de conta de serviço ou `.env`.
+
+Na mesma tela, ative o backup automático e escolha o horário. Em hospedagem compartilhada, o PHP não executa sozinho: cadastre no cron do cPanel uma tarefa a cada cinco minutos, ajustando os caminhos:
+
+```cron
+*/5 * * * * /opt/cpanel/ea-php82/root/usr/bin/php /home/USUARIO/caminho-do-projeto/bin/console.php backup:schedule >> /home/USUARIO/logs/backup-cron.log 2>&1
+```
+
+O comando verifica o horário salvo e impede mais de um backup automático por dia. O destino local continua funcionando sem Google Drive.
 
 ## Cron cPanel
 
