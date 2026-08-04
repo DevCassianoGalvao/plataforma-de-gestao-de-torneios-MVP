@@ -19,6 +19,7 @@
         'whistle': '<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/>',
         'mail': '<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>',
         'archive': '<path d="M3 7h18M5 7v12h14V7M4 4h16l1 3H3l1-3ZM9 11h6"/>',
+        'chart': '<path d="M4 19V5M4 19h17M8 16v-5M12 16V8M16 16V4M20 16v-7"/>',
         'scan-line': '<path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2M7 12h10"/>',
         'settings-2': '<path d="M20 7h-9M14 17H4M17 17a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM7 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/>',
         'sun': '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>',
@@ -31,7 +32,7 @@
     var navIconMap = {
         overview: 'layout-dashboard', championship: 'trophy', schedule: 'calendar-days', team: 'shield',
         athlete: 'user-round', registration: 'file-check-2', roster: 'clipboard-check', transfer: 'arrow-left-right',
-        news: 'newspaper', user: 'users-round', audit: 'scan-line', archive: 'archive', profile: 'settings-2', bell: 'bell'
+        news: 'newspaper', user: 'users-round', audit: 'scan-line', archive: 'archive', chart: 'chart', profile: 'settings-2', bell: 'bell'
     };
     function createIcon(name) {
         var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
