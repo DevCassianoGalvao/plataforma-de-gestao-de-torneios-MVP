@@ -54,6 +54,7 @@ require dirname(__DIR__) . '/tests/Integration/PublicPortalIntegrationTest.php';
 require dirname(__DIR__) . '/tests/Integration/TournamentProgressSeedIntegrationTest.php';
 require dirname(__DIR__) . '/tests/Integration/AccountabilityCompletionIntegrationTest.php';
 require dirname(__DIR__) . '/tests/Integration/RetentionIntegrationTest.php';
+require dirname(__DIR__) . '/tests/Integration/BackupIntegrationTest.php';
 require dirname(__DIR__) . '/tests/Integration/AdvancedRectificationIntegrationTest.php';
 require dirname(__DIR__) . '/tests/Http/FoundationHttpTest.php';
 require dirname(__DIR__) . '/tests/Http/AuthenticationHttpTest.php';
@@ -116,6 +117,7 @@ use Tests\Integration\PublicPortalIntegrationTest;
 use Tests\Integration\TournamentProgressSeedIntegrationTest;
 use Tests\Integration\AccountabilityCompletionIntegrationTest;
 use Tests\Integration\RetentionIntegrationTest;
+use Tests\Integration\BackupIntegrationTest;
 use Tests\Integration\AdvancedRectificationIntegrationTest;
 use Tests\Http\AuthenticationHttpTest;
 use Tests\Http\ChampionshipHttpTest;
@@ -197,9 +199,10 @@ try {
     AdvancedRegulationIntegrationTest::run();
     AccountabilityCompletionIntegrationTest::run();
     RetentionIntegrationTest::run();
+    BackupIntegrationTest::run();
     AdvancedRectificationIntegrationTest::run();
     AccountabilityRetentionHttpTest::run();
-    echo "MVP_TESTS_OK unit=17 integration=23 http=18\n";
+    echo "MVP_TESTS_OK unit=17 integration=24 http=18\n";
 } finally {
     Database::disconnect();
     $server->exec('DROP DATABASE IF EXISTS ' . $quoted);

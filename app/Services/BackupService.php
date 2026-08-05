@@ -55,7 +55,46 @@ final class BackupService
 
     private function sendRemote(int $id, string $path, string $name, string $hash): void { $result = $this->remote?->upload($path, $name, $hash) ?? ['ok' => false, 'error' => 'Destino remoto ausente.']; $attempts = (int) (($this->backups->find($id)['attempts'] ?? 0) + 1); if (($result['ok'] ?? false) && !empty($result['id'])) { $this->backups->update($id, ['remote_status' => 'completed', 'remote_id' => (string) $result['id'], 'remote_path' => $name, 'attempts' => $attempts, 'error_message' => null]); return; } $this->backups->update($id, ['status' => 'partially_completed', 'remote_status' => 'failed', 'attempts' => $attempts, 'error_message' => (string) ($result['error'] ?? 'Falha no envio remoto.')]); }
     private function directory(): string { $root = dirname(__DIR__, 2); $configured = trim((string) Config::get('BACKUP_DIR', 'storage/backups')); $path = preg_match('#^(?:[A-Za-z]:[\\\\/]|/)#', $configured) ? $configured : $root . DIRECTORY_SEPARATOR . trim(str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $configured), DIRECTORY_SEPARATOR); $storage = realpath($root . DIRECTORY_SEPARATOR . 'storage') ?: ($root . DIRECTORY_SEPARATOR . 'storage'); if (!$this->isWithin($path, $storage)) throw new \RuntimeException('BACKUP_DIR deve ficar dentro de storage.'); return rtrim($path, '\\/'); }
-    private function safePath(string $path, bool $mustExist = true): string { $real = realpath($path); if ($real === false) { if ($mustExist) throw new \RuntimeException('Arquivo de backup não encontrado.'); $real = $path; } $base = realpath($this->directory()) ?: $this->directory(); if (!$this->isWithin($real, $base) || $this->normalizePath($real) === $this->normalizePath($base)) throw new \RuntimeException('Caminho de backup inválido.'); return $real; }
+    private function safePath(string $path, bool $mustExist = true): string
+    {
+        $path = trim($path);
+        if ($path === '') {
+            throw new \RuntimeException('Caminho de backup vazio.');
+        }
+
+        $base = realpath($this->directory()) ?: $this->directory();
+        $candidate = $this->absolutePath($path);
+        $real = realpath($candidate);
+
+        if ($real !== false) {
+            if (!$this->isWithin($real, $base) || $this->normalizePath($real) === $this->normalizePath($base)) {
+                throw new \RuntimeException('Caminho de backup inválido.');
+            }
+            return $real;
+        }
+
+        if ($mustExist) {
+            throw new \RuntimeException('Arquivo de backup não encontrado.');
+        }
+
+        // A exclusão lógica deve continuar funcionando quando o arquivo já foi
+        // removido manualmente, mas o caminho ainda precisa ser comprovadamente seguro.
+        $parent = realpath(dirname($candidate));
+        $missing = $parent === false ? $candidate : $parent . DIRECTORY_SEPARATOR . basename($candidate);
+        if (!$this->isWithin($missing, $base) || $this->normalizePath($missing) === $this->normalizePath($base)) {
+            throw new \RuntimeException('Caminho de backup inválido.');
+        }
+        return $missing;
+    }
+
+    private function absolutePath(string $path): string
+    {
+        if (preg_match('#^(?:[A-Za-z]:[\\\\/]|/)#', $path) === 1) {
+            return $path;
+        }
+
+        return dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . ltrim(str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $path), DIRECTORY_SEPARATOR);
+    }
     private function normalizePath(string $path): string { return rtrim((string) preg_replace('#/+#', '/', str_replace(['\\', '/'], '/', $path)), '/'); }
     private function isWithin(string $path, string $base): bool { $path = $this->normalizePath($path); $base = $this->normalizePath($base); return $path === $base || str_starts_with($path, $base . '/'); }
     private function dumpDatabase(string $dump): void { $db = (string) Config::get('DB_NAME', ''); if (preg_match('/^[A-Za-z0-9_-]+$/', $db) !== 1) throw new \RuntimeException('Nome do banco invalido.'); $bin = (string) Config::get('MYSQLDUMP_BIN', 'mysqldump'); $parts = [escapeshellarg($bin), '--protocol=tcp', '--single-transaction', '--routines', '--events', '--host=' . escapeshellarg((string) Config::get('DB_HOST', '127.0.0.1')), '--port=' . escapeshellarg((string) Config::get('DB_PORT', '3306')), '--user=' . escapeshellarg((string) Config::get('DB_USER', 'root')), escapeshellarg($db)]; $env = is_array(getenv()) ? getenv() : []; $env['MYSQL_PWD'] = (string) Config::get('DB_PASS', ''); $process = proc_open(implode(' ', $parts), [1 => ['file', $dump, 'w'], 2 => ['pipe', 'w']], $pipes, null, $env); if (!is_resource($process)) throw new \RuntimeException('Nao foi possivel iniciar mysqldump.'); $error = stream_get_contents($pipes[2]); fclose($pipes[2]); if (proc_close($process) !== 0) throw new \RuntimeException('mysqldump falhou: ' . trim((string) $error)); }
