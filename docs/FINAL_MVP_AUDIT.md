@@ -42,6 +42,10 @@ Nota: os números de lint e HTTP real acima refletem a execução original (Etap
 
 Os numeros historicos descritos na secao de evidencias foram preservados como contexto da auditoria original. Para esta rodada, prevalecem os resultados atualizados abaixo: `LINT_OK files=342` e `MVP_TESTS_OK unit=17 integration=23 http=18`, com migrations `0001` a `0038` executadas em banco descartavel.
 
+## Homologacao externa de producao
+
+Em 2026-08-05, portal e login responderam em HTTPS e os caminhos `.env`, logs e backups foram bloqueados. O HTTP ainda retornava 200 antes da atualizacao dos `.htaccess`; a regra de redirecionamento foi adicionada e precisa ser publicada no cPanel. Sem evidencia de cron, Google Drive, SMTP e restauracao isolada, o veredito permanece **APROVADO PARA HOMOLOGACAO**.
+
 ## Controles verificados
 
 - prepared statements e validação de identificadores de banco;

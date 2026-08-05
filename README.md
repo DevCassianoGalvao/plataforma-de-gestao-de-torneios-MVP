@@ -70,6 +70,7 @@ No Windows PowerShell, defina variáveis com `$env:NOME='valor'` e use `C:\xampp
 - [Plano de testes](docs/TEST_PLAN.md)
 - [Preparação para produção](docs/PRODUCTION_READINESS.md)
 - [Implantação em cPanel](docs/CPANEL_DEPLOYMENT.md)
+- [Homologação de produção](docs/PRODUCTION_HOMOLOGATION.md)
 - [Auditoria final do MVP](docs/FINAL_MVP_AUDIT.md)
 - [Referência visual do Stitch](docs/STITCH_DESIGN_REFERENCE.md)
 - [Design system da UI](docs/UI_DESIGN_SYSTEM.md)

@@ -42,6 +42,10 @@ Agende em horario de menor uso:
 
 Teste primeiro no terminal dentro da pasta do projeto: `php bin/console.php backup:run`. O processo cria lock exclusivo; duas execucoes simultaneas sao recusadas.
 
+## Homologacao externa
+
+O backup remoto so pode ser marcado como concluido depois de confirmar o arquivo no Google Drive, seu tamanho, hash, reenvio idempotente e historico no painel. A restauracao deve ocorrer em banco separado; nunca restaure sobre a producao.
+
 ## Retencao e recuperacao
 
 Retencao remove somente arquivos associados a registros concluidos do proprio modulo, apos o prazo configurado. Antes de excluir ou restaurar, valide hash, baixe uma copia e teste restauracao em banco descartavel. Backups nao aparecem no portal, prestacao de contas, sumulas ou consultas esportivas.

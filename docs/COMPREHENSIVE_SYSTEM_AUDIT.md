@@ -38,6 +38,13 @@ As observacoes abaixo registram o estado anterior a esta rodada. O fechamento at
 - Retencao possui politicas centralizadas, arquivamento, restauracao, exclusao logica e trilha de acoes.
 - Migrations `0036` a `0038`, lint e testes focados foram executados em banco descartavel.
 
+## Evidencia externa 2026-08-05
+
+- O portal da Copa e o login responderam em HTTPS.
+- `.env`, logs e backups foram bloqueados publicamente.
+- A resposta HTTP sem TLS foi observada como 200 antes da regra adicional nos `.htaccess`; a correcao foi registrada, mas depende de deploy e nova verificacao.
+- Sem acesso ao cPanel e sem credenciais externas, cron, Google Drive, SMTP e restauracao de producao permanecem nao comprovados.
+
 ## Regra operacional recomendada
 
 1. Operador registra a partida e envia evidencias.

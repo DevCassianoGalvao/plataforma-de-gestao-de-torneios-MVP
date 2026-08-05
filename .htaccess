@@ -2,6 +2,11 @@ Options -Indexes -MultiViews
 
 RewriteEngine On
 
+# Force HTTPS even when the origin is behind a reverse proxy or Cloudflare.
+RewriteCond %{HTTPS} !=on
+RewriteCond %{HTTP:X-Forwarded-Proto} !https [NC]
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L,NE]
+
 # O clone pode ficar na raiz do subdiretorio do dominio. Exponha somente public/.
 RewriteRule ^(?:app|bin|config|database|docs|resources|routes|storage|tests|\.git)(?:/|$) - [F,L]
 

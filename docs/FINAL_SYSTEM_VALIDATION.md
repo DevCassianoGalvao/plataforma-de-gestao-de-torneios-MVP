@@ -45,6 +45,14 @@ As pendencias de fechamento foram concluidas: prestacao detalhada com PDF, Excel
 - Migre antes de deploy: `php bin/console.php migrate`.
 - Rollback: reverta codigo para commit anterior somente apos confirmar compatibilidade; migrations aplicadas nao devem ser apagadas. Restaure copia validada em ambiente isolado antes de qualquer recuperacao de producao.
 
+## Homologacao externa 2026-08-05
+
+- Portal e login publicos responderam em HTTPS.
+- `.env`, logs e backups responderam com bloqueio HTTP 403.
+- O HTTP havia respondido 200 antes da correcao; os `.htaccess` agora forcam HTTPS e aguardam novo deploy e revalidacao.
+- PHP, banco, backup real, migrations, cron, Google Drive, SMTP e restauracao isolada continuam sem evidencia deste ambiente.
+- Veredito: **APROVADO PARA HOMOLOGACAO**, nao para producao.
+
 ## Preservacao de dados
 
 Todos os comandos desta validacao usaram banco com sufixo `_test`; o banco real e a Copa Brasil de Talentos nao foram acessados. O banco temporario, arquivo de backup temporario e servidor local foram removidos ao final.

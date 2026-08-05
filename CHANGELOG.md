@@ -4,6 +4,8 @@
 
 ### Adicionado
 
+- Roteiro e evidências da homologação externa de produção, com proteção HTTPS reforçada nos dois `.htaccess`.
+
 - Prestação de contas completa com filtros, detalhe oficial, CSV, Excel, PDF, pacote privado, hashes e anexo de súmula assinada.
 - Retificação avançada com edição pontual de eventos, diff de campos, reaprovação e segunda aprovação configurável.
 - Central de retenção com políticas por classe de dado, arquivamento, restauração, exclusão lógica e histórico auditável.
