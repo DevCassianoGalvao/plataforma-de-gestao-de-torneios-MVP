@@ -23,18 +23,20 @@ final class BackupSettingsRepository
             'google_drive_folder_id' => Config::get('GOOGLE_DRIVE_FOLDER_ID', ''),
             'schedule_enabled' => 0,
             'schedule_time' => '03:00',
+            'schedule_interval_days' => 1,
         ], $row);
     }
 
     public function save(array $data, int $userId): void
     {
-        $sql = 'UPDATE application_backup_settings SET provider=?, google_drive_folder_link=?, google_drive_folder_id=?, schedule_enabled=?, schedule_time=?, updated_by=?, updated_at=? WHERE id=1';
+        $sql = 'UPDATE application_backup_settings SET provider=?, google_drive_folder_link=?, google_drive_folder_id=?, schedule_enabled=?, schedule_time=?, schedule_interval_days=?, updated_by=?, updated_at=? WHERE id=1';
         $this->pdo->prepare($sql)->execute([
             $data['provider'],
             $data['google_drive_folder_link'] ?: null,
             $data['google_drive_folder_id'] ?: null,
             (int) $data['schedule_enabled'],
             $data['schedule_time'],
+            (int) $data['schedule_interval_days'],
             $userId,
             date('Y-m-d H:i:s'),
         ]);

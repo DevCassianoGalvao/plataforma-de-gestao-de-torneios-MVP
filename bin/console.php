@@ -103,8 +103,12 @@ if ($command === 'backup:schedule') {
         exit(0);
     }
     $latest = (new BackupRepository($pdo))->latestCompleted();
-    if ($latest && substr((string) ($latest['completed_at'] ?? ''), 0, 10) === date('Y-m-d')) {
-        echo "BACKUP_SCHEDULE_ALREADY_RAN\n";
+    $interval = max(1, (int) ($settings['schedule_interval_days'] ?? 1));
+    $lastRun = strtotime((string) ($latest['completed_at'] ?? ''));
+    $scheduleBase = $lastRun === false ? false : strtotime(date('Y-m-d', $lastRun) . ' ' . (string) $settings['schedule_time'] . ':00');
+    $nextRun = $scheduleBase === false ? 0 : strtotime('+' . $interval . ' days', $scheduleBase);
+    if ($lastRun !== false && $nextRun !== false && time() < $nextRun) {
+        echo 'BACKUP_SCHEDULE_WAITING_INTERVAL next=' . date('Y-m-d H:i', $nextRun) . "\n";
         exit(0);
     }
     $remote = ($settings['provider'] ?? 'local') === 'google_drive' ? new GoogleDriveBackupProvider((string) ($settings['google_drive_folder_id'] ?? '')) : null;

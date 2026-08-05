@@ -1,8 +1,10 @@
 # Torneio Online Web App
 
+O agendamento de backups usa php bin/console.php backup:schedule e está documentado em docs/APPLICATION_BACKUPS.md.
+
 Validacao final: [relatorio de testes e auditoria](docs/FINAL_SYSTEM_VALIDATION.md). Manuais: [administrador](docs/MANUAL_ADMINISTRADOR.md) e [operador](docs/MANUAL_OPERADOR.md).
 
-Backup operacional: consulte [Backups da aplicacao](docs/APPLICATION_BACKUPS.md). Agendamento: `php bin/console.php backup:run`.
+Backup operacional: consulte [Backups da aplicacao](docs/APPLICATION_BACKUPS.md). Agendamento: php bin/console.php backup:schedule.
 
 Sistema web planejado para administrar campeonatos de futebol e publicar informações esportivas.
 

@@ -36,6 +36,11 @@ final class ProductionReadinessHttpTest
         $notifications = $router->dispatch(Request::fake('GET', '/torneio-online/admin/notificacoes'));
         assert_same(200, $notifications->status, 'Central de notificacoes nao abriu para administrador');
         assert_true(str_contains($notifications->body, 'notification-center') && str_contains($notifications->body, 'Atividades recentes'), 'Central de notificacoes nao renderizou o feed operacional');
+        Database::connection()->exec("UPDATE application_backup_settings SET provider = 'google_drive', google_drive_folder_link = 'https://drive.google.com/drive/folders/test' WHERE id = 1");
+        $backups = $router->dispatch(Request::fake('GET', '/torneio-online/admin/backups'));
+        assert_same(200, $backups->status, 'Painel de backups nao abriu para administrador');
+        assert_true(str_contains($backups->body, 'Periodicidade') && str_contains($backups->body, 'GOOGLE_DRIVE_ACCESS_TOKEN'), 'Configuracao de periodicidade/token nao renderizou');
+        assert_same(403, $router->dispatch(Request::fake('POST', '/torneio-online/admin/backups/1/excluir', ['_csrf' => 'invalid']))->status, 'CSRF de exclusao de backup foi aceito');
         $monitoring = $router->dispatch(Request::fake('GET', '/torneio-online/admin/rodadas/acompanhamento'));
         assert_same(200, $monitoring->status, 'Acompanhamento por rodada nao abriu para administrador');
         assert_true(str_contains($monitoring->body, 'Acompanhamento por rodada'), 'Painel de acompanhamento nao renderizou');

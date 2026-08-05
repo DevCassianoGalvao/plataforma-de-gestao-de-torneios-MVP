@@ -4,6 +4,8 @@
 
 ### Adicionado
 
+- Agendamento de backups com periodicidade configurável (diário, 3, 7, 15 ou 30 dias), instruções de token do Google Drive e painel operacional refinado.
+
 - Roteiro e evidências da homologação externa de produção, com proteção HTTPS reforçada nos dois `.htaccess`.
 
 - Prestação de contas completa com filtros, detalhe oficial, CSV, Excel, PDF, pacote privado, hashes e anexo de súmula assinada.
@@ -13,6 +15,8 @@
 - Manuais operacionais separados para administrador e operador de partida.
 
 ### Corrigido
+
+- Exclusão e download de backups com validação de caminho multiplataforma, remoção local/remota auditada e confirmação protegida por CSRF.
 
 - Comando legado `bin/backup.php` unificado ao servico auditavel de backups.
 

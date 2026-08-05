@@ -6,6 +6,8 @@ Relatorio atual: [FINAL_SYSTEM_VALIDATION.md](FINAL_SYSTEM_VALIDATION.md). Lint,
 
 Atualizacao de backup: historico, hash, lock, download autorizado e Google Drive opcional implementados. Cron, credencial remota e restauracao isolada ainda precisam de homologacao real.
 
+Atualizacao de backup em 2026-08-04: periodicidade configuravel em 1, 3, 7, 15 ou 30 dias, instrucoes de token no arquivo .env, exclusao local/remota auditada e correcao da validacao de caminhos. O teste real do Google Drive continua dependente de token e pasta do ambiente de producao.
+
 ## Escopo auditado
 
 Esta auditoria cobre as Etapas 1 a 17: autenticação, autorização por escopo, campeonamentos, equipes, atletas, inscrições, tabela, escalações, operação, disciplina, classificação, súmula, notícias, Vai e Vem, portal público, preparação para produção e UI/UX definitiva.

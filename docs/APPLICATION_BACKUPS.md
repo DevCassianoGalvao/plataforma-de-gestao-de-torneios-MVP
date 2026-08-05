@@ -1,51 +1,86 @@
-# Backups da aplicacao
+# Backups da aplicação
 
-## Escopo
+## O que o módulo faz
 
-O modulo cria um ZIP privado com dump MySQL, `public/uploads`, `storage/private` e `manifest.json`. Arquivos `.env`, logs, sessoes, cache e outros backups nao entram no pacote.
+O módulo cria um arquivo ZIP privado com o banco MySQL, os uploads públicos, os arquivos privados permitidos e um manifesto de verificação. Arquivos .env, logs, sessões, cache e outros backups nunca entram no pacote.
 
-Cada execucao fica registrada em `application_backups`, com tamanho, hash SHA-256, duracao, tentativas, estado local/remoto e auditoria. Estados: pendente, em execucao, concluido, concluido parcialmente, falhou e excluido logicamente.
+Cada cópia fica registrada com tamanho, hash SHA-256, duração, situação local, situação remota e auditoria. O backup só é considerado concluído depois da validação local do ZIP.
 
-## Operacao administrativa
+## Operação no painel
 
-Administrador acessa **Backups** no painel. Pode criar backup manual, testar conexao remota, baixar pacote validado, reenviar envio remoto falho e excluir mediante confirmacao. Restauracao nao esta disponivel pela web: use somente `bin/restore.php --archive=... --confirm` em ambiente controlado e com backup testado.
+Em Backups, um administrador pode:
 
-## Configuracao
+- criar uma cópia manual;
+- testar o Google Drive;
+- baixar uma cópia local validada;
+- reenviar uma cópia cujo envio remoto falhou;
+- excluir a cópia local e a cópia remota, quando existir;
+- ativar e configurar o agendamento.
 
-```dotenv
+A exclusão exige sessão autenticada, permissão e CSRF. A confirmação visual do navegador é apenas uma proteção adicional. A restauração não é feita pela web: use o comando bin/restore.php --archive=... --confirm em ambiente controlado, sempre em banco descartável.
+
+## Google Drive: onde colocar o token
+
+O link da pasta não é uma credencial. Ele apenas informa em qual pasta o arquivo será gravado.
+
+No cPanel:
+
+1. Abra o Gerenciador de arquivos.
+2. Entre na pasta da aplicação.
+3. Edite o arquivo .env.
+4. Preencha somente no servidor:
+
+~~~dotenv
+BACKUP_STORAGE_PROVIDER=google_drive
+GOOGLE_DRIVE_ACCESS_TOKEN=cole_o_token_de_acesso_aqui
+~~~
+
+Na tela Backups, selecione Google Drive e cole o link da pasta. A pasta precisa estar compartilhada com a conta autorizada pelo token. O token nunca deve ser colocado no formulário, no banco, no Git ou em um chamado.
+
+Depois de salvar o .env, volte ao painel e clique em Testar conexão. Se o teste confirmar a pasta, um backup manual fará o primeiro envio real. Sem token, o destino local continua funcionando.
+
+## Periodicidade
+
+Na tela Backups, ative o backup automático e escolha:
+
+- todos os dias;
+- a cada 3 dias;
+- uma vez por semana;
+- a cada 15 dias;
+- uma vez por mês.
+
+Escolha também o horário. A periodicidade fica salva no banco; não é necessário editar código. O cron deve apenas acordar o sistema e pode executar a cada cinco minutos:
+
+~~~cron
+*/5 * * * * /opt/cpanel/ea-php82/root/usr/bin/php /home/USUARIO/caminho-do-projeto/bin/console.php backup:schedule >> /home/USUARIO/logs/backup-cron.log 2>&1
+~~~
+
+O comando respeita o horário e o intervalo escolhido e impede duplicidade mesmo se o cron executar várias vezes no mesmo período.
+
+## Configuração de ambiente
+
+~~~dotenv
 BACKUP_ENABLED=true
 BACKUP_DIR=storage/backups
 BACKUP_RETENTION_DAYS=14
 BACKUP_STORAGE_PROVIDER=local
 GOOGLE_DRIVE_FOLDER_ID=
 GOOGLE_DRIVE_ACCESS_TOKEN=
-GOOGLE_DRIVE_CREDENTIALS_PATH=storage/private/google-drive-service-account.json
-```
+~~~
 
-Para Google Drive, selecione Google Drive na tela de Backups e cole o link da pasta. O sistema extrai o identificador da pasta, mas o link não é uma credencial: para gravar, a pasta deve estar compartilhada com a conta autorizada e o servidor deve receber `GOOGLE_DRIVE_ACCESS_TOKEN` no `.env`. Nunca versione token, credencial de conta de serviço ou `.env`.
+O diretório de backup deve ficar dentro de storage, fora do document root público, com permissão restrita.
 
-Na mesma tela, ative o backup automático e escolha o horário. Em hospedagem compartilhada, o PHP não executa sozinho: cadastre no cron do cPanel uma tarefa a cada cinco minutos, ajustando os caminhos:
+## Teste manual
 
-```cron
-*/5 * * * * /opt/cpanel/ea-php82/root/usr/bin/php /home/USUARIO/caminho-do-projeto/bin/console.php backup:schedule >> /home/USUARIO/logs/backup-cron.log 2>&1
-```
+Dentro da pasta do projeto:
 
-O comando verifica o horário salvo e impede mais de um backup automático por dia. O destino local continua funcionando sem Google Drive.
+~~~bash
+/opt/cpanel/ea-php82/root/usr/bin/php bin/console.php backup:run
+/opt/cpanel/ea-php82/root/usr/bin/php bin/console.php backup:schedule
+~~~
 
-## Cron cPanel
+Confirme no painel se a cópia aparece como concluída, baixe o ZIP e verifique se o Google Drive recebeu o arquivo quando o destino remoto estiver ativo.
 
-Agende em horario de menor uso:
+## Retenção e recuperação
 
-```text
-0 3 * * * /usr/local/bin/php /home/USUARIO/caminho-do-projeto/bin/console.php backup:run >> /home/USUARIO/logs/backup.log 2>&1
-```
-
-Teste primeiro no terminal dentro da pasta do projeto: `php bin/console.php backup:run`. O processo cria lock exclusivo; duas execucoes simultaneas sao recusadas.
-
-## Homologacao externa
-
-O backup remoto so pode ser marcado como concluido depois de confirmar o arquivo no Google Drive, seu tamanho, hash, reenvio idempotente e historico no painel. A restauracao deve ocorrer em banco separado; nunca restaure sobre a producao.
-
-## Retencao e recuperacao
-
-Retencao remove somente arquivos associados a registros concluidos do proprio modulo, apos o prazo configurado. Antes de excluir ou restaurar, valide hash, baixe uma copia e teste restauracao em banco descartavel. Backups nao aparecem no portal, prestacao de contas, sumulas ou consultas esportivas.
+A retenção remove arquivos locais antigos associados a cópias concluídas. Ela não substitui uma cópia externa. Antes de excluir ou restaurar, valide o hash, baixe uma cópia e teste a restauração em banco descartável. Backups não aparecem no portal público, nas súmulas nem na prestação de contas.
