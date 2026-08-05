@@ -4,6 +4,9 @@
 
 ### Adicionado
 
+- Prestação de contas completa com filtros, detalhe oficial, CSV, Excel, PDF, pacote privado, hashes e anexo de súmula assinada.
+- Retificação avançada com edição pontual de eventos, diff de campos, reaprovação e segunda aprovação configurável.
+- Central de retenção com políticas por classe de dado, arquivamento, restauração, exclusão lógica e histórico auditável.
 - Validacao final registrada: lint, suite descartavel, HTTP real, migration/seed e backup local.
 - Manuais operacionais separados para administrador e operador de partida.
 

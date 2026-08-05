@@ -25,3 +25,11 @@ Administradores podem criar organizacoes e projetos em `/admin/governanca`. Camp
 ## Transferencias
 
 Uma transferencia aprovada ou publicada pode receber a decisao explicita `Aplicar vinculo oficial`. Essa acao altera a equipe atual do atleta em transacao e deixa registro no historico; a publicacao editorial continua separada da decisao esportiva.
+
+## Fechamento de prestação e correções
+
+O painel de prestação agora filtra partidas aprovadas, abre detalhe oficial e gera CSV, Excel, PDF e pacote privado com manifesto e hashes. A súmula assinada é anexada à versão atual sem apagar versões anteriores.
+
+Retificações críticas podem editar eventos autorizados, registrar a diferença entre valores e retornar a partida para nova aprovação. A segunda aprovação pode ser exigida por campeonato e impede que o mesmo responsável pela correção aprove o próprio ajuste.
+
+Retenção é administrada separadamente em `/admin/retencao`. Registros oficiais, documentos e logs permanecem protegidos contra exclusão permanente; toda ação de arquivamento/restauração exige motivo, permissão, CSRF e auditoria.

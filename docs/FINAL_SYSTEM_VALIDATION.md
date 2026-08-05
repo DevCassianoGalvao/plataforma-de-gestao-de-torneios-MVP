@@ -19,10 +19,10 @@ HTTP_TEST_BASE_URL=http://127.0.0.1:18082/torneio-online C:\xampp\php\php.exe bi
 
 ## Resultados
 
-- Lint: aprovado, 331 arquivos PHP.
-- Suite: aprovado, 17 grupos unitarios, 20 de integracao e 17 HTTP de contrato.
+- Lint: aprovado, 342 arquivos PHP.
+- Suite: aprovado, 17 grupos unitarios, 23 de integracao e 18 HTTP de contrato.
 - HTTP real: aprovado, 31 verificacoes de login, autorizacao, headers, portal e logout.
-- Migration e seed: aprovados em banco descartavel com migrations `0001` a `0034`.
+- Migration e seed: aprovados em banco descartavel com migrations `0001` a `0038`.
 - Backup local real: aprovado em banco descartavel; registro, ZIP, hash e validacao concluidos.
 - Backup remoto: mock e camada de provedor cobertos; Google Drive real nao foi executado sem credencial de ambiente.
 - Restauracao: nao executada nesta rodada; procedimento continua restrito ao CLI e deve ser ensaiado em servidor separado.
@@ -32,6 +32,8 @@ HTTP_TEST_BASE_URL=http://127.0.0.1:18082/torneio-online C:\xampp\php\php.exe bi
 Campeonatos, equipes, atletas, inscricoes, tabela, escalacoes, operacao, disciplina, classificacao, sumulas, noticias, transferencias, portal, rodadas, simulacao e seguranca possuem testes unitarios, integracao ou HTTP. Simulacoes permanecem em tabelas isoladas e os testes verificam que nao alteram partidas, classificacao ou sumulas oficiais.
 
 ## Correcao desta rodada
+
+As pendencias de fechamento foram concluidas: prestacao detalhada com PDF, Excel, pacote e sumula assinada; retificacao avancada com historico de campos e segunda aprovacao; e retencao centralizada com arquivamento/restauracao auditados. As novas integracoes foram exercitadas somente em banco descartavel.
 
 `bin/backup.php` usava fluxo antigo independente. Foi unificado ao `BackupService`; painel, cron e CLI agora registram o mesmo historico, lock, hash, validacao e destino remoto opcional.
 

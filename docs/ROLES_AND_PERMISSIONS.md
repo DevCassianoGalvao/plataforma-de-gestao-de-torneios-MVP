@@ -4,6 +4,14 @@ Existem quatro perfis: **Administrador**, **Treinador/Gestor**, **Operador de pa
 
 Treinador/Gestor e Operador de partida têm escopo restrito: o primeiro por vínculo explícito à equipe (`team_user_assignments`), o segundo por atribuição explícita à partida (`match_operator_assignments`). Prestação de Contas tem escopo por vínculo ao campeonato (`championship_user_assignments`, `assignment_type = 'accountability'`).
 
+## Permissões adicionadas nesta rodada
+
+- `accountability.detail`, `accountability.export_pdf`, `accountability.export_xlsx`, `accountability.export_zip` e `match_reports.signed_upload` controlam a prestação completa.
+- `match_operation.rectify.edit`, `match_operation.rectify.complete` e `match_operation.rectify.approve` controlam a retificação avançada.
+- `retention.view`, `retention.manage`, `retention.archive` e `retention.restore` controlam a central de retenção.
+
+O administrador recebe todas. O perfil de prestação recebe consulta detalhada e exportações documentais, mas não recebe operação esportiva, retificação ou retenção administrativa.
+
 ## Matriz por módulo
 
 | Módulo | Administrador | Treinador/Gestor | Operador de partida | Prestação de Contas |

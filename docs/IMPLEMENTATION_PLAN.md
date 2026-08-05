@@ -22,6 +22,12 @@ Legenda: `[ ]` pendente, `[x]` concluído com evidência. Nenhuma etapa futura d
 | 16 | Preparação para produção | [x] | instalação limpa, hardening, backup, cPanel e auditoria |
 | 17 | UI/UX definitiva | [x] | design system, temas, responsividade e acessibilidade |
 
+## Estado da rodada de fechamento do MVP
+
+Além das Etapas 1 a 17, esta rodada concluiu as pendências operacionais de prestação de contas, retificação avançada, retenção e testes focados. As migrations `0036_accountability_completion.sql`, `0037_advanced_rectification.sql` e `0038_retention_policies.sql` são incrementais e não alteram dados existentes por seed destrutivo.
+
+Evidências atuais: `LINT_OK files=342` e `MVP_TESTS_OK unit=17 integration=23 http=18`, sempre em banco de teste descartável.
+
 ## Estado da Etapa 3
 
 Implementada em `feat/championships-and-regulations`. Equipes, partidas, portal e demais módulos esportivos continuam fora desta etapa.

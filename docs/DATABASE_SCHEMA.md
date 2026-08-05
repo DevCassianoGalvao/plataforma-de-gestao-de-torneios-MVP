@@ -165,6 +165,16 @@ Vai e Vem nao altera automaticamente `athletes.team_id`. A movimentacao publicad
 - rascunhos, versoes superseded e versoes anteriores nao sao excluidos;
 - uploads usam caminho privado e nome aleatorio;
 - nenhuma regra e editada por JSON.
+## Migrations 0036 a 0038
+
+| Migration | Conteúdo |
+|---|---|
+| `0036_accountability_completion.sql` | configuração documental por campeonato, assinatura de súmula e logs completos de exportação |
+| `0037_advanced_rectification.sql` | campos de correção, histórico de diferenças e segunda aprovação |
+| `0038_retention_policies.sql` | políticas centrais e histórico de arquivamento/restauração |
+
+Tabelas novas: `championship_accountability_settings`, `match_rectification_changes`, `championship_rectification_settings`, `retention_policies` e `retention_actions`. Nenhuma delas mistura simulações com registros oficiais.
+
 # Read model publico
 
 A Etapa 15 nao cria migration ou tabela nova. `PublicPortalRepository` compoe o portal a partir de `championships`, fases, grupos, partidas, equipes, elenco aprovado, classificacao, mata-mata, eventos, disciplina, noticias e transferencias existentes. As consultas usam listas explicitas de colunas e filtros de visibilidade/status para manter a fronteira de privacidade.

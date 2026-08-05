@@ -161,6 +161,18 @@ final class AuthSeed
             ['transfers.request', 'Solicitar Vai e Vem', 'Cria e acompanha solicitacoes de transferencia da propria equipe.', 'vai-e-vem'],
             ['accountability.view', 'Visualizar prestacao de contas', 'Consulta dados consolidados autorizados.', 'prestacao'],
             ['accountability.export', 'Exportar prestacao de contas', 'Exporta planilhas e pacote de evidencias autorizados.', 'prestacao'],
+            ['accountability.detail', 'Detalhar prestacao de contas', 'Consulta partidas e documentos oficiais autorizados.', 'prestacao'],
+            ['accountability.export_pdf', 'Exportar prestacao em PDF', 'Gera PDF consolidado de prestacao de contas.', 'prestacao'],
+            ['accountability.export_xlsx', 'Exportar prestacao em Excel', 'Gera planilha consolidada de prestacao de contas.', 'prestacao'],
+            ['accountability.export_zip', 'Exportar pacote de prestacao', 'Gera pacote privado com documentos oficiais.', 'prestacao'],
+            ['match_reports.signed_upload', 'Anexar sumula assinada', 'Vincula documento assinado a uma versao oficial.', 'prestacao'],
+            ['match_operation.rectify.edit', 'Editar retificacao', 'Corrige campos autorizados de uma partida aprovada.', 'partidas'],
+            ['match_operation.rectify.complete', 'Concluir retificacao', 'Envia uma correcao para nova aprovacao.', 'partidas'],
+            ['match_operation.rectify.approve', 'Aprovar retificacao', 'Aprova retificacoes de partidas.', 'partidas'],
+            ['retention.view', 'Consultar retencao', 'Consulta politicas e historico de retencao.', 'retencao'],
+            ['retention.manage', 'Configurar retencao', 'Altera prazos e regras de arquivamento.', 'retencao'],
+            ['retention.archive', 'Arquivar registros', 'Arquiva registros permitidos pela politica.', 'retencao'],
+            ['retention.restore', 'Restaurar registros', 'Restaura registros arquivados quando permitido.', 'retencao'],
             ['round.monitor.view', 'Visualizar acompanhamento por rodada', 'Consulta cobertura esportiva e documental por rodada.', 'rodadas'],
             ['round.monitor.manage', 'Configurar acompanhamento por rodada', 'Configura prazos documentais por campeonato.', 'rodadas'],
             ['round.report.generate', 'Gerar relatorios de rodada', 'Gera arquivos estruturados para acompanhamento da rodada.', 'rodadas'],
@@ -191,7 +203,7 @@ final class AuthSeed
             'administrator' => array_keys($permissionIds),
             'team_manager' => ['teams.view', 'teams.manage_own', 'teams.select_default_formation', 'team_staff.view', 'team_staff.create', 'team_staff.update', 'team_staff.deactivate', 'team_staff.manage_own', 'tactical_formations.view', 'athletes.view', 'athletes.create', 'athletes.manage_own', 'positions.view', 'athlete_guardians.view', 'athlete_guardians.create', 'athlete_guardians.update', 'athlete_guardians.manage_own', 'athlete_documents.view', 'athlete_documents.create', 'athlete_documents.update', 'athlete_documents.manage_own', 'registrations.view', 'registrations.create', 'registrations.update', 'registrations.submit', 'registrations.correct', 'registrations.cancel', 'registrations.manage_own', 'rosters.view', 'matches.view', 'schedule.view', 'lineups.view', 'lineups.create', 'lineups.update', 'lineups.confirm', 'lineups.manage_own', 'match_operation.view', 'discipline.view', 'suspensions.view', 'standings.view', 'match_reports.view', 'match_reports.download', 'transfers.request', 'teams.manage_identity'],
             'match_operator' => ['matches.view', 'matches.operate', 'lineups.view', 'match_operation.view', 'match_operation.operate', 'discipline.view', 'match_reports.view', 'match_reports.download', 'evidence.upload', 'evidence.remove', 'evidence.download'],
-            'accountability' => ['championships.view', 'matches.view', 'match_reports.view', 'match_reports.download', 'match_reports.package', 'accountability.view', 'accountability.export', 'evidence.download', 'round.monitor.view', 'round.report.generate', 'round.package.download'],
+            'accountability' => ['championships.view', 'matches.view', 'match_reports.view', 'match_reports.download', 'match_reports.package', 'accountability.view', 'accountability.detail', 'accountability.export', 'accountability.export_pdf', 'accountability.export_xlsx', 'accountability.export_zip', 'match_reports.signed_upload', 'evidence.download', 'round.monitor.view', 'round.report.generate', 'round.package.download'],
         ];
         $link = $pdo->prepare('INSERT IGNORE INTO role_permissions (role_id, permission_id, created_at) VALUES (?, ?, ?)');
         foreach ($rolePermissions as $roleKey => $keys) {

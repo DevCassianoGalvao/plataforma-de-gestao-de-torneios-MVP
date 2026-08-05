@@ -82,12 +82,22 @@ final class MatchOperationController extends Controller
 
     public function requestRectification(Request $request, array $params = []): Response
     {
-        return $this->reviewMutate($request, $params, 'match_operation.rectify', fn (array $user, array $match): array => $this->service->requestRectification($user, $match, trim((string) ($request->body['reason'] ?? ''))));
+        return $this->reviewMutate($request, $params, 'match_operation.rectify', fn (array $user, array $match): array => $this->service->requestRectification($user, $match, trim((string) ($request->body['reason'] ?? '')), (string) ($request->body['requested_field'] ?? 'operacao')));
     }
 
     public function decideRectification(Request $request, array $params = []): Response
     {
         return $this->reviewMutate($request, $params, 'match_operation.rectify', fn (array $user, array $match): array => $this->service->decideRectification($user, $match, (int) ($request->body['rectification_id'] ?? 0), ($request->body['decision'] ?? '') === 'approve', trim((string) ($request->body['reason'] ?? ''))));
+    }
+
+    public function rectificationEvent(Request $request, array $params = []): Response
+    {
+        return $this->reviewMutate($request, $params, 'match_operation.rectify.edit', fn (array $user, array $match): array => $this->service->editRectificationEvent($user, $match, (int) ($request->body['rectification_id'] ?? 0), (int) ($request->body['event_id'] ?? 0), ['field' => $request->body['field'] ?? '', 'value' => $request->body['value'] ?? null, 'reason' => $request->body['reason'] ?? '']));
+    }
+
+    public function completeRectification(Request $request, array $params = []): Response
+    {
+        return $this->reviewMutate($request, $params, 'match_operation.rectify.complete', fn (array $user, array $match): array => $this->service->completeRectification($user, $match, (int) ($request->body['rectification_id'] ?? 0)));
     }
 
     private function mutate(Request $request, array $params, string $action, callable $callback): Response
@@ -124,7 +134,9 @@ final class MatchOperationController extends Controller
     private function viewData(array $user, array $match, array $errors): array
     {
         $payload = $this->service->payload($match, (int) $user['id']);
-        return array_merge(['user' => $user, 'match' => $match, 'errors' => $errors, 'message' => Session::consumeFlash('match_operation_message'), 'canOperate' => $this->access->canOperate($user, $match), 'canHomologate' => $this->access->canHomologate($user, $match), 'canReview' => $this->authorization->can($user, 'match_operation.review'), 'canRectify' => $this->authorization->can($user, 'match_operation.rectify'), 'canCancelEvent' => $this->authorization->can($user, 'match_operation.cancel_event'), 'canEvidenceOverride' => $this->authorization->can($user, 'evidence.override'), 'operationBase' => Config::url('/admin/partidas/' . $match['id'] . '/operacao')], $payload);
+        foreach ($payload['rectifications'] as &$rectification) $rectification['changes'] = $this->operations->rectificationChanges((int) $rectification['id']);
+        unset($rectification);
+        return array_merge(['user' => $user, 'match' => $match, 'errors' => $errors, 'message' => Session::consumeFlash('match_operation_message'), 'canOperate' => $this->access->canOperate($user, $match), 'canHomologate' => $this->access->canHomologate($user, $match), 'canReview' => $this->authorization->can($user, 'match_operation.review'), 'canRectify' => $this->authorization->can($user, 'match_operation.rectify'), 'canRectifyEdit' => $this->authorization->can($user, 'match_operation.rectify.edit'), 'canRectifyComplete' => $this->authorization->can($user, 'match_operation.rectify.complete'), 'canCancelEvent' => $this->authorization->can($user, 'match_operation.cancel_event'), 'canEvidenceOverride' => $this->authorization->can($user, 'evidence.override'), 'operationBase' => Config::url('/admin/partidas/' . $match['id'] . '/operacao')], $payload);
     }
 
     private function eventInput(Request $request): array

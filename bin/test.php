@@ -52,6 +52,9 @@ require dirname(__DIR__) . '/tests/Integration/NewsIntegrationTest.php';
 require dirname(__DIR__) . '/tests/Integration/TransferIntegrationTest.php';
 require dirname(__DIR__) . '/tests/Integration/PublicPortalIntegrationTest.php';
 require dirname(__DIR__) . '/tests/Integration/TournamentProgressSeedIntegrationTest.php';
+require dirname(__DIR__) . '/tests/Integration/AccountabilityCompletionIntegrationTest.php';
+require dirname(__DIR__) . '/tests/Integration/RetentionIntegrationTest.php';
+require dirname(__DIR__) . '/tests/Integration/AdvancedRectificationIntegrationTest.php';
 require dirname(__DIR__) . '/tests/Http/FoundationHttpTest.php';
 require dirname(__DIR__) . '/tests/Http/AuthenticationHttpTest.php';
 require dirname(__DIR__) . '/tests/Http/ChampionshipHttpTest.php';
@@ -69,6 +72,7 @@ require dirname(__DIR__) . '/tests/Http/TransferHttpTest.php';
 require dirname(__DIR__) . '/tests/Http/PublicPortalHttpTest.php';
 require dirname(__DIR__) . '/tests/Http/ProductionReadinessHttpTest.php';
 require dirname(__DIR__) . '/tests/Http/SimulationHttpTest.php';
+require dirname(__DIR__) . '/tests/Http/AccountabilityRetentionHttpTest.php';
 
 use App\Core\Database;
 use Tests\Http\FoundationHttpTest;
@@ -110,6 +114,9 @@ use Tests\Integration\NewsIntegrationTest;
 use Tests\Integration\TransferIntegrationTest;
 use Tests\Integration\PublicPortalIntegrationTest;
 use Tests\Integration\TournamentProgressSeedIntegrationTest;
+use Tests\Integration\AccountabilityCompletionIntegrationTest;
+use Tests\Integration\RetentionIntegrationTest;
+use Tests\Integration\AdvancedRectificationIntegrationTest;
 use Tests\Http\AuthenticationHttpTest;
 use Tests\Http\ChampionshipHttpTest;
 use Tests\Http\TeamHttpTest;
@@ -126,6 +133,7 @@ use Tests\Http\TransferHttpTest;
 use Tests\Http\PublicPortalHttpTest;
 use Tests\Http\ProductionReadinessHttpTest;
 use Tests\Http\SimulationHttpTest;
+use Tests\Http\AccountabilityRetentionHttpTest;
 
 $server = Database::serverConnection();
 $quoted = '`' . str_replace('`', '``', $dbName) . '`';
@@ -187,7 +195,11 @@ try {
     SimulationHttpTest::run();
     TournamentProgressSeedIntegrationTest::run();
     AdvancedRegulationIntegrationTest::run();
-    echo "MVP_TESTS_OK unit=17 integration=20 http=17\n";
+    AccountabilityCompletionIntegrationTest::run();
+    RetentionIntegrationTest::run();
+    AdvancedRectificationIntegrationTest::run();
+    AccountabilityRetentionHttpTest::run();
+    echo "MVP_TESTS_OK unit=17 integration=23 http=18\n";
 } finally {
     Database::disconnect();
     $server->exec('DROP DATABASE IF EXISTS ' . $quoted);

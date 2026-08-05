@@ -126,13 +126,16 @@ final class MatchOperationService
         return ['ok' => true, 'errors' => []];
     }
 
-    public function requestRectification(array $user, array $match, string $reason): array
+    public function requestRectification(array $user, array $match, string $reason, string $field = 'operacao'): array
     {
         $operation = $this->operations->ensure((int) $match['id'], (int) $user['id']);
         if ($operation['status'] !== 'homologated') return $this->fail('Somente partidas aprovadas podem receber pedido de retificacao.');
         if (trim($reason) === '') return $this->fail('Informe o motivo da retificacao.');
-        $id = $this->operations->requestRectification((int) $match['id'], (int) $operation['id'], (int) $user['id'], trim($reason));
-        $this->audit->record('match_operation.rectification_requested', (int) $user['id'], 'match_operation_rectification', $id, ['match_id' => $match['id']], null);
+        $allowed = ['operacao', 'evento', 'placar', 'arbitragem', 'horarios', 'escalacao'];
+        if (!in_array($field, $allowed, true)) return $this->fail('Campo de retificação inválido.');
+        $critical = in_array($field, ['placar', 'evento', 'escalacao'], true);
+        $id = $this->operations->requestRectification((int) $match['id'], (int) $operation['id'], (int) $user['id'], trim($reason), $field, $critical);
+        $this->audit->record('match_operation.rectification_requested', (int) $user['id'], 'match_operation_rectification', $id, ['match_id' => $match['id'], 'field' => $field, 'critical' => $critical], null);
         return ['ok' => true, 'errors' => []];
     }
 
@@ -140,6 +143,38 @@ final class MatchOperationService
     {
         if (!$this->operations->decideRectification($id, (int) $match['id'], (int) $user['id'], $approved, trim($reason))) return $this->fail('Pedido de retificacao nao encontrado ou ja decidido.');
         $this->audit->record('match_operation.rectification_' . ($approved ? 'approved' : 'rejected'), (int) $user['id'], 'match_operation_rectification', $id, ['match_id' => $match['id']], null);
+        return ['ok' => true, 'errors' => []];
+    }
+
+    public function editRectificationEvent(array $user, array $match, int $rectificationId, int $eventId, array $data): array
+    {
+        $operation = $this->operations->ensure((int) $match['id'], (int) $user['id']);
+        $rectification = $this->operations->activeRectification((int) $match['id']);
+        if ($operation['status'] !== 'open' || !$rectification || (int) $rectification['id'] !== $rectificationId || !in_array($rectification['status'], ['approved'], true)) return $this->fail('A retificação não está aberta para correção.');
+        $event = $this->operations->eventForMatch((int) $match['id'], $eventId);
+        if (!$event) return $this->fail('Registro não encontrado nesta partida.');
+        $field = (string) ($data['field'] ?? 'minute');
+        if (!in_array($field, ['event_type', 'period', 'minute', 'team_id', 'athlete_id', 'related_athlete_id', 'notes'], true)) return $this->fail('Campo não permitido para alteração.');
+        $value = $data['value'] ?? null;
+        if ($field === 'event_type' && !MatchOperationRules::eventType((string) $value)) return $this->fail('Tipo de evento inválido.');
+        if ($field === 'period' && !MatchOperationRules::period((string) $value)) return $this->fail('Período inválido.');
+        if ($field === 'minute') { $value = $value === '' ? null : MatchOperationRules::minute($value); if (($data['value'] ?? '') !== '' && $value === null) return $this->fail('Minuto inválido.'); }
+        if ($field === 'team_id' && !$this->isMatchTeam($match, (int) $value)) return $this->fail('Equipe não pertence à partida.');
+        $updated = $this->operations->updateEventForRectification((int) $match['id'], $eventId, [$field => $value]);
+        if (!$updated) return $this->fail('Não foi possível atualizar o registro.');
+        $old = $event[$field] ?? null; $reason = trim((string) ($data['reason'] ?? ''));
+        $this->operations->recordRectificationChange($rectificationId, (int) $match['id'], 'event', $eventId, $field, $old, $value, $reason, (int) $user['id']);
+        $this->audit->record('match_operation.rectification_event_changed', (int) $user['id'], 'match_operation_event', $eventId, ['match_id' => $match['id'], 'field' => $field], null);
+        return ['ok' => true, 'errors' => []];
+    }
+
+    public function completeRectification(array $user, array $match, int $rectificationId): array
+    {
+        $rectification = $this->operations->activeRectification((int) $match['id']);
+        $operation = $this->operations->ensure((int) $match['id'], (int) $user['id']);
+        if (!$rectification || (int) $rectification['id'] !== $rectificationId || $rectification['status'] !== 'approved' || $operation['status'] !== 'open') return $this->fail('Não existe retificação aberta para concluir.');
+        if (!$this->operations->completeRectification($rectificationId, (int) $match['id'], (int) $user['id']) || !$this->operations->submitRectificationForApproval((int) $operation['id'], (int) $match['id'], (int) $user['id'])) return $this->fail('Não foi possível enviar a correção para aprovação.');
+        $this->audit->record('match_operation.rectification_completed', (int) $user['id'], 'match_operation_rectification', $rectificationId, ['match_id' => $match['id']], null);
         return ['ok' => true, 'errors' => []];
     }
 
@@ -202,6 +237,11 @@ final class MatchOperationService
         if (!$confirmed) return $this->fail('Confirme a homologacao.');
         $operation = $this->operations->ensure((int) $match['id'], (int) $user['id']);
         if ($operation['status'] !== 'awaiting_homologation') return $this->fail('A partida ainda nao esta aguardando homologacao.');
+        $rectification = $this->operations->activeRectification((int) $match['id']);
+        if ($rectification && $rectification['status'] === 'awaiting_reapproval') {
+            $settings = $this->operations->rectificationSettings((int) $match['championship_id']);
+            if (!empty($settings['require_second_approval']) && (int) ($rectification['correction_by'] ?? 0) === (int) $user['id']) return $this->fail('Esta retificação exige aprovação de um segundo administrador.');
+        }
         if (!$this->allowEvidenceGate($user, $match, 'document', $evidenceData)) return $this->fail($this->evidenceMessage($match, 'document'));
         $checklist = $this->checklist($match, $operation);
         if ($checklist['errors'] !== []) return ['ok' => false, 'errors' => $checklist['errors']];
@@ -218,6 +258,7 @@ final class MatchOperationService
             $progress = $this->competition->afterHomologation(array_merge($match, ['status' => 'homologated']), (int) $user['id']);
             if (!$progress['ok']) return ['ok' => false, 'errors' => $progress['errors'] ?? ['Nao foi possivel atualizar os dados derivados da competicao.']];
         }
+        if ($rectification && $rectification['status'] === 'awaiting_reapproval') $this->operations->finalizeRectification((int) $rectification['id'], (int) $user['id']);
         $this->audit->record('match_operation.homologated', (int) $user['id'], 'match', (int) $match['id'], ['score' => $this->operations->score($operation)], null);
         return ['ok' => true, 'errors' => []];
     }

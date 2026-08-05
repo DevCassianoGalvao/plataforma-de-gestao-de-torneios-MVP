@@ -20,7 +20,9 @@ A migration `0029_match_review_rectification.sql` adiciona revisao formal, devol
 - Portal com isolamento de dados privados, identidade do campeonato, noticias, transferencias, tabela e paginas de equipes e atletas.
 - Auditoria, notificacoes administrativas, backups locais e restauracao verificada.
 
-## Pendencias que nao podem ser declaradas como concluidas
+## Contexto historico da auditoria
+
+As observacoes abaixo registram o estado anterior a esta rodada. O fechamento atual, com os itens resolvidos e as dependencias que permanecem externas, esta descrito na secao seguinte.
 
 - Segunda aprovacao configuravel por tipo de evento e edicao pontual de evento ja aprovado sem retorno completo para correcao.
 - Painel consolidado de cobertura por rodada ainda é melhoria futura; o checklist configurável de evidências por campeonato, revisão, bloqueios e exceções foi entregue na migration `0030`.
@@ -28,6 +30,13 @@ A migration `0029_match_review_rectification.sql` adiciona revisao formal, devol
 - Integracao real com provedor externo de backup. A base atual possui backup local e documentacao de copia externa, nao uma integracao de armazenamento remoto.
 - Cobertura completa de exclusao logica para todas as entidades historicas e politica formal de retencao por tipo de dado.
 - Teste de restauracao no ambiente cPanel de producao, que depende de janela controlada e de um backup real.
+
+## Fechamento das pendencias auditadas
+
+- Prestacao de contas possui filtros, detalhe oficial, CSV, Excel, PDF, pacote privado, hash e upload de sumula assinada.
+- Retificacao possui diff por campo, historico, reabertura, conclusao da correcao e segunda aprovacao configuravel.
+- Retencao possui politicas centralizadas, arquivamento, restauracao, exclusao logica e trilha de acoes.
+- Migrations `0036` a `0038`, lint e testes focados foram executados em banco descartavel.
 
 ## Regra operacional recomendada
 
@@ -42,7 +51,7 @@ A migration `0029_match_review_rectification.sql` adiciona revisao formal, devol
 Em banco descartavel, a suite integrada foi executada apos a migration `0029_match_review_rectification.sql`:
 
 ```text
-MVP_TESTS_OK unit=17 integration=16 http=16
+MVP_TESTS_OK unit=17 integration=23 http=18
 ```
 
 ## Cron de publicacao no cPanel

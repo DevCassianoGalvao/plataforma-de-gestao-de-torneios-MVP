@@ -2,6 +2,15 @@
 
 Todas as URLs respeitam `APP_BASE_PATH=/torneio-online`.
 
+## Rotas de prestação, retificação e retenção
+
+- `GET /prestacao/campeonatos/{id}/partidas/{matchId}`: detalhe oficial da prestação.
+- `GET /prestacao/campeonatos/{id}/exportar/{formato}`: CSV, Excel, PDF ou pacote privado.
+- `POST /prestacao/campeonatos/{id}/partidas/{matchId}/sumula-assinada`: anexo privado da súmula assinada.
+- `GET /admin/retencao`: políticas e histórico de retenção.
+- `POST /admin/retencao/{scope}`: atualiza uma política.
+- `POST /admin/retencao/{entity}/{id}/arquivar|restaurar`: mutação controlada com motivo e CSRF.
+
 ## Catalogos
 
 | Metodo | Rota | Funcao |

@@ -2,7 +2,7 @@
 
 ## Rodada ampla de validacao - 2026-08-04
 
-Relatorio atual: [FINAL_SYSTEM_VALIDATION.md](FINAL_SYSTEM_VALIDATION.md). Lint, suite descartavel, HTTP real, migration/seed e backup local foram executados sem tocar banco real. Veredito permanece **APROVADO PARA HOMOLOGACAO**. Google Drive real, cron, HTTPS, SMTP e restauracao fora do servidor de producao seguem como dependencias externas.
+Relatorio atual: [FINAL_SYSTEM_VALIDATION.md](FINAL_SYSTEM_VALIDATION.md). Lint, suite descartavel, HTTP real, migration/seed e backup local foram executados sem tocar banco real. A rodada de fechamento também validou prestação, retificação e retenção. Veredito permanece **APROVADO PARA HOMOLOGACAO**. Google Drive real, cron, HTTPS, SMTP e restauracao fora do servidor de producao seguem como dependencias externas.
 
 Atualizacao de backup: historico, hash, lock, download autorizado e Google Drive opcional implementados. Cron, credencial remota e restauracao isolada ainda precisam de homologacao real.
 
@@ -28,6 +28,19 @@ Resultados desta execução:
 - `BACKUP_VERIFY_OK`, `RESTORE_OK` e probe `backup-restore-ok` confirmados em bancos descartáveis.
 
 Nota: os números de lint e HTTP real acima refletem a execução original (Etapas 1 a 16). A Etapa 17 (UI/UX) foi entregue depois, sem regressao registrada nas suites; não ha reexecução formal de `bin/install.php` e `bin/backup.php --verify` pos-Etapa 17 documentada nesta auditoria.
+
+## Atualização da rodada de fechamento
+
+- Migrations aplicadas em banco descartável: `0001` a `0038`.
+- `LINT_OK files=342`.
+- `MVP_TESTS_OK unit=17 integration=23 http=18`.
+- Prestação: filtros, detalhe oficial, CSV, Excel, PDF, pacote privado e súmula assinada.
+- Retificação: diff de campos, reabertura, conclusão e segunda aprovação configurável.
+- Retenção: políticas, arquivamento, restauração, exclusão lógica e trilha de ações.
+
+## Nota de prevalencia dos resultados atuais
+
+Os numeros historicos descritos na secao de evidencias foram preservados como contexto da auditoria original. Para esta rodada, prevalecem os resultados atualizados abaixo: `LINT_OK files=342` e `MVP_TESTS_OK unit=17 integration=23 http=18`, com migrations `0001` a `0038` executadas em banco descartavel.
 
 ## Controles verificados
 
