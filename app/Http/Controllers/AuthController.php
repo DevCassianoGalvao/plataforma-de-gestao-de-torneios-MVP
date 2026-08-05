@@ -10,13 +10,12 @@ use App\Core\Response;
 use App\Core\Security;
 use App\Services\AuthService;
 use App\Services\AuthorizationService;
-use App\Services\PasswordResetService;
 use App\Services\AuditService;
 use App\Repositories\UserRepository;
 
 final class AuthController extends Controller
 {
-    public function __construct(UserRepository $users, AuthorizationService $authorization, AuditService $audit, private readonly AuthService $auth, private readonly PasswordResetService $passwordReset)
+    public function __construct(UserRepository $users, AuthorizationService $authorization, AuditService $audit, private readonly AuthService $auth)
     {
         parent::__construct($users, $authorization, $audit);
     }
@@ -71,41 +70,4 @@ final class AuthController extends Controller
         return Response::redirect(Config::url('/login'));
     }
 
-    public function forgot(Request $request, array $params = []): Response
-    {
-        return $this->page('Recuperar senha', 'auth/forgot', ['message' => null]);
-    }
-
-    public function requestReset(Request $request, array $params = []): Response
-    {
-        try {
-            Security::verifyCsrf($request->body['_csrf'] ?? null);
-        } catch (\Throwable) {
-            return $this->errorPage('Recuperar senha', 'auth/forgot', ['message' => 'A sessao expirou. Recarregue a pagina e tente novamente.'], 419);
-        }
-        $email = (string) ($request->body['email'] ?? '');
-        if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $this->passwordReset->request($email, $request);
-        }
-        return $this->page('Recuperar senha', 'auth/forgot', ['message' => 'Se o e-mail estiver cadastrado, enviaremos instrucoes para redefinir a senha.']);
-    }
-
-    public function resetForm(Request $request, array $params = []): Response
-    {
-        return $this->page('Nova senha', 'auth/reset', ['token' => (string) ($request->query['token'] ?? ''), 'message' => null]);
-    }
-
-    public function reset(Request $request, array $params = []): Response
-    {
-        try {
-            Security::verifyCsrf($request->body['_csrf'] ?? null);
-        } catch (\Throwable) {
-            return $this->errorPage('Nova senha', 'auth/reset', ['token' => (string) ($request->body['token'] ?? ''), 'message' => 'A sessao expirou. Recarregue a pagina e tente novamente.'], 419);
-        }
-        $result = $this->passwordReset->reset((string) ($request->body['token'] ?? ''), (string) ($request->body['password'] ?? ''), (string) ($request->body['password_confirmation'] ?? ''), $request);
-        if (!$result['ok']) {
-            return $this->errorPage('Nova senha', 'auth/reset', ['token' => (string) ($request->body['token'] ?? ''), 'message' => $result['message']], 422);
-        }
-        return $this->page('Senha atualizada', 'auth/success', ['message' => 'Senha atualizada. Agora voce pode entrar.']);
-    }
 }

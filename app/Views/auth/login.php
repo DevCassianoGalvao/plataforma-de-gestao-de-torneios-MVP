@@ -27,7 +27,7 @@
                 </div>
                 <button type="submit">Entrar no painel</button>
             </form>
-            <div class="auth-meta"><span>Ambiente protegido</span><a href="<?= App\Core\View::e(App\Core\Config::url('/senha/esqueci')) ?>">Esqueci minha senha</a></div>
+            <div class="auth-meta"><span>Ambiente protegido</span><span>Para recuperar o acesso, procure o administrador.</span></div>
             <p class="auth-footer">Torneio Online Web App</p>
         </div>
     </section>

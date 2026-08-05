@@ -12,7 +12,7 @@ O cookie é HttpOnly, SameSite=Lax e Secure quando a requisição usa HTTPS. O t
 
 ## Recuperação de senha
 
-O pedido sempre retorna uma resposta genérica. O sistema gera token aleatório, grava somente o hash SHA-256, define expiração de uma hora e marca o token como usado depois da redefinição. O transporte padrão e `log`; o transporte `test` existe apenas para capturar mensagens em testes isolados. O token não e escrito na interface como texto visivel.
+O sistema não oferece recuperação por e-mail. Quando um usuário perde a senha, um administrador deve abrir Usuários, usar Gerar nova senha e entregar a senha temporária ao usuário por um canal seguro. A senha é armazenada somente como hash, exibida uma única vez na tela administrativa e deve ser trocada pelo usuário em Meu perfil depois do acesso.
 
 ## Senhas
 

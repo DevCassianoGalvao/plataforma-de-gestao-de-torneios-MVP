@@ -12,11 +12,10 @@ use App\Repositories\UserRepository;
 use App\Services\AuditService;
 use App\Services\AuthorizationService;
 use App\Services\PasswordPolicy;
-use App\Services\PasswordResetService;
 
 final class UserController extends Controller
 {
-    public function __construct(UserRepository $users, AuthorizationService $authorization, AuditService $audit, private readonly PasswordResetService $passwordReset)
+    public function __construct(UserRepository $users, AuthorizationService $authorization, AuditService $audit)
     {
         parent::__construct($users, $authorization, $audit);
     }
@@ -28,7 +27,7 @@ final class UserController extends Controller
             return $guard;
         }
         $flash = Session::consumeFlash('admin_message');
-        return $this->page('Usuarios', 'admin/users/index', ['user' => $guard, 'usersList' => $this->withRoles($this->users->list((string) ($request->query['q'] ?? ''))), 'roles' => $this->users->rolesCatalog(), 'query' => (string) ($request->query['q'] ?? ''), 'message' => $flash]);
+        return $this->page('Usuarios', 'admin/users/index', ['user' => $guard, 'usersList' => $this->withRoles($this->users->list((string) ($request->query['q'] ?? ''))), 'roles' => $this->users->rolesCatalog(), 'canResetPassword' => $this->authorization->can($guard, 'users.update'), 'query' => (string) ($request->query['q'] ?? ''), 'message' => $flash]);
     }
 
     public function createForm(Request $request, array $params = []): Response
@@ -169,10 +168,30 @@ final class UserController extends Controller
         if (!$record) {
             return Response::html('Usuario nao encontrado.', 404);
         }
-        $this->passwordReset->request((string) $record['email'], $request);
+        $temporaryPassword = $this->temporaryPassword();
+        $this->users->updatePassword((int) $record['id'], password_hash($temporaryPassword, PASSWORD_DEFAULT));
         $this->audit->record('users.password_reset_generated', (int) $guard['id'], 'user', (int) $record['id'], [], $request);
-        Session::flash('admin_message', 'Solicitacao de redefinicao gerada.');
+        Session::flash('admin_message', 'Nova senha temporaria para ' . $record['name'] . ': ' . $temporaryPassword . '. Entregue a senha ao usuario e oriente a troca-la em Meu perfil.');
         return Response::redirect(Config::url('/admin/usuarios'));
+    }
+
+    private function temporaryPassword(): string
+    {
+        $alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789';
+        $letters = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+        $digits = '23456789';
+        $characters = [
+            $letters[random_int(0, strlen($letters) - 1)],
+            $digits[random_int(0, strlen($digits) - 1)],
+        ];
+        for ($index = count($characters); $index < 12; $index++) {
+            $characters[] = $alphabet[random_int(0, strlen($alphabet) - 1)];
+        }
+        for ($index = count($characters) - 1; $index > 0; $index--) {
+            $swap = random_int(0, $index);
+            [$characters[$index], $characters[$swap]] = [$characters[$swap], $characters[$index]];
+        }
+        return implode('', $characters);
     }
 
     private function validateRecord(array $record, ?string $password = null, ?string $confirmation = null): array

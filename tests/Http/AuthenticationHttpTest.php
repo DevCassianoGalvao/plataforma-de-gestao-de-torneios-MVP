@@ -11,6 +11,7 @@ use App\Core\Security;
 use App\Core\Session;
 use App\Database\AuthSeed;
 use App\Core\Database;
+use App\Repositories\UserRepository;
 use function Tests\assert_same;
 use function Tests\assert_true;
 
@@ -34,6 +35,18 @@ final class AuthenticationHttpTest
         $admin = $router->dispatch(Request::fake('GET', '/torneio-online/admin/usuarios'));
         assert_same(200, $admin->status, 'Administrador nao acessou usuarios');
         assert_true(str_contains($admin->body, 'id="app-sidebar"') && str_contains($admin->body, 'data-sidebar-dismiss') && str_contains($admin->body, 'aria-controls="app-sidebar"'), 'Navegacao administrativa movel nao possui controles acessiveis.');
+        assert_true(str_contains($admin->body, 'Gerar nova senha') && !str_contains($admin->body, 'Gerar redefinicao'), 'Acao administrativa de senha nao foi atualizada');
+        $accountability = (new UserRepository(Database::connection()))->findByEmail('prestacao@torneios.local');
+        assert_true($accountability !== null, 'Usuario de prestacao de contas nao encontrado');
+        $reset = $router->dispatch(Request::fake('POST', '/torneio-online/admin/usuarios/' . $accountability['id'] . '/reset-password', ['_csrf' => Security::csrfToken()]));
+        assert_same(302, $reset->status, 'Administrador nao conseguiu gerar nova senha');
+        $adminAfterReset = $router->dispatch(Request::fake('GET', '/torneio-online/admin/usuarios'));
+        assert_true(preg_match('/Nova senha temporaria para .*: ([A-Za-z0-9]{12})\./', $adminAfterReset->body, $temporaryMatch) === 1, 'Senha temporaria nao foi exibida uma unica vez');
+        $adminAfterFlash = $router->dispatch(Request::fake('GET', '/torneio-online/admin/usuarios'));
+        assert_true(!str_contains($adminAfterFlash->body, 'Nova senha temporaria para'), 'Senha temporaria permaneceu visivel apos o primeiro acesso');
+        $accountabilityAfterReset = (new UserRepository(Database::connection()))->findById((int) $accountability['id']);
+        assert_true(password_verify($temporaryMatch[1], (string) $accountabilityAfterReset['password_hash']), 'Senha temporaria nao foi armazenada corretamente');
+        (new UserRepository(Database::connection()))->updatePassword((int) $accountability['id'], password_hash(getenv('SEED_DEMO_PASSWORD') ?: 'TestDemo123', PASSWORD_DEFAULT));
         $logout = $router->dispatch(Request::fake('POST', '/torneio-online/logout', ['_csrf' => Security::csrfToken()]));
         assert_same(302, $logout->status, 'Logout nao redirecionou');
         $csrf = Security::csrfToken();

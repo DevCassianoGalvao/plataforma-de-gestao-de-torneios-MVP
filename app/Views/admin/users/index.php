@@ -15,7 +15,7 @@
             <td><?= App\Core\View::e($record['last_login_at'] ?: 'Ainda não acessou') ?></td>
             <td class="actions"><a href="<?= App\Core\View::e(App\Core\Config::url('/admin/usuarios/' . $record['id'] . '/editar')) ?>">Editar</a>
                 <form method="post" action="<?= App\Core\View::e(App\Core\Config::url('/admin/usuarios/' . $record['id'] . '/status')) ?>"><input type="hidden" name="_csrf" value="<?= App\Core\View::e(App\Core\Security::csrfToken()) ?>"><input type="hidden" name="status" value="<?= $record['status'] === 'active' ? 'inactive' : 'active' ?>"><button type="submit"><?= $record['status'] === 'active' ? 'Inativar' : 'Ativar' ?></button></form>
-                <form method="post" action="<?= App\Core\View::e(App\Core\Config::url('/admin/usuarios/' . $record['id'] . '/reset-password')) ?>"><input type="hidden" name="_csrf" value="<?= App\Core\View::e(App\Core\Security::csrfToken()) ?>"><button type="submit">Gerar redefinicao</button></form>
+                <?php if (!empty($canResetPassword)): ?><form method="post" action="<?= App\Core\View::e(App\Core\Config::url('/admin/usuarios/' . $record['id'] . '/reset-password')) ?>" onsubmit="return confirm('Gerar uma nova senha temporaria para este usuario?');"><input type="hidden" name="_csrf" value="<?= App\Core\View::e(App\Core\Security::csrfToken()) ?>"><button type="submit">Gerar nova senha</button></form><?php endif; ?>
             </td>
         </tr>
     <?php endforeach; ?>

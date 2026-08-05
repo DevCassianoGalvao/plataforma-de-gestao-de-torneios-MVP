@@ -18,7 +18,7 @@ O sistema registra o campeonato de ponta a ponta: cadastro, regulamento, equipes
 
 1. Abra o endereço fornecido pela organização.
 2. Informe seu e-mail e senha.
-3. Se esqueceu a senha, use Esqueci minha senha na tela de acesso.
+3. Se perdeu a senha, solicite ao administrador uma nova senha temporária.
 4. Após entrar, o sistema mostra apenas os módulos liberados para o seu perfil.
 5. Use Meu perfil, no canto inferior esquerdo, para atualizar nome, foto e senha.
 6. Use Sair ao terminar o trabalho, especialmente em computadores compartilhados.

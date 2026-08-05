@@ -21,6 +21,8 @@ final class FoundationHttpTest
         assert_same(404, $notFound->status, '404 HTTP falhou');
         $login = $router->dispatch(Request::fake('GET', '/torneio-online/login'));
         assert_same(200, $login->status, 'Placeholder de login falhou');
-        assert_true(str_contains($login->body, 'Esqueci minha senha'), 'Tela de login nao identificada');
+        assert_true(str_contains($login->body, '<h1>Entrar</h1>'), 'Tela de login nao identificada');
+        $forgot = $router->dispatch(Request::fake('GET', '/torneio-online/senha/esqueci'));
+        assert_same(404, $forgot->status, 'Recuperacao por e-mail ainda esta disponivel');
     }
 }
