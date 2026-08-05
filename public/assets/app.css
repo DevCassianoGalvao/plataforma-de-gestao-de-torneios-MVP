@@ -2587,3 +2587,57 @@ body.public-portal .simulator-fixture input { min-height: 2.5rem; font-weight: 8
 body.public-portal .simulator-fixture b { text-align: center; }
 @media (max-width: 800px) { body.public-portal .standings-simulator .simulator-fixtures { grid-template-columns: 1fr; } }
 @media (max-width: 600px) { body.public-portal .simulator-fixture span { grid-template-columns: minmax(0, 1fr) 2.5rem auto 2.5rem minmax(0, 1fr); } }
+
+/* Public free simulator: official table stays separate from the interactive projection. */
+body.public-portal .portal-page-heading--action { display: flex; align-items: end; justify-content: space-between; gap: 2rem; }
+body.public-portal .portal-page-heading--action > div { min-width: 0; }
+body.public-portal .portal-page-heading--action .button { flex: 0 0 auto; }
+body.public-portal .free-simulator { margin-top: 1.5rem; }
+body.public-portal .free-simulator-grid { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(24rem, .95fr); gap: 1.25rem; align-items: start; }
+body.public-portal .free-simulator-table,
+body.public-portal .free-simulator-matches { min-width: 0; padding: 1.25rem; border: 1px solid var(--portal-line, var(--ui-border)); border-radius: 12px; background: var(--ui-surface); }
+body.public-portal .free-simulator-table { position: sticky; top: 1rem; }
+body.public-portal .free-simulator .section-heading { display: flex; align-items: start; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
+body.public-portal .free-simulator .section-heading h2 { margin: .15rem 0 0; }
+body.public-portal .free-simulator .section-heading .eyebrow { margin: 0; }
+body.public-portal .simulator-result-label { flex: 0 0 auto; padding: .45rem .65rem; border: 1px solid var(--portal-primary); border-radius: 999px; color: var(--portal-primary); font-size: .7rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+body.public-portal .simulator-status-text,
+body.public-portal .simulator-round-status { margin: 0 0 1rem; color: var(--portal-muted); font-size: .88rem; }
+body.public-portal .simulator-group-table + .simulator-group-table { margin-top: 1rem; }
+body.public-portal .simulator-group-table h3 { margin: 0 0 .65rem; font-size: 1rem; }
+body.public-portal .simulator-group-table .table-wrap { overflow-x: auto; }
+body.public-portal .simulator-group-table table { min-width: 38rem; }
+body.public-portal .simulator-group-table tr.is-simulator-changed { background: color-mix(in srgb, var(--portal-primary) 10%, transparent); }
+body.public-portal .simulator-round-controls { display: grid; grid-template-columns: 2.6rem minmax(0, 1fr) 2.6rem; gap: .5rem; margin-bottom: .55rem; }
+body.public-portal .simulator-round-controls .button { min-height: 2.6rem; padding: 0; }
+body.public-portal .simulator-round-controls select { min-width: 0; }
+body.public-portal .simulator-match-list { display: grid; gap: .7rem; max-height: calc(100vh - 17rem); overflow: auto; padding-right: .15rem; }
+body.public-portal .simulator-match { padding: .85rem; border: 1px solid var(--portal-line, var(--ui-border)); border-radius: 9px; background: color-mix(in srgb, var(--ui-surface) 78%, #000); }
+body.public-portal .simulator-match.is-hidden { display: none; }
+body.public-portal .simulator-match > small { display: block; margin-bottom: .7rem; color: var(--portal-muted); font-size: .7rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+body.public-portal .simulator-match-teams { display: grid; grid-template-columns: minmax(0, 1fr) 3rem auto 3rem minmax(0, 1fr); gap: .5rem; align-items: center; }
+body.public-portal .simulator-match-teams > strong:first-child { text-align: right; }
+body.public-portal .simulator-match-teams > strong:last-child { text-align: left; }
+body.public-portal .simulator-match-teams > b { color: var(--portal-primary); text-align: center; }
+body.public-portal .simulator-score-control { display: grid; justify-items: center; gap: .2rem; }
+body.public-portal .simulator-score-control input { width: 3rem; min-height: 2.6rem; padding: .35rem; text-align: center; font-size: 1.05rem; font-weight: 800; }
+body.public-portal .simulator-score-control small { color: var(--portal-muted); font-size: .62rem; white-space: nowrap; }
+body.public-portal .simulator-match-status { display: inline-block; margin-top: .7rem; color: var(--portal-muted); font-size: .7rem; }
+body.public-portal .simulator-note { margin: 1rem 0 0; padding: .85rem 1rem; border-left: 3px solid var(--portal-primary); color: var(--portal-muted); font-size: .85rem; }
+body.public-portal .simulator-note strong { color: var(--portal-primary); }
+@media (max-width: 1000px) {
+    body.public-portal .free-simulator-grid { grid-template-columns: 1fr; }
+    body.public-portal .free-simulator-table { position: static; }
+    body.public-portal .simulator-match-list { max-height: none; }
+}
+@media (max-width: 600px) {
+    body.public-portal .portal-page-heading--action { display: grid; gap: 1rem; }
+    body.public-portal .portal-page-heading--action .button { justify-self: start; }
+    body.public-portal .free-simulator-table,
+    body.public-portal .free-simulator-matches { padding: .9rem; }
+    body.public-portal .free-simulator .section-heading { align-items: stretch; flex-direction: column; }
+    body.public-portal .simulator-result-label { align-self: start; }
+    body.public-portal .simulator-match-teams { grid-template-columns: minmax(0, 1fr) 2.7rem auto 2.7rem minmax(0, 1fr); gap: .3rem; }
+    body.public-portal .simulator-match-teams > strong { font-size: .78rem; overflow-wrap: anywhere; }
+    body.public-portal .simulator-score-control input { width: 2.7rem; }
+}

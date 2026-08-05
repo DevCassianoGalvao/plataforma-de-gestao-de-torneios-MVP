@@ -465,6 +465,8 @@ $router->get('/campeonatos/{slug}/resultados', [$publicPortal, 'results']);
 $router->get('/campeonatos/{slug}/partidas/{id}', [$publicPortal, 'match']);
 $router->post('/campeonatos/{slug}/classificacao/simular', [$publicPortal, 'simulateStandings']);
 $router->get('/campeonatos/{slug}/classificacao', [$publicPortal, 'standings']);
+$router->get('/campeonatos/{slug}/simulador', [$publicPortal, 'simulator']);
+$router->post('/campeonatos/{slug}/simulador/simular', [$publicPortal, 'simulateStandings']);
 $router->get('/campeonatos/{slug}/arbitragem', [$publicPortal, 'officials']);
 $router->get('/campeonatos/{slug}/contato', [$publicPortal, 'contact']);
 $router->post('/campeonatos/{slug}/contato', [$publicPortal, 'submitContact']);

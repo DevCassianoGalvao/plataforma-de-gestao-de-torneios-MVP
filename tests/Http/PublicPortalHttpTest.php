@@ -26,7 +26,7 @@ final class PublicPortalHttpTest
         $router = require dirname(__DIR__, 2) . '/routes/web.php';
         $slug = 'copa-brasil-de-talentos-2026';
         $base = '/torneio-online/campeonatos/' . $slug;
-        $paths = ['', '/proximos-jogos', '/resultados', '/classificacao', '/mata-mata', '/equipes', '/atletas', '/artilharia', '/assistencias', '/cartoes', '/regulamento', '/campeao', '/noticias', '/vai-e-vem', '/arbitragem', '/contato'];
+        $paths = ['', '/proximos-jogos', '/resultados', '/classificacao', '/simulador', '/mata-mata', '/equipes', '/atletas', '/artilharia', '/assistencias', '/cartoes', '/regulamento', '/campeao', '/noticias', '/vai-e-vem', '/arbitragem', '/contato'];
         foreach ($paths as $path) {
             $response = $router->dispatch(Request::fake('GET', $base . $path));
             assert_same(200, $response->status, 'Rota publica falhou: ' . $path);
@@ -34,7 +34,9 @@ final class PublicPortalHttpTest
             assert_true(!str_contains(strtolower($response->body), 'internal_notes'), 'Campo interno vazou na rota: ' . $path);
         }
         $standings = $router->dispatch(Request::fake('GET', $base . '/classificacao'));
-        assert_true(str_contains($standings->body, 'Simulador de resultados'), 'Simulador nao foi renderizado na classificacao publica');
+        assert_true(!str_contains($standings->body, 'data-free-simulator') && str_contains($standings->body, 'Simulador'), 'A classificacao oficial nao deveria carregar o simulador completo');
+        $simulatorPage = $router->dispatch(Request::fake('GET', $base . '/simulador'));
+        assert_true(str_contains($simulatorPage->body, 'data-free-simulator') && str_contains($simulatorPage->body, 'Classificação simulada'), 'Pagina separada do simulador nao foi renderizada');
         $groups = $router->dispatch(Request::fake('GET', $base . '/grupos'));
         assert_same(302, $groups->status, 'A rota legada de grupos deve redirecionar para a classificação.');
 
@@ -46,10 +48,10 @@ final class PublicPortalHttpTest
         }
         $publicMatch = $router->dispatch(Request::fake('GET', $base . '/partidas/' . $matchId));
         $allGroupMatches = (int) $pdo->query("SELECT COUNT(*) FROM matches m INNER JOIN match_publications mp ON mp.match_id = m.id AND mp.status = 'published' INNER JOIN competition_phases p ON p.id = m.phase_id AND p.phase_type = 'groups' WHERE m.championship_id = (SELECT id FROM championships WHERE slug = '{$slug}') AND m.status IN ('homologated', 'scheduled', 'confirmed', 'postponed')")->fetchColumn();
-        assert_true(substr_count($standings->body, 'data-simulator-score') >= $allGroupMatches * 2, 'Simulador publico nao listou todas as partidas da fase de grupos');
+        assert_true(substr_count($simulatorPage->body, 'data-simulator-score') >= $allGroupMatches * 2, 'Simulador publico nao listou todas as partidas da fase de grupos');
         $homologated = $pdo->query("SELECT m.id, COALESCE(mo.administrative_home_score, (SELECT SUM(CASE WHEN e.team_id = m.home_team_id THEN 1 ELSE 0 END) FROM match_operation_events e WHERE e.match_id = m.id AND e.valid = 1 AND e.event_type IN ('goal', 'own_goal') AND e.period <> 'penalties'), 0) AS home_score, COALESCE(mo.administrative_away_score, (SELECT SUM(CASE WHEN e.team_id = m.away_team_id THEN 1 ELSE 0 END) FROM match_operation_events e WHERE e.match_id = m.id AND e.valid = 1 AND e.event_type IN ('goal', 'own_goal') AND e.period <> 'penalties'), 0) AS away_score FROM matches m LEFT JOIN match_operations mo ON mo.match_id = m.id INNER JOIN match_publications mp ON mp.match_id = m.id AND mp.status = 'published' INNER JOIN competition_phases p ON p.id = m.phase_id AND p.phase_type = 'groups' WHERE m.championship_id = (SELECT id FROM championships WHERE slug = '{$slug}') AND m.status = 'homologated' ORDER BY m.id LIMIT 1")->fetch();
         if ($homologated) {
-            $override = $router->dispatch(Request::fake('POST', $base . '/classificacao/simular', ['scores' => [(int) $homologated['id'] => ['home' => ((int) $homologated['home_score'] + 1) . '', 'away' => (string) $homologated['away_score']]]]));
+            $override = $router->dispatch(Request::fake('POST', $base . '/simulador/simular', ['scores' => [(int) $homologated['id'] => ['home' => ((int) $homologated['home_score'] + 1) . '', 'away' => (string) $homologated['away_score']]]]));
             assert_same(200, $override->status, 'Simulador nao permitiu alterar uma partida ja aprovada');
             assert_true(str_contains($override->body, '"changed":true'), 'Alteracao de resultado oficial nao apareceu como simulacao');
         }
@@ -57,11 +59,11 @@ final class PublicPortalHttpTest
         assert_true($future !== false && $future !== null, 'Seed publico nao criou partida futura para simulacao');
         if ($future) {
             $officialStandings = (int) $pdo->query("SELECT COUNT(*) FROM competition_standings WHERE championship_id = (SELECT id FROM championships WHERE slug = '{$slug}')")->fetchColumn();
-            $simulation = $router->dispatch(Request::fake('POST', $base . '/classificacao/simular', ['scores' => [(int) $future => ['home' => '2', 'away' => '1']]]));
+            $simulation = $router->dispatch(Request::fake('POST', $base . '/simulador/simular', ['scores' => [(int) $future => ['home' => '2', 'away' => '1']]]));
             assert_same(200, $simulation->status, 'Simulador publico nao respondeu');
             assert_true(str_contains($simulation->body, '"ok":true') && str_contains($simulation->body, '"changed":true'), 'Simulador publico nao calculou a projecao');
             assert_same($officialStandings, (int) $pdo->query("SELECT COUNT(*) FROM competition_standings WHERE championship_id = (SELECT id FROM championships WHERE slug = '{$slug}')")->fetchColumn(), 'Simulacao publica alterou a classificacao oficial');
-            $invalid = $router->dispatch(Request::fake('POST', $base . '/classificacao/simular', ['scores' => [(int) $future => ['home' => '100', 'away' => '0']]]));
+            $invalid = $router->dispatch(Request::fake('POST', $base . '/simulador/simular', ['scores' => [(int) $future => ['home' => '100', 'away' => '0']]]));
             assert_same(422, $invalid->status, 'Simulador aceitou placar fora do limite');
         }
         assert_true(str_contains($publicMatch->body, 'Escala&ccedil;&otilde;es da partida') && str_contains($publicMatch->body, 'football-field.svg'), 'Campo tático não foi carregado no registro público da partida.');

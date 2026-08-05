@@ -153,7 +153,7 @@ final class PublicPortalRepository
             $teamRows[(int) $group['id']] = $teams->fetchAll();
         }
 
-        $matches = $this->pdo->prepare("SELECT m.id, m.group_id, g.name AS group_name, m.status, m.match_date, m.match_time,
+        $matches = $this->pdo->prepare("SELECT m.id, m.group_id, g.name AS group_name, r.round_number, m.status, m.match_date, m.match_time,
                 ht.id AS home_team_id, ht.name AS home_team_name, ht.short_name AS home_team_short_name,
                 at.id AS away_team_id, at.name AS away_team_name, at.short_name AS away_team_short_name,
                 COALESCE(mo.administrative_home_score, (SELECT SUM(CASE WHEN e.team_id = m.home_team_id THEN 1 ELSE 0 END)
@@ -164,6 +164,7 @@ final class PublicPortalRepository
             INNER JOIN match_publications mp ON mp.match_id = m.id AND mp.status = 'published'
             INNER JOIN competition_groups g ON g.id = m.group_id AND g.status <> 'draft'
             INNER JOIN competition_phases p ON p.id = m.phase_id AND p.status <> 'draft' AND p.phase_type = 'groups'
+            LEFT JOIN competition_rounds r ON r.id = m.round_id
             INNER JOIN teams ht ON ht.id = m.home_team_id
             INNER JOIN teams at ON at.id = m.away_team_id
             LEFT JOIN match_operations mo ON mo.match_id = m.id

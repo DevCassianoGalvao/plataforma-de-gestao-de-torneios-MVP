@@ -330,6 +330,90 @@
         }
     }
 
+    var freeSimulator = document.querySelector('[data-free-simulator]');
+    if (freeSimulator) {
+        var freeEndpoint = freeSimulator.dataset.simulatorEndpoint || window.location.pathname.replace(/\/+$/, '') + '/simular';
+        var freeTimer = null;
+        var freeRequestNumber = 0;
+        var freeInputs = function () {
+            var values = {};
+            freeSimulator.querySelectorAll('input[data-simulator-score]').forEach(function (input) {
+                var id = input.getAttribute('data-match');
+                values[id] = values[id] || {};
+                values[id][input.getAttribute('data-simulator-score')] = input.value;
+            });
+            return values;
+        };
+        var writeFreeRows = function (groups) {
+            groups.forEach(function (group) {
+                var rows = group.simulated || [];
+                rows.forEach(function (item) {
+                    var row = freeSimulator.querySelector('[data-free-simulator-row="' + String(item.team_id) + '"]');
+                    if (!row) return;
+                    var cells = row.querySelectorAll('td');
+                    if (cells[0]) cells[0].textContent = String(item.position);
+                    [item.matches_played, item.wins, item.draws, item.losses, item.goals_for, item.goals_against, item.goal_difference].forEach(function (value, offset) { if (cells[offset + 2]) cells[offset + 2].textContent = String(value); });
+                    if (cells[9]) cells[9].innerHTML = '<strong>' + String(item.points) + '</strong>';
+                    row.classList.toggle('is-simulator-changed', Number(item.position_change || 0) !== 0);
+                });
+                var table = freeSimulator.querySelector('[data-simulator-group="' + String(group.id) + '"] tbody');
+                if (!table) return;
+                Array.prototype.slice.call(table.querySelectorAll('tr')).sort(function (a, b) { var aCell = a.querySelector('td'); var bCell = b.querySelector('td'); return Number(aCell ? aCell.textContent : 0) - Number(bCell ? bCell.textContent : 0); }).forEach(function (row) { table.appendChild(row); });
+            });
+        };
+        var requestFreeProjection = function () {
+            var currentRequest = ++freeRequestNumber;
+            var params = new URLSearchParams();
+            var values = freeInputs();
+            Object.keys(values).forEach(function (id) {
+                var score = values[id];
+                if (score.home === '' || score.away === '' || score.home === undefined || score.away === undefined) return;
+                params.append('scores[' + id + '][home]', score.home);
+                params.append('scores[' + id + '][away]', score.away);
+            });
+            var label = freeSimulator.querySelector('[data-simulator-label]');
+            var status = freeSimulator.querySelector('[data-simulator-status]');
+            if (label) label.textContent = 'Calculando...';
+            fetch(freeEndpoint, { method: 'POST', credentials: 'same-origin', headers: { Accept: 'application/json' }, body: params })
+                .then(function (response) { return response.json().then(function (payload) { return { response: response, payload: payload }; }); })
+                .then(function (result) {
+                    if (currentRequest !== freeRequestNumber) return;
+                    if (!result.response.ok || !result.payload.ok) throw new Error((result.payload.errors || ['Não foi possível calcular a projeção.'])[0]);
+                    writeFreeRows(result.payload.groups || []);
+                    if (label) label.textContent = result.payload.changed ? 'Cenário simulado' : 'Dados oficiais';
+                    if (status) status.textContent = result.payload.changed ? 'A classificação muda conforme os placares informados. Os dados oficiais permanecem intactos.' : 'Informe os dois placares para ver a projeção.';
+                })
+                .catch(function (error) { if (currentRequest !== freeRequestNumber) return; if (label) label.textContent = 'Dados oficiais'; if (status) status.textContent = error.message || 'Não foi possível atualizar a projeção.'; });
+        };
+        var scheduleFreeProjection = function () { window.clearTimeout(freeTimer); freeTimer = window.setTimeout(requestFreeProjection, 180); };
+        freeSimulator.addEventListener('input', scheduleFreeProjection);
+        var resetFree = freeSimulator.querySelector('[data-simulator-reset]');
+        if (resetFree) resetFree.addEventListener('click', function () { freeSimulator.querySelectorAll('input[data-simulator-score]').forEach(function (input) { input.value = ''; }); requestFreeProjection(); });
+
+        var roundSelect = freeSimulator.querySelector('[data-simulator-round-select]');
+        var roundLabel = freeSimulator.querySelector('[data-simulator-round-label]');
+        var roundMatches = Array.prototype.slice.call(freeSimulator.querySelectorAll('[data-simulator-match]'));
+        var applyRound = function () {
+            var selected = roundSelect ? roundSelect.value : 'all';
+            roundMatches.forEach(function (match) { match.classList.toggle('is-hidden', selected !== 'all' && match.dataset.round !== selected); });
+            if (roundLabel) roundLabel.textContent = selected === 'all' ? 'Mostrando todas as rodadas.' : 'Mostrando ' + ((roundSelect && roundSelect.options[roundSelect.selectedIndex]) ? roundSelect.options[roundSelect.selectedIndex].text : 'a rodada selecionada') + '.';
+        };
+        if (roundSelect) roundSelect.addEventListener('change', applyRound);
+        var moveRound = function (direction) {
+            if (!roundSelect || roundSelect.options.length < 2) return;
+            var next = roundSelect.selectedIndex + direction;
+            if (next < 0) next = roundSelect.options.length - 1;
+            if (next >= roundSelect.options.length) next = 0;
+            roundSelect.selectedIndex = next;
+            applyRound();
+        };
+        var previousRound = freeSimulator.querySelector('[data-simulator-round-prev]');
+        var nextRound = freeSimulator.querySelector('[data-simulator-round-next]');
+        if (previousRound) previousRound.addEventListener('click', function () { moveRound(-1); });
+        if (nextRound) nextRound.addEventListener('click', function () { moveRound(1); });
+        applyRound();
+    }
+
     document.querySelectorAll('[data-password-toggle]').forEach(function (button) {
         button.addEventListener('click', function () {
             var input = document.getElementById(button.getAttribute('aria-controls'));

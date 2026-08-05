@@ -4,7 +4,7 @@
 
 ### Adicionado
 
-- Simulador público de resultados na classificação, com todas as partidas publicadas da fase de grupos editáveis, resultados oficiais como referência, recálculo pelo motor compartilhado e projeção sem persistência.
+- Simulador público de resultados em página própria, com classificação à esquerda, partidas à direita, placares vazios, navegação por rodada, atualização em tempo real pelo motor compartilhado e projeção sem persistência.
 
 - Agendamento de backups com periodicidade configurável (diário, 3, 7, 15 ou 30 dias), instruções de token do Google Drive e painel operacional refinado.
 
