@@ -2576,3 +2576,14 @@ body.app-body .schedule-table td:nth-child(6)::before { content: 'Ações'; }
         font-size: 0;
     }
 }
+
+/* Public standings simulator: every published group match is editable in the local projection. */
+body.public-portal .standings-simulator .simulator-fixtures { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+body.public-portal .simulator-fixture small { color: var(--portal-muted); font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+body.public-portal .simulator-fixture span { grid-template-columns: minmax(0, 1fr) 3rem auto 3rem minmax(0, 1fr); }
+body.public-portal .simulator-fixture span strong:first-child { text-align: right; }
+body.public-portal .simulator-fixture span strong:last-child { text-align: left; }
+body.public-portal .simulator-fixture input { min-height: 2.5rem; font-weight: 800; }
+body.public-portal .simulator-fixture b { text-align: center; }
+@media (max-width: 800px) { body.public-portal .standings-simulator .simulator-fixtures { grid-template-columns: 1fr; } }
+@media (max-width: 600px) { body.public-portal .simulator-fixture span { grid-template-columns: minmax(0, 1fr) 2.5rem auto 2.5rem minmax(0, 1fr); } }

@@ -15,24 +15,33 @@ $teamMark = static function (array $team) use ($e, $base, $initials): string {
 <?php endif; ?>
 
 <?php if ($kind === 'standings'): ?>
-    <?php $fixtures = $simulator['matches'] ?? []; ?>
+    <?php $fixtures = $simulator['matches'] ?? []; $simulatorStatus = ['homologated' => 'Resultado oficial', 'scheduled' => 'Agendado', 'confirmed' => 'Confirmado', 'postponed' => 'Adiado']; ?>
     <section class="standings-simulator<?= $fixtures ? '' : ' is-empty' ?>" data-standings-simulator data-fixtures="<?= $e(json_encode($fixtures, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)) ?>" data-points="<?= $e(json_encode($simulator['points'] ?? [], JSON_UNESCAPED_UNICODE)) ?>">
         <div class="section-heading">
             <div>
                 <p class="eyebrow">Simulador de resultados</p>
                 <h2>Projete a classificação</h2>
-                <p>Teste placares sem alterar os dados oficiais do campeonato.</p>
+                <p>Simule livremente qualquer partida da fase de grupos sem alterar os dados oficiais.</p>
             </div>
-            <?php if ($fixtures): ?><button type="button" class="button secondary" data-simulator-reset>Limpar palpites</button><?php endif; ?>
+            <?php if ($fixtures): ?><button type="button" class="button secondary" data-simulator-reset>Restaurar resultados oficiais</button><?php endif; ?>
         </div>
         <?php if ($fixtures): ?>
             <div class="simulator-fixtures">
                 <?php foreach ($fixtures as $match): ?>
-                    <label><?= $e($match['group_name']) ?><span><?= $e($match['home_team_name']) ?><input type="number" min="0" max="99" inputmode="numeric" data-simulator-score="home" data-match="<?= (int) $match['id'] ?>"> <b>×</b> <input type="number" min="0" max="99" inputmode="numeric" data-simulator-score="away" data-match="<?= (int) $match['id'] ?>"> <?= $e($match['away_team_name']) ?></span></label>
+                    <label class="simulator-fixture">
+                        <small><?= $e($match['group_name']) ?> · <?= $e($match['match_date'] ?: 'Data a definir') ?> · <?= $e($simulatorStatus[(string) $match['status']] ?? 'Partida') ?></small>
+                        <span>
+                            <strong><?= $e($match['home_team_name']) ?></strong>
+                            <input type="number" min="0" max="99" inputmode="numeric" data-simulator-score="home" data-match="<?= (int) $match['id'] ?>" value="<?= (string) $match['status'] === 'homologated' ? (int) $match['home_score'] : '' ?>" data-official-score="<?= (string) $match['status'] === 'homologated' ? (int) $match['home_score'] : '' ?>" aria-label="Gols de <?= $e($match['home_team_name']) ?>">
+                            <b>×</b>
+                            <input type="number" min="0" max="99" inputmode="numeric" data-simulator-score="away" data-match="<?= (int) $match['id'] ?>" value="<?= (string) $match['status'] === 'homologated' ? (int) $match['away_score'] : '' ?>" data-official-score="<?= (string) $match['status'] === 'homologated' ? (int) $match['away_score'] : '' ?>" aria-label="Gols de <?= $e($match['away_team_name']) ?>">
+                            <strong><?= $e($match['away_team_name']) ?></strong>
+                        </span>
+                    </label>
                 <?php endforeach; ?>
             </div>
         <?php else: ?>
-            <p class="simulator-empty">Não há partidas pendentes da fase de grupos para simular neste momento. A classificação exibida continua sendo a oficial.</p>
+            <p class="simulator-empty">Ainda não há partidas publicadas da fase de grupos para simular. A classificação exibida continua sendo a oficial.</p>
         <?php endif; ?>
     </section>
 <?php endif; ?>

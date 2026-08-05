@@ -22,10 +22,7 @@ final class PublicStandingsSimulationService
         $data = $this->portal->simulationData($championshipId);
         return [
             'points' => $data['points'],
-            'matches' => array_values(array_filter(
-                $data['matches'],
-                static fn (array $match): bool => in_array((string) $match['status'], ['scheduled', 'confirmed', 'postponed'], true),
-            )),
+            'matches' => array_values($data['matches']),
         ];
     }
 
@@ -59,14 +56,12 @@ final class PublicStandingsSimulationService
                     'home_score' => (int) $match['home_score'],
                     'away_score' => (int) $match['away_score'],
                 ];
-                if ((string) $match['status'] === 'homologated') {
-                    $officialMatches[] = $payload;
-                    $simulatedMatches[] = $payload;
-                    continue;
-                }
+                if ((string) $match['status'] === 'homologated') $officialMatches[] = $payload;
                 $matchId = (int) $match['id'];
                 if (isset($scores['values'][$matchId])) {
                     $simulatedMatches[] = array_merge($payload, $scores['values'][$matchId]);
+                } elseif ((string) $match['status'] === 'homologated') {
+                    $simulatedMatches[] = $payload;
                 }
             }
 
@@ -93,34 +88,42 @@ final class PublicStandingsSimulationService
 
         return [
             'ok' => true,
-            'changed' => $scores['values'] !== [],
+            'changed' => $scores['changed'],
             'groups' => $groups,
             'criteria' => array_map(static fn (array $criterion): string => (string) $criterion['criterion'], $data['regulation']['tiebreakers'] ?? []),
         ];
     }
 
-    /** @return array{values: array<int, array{home_score:int, away_score:int}>, errors: array<int, string>} */
+    /** @return array{values: array<int, array{home_score:int, away_score:int}>, errors: array<int, string>, changed: bool} */
     private function validatedScores(array $matches, array $rawScores): array
     {
-        if (count($rawScores) > 300) return ['values' => [], 'errors' => ['Envie no maximo 300 partidas por simulacao.']];
+        if (count($rawScores) > 300) return ['values' => [], 'errors' => ['Envie no maximo 300 partidas por simulacao.'], 'changed' => false];
         $allowed = [];
         foreach ($matches as $match) {
-            if (in_array((string) $match['status'], ['scheduled', 'confirmed', 'postponed'], true)) $allowed[(int) $match['id']] = true;
+            if (in_array((string) $match['status'], ['homologated', 'scheduled', 'confirmed', 'postponed'], true)) {
+                $allowed[(int) $match['id']] = [
+                    'home_score' => (string) $match['home_score'],
+                    'away_score' => (string) $match['away_score'],
+                    'official' => (string) $match['status'] === 'homologated',
+                ];
+            }
         }
         $values = [];
+        $changed = false;
         foreach ($rawScores as $matchId => $score) {
             $id = filter_var($matchId, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
-            if (!$id || !isset($allowed[(int) $id])) return ['values' => [], 'errors' => ['A partida informada nao esta disponivel para simulacao.']];
-            if (!is_array($score)) return ['values' => [], 'errors' => ['Informe um placar valido.']];
+            if (!$id || !isset($allowed[(int) $id])) return ['values' => [], 'errors' => ['A partida informada nao esta disponivel para simulacao.'], 'changed' => false];
+            if (!is_array($score)) return ['values' => [], 'errors' => ['Informe um placar valido.'], 'changed' => false];
             $homeRaw = $score['home'] ?? null;
             $awayRaw = $score['away'] ?? null;
             if (($homeRaw === null || $homeRaw === '') && ($awayRaw === null || $awayRaw === '')) continue;
             $home = $this->scoreValue($homeRaw);
             $away = $this->scoreValue($awayRaw);
-            if ($home === null || $away === null) return ['values' => [], 'errors' => ['Informe dois numeros inteiros entre 0 e 99 para cada partida.']];
+            if ($home === null || $away === null) return ['values' => [], 'errors' => ['Informe dois numeros inteiros entre 0 e 99 para cada partida.'], 'changed' => false];
             $values[(int) $id] = ['home_score' => $home, 'away_score' => $away];
+            if (!$allowed[(int) $id]['official'] || (string) $home !== $allowed[(int) $id]['home_score'] || (string) $away !== $allowed[(int) $id]['away_score']) $changed = true;
         }
-        return ['values' => $values, 'errors' => []];
+        return ['values' => $values, 'errors' => [], 'changed' => $changed];
     }
 
     private function scoreValue(mixed $value): ?int

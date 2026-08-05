@@ -169,7 +169,6 @@ final class PublicPortalRepository
             LEFT JOIN match_operations mo ON mo.match_id = m.id
             WHERE m.championship_id = ?
                 AND m.status IN ('homologated', 'scheduled', 'confirmed', 'postponed')
-                AND (m.status = 'homologated' OR m.match_date IS NULL OR m.match_date >= CURDATE())
             ORDER BY g.display_order, m.match_date IS NULL, m.match_date, m.match_time, m.id");
         $matches->execute([$championshipId]);
 

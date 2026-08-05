@@ -253,7 +253,7 @@
             var simulatorCopy = simulator.querySelector('.section-heading p:last-child');
             if (simulatorEyebrow) simulatorEyebrow.textContent = 'Simulador de resultados';
             if (simulatorHeading) simulatorHeading.textContent = 'Projete a classifica\u00e7\u00e3o';
-            if (simulatorCopy) simulatorCopy.textContent = 'Teste placares das pr\u00f3ximas partidas sem alterar os dados oficiais do campeonato.';
+            if (simulatorCopy) simulatorCopy.textContent = 'Simule livremente qualquer partida da fase de grupos sem alterar os dados oficiais.';
             var fixtures = [];
             try { fixtures = JSON.parse(simulator.dataset.fixtures || '[]'); } catch (error) { fixtures = []; }
             var endpoint = simulator.dataset.simulatorEndpoint || window.location.pathname.replace(/\/+$/, '') + '/simular';
@@ -326,7 +326,7 @@
             var scheduleProjection = function () { window.clearTimeout(timer); timer = window.setTimeout(requestProjection, 180); };
             simulator.addEventListener('input', scheduleProjection);
             var reset = simulator.querySelector('[data-simulator-reset]');
-            if (reset) reset.addEventListener('click', function () { simulator.querySelectorAll('input[data-simulator-score]').forEach(function (input) { input.value = ''; }); requestProjection(); });
+            if (reset) reset.addEventListener('click', function () { simulator.querySelectorAll('input[data-simulator-score]').forEach(function (input) { input.value = input.getAttribute('data-official-score') || ''; }); requestProjection(); });
         }
     }
 
