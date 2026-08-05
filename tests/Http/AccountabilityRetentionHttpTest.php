@@ -26,12 +26,17 @@ final class AccountabilityRetentionHttpTest
         assert_true(str_contains($retention->body, 'Retenção e arquivamento'), 'Tela de retenção sem título');
         $accountability = $router->dispatch(Request::fake('GET', '/torneio-online/prestacao/campeonatos/' . $championshipId));
         assert_same(200, $accountability->status, 'Administrador não abriu prestação detalhada');
+        $matchId = (int) $pdo->query("SELECT id FROM matches WHERE championship_id = {$championshipId} AND status = 'homologated' ORDER BY id LIMIT 1")->fetchColumn();
+        $matchDetail = $router->dispatch(Request::fake('GET', '/torneio-online/prestacao/campeonatos/' . $championshipId . '/partidas/' . $matchId));
+        assert_same(200, $matchDetail->status, 'Administrador nao abriu detalhe da partida na prestacao');
         $pdf = $router->dispatch(Request::fake('GET', '/torneio-online/prestacao/campeonatos/' . $championshipId . '/exportar/pdf'));
         assert_same(200, $pdf->status, 'Exportação PDF de prestação não abriu');
         assert_same('application/pdf', $pdf->headers['Content-Type'] ?? '', 'MIME do PDF de prestação incorreto');
         self::logout($router);
         self::login($router, 'prestacao@torneios.local');
         assert_same(403, $router->dispatch(Request::fake('GET', '/torneio-online/admin/retencao'))->status, 'Prestação de contas acessou retenção administrativa');
+        $accountabilityMatchDetail = $router->dispatch(Request::fake('GET', '/torneio-online/prestacao/campeonatos/' . $championshipId . '/partidas/' . $matchId));
+        assert_same(200, $accountabilityMatchDetail->status, 'Usuario de prestacao nao abriu detalhe da partida');
         self::logout($router);
     }
 

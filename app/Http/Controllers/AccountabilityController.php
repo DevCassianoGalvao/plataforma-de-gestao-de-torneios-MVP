@@ -39,7 +39,9 @@ final class AccountabilityController extends Controller
 
     public function detail(Request $request, array $params = []): Response
     {
-        $user = $this->guard($request, 'accountability.detail');
+        // A consulta da prestação também autoriza a abertura do detalhe.
+        // A permissão específica continua válida quando a instalação já a possui.
+        $user = $this->guardAny($request, ['accountability.detail', 'accountability.view']);
         if ($user instanceof Response) return $user;
         $championshipId = (int) ($params[0] ?? 0); $matchId = (int) ($params[1] ?? 0);
         if (!$this->reports->allowed($championshipId, (int) $user['id'], $this->isAdministrator($user))) return Response::forbidden();

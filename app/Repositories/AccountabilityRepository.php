@@ -132,7 +132,7 @@ final class AccountabilityRepository
         $events = $this->pdo->prepare('SELECT e.*, t.name AS team_name, a.full_name AS athlete_name, a.sporting_name FROM match_operation_events e LEFT JOIN teams t ON t.id = e.team_id LEFT JOIN athletes a ON a.id = e.athlete_id WHERE e.match_id = ? ORDER BY e.created_at, e.id');
         $events->execute([$matchId]);
         $match['events'] = $events->fetchAll();
-        $versions = $this->pdo->prepare('SELECT id, version_number, verification_code, storage_path, signed_storage_path, signed_original_name, signed_hash, created_at, supersedes_version_id FROM match_report_versions v INNER JOIN match_reports r ON r.id = v.match_report_id WHERE r.match_id = ? ORDER BY version_number DESC');
+        $versions = $this->pdo->prepare('SELECT v.id, v.version_number, v.verification_code, v.storage_path, v.signed_storage_path, v.signed_original_name, v.signed_hash, v.created_at, v.supersedes_version_id FROM match_report_versions v INNER JOIN match_reports r ON r.id = v.match_report_id WHERE r.match_id = ? ORDER BY v.version_number DESC');
         $versions->execute([$matchId]);
         $match['versions'] = $versions->fetchAll();
         $media = $this->pdo->prepare("SELECT id, title, caption, storage_path, original_name, mime_type, captured_at, created_at FROM match_media WHERE match_id = ? AND deleted_at IS NULL AND status = 'approved' AND review_status = 'approved' ORDER BY created_at");
