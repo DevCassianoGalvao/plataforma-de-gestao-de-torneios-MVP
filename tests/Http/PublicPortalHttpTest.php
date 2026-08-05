@@ -33,6 +33,8 @@ final class PublicPortalHttpTest
             assert_true(!str_contains(strtolower($response->body), 'private_notes'), 'Campo privado vazou na rota: ' . $path);
             assert_true(!str_contains(strtolower($response->body), 'internal_notes'), 'Campo interno vazou na rota: ' . $path);
         }
+        $standings = $router->dispatch(Request::fake('GET', $base . '/classificacao'));
+        assert_true(str_contains($standings->body, 'Simulador de resultados'), 'Simulador nao foi renderizado na classificacao publica');
         $groups = $router->dispatch(Request::fake('GET', $base . '/grupos'));
         assert_same(302, $groups->status, 'A rota legada de grupos deve redirecionar para a classificação.');
 

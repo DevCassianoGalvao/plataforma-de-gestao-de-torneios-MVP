@@ -956,6 +956,8 @@ body.public-portal .portal-table-block tr.is-simulator-changed td:last-child { c
 
 body.public-portal .standings-simulator .section-heading { align-items: flex-start; }
 body.public-portal .standings-simulator .section-heading > div { min-width: 0; }
+body.public-portal .standings-simulator.is-empty { padding-bottom: 1.1rem; }
+body.public-portal .simulator-empty { margin: 0; color: var(--portal-muted); }
 body.public-portal .standings-simulator .simulator-fixtures { display: grid; gap: .75rem; }
 body.public-portal .standings-simulator .simulator-fixtures > label { display: grid; gap: .45rem; padding: .8rem; border: 1px solid color-mix(in srgb, var(--portal-line) 80%, transparent); border-radius: .7rem; color: var(--portal-muted); font-size: .75rem; font-weight: 700; }
 body.public-portal .standings-simulator .simulator-fixtures > label > span { display: grid; grid-template-columns: minmax(0, 1fr) 3.4rem auto 3.4rem minmax(0, 1fr); gap: .45rem; align-items: center; color: var(--portal-text); }

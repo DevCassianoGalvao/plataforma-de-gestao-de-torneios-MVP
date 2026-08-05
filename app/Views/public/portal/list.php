@@ -14,9 +14,27 @@ $teamMark = static function (array $team) use ($e, $base, $initials): string {
     <form class="portal-search" method="get"><label>Buscar <input name="q" value="<?= $e($search ?? '') ?>" placeholder="<?= $kind === 'teams' ? 'Nome da equipe ou cidade' : 'Nome do atleta ou equipe' ?>"></label><button type="submit">Buscar</button></form>
 <?php endif; ?>
 
-<?php if ($kind === 'standings' && !empty($simulator['matches'])): ?>
-    <?php $fixtures = $simulator['matches']; ?>
-    <?php if ($fixtures): ?><section class="standings-simulator" data-standings-simulator data-fixtures="<?= $e(json_encode($fixtures, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)) ?>" data-points="<?= $e(json_encode($simulator['points'], JSON_UNESCAPED_UNICODE)) ?>"><div class="section-heading"><div><p class="eyebrow">Simulador</p><h2>Projete a classificação</h2><p>Os resultados abaixo são uma simulação local e não alteram a tabela oficial.</p></div><button type="button" class="button secondary" data-simulator-reset>Limpar palpites</button></div><div class="simulator-fixtures"><?php foreach ($fixtures as $match): ?><label><?= $e($match['group_name']) ?><span><?= $e($match['home_team_name']) ?><input type="number" min="0" max="99" inputmode="numeric" data-simulator-score="home" data-match="<?= (int) $match['id'] ?>"> <b>×</b> <input type="number" min="0" max="99" inputmode="numeric" data-simulator-score="away" data-match="<?= (int) $match['id'] ?>"> <?= $e($match['away_team_name']) ?></span></label><?php endforeach; ?></div></section><?php endif; ?>
+<?php if ($kind === 'standings'): ?>
+    <?php $fixtures = $simulator['matches'] ?? []; ?>
+    <section class="standings-simulator<?= $fixtures ? '' : ' is-empty' ?>" data-standings-simulator data-fixtures="<?= $e(json_encode($fixtures, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)) ?>" data-points="<?= $e(json_encode($simulator['points'] ?? [], JSON_UNESCAPED_UNICODE)) ?>">
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">Simulador de resultados</p>
+                <h2>Projete a classificação</h2>
+                <p>Teste placares sem alterar os dados oficiais do campeonato.</p>
+            </div>
+            <?php if ($fixtures): ?><button type="button" class="button secondary" data-simulator-reset>Limpar palpites</button><?php endif; ?>
+        </div>
+        <?php if ($fixtures): ?>
+            <div class="simulator-fixtures">
+                <?php foreach ($fixtures as $match): ?>
+                    <label><?= $e($match['group_name']) ?><span><?= $e($match['home_team_name']) ?><input type="number" min="0" max="99" inputmode="numeric" data-simulator-score="home" data-match="<?= (int) $match['id'] ?>"> <b>×</b> <input type="number" min="0" max="99" inputmode="numeric" data-simulator-score="away" data-match="<?= (int) $match['id'] ?>"> <?= $e($match['away_team_name']) ?></span></label>
+                <?php endforeach; ?>
+            </div>
+        <?php else: ?>
+            <p class="simulator-empty">Não há partidas pendentes da fase de grupos para simular neste momento. A classificação exibida continua sendo a oficial.</p>
+        <?php endif; ?>
+    </section>
 <?php endif; ?>
 
 <?php if ($kind === 'next'): ?>
