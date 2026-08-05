@@ -2,7 +2,7 @@
 
 O agendamento de backups usa php bin/console.php backup:schedule e está documentado em docs/APPLICATION_BACKUPS.md.
 
-Validacao final: [relatorio de testes e auditoria](docs/FINAL_SYSTEM_VALIDATION.md). Manuais: [administrador](docs/MANUAL_ADMINISTRADOR.md) e [operador](docs/MANUAL_OPERADOR.md).
+Validacao final: [relatorio de testes e auditoria](docs/FINAL_SYSTEM_VALIDATION.md). Manuais: [guia simplificado do cliente](docs/MANUAL_CLIENTE_SIMPLIFICADO.md), [versao PDF](output/pdf/Manual_Cliente_Simplificado.pdf), [administrador](docs/MANUAL_ADMINISTRADOR.md) e [operador](docs/MANUAL_OPERADOR.md).
 
 Backup operacional: consulte [Backups da aplicacao](docs/APPLICATION_BACKUPS.md). Agendamento: php bin/console.php backup:schedule.
 
