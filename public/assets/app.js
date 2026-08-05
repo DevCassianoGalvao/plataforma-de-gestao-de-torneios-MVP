@@ -398,20 +398,30 @@
             roundMatches.forEach(function (match) { match.classList.toggle('is-hidden', selected !== 'all' && match.dataset.round !== selected); });
             if (roundLabel) roundLabel.textContent = selected === 'all' ? 'Mostrando todas as rodadas.' : 'Mostrando ' + ((roundSelect && roundSelect.options[roundSelect.selectedIndex]) ? roundSelect.options[roundSelect.selectedIndex].text : 'a rodada selecionada') + '.';
         };
-        if (roundSelect) roundSelect.addEventListener('change', applyRound);
+        if (roundSelect) roundSelect.addEventListener('change', function () { applyRound(); updateRoundButtons(); });
+        var updateRoundButtons = function () {
+            if (!roundSelect) return;
+            var previous = freeSimulator.querySelector('[data-simulator-round-prev]');
+            var next = freeSimulator.querySelector('[data-simulator-round-next]');
+            var atStart = roundSelect.selectedIndex <= 0;
+            var atEnd = roundSelect.selectedIndex >= roundSelect.options.length - 1;
+            if (previous) previous.disabled = atStart;
+            if (next) next.disabled = atEnd;
+        };
         var moveRound = function (direction) {
             if (!roundSelect || roundSelect.options.length < 2) return;
             var next = roundSelect.selectedIndex + direction;
-            if (next < 0) next = roundSelect.options.length - 1;
-            if (next >= roundSelect.options.length) next = 0;
+            if (next < 0 || next >= roundSelect.options.length) return;
             roundSelect.selectedIndex = next;
             applyRound();
+            updateRoundButtons();
         };
         var previousRound = freeSimulator.querySelector('[data-simulator-round-prev]');
         var nextRound = freeSimulator.querySelector('[data-simulator-round-next]');
         if (previousRound) previousRound.addEventListener('click', function () { moveRound(-1); });
         if (nextRound) nextRound.addEventListener('click', function () { moveRound(1); });
         applyRound();
+        updateRoundButtons();
     }
 
     document.querySelectorAll('[data-password-toggle]').forEach(function (button) {

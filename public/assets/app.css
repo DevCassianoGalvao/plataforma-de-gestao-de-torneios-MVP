@@ -2605,11 +2605,23 @@ body.public-portal .simulator-status-text,
 body.public-portal .simulator-round-status { margin: 0 0 1rem; color: var(--portal-muted); font-size: .88rem; }
 body.public-portal .simulator-group-table + .simulator-group-table { margin-top: 1rem; }
 body.public-portal .simulator-group-table h3 { margin: 0 0 .65rem; font-size: 1rem; }
-body.public-portal .simulator-group-table .table-wrap { overflow-x: auto; }
-body.public-portal .simulator-group-table table { min-width: 38rem; }
+body.public-portal .simulator-group-table .table-wrap { overflow-x: hidden; }
+body.public-portal .simulator-group-table table { width: 100%; min-width: 0; table-layout: fixed; }
+body.public-portal .simulator-group-table th,
+body.public-portal .simulator-group-table td { width: 6.75%; padding: .58rem .2rem; font-size: .68rem; text-align: center; }
+body.public-portal .simulator-group-table th:nth-child(1),
+body.public-portal .simulator-group-table td:nth-child(1) { width: 7%; }
+body.public-portal .simulator-group-table th:nth-child(2),
+body.public-portal .simulator-group-table td:nth-child(2) { width: 38%; text-align: left; }
+body.public-portal .simulator-group-table td:nth-child(2) { overflow-wrap: anywhere; }
+body.public-portal .simulator-group-table .standings-team-link { min-width: 0; gap: .3rem; }
+body.public-portal .simulator-group-table .standings-team-link span { min-width: 0; overflow-wrap: anywhere; }
+body.public-portal .simulator-group-table .team-list-mark { flex: 0 0 1.35rem; width: 1.35rem; height: 1.35rem; }
 body.public-portal .simulator-group-table tr.is-simulator-changed { background: color-mix(in srgb, var(--portal-primary) 10%, transparent); }
 body.public-portal .simulator-round-controls { display: grid; grid-template-columns: 2.6rem minmax(0, 1fr) 2.6rem; gap: .5rem; margin-bottom: .55rem; }
-body.public-portal .simulator-round-controls .button { min-height: 2.6rem; padding: 0; }
+body.public-portal .round-nav-button { display: grid; width: 2.6rem; height: 2.6rem; padding: 0; place-items: center; border: 1px solid var(--portal-line, var(--ui-border)); border-radius: 8px; background: color-mix(in srgb, var(--portal-primary) 12%, var(--ui-surface)); color: var(--portal-primary); cursor: pointer; font-size: 1.25rem; font-weight: 800; line-height: 1; transition: background .18s ease, border-color .18s ease, color .18s ease, transform .18s ease; }
+body.public-portal .round-nav-button:hover:not(:disabled) { border-color: var(--portal-primary); background: var(--portal-primary); color: #fff; transform: translateY(-1px); }
+body.public-portal .round-nav-button:disabled { cursor: not-allowed; opacity: .35; }
 body.public-portal .simulator-round-controls select { min-width: 0; }
 body.public-portal .simulator-match-list { display: grid; gap: .7rem; max-height: calc(100vh - 17rem); overflow: auto; padding-right: .15rem; }
 body.public-portal .simulator-match { padding: .85rem; border: 1px solid var(--portal-line, var(--ui-border)); border-radius: 9px; background: color-mix(in srgb, var(--ui-surface) 78%, #000); }
@@ -2639,5 +2651,8 @@ body.public-portal .simulator-note strong { color: var(--portal-primary); }
     body.public-portal .simulator-result-label { align-self: start; }
     body.public-portal .simulator-match-teams { grid-template-columns: minmax(0, 1fr) 2.7rem auto 2.7rem minmax(0, 1fr); gap: .3rem; }
     body.public-portal .simulator-match-teams > strong { font-size: .78rem; overflow-wrap: anywhere; }
+    body.public-portal .simulator-group-table th,
+    body.public-portal .simulator-group-table td { padding-left: .12rem; padding-right: .12rem; font-size: .62rem; }
+    body.public-portal .simulator-group-table .team-list-mark { flex-basis: 1.15rem; width: 1.15rem; height: 1.15rem; }
     body.public-portal .simulator-score-control input { width: 2.7rem; }
 }

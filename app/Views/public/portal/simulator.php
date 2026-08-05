@@ -58,9 +58,9 @@ ksort($rounds);
                 <button type="button" class="button secondary" data-simulator-reset>Limpar placares</button>
             </div>
             <div class="simulator-round-controls">
-                <button type="button" class="button secondary" data-simulator-round-prev aria-label="Rodada anterior">‹</button>
+                <button type="button" class="round-nav-button" data-simulator-round-prev aria-label="Rodada anterior" title="Rodada anterior"><span aria-hidden="true">←</span></button>
                 <select data-simulator-round-select aria-label="Selecionar rodada"><option value="all">Todas as rodadas</option><?php foreach ($rounds as $number => $label): ?><option value="<?= (int) $number ?>"><?= $e($label) ?></option><?php endforeach; ?></select>
-                <button type="button" class="button secondary" data-simulator-round-next aria-label="Próxima rodada">›</button>
+                <button type="button" class="round-nav-button" data-simulator-round-next aria-label="Próxima rodada" title="Próxima rodada"><span aria-hidden="true">→</span></button>
             </div>
             <p class="simulator-round-status" data-simulator-round-label>Mostrando todas as rodadas.</p>
             <div class="simulator-match-list">
