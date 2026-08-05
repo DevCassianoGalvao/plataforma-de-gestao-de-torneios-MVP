@@ -27,6 +27,13 @@ $currentPath = (string) parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
 $isActive = static fn (string $path): bool => $path === '/' ? $currentPath === App\Core\Config::url('/') : str_starts_with($currentPath, App\Core\Config::url($path));
 $isExactActive = static fn (string $path): bool => $currentPath === App\Core\Config::url($path);
 $isRegistrationsActive = $isActive('/admin/inscricoes');
+$sidebarGroupActive = [
+    'overview' => $isExactActive('/admin') || $isActive('/admin/campeonatos') || $isActive('/admin/notificacoes'),
+    'operation' => $isActive('/admin/tabela') || $isActive('/minhas-partidas') || $isActive('/admin/rodadas') || $isActive('/admin/simulacoes') || $isActive('/prestacao'),
+    'sport' => $isActive('/admin/campeonatos') || $isActive('/admin/equipes') || $isActive('/admin/atletas') || $isActive('/admin/inscricoes') || $isActive('/admin/vai-e-vem'),
+    'content' => $isActive('/admin/noticias') || $isActive('/admin/arbitros') || $isActive('/admin/contatos'),
+    'access' => $isActive('/admin/usuarios') || $isActive('/admin/auditoria') || $isActive('/admin/backups') || $isActive('/admin/retencao'),
+];
 ?>
 <!doctype html>
 <html lang="pt-BR">
@@ -46,29 +53,50 @@ $isRegistrationsActive = $isActive('/admin/inscricoes');
             <img class="app-brand-logo" src="<?= $e($assetUrl('branding/torneio-online-web-app.png')) ?>" alt="Torneio Online Web App">
         </a>
         <nav class="sidebar-nav" aria-label="Módulos">
-            <span class="sidebar-section-label">Visão geral</span>
+            <div class="sidebar-group sidebar-group--overview" data-sidebar-group="overview" data-active="<?= $sidebarGroupActive['overview'] ? 'true' : 'false' ?>">
+                <button class="sidebar-group-toggle" type="button" data-sidebar-group-toggle aria-controls="sidebar-group-overview" aria-expanded="<?= $sidebarGroupActive['overview'] ? 'true' : 'false' ?>"><span class="sidebar-group-icon" data-icon="layout-dashboard" aria-hidden="true"></span><span>Visão geral</span><span class="sidebar-chevron" data-icon="chevron-right" aria-hidden="true"></span></button>
+                <div class="sidebar-group-items" id="sidebar-group-overview" data-sidebar-group-items<?= $sidebarGroupActive['overview'] ? '' : ' hidden' ?>>
             <a href="<?= $e(App\Core\Config::url('/admin')) ?>"<?= $isExactActive('/admin') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="overview" aria-hidden="true">OV</span><span class="nav-label">Visão geral</span></a>
+            <?php if ($isAdministrator): ?><a href="<?= $e(App\Core\Config::url('/admin/notificacoes')) ?>"<?= $isActive('/admin/notificacoes') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="bell" aria-hidden="true">NO</span><span class="nav-label">Notificações<?php if ($notificationCount > 0): ?> <b class="nav-count"><?= (int) $notificationCount ?></b><?php endif; ?></span></a><?php endif; ?>
             <?php if ($menuAuth && $menuAuth->can($currentUser, 'championships.view')): ?><a href="<?= $e(App\Core\Config::url('/admin/campeonatos')) ?>"<?= $isActive('/admin/campeonatos') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="championship" aria-hidden="true">CP</span><span class="nav-label">Campeonatos</span></a><?php endif; ?>
-            <span class="sidebar-section-label">Operação</span>
+                </div>
+            </div>
+            <div class="sidebar-group sidebar-group--operation" data-sidebar-group="operation" data-active="<?= $sidebarGroupActive['operation'] ? 'true' : 'false' ?>">
+                <button class="sidebar-group-toggle" type="button" data-sidebar-group-toggle aria-controls="sidebar-group-operation" aria-expanded="<?= $sidebarGroupActive['operation'] ? 'true' : 'false' ?>"><span class="sidebar-group-icon" data-icon="clipboard-check" aria-hidden="true"></span><span>Operação</span><span class="sidebar-chevron" data-icon="chevron-right" aria-hidden="true"></span></button>
+                <div class="sidebar-group-items" id="sidebar-group-operation" data-sidebar-group-items<?= $sidebarGroupActive['operation'] ? '' : ' hidden' ?>>
             <?php if ($menuAuth && $menuAuth->can($currentUser, 'schedule.view')): ?><a href="<?= $e(App\Core\Config::url('/admin/tabela')) ?>"<?= $isActive('/admin/tabela') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="schedule" aria-hidden="true">TB</span><span class="nav-label">Tabela e partidas</span></a><?php endif; ?>
             <?php if ($menuAuth && $menuAuth->can($currentUser, 'matches.operate')): ?><a href="<?= $e(App\Core\Config::url('/minhas-partidas')) ?>"<?= $isActive('/minhas-partidas') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="clipboard-check" aria-hidden="true">OP</span><span class="nav-label">Partidas para operar</span></a><?php endif; ?>
             <?php if ($menuAuth && $menuAuth->can($currentUser, 'round.monitor.view')): ?><a href="<?= $e(App\Core\Config::url('/admin/rodadas/acompanhamento')) ?>"<?= $isActive('/admin/rodadas') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="clipboard-check" aria-hidden="true">RD</span><span class="nav-label">Acompanhamento por rodada</span></a><?php endif; ?>
             <?php if ($menuAuth && $menuAuth->can($currentUser, 'simulation.view')): ?><a href="<?= $e(App\Core\Config::url('/admin/simulacoes')) ?>"<?= $isActive('/admin/simulacoes') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="chart" aria-hidden="true">SM</span><span class="nav-label">Simulações</span></a><?php endif; ?>
-            <span class="sidebar-section-label">Cadastro esportivo</span>
+            <?php if ($menuAuth && $menuAuth->can($currentUser, 'accountability.view')): ?><a href="<?= $e(App\Core\Config::url('/prestacao')) ?>"<?= $isActive('/prestacao') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="file-check-2" aria-hidden="true">PC</span><span class="nav-label">Prestação de contas</span></a><?php endif; ?>
+                </div>
+            </div>
+            <div class="sidebar-group sidebar-group--sport" data-sidebar-group="sport" data-active="<?= $sidebarGroupActive['sport'] ? 'true' : 'false' ?>">
+                <button class="sidebar-group-toggle" type="button" data-sidebar-group-toggle aria-controls="sidebar-group-sport" aria-expanded="<?= $sidebarGroupActive['sport'] ? 'true' : 'false' ?>"><span class="sidebar-group-icon" data-icon="trophy" aria-hidden="true"></span><span>Cadastro esportivo</span><span class="sidebar-chevron" data-icon="chevron-right" aria-hidden="true"></span></button>
+                <div class="sidebar-group-items" id="sidebar-group-sport" data-sidebar-group-items<?= $sidebarGroupActive['sport'] ? '' : ' hidden' ?>>
             <?php if ($menuAuth && $menuAuth->can($currentUser, 'teams.view')): ?><a href="<?= $e(App\Core\Config::url('/admin/equipes')) ?>"<?= $isActive('/admin/equipes') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="team" aria-hidden="true">EQ</span><span class="nav-label">Equipes</span></a><?php endif; ?>
             <?php if ($menuAuth && $menuAuth->can($currentUser, 'athletes.view')): ?><a href="<?= $e(App\Core\Config::url('/admin/atletas')) ?>"<?= $isActive('/admin/atletas') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="athlete" aria-hidden="true">AT</span><span class="nav-label">Atletas</span></a><?php endif; ?>
             <?php if ($menuAuth && ($menuAuth->can($currentUser, 'registrations.view') || $menuAuth->can($currentUser, 'rosters.view'))): ?><a href="<?= $e(App\Core\Config::url('/admin/inscricoes')) ?>"<?= $isRegistrationsActive ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="registration" aria-hidden="true">IN</span><span class="nav-label">Inscrições e elenco</span></a><?php endif; ?>
             <?php if ($menuAuth && $menuAuth->can($currentUser, 'transfers.manage')): ?><a href="<?= $e(App\Core\Config::url('/admin/vai-e-vem')) ?>"<?= $isActive('/admin/vai-e-vem') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="transfer" aria-hidden="true">VV</span><span class="nav-label">Vai e Vem</span></a><?php endif; ?>
-            <span class="sidebar-section-label">Conteúdo e acesso</span>
+                </div>
+            </div>
+            <div class="sidebar-group sidebar-group--content" data-sidebar-group="content" data-active="<?= $sidebarGroupActive['content'] ? 'true' : 'false' ?>">
+                <button class="sidebar-group-toggle" type="button" data-sidebar-group-toggle aria-controls="sidebar-group-content" aria-expanded="<?= $sidebarGroupActive['content'] ? 'true' : 'false' ?>"><span class="sidebar-group-icon" data-icon="newspaper" aria-hidden="true"></span><span>Conteúdo</span><span class="sidebar-chevron" data-icon="chevron-right" aria-hidden="true"></span></button>
+                <div class="sidebar-group-items" id="sidebar-group-content" data-sidebar-group-items<?= $sidebarGroupActive['content'] ? '' : ' hidden' ?>>
             <?php if ($menuAuth && $menuAuth->can($currentUser, 'content.manage')): ?><a href="<?= $e(App\Core\Config::url('/admin/noticias')) ?>"<?= $isActive('/admin/noticias') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="news" aria-hidden="true">NT</span><span class="nav-label">Notícias</span></a><?php endif; ?>
             <?php if ($menuAuth && $menuAuth->can($currentUser, 'championships.view')): ?><a href="<?= $e(App\Core\Config::url('/admin/arbitros')) ?>"<?= $isActive('/admin/arbitros') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="whistle" aria-hidden="true">AR</span><span class="nav-label">Arbitragem</span></a><?php endif; ?>
             <?php if ($isAdministrator): ?><a href="<?= $e(App\Core\Config::url('/admin/contatos')) ?>"<?= $isActive('/admin/contatos') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="mail" aria-hidden="true">CT</span><span class="nav-label">Contatos</span></a><?php endif; ?>
-            <?php if ($menuAuth && $menuAuth->can($currentUser, 'users.view')): ?><a href="<?= $e(App\Core\Config::url('/admin/usuarios')) ?>"<?= $isActive('/admin/usuarios') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="user" aria-hidden="true">US</span><span class="nav-label">Usuários</span></a><?php endif; ?>
+                </div>
+            </div>
+            <div class="sidebar-group sidebar-group--access" data-sidebar-group="access" data-active="<?= $sidebarGroupActive['access'] ? 'true' : 'false' ?>">
+                <button class="sidebar-group-toggle" type="button" data-sidebar-group-toggle aria-controls="sidebar-group-access" aria-expanded="<?= $sidebarGroupActive['access'] ? 'true' : 'false' ?>"><span class="sidebar-group-icon" data-icon="settings-2" aria-hidden="true"></span><span>Acesso</span><span class="sidebar-chevron" data-icon="chevron-right" aria-hidden="true"></span></button>
+                <div class="sidebar-group-items" id="sidebar-group-access" data-sidebar-group-items<?= $sidebarGroupActive['access'] ? '' : ' hidden' ?>>
+                    <?php if ($menuAuth && $menuAuth->can($currentUser, 'users.view')): ?><a href="<?= $e(App\Core\Config::url('/admin/usuarios')) ?>"<?= $isActive('/admin/usuarios') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="user" aria-hidden="true">US</span><span class="nav-label">Usuários</span></a><?php endif; ?>
             <?php if ($menuAuth && $menuAuth->can($currentUser, 'audit.view')): ?><a href="<?= $e(App\Core\Config::url('/admin/auditoria')) ?>"<?= $isActive('/admin/auditoria') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="audit" aria-hidden="true">AU</span><span class="nav-label">Logs</span></a><?php endif; ?>
             <?php if ($menuAuth && $menuAuth->can($currentUser, 'backup.view')): ?><a href="<?= $e(App\Core\Config::url('/admin/backups')) ?>"<?= $isActive('/admin/backups') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="archive" aria-hidden="true">BK</span><span class="nav-label">Backups</span></a><?php endif; ?>
             <?php if ($isAdministrator && $menuAuth && $menuAuth->can($currentUser, 'retention.view')): ?><a href="<?= $e(App\Core\Config::url('/admin/retencao')) ?>"<?= $isActive('/admin/retencao') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="archive" aria-hidden="true">RT</span><span class="nav-label">Retenção e arquivamento</span></a><?php endif; ?>
-            <?php if ($isAdministrator): ?><a href="<?= $e(App\Core\Config::url('/admin/notificacoes')) ?>"<?= $isActive('/admin/notificacoes') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="bell" aria-hidden="true">NO</span><span class="nav-label">Notificações<?php if ($notificationCount > 0): ?> <b class="nav-count"><?= (int) $notificationCount ?></b><?php endif; ?></span></a><?php endif; ?>
-            <?php if ($menuAuth && $menuAuth->can($currentUser, 'accountability.view')): ?><a href="<?= $e(App\Core\Config::url('/prestacao')) ?>"<?= $isActive('/prestacao') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="file-check-2" aria-hidden="true">PC</span><span class="nav-label">Prestação de contas</span></a><?php endif; ?>
+                </div>
+            </div>
         </nav>
         <div class="sidebar-footer">
             <div class="sidebar-user">
