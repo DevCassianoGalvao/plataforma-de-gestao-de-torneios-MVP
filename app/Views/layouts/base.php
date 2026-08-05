@@ -29,7 +29,7 @@ $isExactActive = static fn (string $path): bool => $currentPath === App\Core\Con
 $isRegistrationsActive = $isActive('/admin/inscricoes');
 $sidebarGroupActive = [
     'overview' => $isExactActive('/admin') || $isActive('/admin/campeonatos') || $isActive('/admin/notificacoes'),
-    'operation' => $isActive('/admin/tabela') || $isActive('/minhas-partidas') || $isActive('/admin/rodadas') || $isActive('/admin/simulacoes') || $isActive('/prestacao'),
+    'operation' => $isActive('/admin/tabela') || $isActive('/minhas-partidas') || $isActive('/admin/rodadas') || $isActive('/prestacao'),
     'sport' => $isActive('/admin/campeonatos') || $isActive('/admin/equipes') || $isActive('/admin/atletas') || $isActive('/admin/inscricoes') || $isActive('/admin/vai-e-vem'),
     'content' => $isActive('/admin/noticias') || $isActive('/admin/arbitros') || $isActive('/admin/contatos'),
     'access' => $isActive('/admin/usuarios') || $isActive('/admin/auditoria') || $isActive('/admin/backups') || $isActive('/admin/retencao'),

@@ -14,11 +14,12 @@ use App\Repositories\ChampionshipCarouselRepository;
 use App\Repositories\NewsRepository;
 use App\Repositories\PublicPortalRepository;
 use App\Repositories\TransferRepository;
+use App\Services\PublicStandingsSimulationService;
 use App\Services\StorageService;
 
 final class PublicPortalController
 {
-    public function __construct(private readonly PublicPortalRepository $portal, private readonly NewsRepository $news, private readonly TransferRepository $transfers, private readonly ChampionshipCarouselRepository $carousel, private readonly StorageService $storage, private readonly ContactRepository $contacts, private readonly \App\Services\AuditService $audit) {}
+    public function __construct(private readonly PublicPortalRepository $portal, private readonly NewsRepository $news, private readonly TransferRepository $transfers, private readonly ChampionshipCarouselRepository $carousel, private readonly StorageService $storage, private readonly ContactRepository $contacts, private readonly \App\Services\AuditService $audit, private readonly PublicStandingsSimulationService $simulation) {}
 
     public function home(Request $request, array $params = []): Response
     {
@@ -27,7 +28,16 @@ final class PublicPortalController
 
     public function nextMatches(Request $request, array $params = []): Response { return $this->listPage($request, $params, 'Proximos jogos', 'next', $this->portal->nextMatches((int) $this->id($params[0] ?? ''))); }
     public function results(Request $request, array $params = []): Response { return $this->listPage($request, $params, 'Resultados', 'results', $this->portal->results((int) $this->id($params[0] ?? ''), 50)); }
-    public function standings(Request $request, array $params = []): Response { $championship = $this->championship($params[0] ?? ''); if ($championship instanceof Response) return $championship; return $this->page($request, 'Classificacao', 'public/portal/list', ['championship' => $championship, 'kind' => 'standings', 'items' => $this->portal->standings((int) $championship['id']), 'simulator' => $this->portal->simulator((int) $championship['id'])]); }
+    public function standings(Request $request, array $params = []): Response { $championship = $this->championship($params[0] ?? ''); if ($championship instanceof Response) return $championship; return $this->page($request, 'Classificacao', 'public/portal/list', ['championship' => $championship, 'kind' => 'standings', 'items' => $this->portal->standings((int) $championship['id']), 'simulator' => $this->simulation->viewData((int) $championship['id'])]); }
+    public function simulateStandings(Request $request, array $params = []): Response
+    {
+        $championship = $this->championship($params[0] ?? '');
+        if ($championship instanceof Response) return Response::json(['ok' => false, 'errors' => ['Campeonato nao encontrado.']], 404);
+        $scores = $request->body['scores'] ?? [];
+        if (!is_array($scores)) return Response::json(['ok' => false, 'errors' => ['Formato de simulacao invalido.']], 422);
+        $result = $this->simulation->project((int) $championship['id'], $scores);
+        return Response::json($result, !empty($result['ok']) ? 200 : 422);
+    }
     public function groups(Request $request, array $params = []): Response { return Response::redirect(Config::url('/campeonatos/' . rawurlencode((string) ($params[0] ?? '')) . '/classificacao')); }
     public function knockout(Request $request, array $params = []): Response { $championship = $this->championship($params[0] ?? ''); if ($championship instanceof Response) return $championship; $items = $this->portal->knockout((int) $championship['id']); if (!$items) return Response::redirect(Config::url('/campeonatos/' . rawurlencode((string) $championship['slug']) . '/classificacao')); return $this->page($request, 'Mata-mata', 'public/portal/list', ['championship' => $championship, 'kind' => 'knockout', 'items' => $items]); }
     public function teams(Request $request, array $params = []): Response { $championship = $this->championship($params[0] ?? ''); if ($championship instanceof Response) return $championship; $search = trim((string) ($request->query['q'] ?? '')); return $this->page($request, 'Equipes', 'public/portal/list', ['championship' => $championship, 'kind' => 'teams', 'search' => $search, 'items' => $this->portal->teams((int) $championship['id'], $search)]); }

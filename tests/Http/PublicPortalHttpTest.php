@@ -43,6 +43,17 @@ final class PublicPortalHttpTest
             assert_same(200, $router->dispatch(Request::fake('GET', $base . $path))->status, 'Detalhe publico falhou: ' . $path);
         }
         $publicMatch = $router->dispatch(Request::fake('GET', $base . '/partidas/' . $matchId));
+        $future = $pdo->query("SELECT m.id FROM matches m INNER JOIN match_publications mp ON mp.match_id = m.id AND mp.status = 'published' INNER JOIN competition_phases p ON p.id = m.phase_id AND p.phase_type = 'groups' WHERE m.championship_id = (SELECT id FROM championships WHERE slug = '{$slug}') AND m.status IN ('scheduled', 'confirmed', 'postponed') AND (m.match_date IS NULL OR m.match_date >= CURDATE()) ORDER BY m.id LIMIT 1")->fetchColumn();
+        assert_true($future !== false && $future !== null, 'Seed publico nao criou partida futura para simulacao');
+        if ($future) {
+            $officialStandings = (int) $pdo->query("SELECT COUNT(*) FROM competition_standings WHERE championship_id = (SELECT id FROM championships WHERE slug = '{$slug}')")->fetchColumn();
+            $simulation = $router->dispatch(Request::fake('POST', $base . '/classificacao/simular', ['scores' => [(int) $future => ['home' => '2', 'away' => '1']]]));
+            assert_same(200, $simulation->status, 'Simulador publico nao respondeu');
+            assert_true(str_contains($simulation->body, '"ok":true') && str_contains($simulation->body, '"changed":true'), 'Simulador publico nao calculou a projecao');
+            assert_same($officialStandings, (int) $pdo->query("SELECT COUNT(*) FROM competition_standings WHERE championship_id = (SELECT id FROM championships WHERE slug = '{$slug}')")->fetchColumn(), 'Simulacao publica alterou a classificacao oficial');
+            $invalid = $router->dispatch(Request::fake('POST', $base . '/classificacao/simular', ['scores' => [(int) $future => ['home' => '100', 'away' => '0']]]));
+            assert_same(422, $invalid->status, 'Simulador aceitou placar fora do limite');
+        }
         assert_true(str_contains($publicMatch->body, 'Escala&ccedil;&otilde;es da partida') && str_contains($publicMatch->body, 'football-field.svg'), 'Campo tático não foi carregado no registro público da partida.');
 
         assert_true(str_contains($publicMatch->body, 'assets/branding/favicon.png') && str_contains($publicMatch->body, 'torneio-online-web-app.png') && str_contains($publicMatch->body, 'Torneio Online Web App'), 'Marca da plataforma nao foi aplicada ao portal publico.');

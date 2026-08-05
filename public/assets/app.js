@@ -248,43 +248,85 @@
 
         var simulator = document.querySelector('[data-standings-simulator]');
         if (simulator) {
+            var simulatorEyebrow = simulator.querySelector('.eyebrow');
+            var simulatorHeading = simulator.querySelector('h2');
+            var simulatorCopy = simulator.querySelector('.section-heading p:last-child');
+            if (simulatorEyebrow) simulatorEyebrow.textContent = 'Simulador de resultados';
+            if (simulatorHeading) simulatorHeading.textContent = 'Projete a classifica\u00e7\u00e3o';
+            if (simulatorCopy) simulatorCopy.textContent = 'Teste placares das pr\u00f3ximas partidas sem alterar os dados oficiais do campeonato.';
             var fixtures = [];
-            var points = { win: 3, draw: 1, loss: 0 };
-            try { fixtures = JSON.parse(simulator.dataset.fixtures || '[]'); points = JSON.parse(simulator.dataset.points || '{}'); } catch (error) { fixtures = []; }
-            var rows = {};
-            document.querySelectorAll('[data-standings-team]').forEach(function (row) {
-                var cells = row.querySelectorAll('td');
-                var number = function (index) { return parseInt((cells[index] && cells[index].textContent) || '0', 10) || 0; };
-                rows[row.dataset.standingsTeam] = { element: row, group: row.dataset.standingsGroup, base: { matches: number(2), wins: number(3), draws: number(4), losses: number(5), goalsFor: number(6), goalsAgainst: number(7), difference: number(8), points: number(9) } };
-            });
-            var writeRow = function (item, values, position) {
-                var cells = item.element.querySelectorAll('td');
-                if (cells[0]) cells[0].textContent = String(position);
-                [values.matches, values.wins, values.draws, values.losses, values.goalsFor, values.goalsAgainst, values.goalsFor - values.goalsAgainst].forEach(function (value, offset) { if (cells[offset + 2]) cells[offset + 2].textContent = String(value); });
-                if (cells[9]) cells[9].innerHTML = '<strong>' + String(values.points) + '</strong>';
-            };
-            var calculate = function () {
-                var current = {};
-                Object.keys(rows).forEach(function (key) { current[key] = Object.assign({}, rows[key].base); });
-                fixtures.forEach(function (fixture) {
-                    var home = simulator.querySelector('[data-simulator-score="home"][data-match="' + fixture.id + '"]');
-                    var away = simulator.querySelector('[data-simulator-score="away"][data-match="' + fixture.id + '"]');
-                    if (!home || !away || home.value === '' || away.value === '') return;
-                    var homeScore = parseInt(home.value, 10); var awayScore = parseInt(away.value, 10);
-                    if (homeScore < 0 || awayScore < 0 || !Number.isFinite(homeScore) || !Number.isFinite(awayScore) || !current[fixture.home_team_id] || !current[fixture.away_team_id]) return;
-                    var homeStats = current[fixture.home_team_id]; var awayStats = current[fixture.away_team_id];
-                    homeStats.matches++; awayStats.matches++; homeStats.goalsFor += homeScore; homeStats.goalsAgainst += awayScore; awayStats.goalsFor += awayScore; awayStats.goalsAgainst += homeScore;
-                    if (homeScore > awayScore) { homeStats.wins++; awayStats.losses++; homeStats.points += Number(points.win || 3); awayStats.points += Number(points.loss || 0); }
-                    else if (homeScore < awayScore) { awayStats.wins++; homeStats.losses++; awayStats.points += Number(points.win || 3); homeStats.points += Number(points.loss || 0); }
-                    else { homeStats.draws++; awayStats.draws++; homeStats.points += Number(points.draw || 1); awayStats.points += Number(points.draw || 1); }
+            try { fixtures = JSON.parse(simulator.dataset.fixtures || '[]'); } catch (error) { fixtures = []; }
+            var endpoint = simulator.dataset.simulatorEndpoint || window.location.pathname.replace(/\/+$/, '') + '/simular';
+            var status = simulator.querySelector('[data-simulator-status]');
+            var label = simulator.querySelector('[data-simulator-label]');
+            if (!status) {
+                status = document.createElement('span');
+                status.className = 'simulator-status-text';
+                status.setAttribute('aria-live', 'polite');
+                status.textContent = 'Informe os dois placares para ver a proje\u00e7\u00e3o.';
+                simulator.querySelector('.section-heading').appendChild(status);
+            }
+            if (!label) {
+                label = document.createElement('span');
+                label.className = 'simulator-result-label';
+                label.textContent = 'Dados oficiais';
+                simulator.querySelector('.section-heading').appendChild(label);
+            }
+            var timer = null;
+            var requestNumber = 0;
+            var inputsByMatch = function () {
+                var values = {};
+                simulator.querySelectorAll('input[data-simulator-score]').forEach(function (input) {
+                    var id = input.getAttribute('data-match');
+                    values[id] = values[id] || {};
+                    values[id][input.getAttribute('data-simulator-score')] = input.value;
                 });
-                var byGroup = {};
-                Object.keys(rows).forEach(function (key) { var row = rows[key]; (byGroup[row.group] = byGroup[row.group] || []).push({ key: key, row: row, values: current[key] }); });
-                Object.keys(byGroup).forEach(function (group) { byGroup[group].sort(function (a, b) { return b.values.points - a.values.points || (b.values.goalsFor - b.values.goalsAgainst) - (a.values.goalsFor - a.values.goalsAgainst) || b.values.goalsFor - a.values.goalsFor || a.row.element.textContent.localeCompare(b.row.element.textContent); }).forEach(function (item, index) { writeRow(item.row, item.values, index + 1); item.row.element.parentNode.appendChild(item.row.element); }); });
+                return values;
             };
-            simulator.addEventListener('input', calculate);
+            var writeRows = function (groups) {
+                groups.forEach(function (group) {
+                    var rows = group.simulated || [];
+                    rows.forEach(function (item) {
+                        var row = document.querySelector('[data-standings-team="' + String(item.team_id) + '"]');
+                        if (!row) return;
+                        var cells = row.querySelectorAll('td');
+                        if (cells[0]) cells[0].textContent = String(item.position);
+                        [item.matches_played, item.wins, item.draws, item.losses, item.goals_for, item.goals_against, item.goal_difference].forEach(function (value, offset) { if (cells[offset + 2]) cells[offset + 2].textContent = String(value); });
+                        if (cells[9]) cells[9].innerHTML = '<strong>' + String(item.points) + '</strong>';
+                        row.classList.toggle('is-simulator-changed', Number(item.position_change || 0) !== 0);
+                        row.dataset.simulatorPositionChange = String(item.position_change || 0);
+                        var tbody = row.parentNode;
+                        if (tbody) tbody.appendChild(row);
+                    });
+                });
+            };
+            var requestProjection = function () {
+                var currentRequest = ++requestNumber;
+                var params = new URLSearchParams();
+                var values = inputsByMatch();
+                Object.keys(values).forEach(function (id) {
+                    var score = values[id];
+                    if (score.home === '' || score.away === '' || score.home === undefined || score.away === undefined) return;
+                    params.append('scores[' + id + '][home]', score.home);
+                    params.append('scores[' + id + '][away]', score.away);
+                });
+                if (label) label.textContent = 'Calculando...';
+                if (status) status.textContent = 'Atualizando a proje\u00e7\u00e3o conforme o regulamento publicado.';
+                fetch(endpoint, { method: 'POST', credentials: 'same-origin', headers: { Accept: 'application/json' }, body: params })
+                    .then(function (response) { return response.json().then(function (payload) { return { response: response, payload: payload }; }); })
+                    .then(function (result) {
+                        if (currentRequest !== requestNumber) return;
+                        if (!result.response.ok || !result.payload.ok) throw new Error((result.payload.errors || ['Nao foi possivel calcular a projecao.'])[0]);
+                        writeRows(result.payload.groups || []);
+                        if (label) label.textContent = result.payload.changed ? 'Projecao simulada' : 'Dados oficiais';
+                        if (status) status.textContent = result.payload.changed ? 'A tabela exibida \u00e9 uma simula\u00e7\u00e3o local. A classifica\u00e7\u00e3o oficial permanece intacta.' : 'Informe os dois placares para ver a proje\u00e7\u00e3o.';
+                    })
+                    .catch(function (error) { if (currentRequest !== requestNumber) return; if (label) label.textContent = 'Dados oficiais'; if (status) status.textContent = error.message || 'Nao foi possivel atualizar a projecao.'; });
+            };
+            var scheduleProjection = function () { window.clearTimeout(timer); timer = window.setTimeout(requestProjection, 180); };
+            simulator.addEventListener('input', scheduleProjection);
             var reset = simulator.querySelector('[data-simulator-reset]');
-            if (reset) reset.addEventListener('click', function () { simulator.querySelectorAll('input[data-simulator-score]').forEach(function (input) { input.value = ''; }); calculate(); });
+            if (reset) reset.addEventListener('click', function () { simulator.querySelectorAll('input[data-simulator-score]').forEach(function (input) { input.value = ''; }); requestProjection(); });
         }
     }
 

@@ -256,6 +256,7 @@ As rotas publicas nao exigem autenticacao e filtram o campeonato por slug public
 | `/campeonatos/{slug}/resultados` | partidas homologadas |
 | `/campeonatos/{slug}/partidas/{id}` | detalhe publico da partida |
 | `/campeonatos/{slug}/classificacao` | classificacao por grupo |
+| POST `/campeonatos/{slug}/classificacao/simular` | recalculo publico temporario sem persistencia |
 | `/campeonatos/{slug}/grupos` | grupos e equipes |
 | `/campeonatos/{slug}/mata-mata` | chave publicada |
 | `/campeonatos/{slug}/equipes` | equipes publicas |

@@ -119,10 +119,71 @@ final class PublicPortalRepository
 
     public function simulator(int $championshipId): array
     {
-        $regulation = $this->regulation($championshipId) ?: ['points_win' => 3, 'points_draw' => 1, 'points_loss' => 0];
-        $matches = $this->pdo->prepare("SELECT m.id, m.group_id, g.name AS group_name, m.status, ht.id AS home_team_id, ht.name AS home_team_name, at.id AS away_team_id, at.name AS away_team_name FROM matches m INNER JOIN competition_groups g ON g.id = m.group_id INNER JOIN competition_phases p ON p.id = m.phase_id INNER JOIN teams ht ON ht.id = m.home_team_id INNER JOIN teams at ON at.id = m.away_team_id WHERE m.championship_id = ? AND p.phase_type = 'groups' AND m.status NOT IN ('draft','cancelled') ORDER BY g.display_order, m.match_date, m.id");
+        $data = $this->simulationData($championshipId);
+        return [
+            'points' => $data['points'],
+            'matches' => $data['matches'],
+        ];
+    }
+
+    /**
+     * Read-only input for the public simulator. Only published group matches
+     * and public team metadata are exposed here; no simulation is persisted.
+     */
+    public function simulationData(int $championshipId): array
+    {
+        $regulation = $this->regulation($championshipId) ?: [
+            'points_win' => 3,
+            'points_draw' => 1,
+            'points_loss' => 0,
+            'qualified_per_group' => 0,
+            'tiebreakers' => [],
+        ];
+        $groups = $this->groups($championshipId);
+        $teams = $this->pdo->prepare("SELECT gt.group_id, gt.team_id, t.name AS team_name, t.short_name AS team_short_name, t.slug, t.shield_path,
+                COALESCE((SELECT COUNT(*) FROM discipline_ledger dl WHERE dl.championship_id = ? AND dl.team_id = gt.team_id AND dl.status = 'considered'), 0) AS discipline_cards,
+                COALESCE((SELECT COUNT(*) FROM administrative_decisions ad WHERE ad.group_id = gt.group_id AND ad.team_id = gt.team_id AND ad.status = 'recorded'), 0) AS administrative_score
+            FROM group_teams gt
+            INNER JOIN teams t ON t.id = gt.team_id
+            WHERE gt.status = 'active' AND t.deleted_at IS NULL AND t.status NOT IN ('draft', 'archived') AND gt.group_id = ?
+            ORDER BY t.name");
+        $teamRows = [];
+        foreach ($groups as $group) {
+            $teams->execute([$championshipId, (int) $group['id']]);
+            $teamRows[(int) $group['id']] = $teams->fetchAll();
+        }
+
+        $matches = $this->pdo->prepare("SELECT m.id, m.group_id, g.name AS group_name, m.status, m.match_date, m.match_time,
+                ht.id AS home_team_id, ht.name AS home_team_name, ht.short_name AS home_team_short_name,
+                at.id AS away_team_id, at.name AS away_team_name, at.short_name AS away_team_short_name,
+                COALESCE(mo.administrative_home_score, (SELECT SUM(CASE WHEN e.team_id = m.home_team_id THEN 1 ELSE 0 END)
+                    FROM match_operation_events e WHERE e.match_id = m.id AND e.valid = 1 AND e.event_type IN ('goal', 'own_goal') AND e.period <> 'penalties'), 0) AS home_score,
+                COALESCE(mo.administrative_away_score, (SELECT SUM(CASE WHEN e.team_id = m.away_team_id THEN 1 ELSE 0 END)
+                    FROM match_operation_events e WHERE e.match_id = m.id AND e.valid = 1 AND e.event_type IN ('goal', 'own_goal') AND e.period <> 'penalties'), 0) AS away_score
+            FROM matches m
+            INNER JOIN match_publications mp ON mp.match_id = m.id AND mp.status = 'published'
+            INNER JOIN competition_groups g ON g.id = m.group_id AND g.status <> 'draft'
+            INNER JOIN competition_phases p ON p.id = m.phase_id AND p.status <> 'draft' AND p.phase_type = 'groups'
+            INNER JOIN teams ht ON ht.id = m.home_team_id
+            INNER JOIN teams at ON at.id = m.away_team_id
+            LEFT JOIN match_operations mo ON mo.match_id = m.id
+            WHERE m.championship_id = ?
+                AND m.status IN ('homologated', 'scheduled', 'confirmed', 'postponed')
+                AND (m.status = 'homologated' OR m.match_date IS NULL OR m.match_date >= CURDATE())
+            ORDER BY g.display_order, m.match_date IS NULL, m.match_date, m.match_time, m.id");
         $matches->execute([$championshipId]);
-        return ['points' => ['win' => (int) $regulation['points_win'], 'draw' => (int) $regulation['points_draw'], 'loss' => (int) $regulation['points_loss']], 'matches' => $matches->fetchAll()];
+
+        return [
+            'regulation' => $regulation,
+            'groups' => $groups,
+            'teams' => $teamRows,
+            'matches' => $matches->fetchAll(),
+            'points' => [
+                'win' => (int) ($regulation['points_win'] ?? 3),
+                'draw' => (int) ($regulation['points_draw'] ?? 1),
+                'loss' => (int) ($regulation['points_loss'] ?? 0),
+            ],
+        ];
     }
 
     public function officials(int $championshipId): array
@@ -167,7 +228,14 @@ final class PublicPortalRepository
 
     public function regulation(int $championshipId): ?array
     {
-        $statement = $this->pdo->prepare("SELECT r.id, r.name, r.version_number, r.effective_from, r.published_at, ps.points_win, ps.points_draw, ps.points_loss, fs.qualified_per_group, ms.regular_time_minutes, ms.extra_time_enabled, ms.penalty_shootout_enabled FROM regulations r LEFT JOIN regulation_points_settings ps ON ps.regulation_id = r.id LEFT JOIN regulation_format_settings fs ON fs.regulation_id = r.id LEFT JOIN regulation_match_settings ms ON ms.regulation_id = r.id WHERE r.championship_id = ? AND r.status = 'published' ORDER BY r.version_number DESC LIMIT 1"); $statement->execute([$championshipId]); return $statement->fetch() ?: null;
+        $statement = $this->pdo->prepare("SELECT r.id, r.name, r.version_number, r.effective_from, r.published_at, ps.points_win, ps.points_draw, ps.points_loss, fs.qualified_per_group, ms.regular_time_minutes, ms.extra_time_enabled, ms.penalty_shootout_enabled FROM regulations r LEFT JOIN regulation_points_settings ps ON ps.regulation_id = r.id LEFT JOIN regulation_format_settings fs ON fs.regulation_id = r.id LEFT JOIN regulation_match_settings ms ON ms.regulation_id = r.id WHERE r.championship_id = ? AND r.status = 'published' ORDER BY r.version_number DESC LIMIT 1");
+        $statement->execute([$championshipId]);
+        $row = $statement->fetch();
+        if (!$row) return null;
+        $tiebreakers = $this->pdo->prepare('SELECT criterion, priority FROM regulation_tiebreakers WHERE regulation_id = ? AND enabled = 1 ORDER BY priority');
+        $tiebreakers->execute([(int) $row['id']]);
+        $row['tiebreakers'] = $tiebreakers->fetchAll();
+        return $row;
     }
 
     public function champion(int $championshipId): ?array

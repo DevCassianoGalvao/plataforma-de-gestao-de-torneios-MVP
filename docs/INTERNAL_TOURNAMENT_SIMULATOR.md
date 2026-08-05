@@ -6,6 +6,12 @@ O simulador permite criar cenários estratégicos sem alterar registros oficiais
 
 ## Estrutura reutilizada
 
+## Simulador publico de resultados
+
+O portal publico usa a pagina de classificacao para uma simulacao temporaria de placares. Ela mostra somente partidas de grupos publicadas e ainda nao disputadas, recalcula por uma rota sem persistencia e identifica claramente a tabela como projecao simulada. O resultado nao e salvo, publicado, somado a ranking, sumula, prestacao de contas ou historico oficial.
+
+O calculo passa pelo mesmo `StandingsCalculator` da classificacao compartilhada, com a pontuacao e os criterios de desempate do regulamento publicado. O simulador interno salvo continua disponivel somente por rota autorizada direta para cenarios administrativos; seu atalho nao aparece no menu comum.
+
 - fases, grupos, rodadas e equipes existentes apenas como referência;
 - regulamento publicado, pontuação e critérios de desempate;
 - motor compartilhado `StandingsCalculator`, também usado pela classificação oficial.

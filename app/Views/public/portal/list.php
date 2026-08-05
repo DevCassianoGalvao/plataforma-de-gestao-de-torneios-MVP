@@ -15,7 +15,7 @@ $teamMark = static function (array $team) use ($e, $base, $initials): string {
 <?php endif; ?>
 
 <?php if ($kind === 'standings' && !empty($simulator['matches'])): ?>
-    <?php $fixtures = array_values(array_filter($simulator['matches'], static fn (array $match): bool => !in_array($match['status'], ['homologated', 'finished'], true))); ?>
+    <?php $fixtures = $simulator['matches']; ?>
     <?php if ($fixtures): ?><section class="standings-simulator" data-standings-simulator data-fixtures="<?= $e(json_encode($fixtures, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)) ?>" data-points="<?= $e(json_encode($simulator['points'], JSON_UNESCAPED_UNICODE)) ?>"><div class="section-heading"><div><p class="eyebrow">Simulador</p><h2>Projete a classificação</h2><p>Os resultados abaixo são uma simulação local e não alteram a tabela oficial.</p></div><button type="button" class="button secondary" data-simulator-reset>Limpar palpites</button></div><div class="simulator-fixtures"><?php foreach ($fixtures as $match): ?><label><?= $e($match['group_name']) ?><span><?= $e($match['home_team_name']) ?><input type="number" min="0" max="99" inputmode="numeric" data-simulator-score="home" data-match="<?= (int) $match['id'] ?>"> <b>×</b> <input type="number" min="0" max="99" inputmode="numeric" data-simulator-score="away" data-match="<?= (int) $match['id'] ?>"> <?= $e($match['away_team_name']) ?></span></label><?php endforeach; ?></div></section><?php endif; ?>
 <?php endif; ?>
 

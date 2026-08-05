@@ -122,6 +122,7 @@ use App\Services\TeamStatusService;
 use App\Services\RoundMonitoringPackageService;
 use App\Services\SimulationService;
 use App\Services\StandingsCalculator;
+use App\Services\PublicStandingsSimulationService;
 use App\Services\RetentionService;
 
 $router = new Router();
@@ -455,13 +456,14 @@ $router->post('/admin/vai-e-vem/{id}/aplicar-vinculo', [$transfers, 'applyOffici
 $router->get('/campeonatos/{slug}/vai-e-vem', [$transfers, 'publicIndex']);
 $router->get('/campeonatos/{slug}/vai-e-vem/{id}/foto', [$transfers, 'publicPhoto']);
 
-$publicPortal = new PublicPortalController($publicPortalRepository, $newsRepository, $transferRepository, $championshipCarousel, $storage, $contacts, $audit);
+$publicPortal = new PublicPortalController($publicPortalRepository, $newsRepository, $transferRepository, $championshipCarousel, $storage, $contacts, $audit, new PublicStandingsSimulationService($publicPortalRepository, new StandingsCalculator()));
 $router->get('/sitemap.xml', [$publicPortal, 'sitemap']);
 $router->get('/robots.txt', [$publicPortal, 'robots']);
 $router->get('/campeonatos/{slug}', [$publicPortal, 'home']);
 $router->get('/campeonatos/{slug}/proximos-jogos', [$publicPortal, 'nextMatches']);
 $router->get('/campeonatos/{slug}/resultados', [$publicPortal, 'results']);
 $router->get('/campeonatos/{slug}/partidas/{id}', [$publicPortal, 'match']);
+$router->post('/campeonatos/{slug}/classificacao/simular', [$publicPortal, 'simulateStandings']);
 $router->get('/campeonatos/{slug}/classificacao', [$publicPortal, 'standings']);
 $router->get('/campeonatos/{slug}/arbitragem', [$publicPortal, 'officials']);
 $router->get('/campeonatos/{slug}/contato', [$publicPortal, 'contact']);

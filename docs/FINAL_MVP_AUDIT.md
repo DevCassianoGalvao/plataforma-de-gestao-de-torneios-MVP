@@ -68,6 +68,8 @@ Atualização posterior: a migration `0032_isolated_tournament_simulations.sql` 
 
 Não foram comprovados nesta execução um cPanel real, certificado HTTPS emitido, SMTP de produção, cron real, backup off-site ou restauração em servidor separado. Esses itens precisam de homologação operacional antes do go-live.
 
+Atualizacao desta rodada: a simulacao publica foi movida para a classificacao do portal. Ela aceita apenas placares de partidas futuras publicadas, usa o motor compartilhado e nao grava cenarios ou resultados. O modulo interno continua isolado e acessivel somente por autorizacao direta.
+
 ## Veredito
 
 # APROVADO PARA HOMOLOGAÇÃO

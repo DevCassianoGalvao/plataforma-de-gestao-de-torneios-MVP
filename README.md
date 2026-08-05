@@ -18,6 +18,8 @@ A UI/UX da Etapa 17 foi centralizada em um design system com tema escuro e claro
 
 ## Stack prevista
 
+O portal publico oferece simulacao temporaria de resultados na pagina de classificacao. Ela nao cria cenarios nem altera dados oficiais; o modulo interno salvo continua restrito a rotas autorizadas.
+
 - PHP 8.2;
 - MySQL;
 - HTML, CSS e JavaScript;

@@ -4,6 +4,8 @@
 
 ### Adicionado
 
+- Simulador publico de resultados na classificacao, com partidas futuras publicadas, recalculo pelo motor compartilhado e projecao sem persistencia.
+
 - Agendamento de backups com periodicidade configurável (diário, 3, 7, 15 ou 30 dias), instruções de token do Google Drive e painel operacional refinado.
 
 - Roteiro e evidências da homologação externa de produção, com proteção HTTPS reforçada nos dois `.htaccess`.
