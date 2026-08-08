@@ -77,7 +77,7 @@ if ($command === 'db:seed') {
 
 if ($command === 'db:seed:copa-brasil-2026') {
     $pdo = Database::connection();
-    $adminExists = (int) $pdo->query("SELECT COUNT(*) FROM users WHERE email = 'admin@torneios.local'")->fetchColumn() > 0;
+    $adminExists = (int) $pdo->query("SELECT COUNT(*) FROM users u INNER JOIN user_roles ur ON ur.user_id = u.id INNER JOIN roles r ON r.id = ur.role_id WHERE r.`key` = 'administrator' AND u.status = 'active'")->fetchColumn() > 0;
     if (!$adminExists) {
         $password = getenv('SEED_DEMO_PASSWORD') ?: '';
         if ($password === '') {

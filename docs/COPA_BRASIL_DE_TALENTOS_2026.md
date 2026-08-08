@@ -57,7 +57,13 @@ php bin/console.php db:seed:copa-brasil-2026
 
 O comando é idempotente. Executá-lo novamente atualiza a configuração e reutiliza o campeonato, o regulamento, as equipes e os grupos existentes, sem duplicar registros.
 
-Em uma instalação nova, defina `SEED_DEMO_PASSWORD` antes da primeira execução para que o seed base crie o administrador inicial. Em ambiente de produção, o seed específico é bloqueado por segurança; faça a configuração em ambiente controlado ou remova temporariamente essa proteção somente seguindo o procedimento operacional aprovado.
+Em uma instalação nova, defina `SEED_DEMO_PASSWORD` antes da primeira execução para que o seed base crie o administrador inicial. Em produção, execute somente com confirmação explícita e usando o administrador real já cadastrado:
+
+```bash
+ALLOW_COPA_BRASIL_SEED=1 php bin/console.php db:seed:copa-brasil-2026
+```
+
+Sem essa variável, o comando é bloqueado para evitar uma configuração acidental. O seed não altera a senha nem cria usuário demo quando já existe um administrador ativo.
 
 ## O que ainda depende de operação
 

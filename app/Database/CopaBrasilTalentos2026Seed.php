@@ -11,12 +11,12 @@ final class CopaBrasilTalentos2026Seed
 {
     public static function run(PDO $pdo): array
     {
-        if (getenv('APP_ENV') === 'production') {
-            throw new \RuntimeException('Seed de configuracao bloqueado em producao. Execute em ambiente controlado.');
+        if (getenv('APP_ENV') === 'production' && getenv('ALLOW_COPA_BRASIL_SEED') !== '1') {
+            throw new \RuntimeException('Seed bloqueado em producao. Defina ALLOW_COPA_BRASIL_SEED=1 para confirmar a configuracao inicial.');
         }
 
         $now = date('Y-m-d H:i:s');
-        $adminId = self::userId($pdo, 'admin@torneios.local');
+        $adminId = self::userId($pdo, 'admin@torneios.local') ?: self::activeAdministratorId($pdo);
         if (!$adminId) {
             throw new \RuntimeException('O usuario administrador do seed nao foi encontrado.');
         }
@@ -261,6 +261,12 @@ final class CopaBrasilTalentos2026Seed
     {
         $statement = $pdo->prepare('SELECT id FROM users WHERE email = ? LIMIT 1');
         $statement->execute([$email]);
+        return (int) $statement->fetchColumn();
+    }
+
+    private static function activeAdministratorId(PDO $pdo): int
+    {
+        $statement = $pdo->query("SELECT u.id FROM users u INNER JOIN user_roles ur ON ur.user_id = u.id INNER JOIN roles r ON r.id = ur.role_id WHERE r.`key` = 'administrator' AND u.status = 'active' ORDER BY u.id LIMIT 1");
         return (int) $statement->fetchColumn();
     }
 }
