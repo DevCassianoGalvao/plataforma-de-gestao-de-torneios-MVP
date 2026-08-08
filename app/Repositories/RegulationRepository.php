@@ -53,6 +53,9 @@ final class RegulationRepository
         $statement = $this->pdo->prepare('SELECT * FROM regulation_advanced_settings WHERE regulation_id = ? LIMIT 1');
         $statement->execute([$id]);
         $regulation['advanced_settings'] = $statement->fetch() ?: [];
+        $statement = $this->pdo->prepare('SELECT * FROM regulation_competition_rules WHERE regulation_id = ? LIMIT 1');
+        $statement->execute([$id]);
+        $regulation['competition_rules'] = $statement->fetch() ?: [];
         $statement = $this->pdo->prepare('SELECT * FROM regulation_eligibility_rules WHERE regulation_id = ? ORDER BY id');
         $statement->execute([$id]);
         $regulation['eligibility_rules'] = $statement->fetchAll();

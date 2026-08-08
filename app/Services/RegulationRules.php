@@ -6,6 +6,7 @@ namespace App\Services;
 final class RegulationRules
 {
     public const CRITERIA = ['wins', 'goal_difference', 'goals_scored', 'head_to_head', 'fewer_cards', 'administrative_decision', 'draw_lots'];
+    public const VALID_CRITERIA = ['wins', 'goal_difference', 'goals_scored', 'goals_conceded', 'head_to_head', 'fewer_cards', 'administrative_decision', 'draw_lots'];
 
     public static function preset(): array
     {
@@ -87,7 +88,7 @@ final class RegulationRules
         $priorities = [];
         $criteria = [];
         foreach ((array) ($data['tiebreakers'] ?? []) as $item) {
-            if (!in_array($item['criterion'] ?? '', self::CRITERIA, true)) {
+            if (!in_array($item['criterion'] ?? '', self::VALID_CRITERIA, true)) {
                 $errors[] = 'Criterio de desempate invalido.';
             }
             if (in_array($item['criterion'] ?? '', $criteria, true)) {

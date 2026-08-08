@@ -39,6 +39,7 @@ php bin/lint.php
 php bin/console.php migrate
 php bin/console.php migrate:status
 SEED_DEMO_PASSWORD=... php bin/console.php db:seed
+php bin/console.php db:seed:copa-brasil-2026
 ALLOW_DEMO_SIMULATION=1 php bin/console.php db:seed:simulation
 APP_ENV=test DB_NAME=torneios_mvp_test php bin/test.php
 HTTP_TEST_BASE_URL=http://127.0.0.1:18081/torneio-online TEST_PASSWORD=... php bin/http-test.php
@@ -51,6 +52,7 @@ No Windows PowerShell, defina variáveis com `$env:NOME='valor'` e use `C:\xampp
 - [PRD](docs/PRD_PLATAFORMA_TORNEIOS.md)
 - [Autenticação](docs/AUTHENTICATION.md)
 - [Campeonamentos e regulamentos](docs/CHAMPIONSHIPS_AND_REGULATIONS.md)
+- [Configuração da Copa Brasil de Talentos 2026](docs/COPA_BRASIL_DE_TALENTOS_2026.md)
 - [Regulamento avancado e elegibilidade](docs/ADVANCED_REGULATIONS_AND_ELIGIBILITY.md)
 - [Equipes e comissão técnica](docs/TEAMS_AND_STAFF.md)
 - [Formações táticas](docs/TACTICAL_FORMATIONS.md)

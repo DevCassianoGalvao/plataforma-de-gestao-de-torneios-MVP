@@ -53,7 +53,7 @@ final class StandingsCalculator
     private function compare(array $a, array $b, string $criterion, array $matches, array $cluster, array $regulation = []): int
     {
         return match ($criterion) {
-            'wins' => $b['wins'] <=> $a['wins'], 'goal_difference' => $b['goal_difference'] <=> $a['goal_difference'], 'goals_scored' => $b['goals_for'] <=> $a['goals_for'],
+            'wins' => $b['wins'] <=> $a['wins'], 'goal_difference' => $b['goal_difference'] <=> $a['goal_difference'], 'goals_scored' => $b['goals_for'] <=> $a['goals_for'], 'goals_conceded' => $a['goals_against'] <=> $b['goals_against'],
             'head_to_head' => $this->headToHead((int) $a['team_id'], (int) $b['team_id'], $matches, $cluster, $regulation), 'fewer_cards' => $a['discipline_cards'] <=> $b['discipline_cards'],
             'administrative_decision' => $b['administrative_score'] <=> $a['administrative_score'], 'draw_lots' => (int) $a['team_id'] <=> (int) $b['team_id'], default => 0,
         };

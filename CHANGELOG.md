@@ -4,6 +4,8 @@
 
 ### Adicionado
 
+- Seed idempotente da Copa Brasil de Talentos 2026, com regulamento recebido, identidade visual, dez equipes e configuração específica de grupos, classificados, semifinais, final, disciplina, elenco e W.O.
+
 - Limpeza definitiva em lote para administradores, com prévia de dependências, confirmação explícita, exclusão transacional de dados esportivos e remoção segura de arquivos associados.
 
 - Simulador público de resultados em página própria, com classificação à esquerda, partidas à direita, placares vazios, navegação por rodada, atualização em tempo real pelo motor compartilhado e projeção sem persistência.

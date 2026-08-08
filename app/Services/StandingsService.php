@@ -46,19 +46,22 @@ final class StandingsService
         foreach ($sourceGroups as $group) {
             $qualified[$group['code']] = array_slice($this->standings->standings((int) $group['id']), 0, (int) $regulation['qualified_per_group']);
         }
-        if (count($qualified) < 2 || count($qualified[array_key_first($qualified)] ?? []) < 4 || count($qualified[array_key_last($qualified)] ?? []) < 4) return $this->fail('Sao necessarios dois grupos com quatro classificados.');
-        $pairs = $this->standings->knockoutPairings((int) $regulation['id'], 'quarterfinals');
+        $startStage = (string) ($regulation['knockout_starts_at'] ?? 'quarterfinals');
+        $requiredQualified = match ($startStage) { 'semifinals' => 2, 'final' => 1, default => 4 };
+        if (count($qualified) < 2 || count($qualified[array_key_first($qualified)] ?? []) < $requiredQualified || count($qualified[array_key_last($qualified)] ?? []) < $requiredQualified) return $this->fail('Os grupos nao possuem classificados suficientes para o mata-mata configurado.');
+        $pairs = $this->standings->knockoutPairings((int) $regulation['id'], $startStage);
         if ($pairs === []) return $this->fail('Configure os cruzamentos do mata-mata no regulamento.');
         $knockout = $this->standings->ensureKnockoutPhase($phase, $userId);
         $this->standings->begin();
         try {
             $roundIds = [];
-            foreach (StandingsRules::STAGES as $index => $stage) $roundIds[$stage] = $this->standings->ensureKnockoutRound($knockout, $stage, $index + 1, $userId);
+            $stageOrder = array_flip(StandingsRules::STAGES);
+            foreach (StandingsRules::STAGES as $index => $stage) if (($stageOrder[$stage] ?? 0) >= ($stageOrder[$startStage] ?? 0)) $roundIds[$stage] = $this->standings->ensureKnockoutRound($knockout, $stage, $index + 1, $userId);
             foreach ($pairs as $pair) {
                 $homeSource = (string) $pair['home_source']; $awaySource = (string) $pair['away_source']; $index = (int) $pair['tie_number'] - 1;
                 $home = $this->qualifiedTeam($qualified, $homeSource);
                 $away = $this->qualifiedTeam($qualified, $awaySource);
-                $tieId = $this->standings->upsertTie($roundIds['quarterfinals'], $index + 1, $homeSource, $awaySource, $home, $away);
+                $tieId = $this->standings->upsertTie($roundIds[$startStage], $index + 1, $homeSource, $awaySource, $home, $away);
                 $this->attachMatchIfReady($tieId, $knockout, $home, $away, $index + 1, $userId);
             }
             $this->upsertProgressionTies($roundIds, $knockout, $regulation, $userId);
@@ -144,6 +147,7 @@ final class StandingsService
             'wins' => $b['wins'] <=> $a['wins'],
             'goal_difference' => $b['goal_difference'] <=> $a['goal_difference'],
             'goals_scored' => $b['goals_for'] <=> $a['goals_for'],
+            'goals_conceded' => $a['goals_against'] <=> $b['goals_against'],
             'head_to_head' => $this->headToHead($a['team_id'], $b['team_id'], $groupId, $cluster),
             'fewer_cards' => $a['discipline_cards'] <=> $b['discipline_cards'],
             'administrative_decision' => $b['administrative_score'] <=> $a['administrative_score'],
@@ -185,6 +189,7 @@ final class StandingsService
     private function upsertProgressionTies(array $roundIds, array $phase, array $regulation, int $userId): void
     {
         foreach (['semifinals', 'final'] as $stage) {
+            if (!isset($roundIds[$stage])) continue;
             foreach ($this->standings->knockoutPairings((int) $regulation['id'], $stage) as $pair) {
                 $this->standings->upsertTie($roundIds[$stage], (int) $pair['tie_number'], (string) $pair['home_source'], (string) $pair['away_source'], null, null);
             }

@@ -17,6 +17,7 @@ use App\Database\AuthSeed;
 use App\Database\AthleteDocumentTypeSeed;
 use App\Database\AthleteSeed;
 use App\Database\ChampionshipSeed;
+use App\Database\CopaBrasilTalentos2026Seed;
 use App\Database\PositionSeed;
 use App\Database\PortalEngagementSeed;
 use App\Database\RegistrationSeed;
@@ -71,6 +72,24 @@ if ($command === 'db:seed') {
     TransferSeed::run(Database::connection());
     PortalEngagementSeed::run(Database::connection());
     echo "Seed de autenticacao concluido.\n";
+    exit(0);
+}
+
+if ($command === 'db:seed:copa-brasil-2026') {
+    $pdo = Database::connection();
+    $adminExists = (int) $pdo->query("SELECT COUNT(*) FROM users WHERE email = 'admin@torneios.local'")->fetchColumn() > 0;
+    if (!$adminExists) {
+        $password = getenv('SEED_DEMO_PASSWORD') ?: '';
+        if ($password === '') {
+            fwrite(STDERR, "SEED_DEMO_PASSWORD e obrigatoria para criar o administrador inicial.\n");
+            exit(1);
+        }
+        AuthSeed::run($pdo, $password);
+    }
+    TacticalFormationSeed::run($pdo);
+    AthleteDocumentTypeSeed::run($pdo);
+    $result = CopaBrasilTalentos2026Seed::run($pdo);
+    echo 'COPA_BRASIL_2026_OK championship_id=' . $result['championship_id'] . ' regulation_id=' . $result['regulation_id'] . ' teams=' . count($result['team_ids']) . "\n";
     exit(0);
 }
 
@@ -130,5 +149,5 @@ if ($command === 'db:seed:simulation-lineups') {
     exit(0);
 }
 
-echo "Comandos: migrate | migrate:status | matches:publish-due | backup:run | backup:schedule | db:seed | db:seed:simulation | db:seed:simulation-lineups\n";
+echo "Comandos: migrate | migrate:status | matches:publish-due | backup:run | backup:schedule | db:seed | db:seed:copa-brasil-2026 | db:seed:simulation | db:seed:simulation-lineups\n";
 exit($command === 'help' ? 0 : 1);
