@@ -263,6 +263,7 @@ $router->post('/admin/usuarios/{id}', [$userController, 'update']);
 $router->post('/admin/usuarios/{id}/status', [$userController, 'status']);
 $router->post('/admin/usuarios/{id}/perfis', [$userController, 'roles']);
 $router->post('/admin/usuarios/{id}/reset-password', [$userController, 'resetPassword']);
+$router->post('/admin/usuarios/{id}/excluir', [$userController, 'delete']);
 
 $profile = new ProfileController($users, $authorization, $audit, $storage);
 $router->get('/admin/perfil', [$profile, 'show']);

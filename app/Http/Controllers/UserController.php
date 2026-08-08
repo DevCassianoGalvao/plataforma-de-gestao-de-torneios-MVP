@@ -27,7 +27,7 @@ final class UserController extends Controller
             return $guard;
         }
         $flash = Session::consumeFlash('admin_message');
-        return $this->page('Usuarios', 'admin/users/index', ['user' => $guard, 'usersList' => $this->withRoles($this->users->list((string) ($request->query['q'] ?? ''))), 'roles' => $this->users->rolesCatalog(), 'canResetPassword' => $this->authorization->can($guard, 'users.update'), 'query' => (string) ($request->query['q'] ?? ''), 'message' => $flash]);
+        return $this->page('Usuarios', 'admin/users/index', ['user' => $guard, 'usersList' => $this->withRoles($this->users->list((string) ($request->query['q'] ?? ''))), 'roles' => $this->users->rolesCatalog(), 'canResetPassword' => $this->authorization->can($guard, 'users.update'), 'canDeleteUsers' => $this->authorization->can($guard, 'users.delete'), 'query' => (string) ($request->query['q'] ?? ''), 'message' => $flash]);
     }
 
     public function createForm(Request $request, array $params = []): Response
@@ -172,6 +172,34 @@ final class UserController extends Controller
         $this->users->updatePassword((int) $record['id'], password_hash($temporaryPassword, PASSWORD_DEFAULT));
         $this->audit->record('users.password_reset_generated', (int) $guard['id'], 'user', (int) $record['id'], [], $request);
         Session::flash('admin_message', 'Nova senha temporaria para ' . $record['name'] . ': ' . $temporaryPassword . '. Entregue a senha ao usuario e oriente a troca-la em Meu perfil.');
+        return Response::redirect(Config::url('/admin/usuarios'));
+    }
+
+    public function delete(Request $request, array $params = []): Response
+    {
+        $guard = $this->guard($request, 'users.delete');
+        if ($guard instanceof Response) {
+            return $guard;
+        }
+        if (!$this->validCsrf($request)) {
+            return Response::forbidden('A sessao expirou.');
+        }
+        $id = (int) ($params[0] ?? 0);
+        $record = $this->users->findById($id);
+        if (!$record) {
+            return Response::html('Usuario nao encontrado.', 404);
+        }
+        if ($id === (int) $guard['id']) {
+            return Response::html('A conta atualmente conectada nao pode ser excluida.', 422);
+        }
+        if (in_array('administrator', $this->authorization->roleKeys($record), true) && !$this->users->hasAnotherActiveAdministrator($id)) {
+            return Response::html('Mantenha pelo menos um administrador ativo no sistema.', 422);
+        }
+        if (!$this->users->softDelete($id)) {
+            return Response::html('Nao foi possivel excluir o usuario.', 422);
+        }
+        $this->audit->record('users.deleted', (int) $guard['id'], 'user', $id, ['email_hash' => hash('sha256', (string) $record['email'])], $request);
+        Session::flash('admin_message', 'Usuario excluido com sucesso. Os historicos foram preservados.');
         return Response::redirect(Config::url('/admin/usuarios'));
     }
 

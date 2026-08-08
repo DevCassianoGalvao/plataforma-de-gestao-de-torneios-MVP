@@ -67,6 +67,21 @@ final class UserRepository
         $statement->execute([$status, $lockedUntil, date('Y-m-d H:i:s'), $id]);
     }
 
+    public function softDelete(int $id): bool
+    {
+        $statement = $this->pdo->prepare('UPDATE users SET deleted_at = ?, status = \'inactive\', locked_until = NULL, failed_login_attempts = 0, updated_at = ? WHERE id = ? AND deleted_at IS NULL');
+        $now = date('Y-m-d H:i:s');
+        $statement->execute([$now, $now, $id]);
+        return $statement->rowCount() === 1;
+    }
+
+    public function hasAnotherActiveAdministrator(int $excludedUserId): bool
+    {
+        $statement = $this->pdo->prepare('SELECT COUNT(*) FROM users u INNER JOIN user_roles ur ON ur.user_id = u.id INNER JOIN roles r ON r.id = ur.role_id WHERE u.status = \'active\' AND u.deleted_at IS NULL AND r.`key` = \'administrator\' AND u.id <> ?');
+        $statement->execute([$excludedUserId]);
+        return (int) $statement->fetchColumn() > 0;
+    }
+
     public function updatePassword(int $id, string $passwordHash): void
     {
         $statement = $this->pdo->prepare('UPDATE users SET password_hash = ?, updated_at = ? WHERE id = ? AND deleted_at IS NULL');

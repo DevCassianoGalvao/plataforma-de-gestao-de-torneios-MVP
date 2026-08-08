@@ -2577,6 +2577,17 @@ body.app-body .schedule-table td:nth-child(6)::before { content: 'Ações'; }
 .simulation-crossings span { margin: 0 8px; color: var(--ui-primary); }
 @media (max-width: 760px) { .simulation-standings { grid-template-columns: 1fr; } .simulation-actions, .simulation-actions form, .inline-form { align-items: stretch; flex-direction: column; } .simulation-actions label, .inline-form select, .inline-form input { max-width: none; width: 100%; } }
 
+/* User table actions: one compact, predictable control group. */
+.user-actions { display: grid; grid-template-columns: repeat(2, minmax(7rem, 1fr)); min-width: 16rem; gap: .5rem; align-items: stretch; }
+.user-actions > a, .user-actions > form { display: flex; width: 100%; min-width: 0; margin: 0; }
+.user-actions .user-action { width: 100%; min-height: 2.35rem; padding: .5rem .65rem; border-radius: 7px; font-size: .78rem; line-height: 1.15; white-space: nowrap; }
+.user-actions .user-action-wide { grid-column: 1 / -1; }
+.user-actions .user-action:not(.button-danger) { background: var(--ui-surface-2); border-color: var(--ui-border-strong); color: var(--ui-text); }
+.user-actions .user-action:not(.button-danger):hover { background: var(--ui-surface-3); border-color: var(--ui-info); color: var(--ui-text); }
+.user-actions .button-danger { background: rgba(255, 107, 107, .12); border-color: rgba(255, 107, 107, .45); color: #ffb0b0; }
+.user-actions .button-danger:hover { background: var(--ui-danger); border-color: var(--ui-danger); color: #240405; }
+@media (max-width: 760px) { .user-actions { grid-template-columns: 1fr; min-width: 0; } .user-actions .user-action-wide { grid-column: auto; } }
+
 @media (max-width: 800px) {
     body.app-body .app-sidebar .sidebar-close {
         position: absolute;

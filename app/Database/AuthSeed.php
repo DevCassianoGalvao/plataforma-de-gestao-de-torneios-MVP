@@ -29,6 +29,7 @@ final class AuthSeed
             ['users.create', 'Criar usuarios', 'Cria usuarios.', 'usuarios'],
             ['users.update', 'Editar usuarios', 'Edita dados de usuarios.', 'usuarios'],
             ['users.deactivate', 'Alterar status de usuarios', 'Ativa, inativa, bloqueia e desbloqueia usuarios.', 'usuarios'],
+            ['users.delete', 'Excluir usuarios', 'Remove usuarios da operacao sem apagar historicos.', 'usuarios'],
             ['users.manage_roles', 'Gerenciar perfis', 'Atribui e remove perfis.', 'usuarios'],
             ['audit.view', 'Visualizar auditoria', 'Consulta eventos de auditoria.', 'auditoria'],
             ['championships.view', 'Visualizar campeonatos', 'Consulta campeonatos autorizados.', 'campeonatos'],

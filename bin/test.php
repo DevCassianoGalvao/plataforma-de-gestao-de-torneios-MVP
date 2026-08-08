@@ -76,6 +76,7 @@ require dirname(__DIR__) . '/tests/Http/ProductionReadinessHttpTest.php';
 require dirname(__DIR__) . '/tests/Http/SimulationHttpTest.php';
 require dirname(__DIR__) . '/tests/Http/AccountabilityRetentionHttpTest.php';
 require dirname(__DIR__) . '/tests/Http/PermanentDeletionHttpTest.php';
+require dirname(__DIR__) . '/tests/Http/UserDeletionHttpTest.php';
 
 use App\Core\Database;
 use Tests\Http\FoundationHttpTest;
@@ -140,6 +141,7 @@ use Tests\Http\ProductionReadinessHttpTest;
 use Tests\Http\SimulationHttpTest;
 use Tests\Http\AccountabilityRetentionHttpTest;
 use Tests\Http\PermanentDeletionHttpTest;
+use Tests\Http\UserDeletionHttpTest;
 
 $server = Database::serverConnection();
 $quoted = '`' . str_replace('`', '``', $dbName) . '`';
@@ -208,7 +210,8 @@ try {
     AdvancedRectificationIntegrationTest::run();
     AccountabilityRetentionHttpTest::run();
     PermanentDeletionHttpTest::run();
-    echo "MVP_TESTS_OK unit=17 integration=24 http=18\n";
+    UserDeletionHttpTest::run();
+    echo "MVP_TESTS_OK unit=17 integration=24 http=19\n";
 } finally {
     Database::disconnect();
     $server->exec('DROP DATABASE IF EXISTS ' . $quoted);
