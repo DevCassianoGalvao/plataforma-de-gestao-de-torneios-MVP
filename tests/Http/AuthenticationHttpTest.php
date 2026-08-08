@@ -54,7 +54,12 @@ final class AuthenticationHttpTest
         assert_same(Config::url('/minha-equipe'), $trainer->headers['Location'] ?? null, 'Redirecionamento de treinador incorreto');
         $denied = $router->dispatch(Request::fake('GET', '/torneio-online/admin/usuarios'));
         assert_same(403, $denied->status, 'Treinador acessou usuarios');
+        $trainerTeams = $router->dispatch(Request::fake('GET', '/torneio-online/admin/equipes'));
+        assert_same(200, $trainerTeams->status, 'Treinador nao acessou sua area esportiva');
+        assert_true(str_contains($trainerTeams->body, 'Cadastro esportivo') && str_contains($trainerTeams->body, 'Equipes'), 'Menu esportivo do treinador nao foi exibido');
+        assert_true(!str_contains($trainerTeams->body, '>Conteúdo<') && !str_contains($trainerTeams->body, '>Acesso<') && !str_contains($trainerTeams->body, 'Notícias'), 'Menu administrativo apareceu para treinador');
         $protected = $router->dispatch(Request::fake('GET', '/torneio-online/admin'));
-        assert_same(403, $protected->status, 'Treinador acessou painel global');
+        assert_same(302, $protected->status, 'Treinador nao foi redirecionado do painel global');
+        assert_same(Config::url('/minha-equipe'), $protected->headers['Location'] ?? null, 'Destino do treinador no painel global incorreto');
     }
 }

@@ -23,7 +23,15 @@ final class AuthController extends Controller
     public function login(Request $request, array $params = []): Response
     {
         if (Auth::authenticated()) {
-            return Response::redirect(Config::url('/admin'));
+            $user = Auth::user();
+            $fallbacks = [
+                'administrator' => '/admin',
+                'team_manager' => '/minha-equipe',
+                'match_operator' => '/minhas-partidas',
+                'accountability' => '/prestacao',
+            ];
+            $role = $user ? $this->authorization->primaryRole($user) : null;
+            return Response::redirect(Config::url($fallbacks[$role] ?? '/admin'));
         }
         return $this->page('Entrar', 'auth/login', ['next' => $request->query['next'] ?? '', 'message' => null, 'oldEmail' => '']);
     }

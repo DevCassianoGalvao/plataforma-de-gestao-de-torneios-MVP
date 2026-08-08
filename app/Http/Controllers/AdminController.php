@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Core\Auth;
+use App\Core\Config;
 use App\Core\Request;
 use App\Core\Response;
 use App\Core\Database;
@@ -11,6 +13,18 @@ final class AdminController extends Controller
 {
     public function dashboard(Request $request, array $params = []): Response
     {
+        $user = Auth::user();
+        if ($user && $this->authorization->cannot($user, 'system.access')) {
+            $fallbacks = [
+                'team_manager' => '/minha-equipe',
+                'match_operator' => '/minhas-partidas',
+                'accountability' => '/prestacao',
+            ];
+            $path = $fallbacks[$this->authorization->primaryRole($user)] ?? null;
+            if ($path !== null) {
+                return Response::redirect(Config::url($path));
+            }
+        }
         $guard = $this->guard($request, 'system.access');
         if ($guard instanceof Response) {
             return $guard;
