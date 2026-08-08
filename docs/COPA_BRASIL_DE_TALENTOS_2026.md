@@ -52,7 +52,7 @@ Depois de enviar o código e a pasta de arquivos para o servidor, execute na rai
 
 ```bash
 php bin/console.php migrate
-php bin/console.php db:seed:copa-brasil-2026
+COPA_TRAINER_INITIAL_PASSWORD='Copa2026!Inicial' php bin/console.php db:seed:copa-brasil-2026
 ```
 
 O comando é idempotente. Executá-lo novamente atualiza a configuração e reutiliza o campeonato, o regulamento, as equipes e os grupos existentes, sem duplicar registros.
@@ -60,7 +60,7 @@ O comando é idempotente. Executá-lo novamente atualiza a configuração e reut
 Em uma instalação nova, defina `SEED_DEMO_PASSWORD` antes da primeira execução para que o seed base crie o administrador inicial. Em produção, execute somente com confirmação explícita e usando o administrador real já cadastrado:
 
 ```bash
-ALLOW_COPA_BRASIL_SEED=1 php bin/console.php db:seed:copa-brasil-2026
+COPA_TRAINER_INITIAL_PASSWORD='Copa2026!Inicial' ALLOW_COPA_BRASIL_SEED=1 php bin/console.php db:seed:copa-brasil-2026
 ```
 
 Sem essa variável, o comando é bloqueado para evitar uma configuração acidental. O seed não altera a senha nem cria usuário demo quando já existe um administrador ativo.
@@ -70,3 +70,10 @@ Sem essa variável, o comando é bloqueado para evitar uma configuração aciden
 O seed não cria partidas com datas fictícias, atletas, inscrições ou resultados. Esses dados devem ser cadastrados pelo fluxo administrativo quando a organização fornecer as informações reais. A estrutura de W.O., os campos regulamentares e a configuração do mata-mata estão preparados, mas a decisão de W.O. deve ser registrada pelo operador e aprovada conforme o fluxo oficial.
 
 O modelo atual já suporta a configuração de ida e volta. O cálculo agregado de uma disputa de duas partidas e a geração automática dos dois jogos de cada confronto devem ser validados em uma rodada específica antes da publicação da tabela oficial.
+## Acessos dos treinadores
+
+O seed cria um acesso de treinador para cada uma das dez equipes usando os e-mails do arquivo `COPA BRASIL DE TALENTOS 2026/Usuarios - treinadores.txt`: Viguinha, Boa Esperança, Mury, Lumiar, Bragantino, Ousadia e Alegria, Rio Bonito, Santiago, Retiro Saudoso e Sana FC.
+
+Cada conta recebe o perfil `Treinador ou gestor de equipe`, o vínculo `head_coach` da equipe correspondente e um registro na comissão técnica. Quando o nome do responsável não foi informado, o sistema usa `Treinador - Nome da equipe` como identificação provisória, sem inventar uma pessoa.
+
+A senha inicial é informada somente no momento da execução e não fica versionada. Use uma senha temporária com pelo menos oito caracteres, uma letra e um número, e solicite a troca no primeiro acesso. Reexecutar o seed não redefine a senha de contas existentes. O seed também não reativa contas excluídas e interrompe a operação se um treinador já estiver vinculado a outra equipe.

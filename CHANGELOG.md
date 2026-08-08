@@ -4,6 +4,8 @@
 
 ### Adicionado
 
+- Contas individuais de treinador para as dez equipes da Copa Brasil de Talentos 2026, com perfil, vÃ­nculo `head_coach` e comissÃ£o tÃ©cnica associados de forma idempotente.
+
 - Seed idempotente da Copa Brasil de Talentos 2026, com regulamento recebido, identidade visual, dez equipes e configuração específica de grupos, classificados, semifinais, final, disciplina, elenco e W.O.
 
 - Limpeza definitiva em lote para administradores, com prévia de dependências, confirmação explícita, exclusão transacional de dados esportivos e remoção segura de arquivos associados.

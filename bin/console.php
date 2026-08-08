@@ -88,8 +88,9 @@ if ($command === 'db:seed:copa-brasil-2026') {
     }
     TacticalFormationSeed::run($pdo);
     AthleteDocumentTypeSeed::run($pdo);
-    $result = CopaBrasilTalentos2026Seed::run($pdo);
-    echo 'COPA_BRASIL_2026_OK championship_id=' . $result['championship_id'] . ' regulation_id=' . $result['regulation_id'] . ' teams=' . count($result['team_ids']) . "\n";
+    $trainerPassword = getenv('COPA_TRAINER_INITIAL_PASSWORD') ?: null;
+    $result = CopaBrasilTalentos2026Seed::run($pdo, $trainerPassword);
+    echo 'COPA_BRASIL_2026_OK championship_id=' . $result['championship_id'] . ' regulation_id=' . $result['regulation_id'] . ' teams=' . count($result['team_ids']) . ' trainers_created=' . $result['trainer_accounts']['created'] . ' trainers_linked=' . $result['trainer_accounts']['linked'] . "\n";
     exit(0);
 }
 

@@ -39,7 +39,7 @@ php bin/lint.php
 php bin/console.php migrate
 php bin/console.php migrate:status
 SEED_DEMO_PASSWORD=... php bin/console.php db:seed
-php bin/console.php db:seed:copa-brasil-2026
+COPA_TRAINER_INITIAL_PASSWORD=... php bin/console.php db:seed:copa-brasil-2026
 ALLOW_DEMO_SIMULATION=1 php bin/console.php db:seed:simulation
 APP_ENV=test DB_NAME=torneios_mvp_test php bin/test.php
 HTTP_TEST_BASE_URL=http://127.0.0.1:18081/torneio-online TEST_PASSWORD=... php bin/http-test.php

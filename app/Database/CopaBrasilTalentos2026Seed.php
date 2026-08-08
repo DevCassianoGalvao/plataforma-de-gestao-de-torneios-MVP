@@ -9,7 +9,7 @@ use PDO;
 /** Configuracao idempotente do campeonato real a partir do regulamento enviado. */
 final class CopaBrasilTalentos2026Seed
 {
-    public static function run(PDO $pdo): array
+    public static function run(PDO $pdo, ?string $trainerPassword = null): array
     {
         if (getenv('APP_ENV') === 'production' && getenv('ALLOW_COPA_BRASIL_SEED') !== '1') {
             throw new \RuntimeException('Seed bloqueado em producao. Defina ALLOW_COPA_BRASIL_SEED=1 para confirmar a configuracao inicial.');
@@ -31,6 +31,7 @@ final class CopaBrasilTalentos2026Seed
             self::regulationSettings($pdo, $regulationId, $now);
             $phases = self::phases($pdo, $championshipId, $adminId, $now);
             $teams = self::teams($pdo, $championshipId, $adminId, $now);
+            $trainerAccounts = self::coaches($pdo, $championshipId, $teams, $adminId, $now, $trainerPassword);
             self::groups($pdo, $phases['groups'], $teams, $now);
             self::eligibility($pdo, $regulationId, $phases['groups'], $phases['knockout'], $now);
             self::assignment($pdo, $championshipId, $adminId, $now);
@@ -40,7 +41,7 @@ final class CopaBrasilTalentos2026Seed
             throw $exception;
         }
 
-        return ['championship_id' => $championshipId, 'regulation_id' => $regulationId, 'team_ids' => $teams, 'phase_ids' => $phases];
+        return ['championship_id' => $championshipId, 'regulation_id' => $regulationId, 'team_ids' => $teams, 'phase_ids' => $phases, 'trainer_accounts' => $trainerAccounts];
     }
 
     private static function season(PDO $pdo, string $now): int
@@ -201,6 +202,85 @@ final class CopaBrasilTalentos2026Seed
             $result[] = $id;
         }
         return $result;
+    }
+
+    private static function coaches(PDO $pdo, int $championshipId, array $teamIds, int $adminId, string $now, ?string $trainerPassword): array
+    {
+        $roleId = (int) $pdo->query("SELECT id FROM roles WHERE `key` = 'team_manager' LIMIT 1")->fetchColumn();
+        if (!$roleId) throw new \RuntimeException('Perfil de treinador nao encontrado. Execute o seed de autenticacao antes.');
+
+        $accounts = [
+            ['boa-esperanca-fc', 'Gustavo', 'gustavoboy056@gmail.com'],
+            ['mury-fc', null, 'gabrielemiterio@gmail.com'],
+            ['viguinha-fc', null, 'dgouveiaknupp@gmail.com'],
+            ['sana-fc', null, 'adilsonsilvacoelho1@gmail.com'],
+            ['lumiar-fc', 'Wagner', 'wagner_heiderich@hotmail.com'],
+            ['santiago-fc', 'Igor', 'igorfernandes1803@gmail.com'],
+            ['retiro-saudoso-fc', 'Fernando', 'fernandosandta@gmail.com'],
+            ['bragantino-fc', null, 'schuab94@gmail.com'],
+            ['ousadia-e-alegria-fc', null, 'luiiz9422@gmail.com'],
+            ['rio-bonito-fc', 'Eduardo', 'Schenkelfabio@gmail.com'],
+        ];
+        if (count($teamIds) !== count($accounts)) throw new \RuntimeException('A Copa precisa ter dez equipes antes de criar os acessos dos treinadores.');
+
+        $staffRoleId = (int) $pdo->query("SELECT id FROM staff_roles WHERE `key` = 'head_coach' LIMIT 1")->fetchColumn();
+        if (!$staffRoleId) throw new \RuntimeException('Cargo de treinador nao encontrado. Execute o seed base antes.');
+
+        $findTeam = $pdo->prepare('SELECT id, short_name FROM teams WHERE championship_id = ? AND slug = ? AND deleted_at IS NULL LIMIT 1');
+        $findUser = $pdo->prepare('SELECT id, status, deleted_at FROM users WHERE email = ? LIMIT 1');
+        $createUser = $pdo->prepare("INSERT INTO users (name, email, password_hash, status, created_at, updated_at) VALUES (?, ?, ?, 'active', ?, ?)");
+        $assignRole = $pdo->prepare('INSERT IGNORE INTO user_roles (user_id, role_id, created_at, created_by) VALUES (?, ?, ?, ?)');
+        $findAssignment = $pdo->prepare("SELECT id, team_id FROM team_user_assignments WHERE user_id = ? AND assignment_type = 'head_coach' AND status = 'active' LIMIT 1");
+        $updateAssignment = $pdo->prepare("UPDATE team_user_assignments SET status = 'active', ends_at = NULL, updated_at = ? WHERE id = ?");
+        $createAssignment = $pdo->prepare("INSERT INTO team_user_assignments (team_id, user_id, assignment_type, status, starts_at, created_by, created_at, updated_at) VALUES (?, ?, 'head_coach', 'active', ?, ?, ?, ?) ON DUPLICATE KEY UPDATE status = 'active', ends_at = NULL, updated_at = VALUES(updated_at)");
+        $findStaff = $pdo->prepare('SELECT id FROM team_staff WHERE team_id = ? AND full_name = ? AND deleted_at IS NULL LIMIT 1');
+        $updateStaff = $pdo->prepare("UPDATE team_staff SET user_id = ?, email = ?, status = 'active', updated_at = ? WHERE id = ?");
+        $createStaff = $pdo->prepare("INSERT INTO team_staff (team_id, staff_role_id, user_id, full_name, display_name, email, status, starts_at, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, 'active', ?, ?, ?)");
+
+        $created = 0;
+        $linked = 0;
+        foreach ($accounts as [$slug, $knownName, $rawEmail]) {
+            $findTeam->execute([$championshipId, $slug]);
+            $team = $findTeam->fetch() ?: null;
+            if (!$team) throw new \RuntimeException('Equipe do treinador nao encontrada: ' . $slug);
+            $teamId = (int) $team['id'];
+            $email = strtolower(trim($rawEmail));
+            $displayName = $knownName ?: 'Treinador - ' . $team['short_name'];
+
+            $findUser->execute([$email]);
+            $user = $findUser->fetch() ?: null;
+            if ($user && $user['deleted_at'] !== null) throw new \RuntimeException('O e-mail do treinador pertence a um usuario excluido: ' . $email);
+            if (!$user) {
+                if ($trainerPassword === null || strlen($trainerPassword) < 8 || !preg_match('/[A-Za-z]/', $trainerPassword) || !preg_match('/\d/', $trainerPassword)) {
+                    throw new \RuntimeException('Defina COPA_TRAINER_INITIAL_PASSWORD com pelo menos 8 caracteres, uma letra e um numero para criar os acessos dos treinadores.');
+                }
+                $createUser->execute([$displayName, $email, password_hash($trainerPassword, PASSWORD_DEFAULT), $now, $now]);
+                $userId = (int) $pdo->lastInsertId();
+                $created++;
+            } else {
+                $userId = (int) $user['id'];
+            }
+
+            $assignRole->execute([$userId, $roleId, $now, $adminId]);
+            $findAssignment->execute([$userId]);
+            $assignment = $findAssignment->fetch() ?: null;
+            if ($assignment && (int) $assignment['team_id'] !== $teamId) throw new \RuntimeException('O treinador ' . $email . ' ja esta vinculado a outra equipe.');
+            if ($assignment) {
+                $updateAssignment->execute([$now, (int) $assignment['id']]);
+            } else {
+                $createAssignment->execute([$teamId, $userId, date('Y-m-d'), $adminId, $now, $now]);
+            }
+            $linked++;
+
+            $findStaff->execute([$teamId, $displayName]);
+            $staffId = (int) $findStaff->fetchColumn();
+            if ($staffId) {
+                $updateStaff->execute([$userId, $email, $now, $staffId]);
+            } else {
+                $createStaff->execute([$teamId, $staffRoleId, $userId, $displayName, $displayName, $email, date('Y-m-d'), $now, $now]);
+            }
+        }
+        return ['created' => $created, 'linked' => $linked];
     }
 
     private static function groups(PDO $pdo, int $phaseId, array $teamIds, string $now): void
