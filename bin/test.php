@@ -54,6 +54,7 @@ require dirname(__DIR__) . '/tests/Integration/PublicPortalIntegrationTest.php';
 require dirname(__DIR__) . '/tests/Integration/TournamentProgressSeedIntegrationTest.php';
 require dirname(__DIR__) . '/tests/Integration/AccountabilityCompletionIntegrationTest.php';
 require dirname(__DIR__) . '/tests/Integration/RetentionIntegrationTest.php';
+require dirname(__DIR__) . '/tests/Integration/PermanentDeletionIntegrationTest.php';
 require dirname(__DIR__) . '/tests/Integration/BackupIntegrationTest.php';
 require dirname(__DIR__) . '/tests/Integration/AdvancedRectificationIntegrationTest.php';
 require dirname(__DIR__) . '/tests/Http/FoundationHttpTest.php';
@@ -74,6 +75,7 @@ require dirname(__DIR__) . '/tests/Http/PublicPortalHttpTest.php';
 require dirname(__DIR__) . '/tests/Http/ProductionReadinessHttpTest.php';
 require dirname(__DIR__) . '/tests/Http/SimulationHttpTest.php';
 require dirname(__DIR__) . '/tests/Http/AccountabilityRetentionHttpTest.php';
+require dirname(__DIR__) . '/tests/Http/PermanentDeletionHttpTest.php';
 
 use App\Core\Database;
 use Tests\Http\FoundationHttpTest;
@@ -117,6 +119,7 @@ use Tests\Integration\PublicPortalIntegrationTest;
 use Tests\Integration\TournamentProgressSeedIntegrationTest;
 use Tests\Integration\AccountabilityCompletionIntegrationTest;
 use Tests\Integration\RetentionIntegrationTest;
+use Tests\Integration\PermanentDeletionIntegrationTest;
 use Tests\Integration\BackupIntegrationTest;
 use Tests\Integration\AdvancedRectificationIntegrationTest;
 use Tests\Http\AuthenticationHttpTest;
@@ -136,6 +139,7 @@ use Tests\Http\PublicPortalHttpTest;
 use Tests\Http\ProductionReadinessHttpTest;
 use Tests\Http\SimulationHttpTest;
 use Tests\Http\AccountabilityRetentionHttpTest;
+use Tests\Http\PermanentDeletionHttpTest;
 
 $server = Database::serverConnection();
 $quoted = '`' . str_replace('`', '``', $dbName) . '`';
@@ -199,9 +203,11 @@ try {
     AdvancedRegulationIntegrationTest::run();
     AccountabilityCompletionIntegrationTest::run();
     RetentionIntegrationTest::run();
+    PermanentDeletionIntegrationTest::run();
     BackupIntegrationTest::run();
     AdvancedRectificationIntegrationTest::run();
     AccountabilityRetentionHttpTest::run();
+    PermanentDeletionHttpTest::run();
     echo "MVP_TESTS_OK unit=17 integration=24 http=18\n";
 } finally {
     Database::disconnect();

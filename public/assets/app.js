@@ -2,6 +2,18 @@
     'use strict';
 
     var root = document.body;
+    document.querySelectorAll('[data-purge-form]').forEach(function (form) {
+        var boxes = form.querySelectorAll('input[name="ids[]"]');
+        var summary = form.querySelector('[data-purge-summary]');
+        var submit = form.querySelector('[data-purge-submit]');
+        var update = function () {
+            var selected = form.querySelectorAll('input[name="ids[]"]:checked').length;
+            if (summary) summary.textContent = selected + ' selecionado' + (selected === 1 ? '' : 's');
+            if (submit) submit.disabled = selected === 0;
+        };
+        boxes.forEach(function (box) { box.addEventListener('change', update); });
+        update();
+    });
     document.querySelectorAll('[data-history-back]').forEach(function (button) { button.addEventListener('click', function () { if (window.history.length > 1) window.history.back(); else window.location.href = '/'; }); });
     var iconPaths = {
         'layout-dashboard': '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="4" rx="1"/><rect x="14" y="10" width="7" height="11" rx="1"/><rect x="3" y="13" width="7" height="8" rx="1"/>',

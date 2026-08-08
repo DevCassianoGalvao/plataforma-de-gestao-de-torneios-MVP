@@ -173,6 +173,7 @@ final class AuthSeed
             ['retention.manage', 'Configurar retencao', 'Altera prazos e regras de arquivamento.', 'retencao'],
             ['retention.archive', 'Arquivar registros', 'Arquiva registros permitidos pela politica.', 'retencao'],
             ['retention.restore', 'Restaurar registros', 'Restaura registros arquivados quando permitido.', 'retencao'],
+            ['retention.purge', 'Excluir dados definitivamente', 'Exclui em definitivo dados esportivos selecionados pelo administrador.', 'retencao'],
             ['round.monitor.view', 'Visualizar acompanhamento por rodada', 'Consulta cobertura esportiva e documental por rodada.', 'rodadas'],
             ['round.monitor.manage', 'Configurar acompanhamento por rodada', 'Configura prazos documentais por campeonato.', 'rodadas'],
             ['round.report.generate', 'Gerar relatorios de rodada', 'Gera arquivos estruturados para acompanhamento da rodada.', 'rodadas'],

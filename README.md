@@ -65,7 +65,7 @@ No Windows PowerShell, defina variáveis com `$env:NOME='valor'` e use `C:\xampp
 - [Operação administrativa e notificações](docs/ADMIN_OPERATIONS.md)
 - [Prestação de contas completa](docs/ACCOUNTABILITY_COMPLETION.md)
 - [Retificação avançada](docs/ADVANCED_RECTIFICATION.md)
-- [Retenção, arquivamento e exclusão lógica](docs/RETENTION_AND_DELETION.md)
+- [Retenção, arquivamento e exclusão lógica](docs/RETENTION_AND_DELETION.md) — inclui a exclusão definitiva em lote de campeonatos, equipes e atletas, exclusiva para administradores e protegida por confirmação explícita.
 - [Arquitetura](docs/ARCHITECTURE.md)
 - [Schema](docs/DATABASE_SCHEMA.md)
 - [Rotas](docs/ROUTES_AND_PAGES.md)

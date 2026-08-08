@@ -33,3 +33,20 @@ Todas as mutações exigem CSRF, permissão específica e auditoria. IDs não s�
 4. Consulte o histórico central para auditoria.
 
 Backups e retenção são controles diferentes: a retenção organiza registros do sistema; backups continuam sendo cópias privadas para recuperação operacional.
+
+## Exclusão definitiva em lote
+
+A exclusão definitiva é uma ferramenta de limpeza de dados de teste e só pode ser usada por um administrador com a permissão `retention.purge`. Ela fica em `/admin/retencao`, no bloco **Excluir dados definitivamente**.
+
+O administrador pode selecionar vários campeonatos, equipes ou atletas na mesma operação. Antes da confirmação, a tela mostra os registros selecionados e o sistema calcula os vínculos que serão removidos. Ao excluir um campeonato, seus dados esportivos dependentes também são removidos; ao excluir uma equipe, seus atletas e vínculos dependentes seguem a mesma regra.
+
+Para confirmar:
+
+1. Selecione os registros desejados.
+2. Informe um motivo operacional.
+3. Digite exatamente `EXCLUIR DEFINITIVAMENTE`.
+4. Confirme a ação destrutiva.
+
+A operação é transacional: se algum vínculo não puder ser tratado com segurança, nada é removido. Arquivos privados associados são apagados depois da transação. Usuários, permissões, logs, configurações e backups nunca entram nessa ferramenta. Ações de exclusão ficam registradas em `retention_actions` e na auditoria.
+
+Use esta função somente depois de confirmar o ambiente e manter um backup externo válido. Ela não substitui o procedimento de restauração nem deve ser usada para apagar histórico oficial sem autorização formal.

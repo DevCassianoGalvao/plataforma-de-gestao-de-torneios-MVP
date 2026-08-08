@@ -129,6 +129,20 @@ button.secondary:hover, .button.secondary:hover, .actions button:hover { backgro
 .button-secondary:hover { background: var(--ui-surface-3); border-color: var(--ui-info); color: var(--ui-text); }
 .button-danger, button.button-danger { background: rgba(255, 107, 107, .14); border-color: rgba(255, 107, 107, .5); color: #ffb0b0; }
 .button-danger:hover, button.button-danger:hover { background: var(--ui-danger); border-color: var(--ui-danger); color: #240405; }
+.purge-panel { border-color: rgba(255, 107, 107, .38); }
+.purge-warning { margin: 1rem 0; }
+.purge-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+.purge-card { display: grid; align-content: start; gap: .85rem; margin: 0 !important; padding: 1rem; background: var(--ui-surface-2); border: 1px solid var(--ui-border); border-radius: var(--ui-radius-lg); }
+.purge-card-heading { display: flex; align-items: baseline; justify-content: space-between; gap: .75rem; }
+.purge-card-heading h3 { margin: 0; }
+.purge-card-heading span { color: var(--ui-text-muted); font-size: .72rem; white-space: nowrap; }
+.purge-record-list { display: grid; max-height: 16rem; gap: .45rem; overflow: auto; padding-right: .2rem; }
+.purge-record { align-items: flex-start; min-height: 3.2rem; margin: 0; }
+.purge-record span { display: grid; gap: .18rem; min-width: 0; }
+.purge-record small { color: var(--ui-text-muted); font-size: .72rem; font-weight: 500; }
+.purge-selection-summary { margin: 0; color: var(--ui-text-muted); font-size: .82rem; }
+.purge-card button[disabled] { cursor: not-allowed; opacity: .45; box-shadow: none; }
+.purge-card code { color: var(--ui-warning); font-size: .76rem; }
 .button-small { min-height: 2.25rem; padding: .5rem .7rem; font-size: .78rem; }
 .backup-page-heading { display: flex; align-items: end; justify-content: space-between; gap: 1rem; }
 .backup-page-heading h1 { margin-bottom: .35rem; }
@@ -910,6 +924,8 @@ body.public-portal .team-roster-grid { grid-template-columns: repeat(4, minmax(0
 .table-wrap td > a:not(.button):hover { border-color: var(--ui-primary); background: color-mix(in srgb, var(--ui-primary) 10%, transparent); }
 
 @media (max-width: 700px) {
+    .purge-grid { grid-template-columns: 1fr; }
+    .purge-card-heading { align-items: flex-start; flex-direction: column; gap: .25rem; }
     .backup-page-heading { align-items: stretch; flex-direction: column; }
     .backup-run-form, .backup-run-form button { width: 100%; }
     .backup-config-form { grid-template-columns: 1fr; }
