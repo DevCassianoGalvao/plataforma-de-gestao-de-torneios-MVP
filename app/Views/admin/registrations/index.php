@@ -5,7 +5,7 @@ $selectedStatus = (string) ($query['status'] ?? '');
 ?>
 <section class="registrations-page">
     <div class="section-heading">
-        <div><p class="eyebrow">Elenco e análise</p><h1>Inscrições</h1><p>Fluxo por campeonato, equipe e atleta.</p></div>
+        <div><p class="eyebrow">Inscrições e elenco</p><h1>Inscrições</h1><p>Gerencie as inscrições e consulte o elenco oficial aprovado.</p></div>
         <?php if ($canCreate): ?><a class="button" href="<?= $e(App\Core\Config::url('/admin/inscricoes/nova')) ?>">Nova inscrição</a><?php endif; ?>
         <a class="button secondary" href="<?= $e(App\Core\Config::url('/admin/inscricoes/elenco')) ?>">Elenco oficial</a>
     </div>
