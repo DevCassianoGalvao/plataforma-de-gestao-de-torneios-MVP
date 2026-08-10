@@ -178,7 +178,8 @@ button.danger, .button.danger { background: var(--ui-danger); border-color: var(
 .status-pending, .status-under_review, .status-scheduled { background: rgba(246, 196, 83, .12); border-color: rgba(246, 196, 83, .3); color: var(--ui-warning); }
 .check, .checkbox-line { display: flex; align-items: center; gap: .55rem; }
 .check input, .checkbox-line input, .choice-grid input { width: auto; }
-fieldset { display: grid; gap: .75rem; padding: 1rem; border: 1px solid var(--ui-border); border-radius: var(--ui-radius); }
+ fieldset { display: grid; gap: .75rem; padding: 1rem; border: 1px solid var(--ui-border); border-radius: var(--ui-radius); }
+ fieldset[hidden] { display: none; }
 legend { padding: 0 .35rem; color: var(--ui-text-muted); font: 600 .75rem "Hanken Grotesk", sans-serif; text-transform: uppercase; letter-spacing: .08em; }
 .color-settings { gap: 1rem; padding: 1.1rem; background: color-mix(in srgb, var(--ui-surface-2) 78%, var(--ui-bg-deep)); }
 .color-settings-help { margin: -.2rem 0 0; font-size: .84rem; }
