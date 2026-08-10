@@ -42,8 +42,11 @@
         </fieldset>
         <label>Observações privadas <textarea name="private_notes" rows="4"><?= App\Core\View::e($record['private_notes'] ?? '') ?></textarea></label>
         <div class="inline-actions">
-            <button type="submit" name="registration_action" value="save">Salvar atleta</button>
-            <?php if (empty($editing) && !empty($canCreateRegistration)): ?><button type="submit" class="secondary" name="registration_action" value="create">Salvar e enviar para inscrição</button><?php endif; ?>
+            <?php if (empty($editing) && !empty($canCreateRegistration)): ?>
+                <button type="submit" name="registration_action" value="create">Salvar e enviar para inscrição</button>
+            <?php else: ?>
+                <button type="submit" name="registration_action" value="save">Salvar atleta</button>
+            <?php endif; ?>
         </div>
         <?php if (empty($editing) && !empty($canCreateRegistration)): ?><p class="muted">Essa opção cria o atleta e abre uma inscrição automaticamente, sem repetir o cadastro.</p><?php endif; ?>
     </form>
