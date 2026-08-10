@@ -47,8 +47,15 @@ final class AthleteHttpTest
         assert_same(200, $router->dispatch(Request::fake('GET', '/torneio-online/admin/atletas'))->status, 'Administrador nao abriu atletas');
         assert_same(200, $router->dispatch(Request::fake('GET', '/torneio-online/admin/posicoes'))->status, 'Catalogo de posicoes nao abriu');
         assert_same(422, $router->dispatch(Request::fake('POST', '/torneio-online/admin/atletas', ['_csrf' => Security::csrfToken(), 'team_id' => $teamId, 'full_name' => 'Incompleto']))->status, 'Atleta invalido foi aceito');
-        $created = $router->dispatch(Request::fake('POST', '/torneio-online/admin/atletas', ['_csrf' => Security::csrfToken(), 'team_id' => $teamId, 'full_name' => 'Atleta HTTP Completo', 'sporting_name' => 'HTTP', 'birth_date' => '2012-06-15', 'gender' => 'male', 'primary_position_id' => $positionId, 'preferred_number' => '17', 'dominant_foot' => 'right', 'guardian_full_name' => 'Responsavel HTTP', 'guardian_relationship' => 'Mae', 'guardian_phone' => '11999990000', 'guardian_email' => 'responsavel-http@example.test', 'guardian_document' => 'DOC-HTTP', 'guardian_authorization_note' => 'Autorizado', 'private_notes' => 'Nota privada']));
+        $athleteCreatePhoto = tempnam(sys_get_temp_dir(), 'mvp-athlete-create-photo-');
+        $athleteCreateDocument = tempnam(sys_get_temp_dir(), 'mvp-athlete-create-document-');
+        $png = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=');
+        file_put_contents($athleteCreatePhoto, $png);
+        file_put_contents($athleteCreateDocument, $png);
+        $created = $router->dispatch(Request::fake('POST', '/torneio-online/admin/atletas', ['_csrf' => Security::csrfToken(), 'team_id' => $teamId, 'full_name' => 'Atleta HTTP Completo', 'sporting_name' => 'HTTP', 'birth_date' => '2012-06-15', 'gender' => 'male', 'primary_position_id' => $positionId, 'preferred_number' => '17', 'dominant_foot' => 'right', 'guardian_full_name' => 'Responsavel HTTP', 'guardian_relationship' => 'Mae', 'guardian_phone' => '11999990000', 'guardian_email' => 'responsavel-http@example.test', 'guardian_document' => 'DOC-HTTP', 'guardian_authorization_note' => 'Autorizado', 'private_notes' => 'Nota privada'], ['photo' => ['error' => UPLOAD_ERR_OK, 'size' => filesize($athleteCreatePhoto), 'tmp_name' => $athleteCreatePhoto, 'name' => 'atleta.png'], 'identity_document' => ['error' => UPLOAD_ERR_OK, 'size' => filesize($athleteCreateDocument), 'tmp_name' => $athleteCreateDocument, 'name' => 'documento.png']]));
         assert_same(302, $created->status, 'Administrador nao criou atleta');
+        @unlink($athleteCreatePhoto);
+        @unlink($athleteCreateDocument);
         $athleteId = (int) $pdo->query("SELECT id FROM athletes WHERE full_name = 'Atleta HTTP Completo' LIMIT 1")->fetchColumn();
         assert_true($athleteId > 0, 'Atleta HTTP nao foi persistido');
         assert_same(200, $router->dispatch(Request::fake('GET', '/torneio-online/admin/atletas/' . $athleteId))->status, 'Detalhe do atleta nao abriu');

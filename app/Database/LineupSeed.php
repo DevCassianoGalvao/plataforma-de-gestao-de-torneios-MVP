@@ -41,6 +41,7 @@ final class LineupSeed
                     $history = $pdo->prepare("INSERT INTO athlete_registration_history (registration_id, from_status, to_status, action, notes, user_id, created_at) VALUES (?, NULL, 'draft', 'created', NULL, ?, ?), (?, 'draft', 'approved', 'approved', 'Seed da Etapa 8.', ?, ?)");
                     $history->execute([$registrationId, $adminId, $now, $registrationId, $adminId, $now]);
                 }
+                self::identityDocument($pdo, $athleteId, $adminId, $now);
             }
         }
     }
@@ -58,5 +59,21 @@ final class LineupSeed
         $statement = $pdo->prepare('SELECT id FROM users WHERE email = ? LIMIT 1');
         $statement->execute([$email]);
         return (int) $statement->fetchColumn();
+    }
+
+    private static function identityDocument(PDO $pdo, int $athleteId, int $adminId, string $now): void
+    {
+        $type = (int) $pdo->query("SELECT id FROM athlete_document_types WHERE `key` = 'athlete_document' AND active = 1 LIMIT 1")->fetchColumn();
+        if (!$type) return;
+        $find = $pdo->prepare('SELECT id FROM athlete_documents WHERE athlete_id = ? AND document_type_id = ? AND deleted_at IS NULL LIMIT 1');
+        $find->execute([$athleteId, $type]);
+        if ($find->fetchColumn()) return;
+        $directory = dirname(__DIR__, 2) . '/storage/private/athletes-seed';
+        if (!is_dir($directory)) mkdir($directory, 0750, true);
+        $filename = 'identity-' . $athleteId . '.pdf';
+        $absolute = $directory . '/' . $filename;
+        if (!is_file($absolute)) file_put_contents($absolute, "%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n2 0 obj<</Type/Pages/Count 0>>endobj\ntrailer<</Root 1 0 R>>\n%%EOF\n");
+        $insert = $pdo->prepare("INSERT INTO athlete_documents (athlete_id, guardian_id, document_type_id, storage_path, original_name, mime_type, size_bytes, expires_at, status, observation, rejection_reason, reviewed_by, reviewed_at, created_by, created_at, updated_at) VALUES (?, NULL, ?, ?, ?, 'application/pdf', ?, ?, 'approved', 'Documento ficticio do seed.', NULL, ?, ?, ?, ?, ?)");
+        $insert->execute([$athleteId, $type, 'athletes-seed/' . $filename, 'documento-ficticio-' . $athleteId . '.pdf', filesize($absolute), date('Y-m-d', strtotime('+1 year')), $adminId, $now, $adminId, $now, $now]);
     }
 }

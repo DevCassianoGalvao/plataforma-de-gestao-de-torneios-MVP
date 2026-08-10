@@ -6,6 +6,7 @@ namespace Tests\Integration;
 use App\Core\Database;
 use App\Database\LineupSeed;
 use App\Repositories\ChampionshipRepository;
+use App\Repositories\AthleteDocumentRepository;
 use App\Repositories\LineupRepository;
 use App\Repositories\ScheduleRepository;
 use App\Repositories\TacticalFormationRepository;
@@ -37,7 +38,7 @@ final class LineupIntegrationTest
         $formationId = (int) $pdo->query("SELECT id FROM tactical_formations WHERE slug = '4-4-2'")->fetchColumn();
         $lineups = new LineupRepository($pdo);
         $access = new LineupAccessService($lineups, new ScheduleRepository($pdo), new TeamRepository($pdo), new AuthorizationService($users));
-        $service = new LineupService($lineups, new TacticalFormationRepository($pdo), new TeamRepository($pdo), new AuthorizationService($users), new AuditService($pdo));
+        $service = new LineupService($lineups, new TacticalFormationRepository($pdo), new TeamRepository($pdo), new AuthorizationService($users), new AuditService($pdo), null, null, new AthleteDocumentRepository($pdo));
 
         $draft = $service->ensureDraft($admin, $match, $teamId);
         $suggestion = $service->suggest($match, $teamId, $formationId);

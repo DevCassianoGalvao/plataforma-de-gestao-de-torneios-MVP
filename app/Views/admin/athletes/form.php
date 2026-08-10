@@ -1,16 +1,61 @@
 <section>
-    <p class="eyebrow">Atleta</p><h1><?= !empty($editing) ? 'Editar atleta' : 'Novo atleta' ?></h1>
+    <p class="eyebrow">Atleta</p>
+    <h1><?= !empty($editing) ? 'Editar atleta' : 'Novo atleta' ?></h1>
     <?php foreach (($errors ?? []) as $error): ?><p class="alert" role="alert"><?= App\Core\View::e($error) ?></p><?php endforeach; ?>
     <form method="post" enctype="multipart/form-data" action="<?= App\Core\View::e(App\Core\Config::url(!empty($editing) ? '/admin/atletas/' . $record['id'] : '/admin/atletas')) ?>">
         <input type="hidden" name="_csrf" value="<?= App\Core\View::e(App\Core\Security::csrfToken()) ?>">
-        <fieldset><legend>Dados pessoais e esportivos</legend>
-            <?php if (empty($editing)): ?><label>Equipe <select name="team_id" required><option value="">Selecione</option><?php foreach ($teams as $team): ?><option value="<?= (int) $team['id'] ?>" <?= (string) ($record['team_id'] ?? '') === (string) $team['id'] ? 'selected' : '' ?>><?= App\Core\View::e($team['name']) ?> · <?= App\Core\View::e($team['championship_name']) ?></option><?php endforeach; ?></select></label><?php else: ?><p class="muted">Equipe atual: <?= App\Core\View::e($record['team_name']) ?>. Transferencias entram em etapa futura.</p><?php endif; ?>
-            <label>Nome completo <input name="full_name" value="<?= App\Core\View::e($record['full_name'] ?? '') ?>" required></label><label>Nome esportivo <input name="sporting_name" value="<?= App\Core\View::e($record['sporting_name'] ?? '') ?>"></label><label>Data de nascimento <input type="date" name="birth_date" value="<?= App\Core\View::e($record['birth_date'] ?? '') ?>" required></label><label>Genero <select name="gender"><option value="">Não informado</option><?php foreach (['male' => 'Masculino', 'female' => 'Feminino', 'other' => 'Outro'] as $key => $label): ?><option value="<?= $key ?>" <?= ($record['gender'] ?? '') === $key ? 'selected' : '' ?>><?= $label ?></option><?php endforeach; ?></select></label><label>Foto <input type="file" name="photo" accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp"></label>
-            <?php if (!empty($editing) && !empty($record['photo_path'])): ?><p class="current-athlete-photo"><img class="athlete-profile-photo" src="<?= App\Core\View::e(App\Core\Config::url('/admin/atletas/' . $record['id'] . '/assets/photo?v=' . rawurlencode((string) $record['photo_path']))) ?>" alt="Foto atual do atleta"><span>Foto atual. Envie outra para substituir.</span></p><?php endif; ?>
+        <fieldset>
+            <legend>Dados do atleta</legend>
+            <?php if (empty($editing)): ?>
+                <label>Equipe <select name="team_id" id="athlete-team" required><option value="">Selecione</option><?php foreach ($teams as $team): ?><option value="<?= (int) $team['id'] ?>" data-requires-guardian="<?= !empty($team['requires_guardian']) ? '1' : '0' ?>" <?= (string) ($record['team_id'] ?? '') === (string) $team['id'] ? 'selected' : '' ?>><?= App\Core\View::e($team['name']) ?> &middot; <?= App\Core\View::e($team['championship_name']) ?></option><?php endforeach; ?></select></label>
+            <?php else: ?>
+                <p class="muted">Equipe atual: <?= App\Core\View::e($record['team_name']) ?>.</p>
+            <?php endif; ?>
+            <label>Nome completo <input name="full_name" value="<?= App\Core\View::e($record['full_name'] ?? '') ?>" required></label>
+            <label>Nome esportivo <input name="sporting_name" value="<?= App\Core\View::e($record['sporting_name'] ?? '') ?>"></label>
+            <label>Data de nascimento <input type="date" name="birth_date" value="<?= App\Core\View::e($record['birth_date'] ?? '') ?>" required></label>
+            <label>Gênero <select name="gender"><option value="">Não informado</option><?php foreach (['male' => 'Masculino', 'female' => 'Feminino', 'other' => 'Outro'] as $key => $label): ?><option value="<?= $key ?>" <?= ($record['gender'] ?? '') === $key ? 'selected' : '' ?>><?= $label ?></option><?php endforeach; ?></select></label>
+            <label>Foto do atleta <input type="file" name="photo" accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp" <?= empty($editing) ? 'required' : '' ?>></label>
+            <p class="muted"><?= empty($editing) ? 'Envie uma foto nítida para identificação.' : 'Envie outra foto somente se quiser substituir a atual.' ?></p>
+            <?php if (!empty($editing) && !empty($record['photo_path'])): ?><p class="current-athlete-photo"><img class="athlete-profile-photo" src="<?= App\Core\View::e(App\Core\Config::url('/admin/atletas/' . $record['id'] . '/assets/photo?v=' . rawurlencode((string) $record['photo_path']))) ?>" alt="Foto atual do atleta"><span>Foto atual.</span></p><?php endif; ?>
         </fieldset>
-        <fieldset><legend>Posicoes e camisa</legend><label>Posição principal <select name="primary_position_id" required><option value="">Selecione</option><?php foreach ($positions as $position): ?><option value="<?= (int) $position['id'] ?>" <?= (string) ($record['primary_position_id'] ?? '') === (string) $position['id'] ? 'selected' : '' ?>><?= App\Core\View::e($position['name']) ?></option><?php endforeach; ?></select></label><fieldset><legend>Posicoes secundarias</legend><div class="check-grid"><?php foreach ($positions as $position): ?><label class="check"><input type="checkbox" name="secondary_position_ids[]" value="<?= (int) $position['id'] ?>" <?= in_array((int) $position['id'], array_map('intval', $record['secondary_position_ids'] ?? []), true) ? 'checked' : '' ?>> <?= App\Core\View::e($position['name']) ?></label><?php endforeach; ?></div></fieldset><label>Número preferido <input type="number" name="preferred_number" min="1" max="99" value="<?= App\Core\View::e($record['preferred_number'] ?? '') ?>"></label><label>Pé dominante <select name="dominant_foot"><option value="">Não informado</option><?php foreach (['left' => 'Esquerdo', 'right' => 'Direito', 'both' => 'Ambos'] as $key => $label): ?><option value="<?= $key ?>" <?= ($record['dominant_foot'] ?? '') === $key ? 'selected' : '' ?>><?= $label ?></option><?php endforeach; ?></select></label></fieldset>
-        <fieldset><legend>Responsável legal</legend><p class="muted">Atletas menores precisam de responsavel. O documento e protegido e nunca aparece em rotas publicas.</p><label>Nome <input name="guardian_full_name" value="<?= App\Core\View::e($guardian['full_name'] ?? '') ?>"></label><label>Parentesco <input name="guardian_relationship" value="<?= App\Core\View::e($guardian['relationship'] ?? '') ?>"></label><label>Telefone <input name="guardian_phone" value="<?= App\Core\View::e($guardian['phone'] ?? '') ?>"></label><label>E-mail <input type="email" name="guardian_email" value="<?= App\Core\View::e($guardian['email'] ?? '') ?>"></label><label>Documento <input name="guardian_document" value="<?= App\Core\View::e($guardian['document_number'] ?? '') ?>" autocomplete="off"></label><label>Observação da autorizacao <textarea name="guardian_authorization_note" rows="2"><?= App\Core\View::e($guardian['authorization_note'] ?? '') ?></textarea></label></fieldset>
-        <?php if (!empty($editing) && !empty($record['birth_date']) && !App\Services\AthleteRules::isMinor((string) $record['birth_date'])): ?><p class="muted">Este atleta e adulto: responsavel legal e opcional, e a troca de foto nao exige autorizacao.</p><?php endif; ?>
-        <label>Observacoes privadas <textarea name="private_notes" rows="4"><?= App\Core\View::e($record['private_notes'] ?? '') ?></textarea></label><button type="submit">Salvar atleta</button>
+        <fieldset>
+            <legend>Posição</legend>
+            <label>Posição principal <select name="primary_position_id" required><option value="">Selecione</option><?php foreach ($positions as $position): ?><option value="<?= (int) $position['id'] ?>" <?= (string) ($record['primary_position_id'] ?? '') === (string) $position['id'] ? 'selected' : '' ?>><?= App\Core\View::e($position['name']) ?></option><?php endforeach; ?></select></label>
+        </fieldset>
+        <fieldset>
+            <legend>Documento de identificação</legend>
+            <p class="muted">O documento fica protegido e só pode ser consultado pela equipe autorizada. Ele será analisado antes de o atleta ser escalado.</p>
+            <label>Foto ou arquivo do documento <input type="file" name="identity_document" accept=".pdf,.png,.jpg,.jpeg,.webp,application/pdf,image/png,image/jpeg,image/webp" <?= empty($editing) ? 'required' : '' ?>></label>
+            <p class="muted"><?= empty($editing) ? 'Obrigatório no cadastro.' : 'Envie um novo arquivo para substituir o documento em análise.' ?></p>
+        </fieldset>
+        <?php $showGuardian = !empty($record['requires_guardian']); ?>
+        <fieldset id="athlete-guardian-fields" <?= $showGuardian ? '' : 'hidden' ?>>
+            <legend>Responsável legal</legend>
+            <p class="muted">Este campeonato exige responsável legal para atletas menores.</p>
+            <label>Nome <input name="guardian_full_name" value="<?= App\Core\View::e($guardian['full_name'] ?? '') ?>"></label>
+            <label>Parentesco <input name="guardian_relationship" value="<?= App\Core\View::e($guardian['relationship'] ?? '') ?>"></label>
+            <label>Telefone <input name="guardian_phone" value="<?= App\Core\View::e($guardian['phone'] ?? '') ?>"></label>
+            <label>E-mail <input type="email" name="guardian_email" value="<?= App\Core\View::e($guardian['email'] ?? '') ?>"></label>
+            <label>Documento <input name="guardian_document" value="<?= App\Core\View::e($guardian['document_number'] ?? '') ?>" autocomplete="off"></label>
+            <label>Observação da autorização <textarea name="guardian_authorization_note" rows="2"><?= App\Core\View::e($guardian['authorization_note'] ?? '') ?></textarea></label>
+        </fieldset>
+        <label>Observações privadas <textarea name="private_notes" rows="4"><?= App\Core\View::e($record['private_notes'] ?? '') ?></textarea></label>
+        <button type="submit">Salvar atleta</button>
     </form>
 </section>
+<?php if (empty($editing)): ?>
+<script>
+(() => {
+    const team = document.getElementById('athlete-team');
+    const guardian = document.getElementById('athlete-guardian-fields');
+    if (!team || !guardian) return;
+    const sync = () => {
+        const option = team.options[team.selectedIndex];
+        guardian.hidden = option?.dataset.requiresGuardian !== '1';
+    };
+    team.addEventListener('change', sync);
+    sync();
+})();
+</script>
+<?php endif; ?>

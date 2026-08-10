@@ -8,6 +8,7 @@ use App\Database\AthleteDocumentTypeSeed;
 use App\Database\AthleteSeed;
 use App\Database\PositionSeed;
 use App\Repositories\AthleteRepository;
+use App\Repositories\AthleteDocumentRepository;
 use App\Repositories\GuardianRepository;
 use App\Repositories\PositionRepository;
 use App\Repositories\UserRepository;
@@ -33,7 +34,7 @@ final class AthleteIntegrationTest
         assert_same(20, (int) $pdo->query('SELECT COUNT(*) FROM athletes')->fetchColumn(), 'Seed duplicou atletas');
         assert_same(20, (int) $pdo->query('SELECT COUNT(*) FROM legal_guardians')->fetchColumn(), 'Seed duplicou responsaveis');
         assert_same(20, (int) $pdo->query('SELECT COUNT(*) FROM athlete_guardians')->fetchColumn(), 'Seed duplicou vinculos de responsaveis');
-        assert_same(20, (int) $pdo->query('SELECT COUNT(*) FROM athlete_documents')->fetchColumn(), 'Seed duplicou documentos');
+        assert_same(40, (int) $pdo->query('SELECT COUNT(*) FROM athlete_documents')->fetchColumn(), 'Seed duplicou documentos');
         assert_same(20, (int) $pdo->query('SELECT COUNT(*) FROM athlete_secondary_positions')->fetchColumn(), 'Seed duplicou posicoes secundarias');
 
         $athletes = new AthleteRepository($pdo);
@@ -51,6 +52,14 @@ final class AthleteIntegrationTest
         assert_true(count($guardians->listForAthlete((int) $first['id'])) === 1, 'Responsavel legal ausente');
         $guardianRow = $guardians->listForAthlete((int) $first['id'])[0];
         assert_true($guardianRow['document_display'] === 'Documento protegido', 'Documento pessoal exposto');
+        $documents = new AthleteDocumentRepository($pdo);
+        assert_true($documents->hasValidAthleteDocument((int) $first['id']), 'Documento de identificacao aprovado nao foi reconhecido');
+        $latestIdentity = $pdo->prepare("SELECT d.id FROM athlete_documents d INNER JOIN athlete_document_types dt ON dt.id = d.document_type_id WHERE d.athlete_id = ? AND dt.`key` = 'athlete_document' AND d.deleted_at IS NULL ORDER BY d.created_at DESC, d.id DESC LIMIT 1");
+        $latestIdentity->execute([(int) $first['id']]);
+        $latestIdentityId = (int) $latestIdentity->fetchColumn();
+        $pdo->prepare("UPDATE athlete_documents SET status = 'pending' WHERE id = ?")->execute([$latestIdentityId]);
+        assert_true(!$documents->hasValidAthleteDocument((int) $first['id']), 'Documento pendente mais recente nao bloqueou atleta');
+        $pdo->prepare("UPDATE athlete_documents SET status = 'approved' WHERE id = ?")->execute([$latestIdentityId]);
         $ciphertext = (string) $pdo->query('SELECT document_ciphertext FROM legal_guardians LIMIT 1')->fetchColumn();
         assert_true(!str_contains($ciphertext, 'DOC-'), 'Documento pessoal armazenado em texto puro');
 

@@ -57,9 +57,11 @@ final class ChampionshipHttpTest
         $csrf = Security::csrfToken();
         $invalid = $router->dispatch(Request::fake('POST', '/torneio-online/admin/campeonatos', ['_csrf' => $csrf, 'name' => 'Incompleto']));
         assert_same(422, $invalid->status, 'Formulario invalido de campeonato foi aceito');
-        $adminCreated = $router->dispatch(Request::fake('POST', '/torneio-online/admin/campeonatos', ['_csrf' => Security::csrfToken(), 'name' => 'Campeonato HTTP Admin', 'short_name' => 'HTTP Admin', 'slug' => 'campeonato-http-admin', 'description' => 'Teste de criacao.', 'season_id' => $httpSeasonId, 'category_id' => $httpCategoryId, 'starts_at' => '2027-03-01', 'ends_at' => '2027-04-01', 'registration_starts_at' => '2027-02-01', 'registration_ends_at' => '2027-02-20', 'visibility' => 'private']));
+        $adminCreated = $router->dispatch(Request::fake('POST', '/torneio-online/admin/campeonatos', ['_csrf' => Security::csrfToken(), 'name' => 'Campeonato HTTP Admin', 'short_name' => 'HTTP Admin', 'slug' => 'campeonato-http-admin', 'description' => 'Teste de criacao.', 'season_id' => $httpSeasonId, 'category_id' => $httpCategoryId, 'requires_guardian' => '1', 'starts_at' => '2027-03-01', 'ends_at' => '2027-04-01', 'registration_starts_at' => '2027-02-01', 'registration_ends_at' => '2027-02-20', 'visibility' => 'private']));
         assert_same(302, $adminCreated->status, 'Administrador nao criou campeonato');
-        assert_true((int) $pdo->query("SELECT id FROM championships WHERE slug = 'campeonato-http-admin' LIMIT 1")->fetchColumn() > 0, 'Campeonato HTTP admin nao foi persistido');
+        $adminChampionshipId = (int) $pdo->query("SELECT id FROM championships WHERE slug = 'campeonato-http-admin' LIMIT 1")->fetchColumn();
+        assert_true($adminChampionshipId > 0, 'Campeonato HTTP admin nao foi persistido');
+        assert_same(1, (int) $pdo->query("SELECT requires_guardian FROM championships WHERE id = {$adminChampionshipId}")->fetchColumn(), 'Politica de responsavel nao foi salva');
         $logout = $router->dispatch(Request::fake('POST', '/torneio-online/logout', ['_csrf' => Security::csrfToken()]));
         assert_same(302, $logout->status, 'Logout do admin falhou');
         self::login($router, 'admin@torneios.local');

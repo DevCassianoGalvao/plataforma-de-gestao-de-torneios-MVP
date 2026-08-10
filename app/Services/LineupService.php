@@ -4,12 +4,13 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Repositories\LineupRepository;
+use App\Repositories\AthleteDocumentRepository;
 use App\Repositories\TacticalFormationRepository;
 use App\Repositories\TeamRepository;
 
 final class LineupService
 {
-    public function __construct(private readonly LineupRepository $lineups, private readonly TacticalFormationRepository $formations, private readonly TeamRepository $teams, private readonly AuthorizationService $authorization, private readonly AuditService $audit, private readonly ?DisciplineService $discipline = null, private readonly ?EligibilityService $eligibility = null)
+    public function __construct(private readonly LineupRepository $lineups, private readonly TacticalFormationRepository $formations, private readonly TeamRepository $teams, private readonly AuthorizationService $authorization, private readonly AuditService $audit, private readonly ?DisciplineService $discipline = null, private readonly ?EligibilityService $eligibility = null, private readonly ?AthleteDocumentRepository $documents = null)
     {
     }
 
@@ -157,6 +158,11 @@ final class LineupService
                 foreach ($this->eligibility->issues($match, $teamId, (int) $player['athlete_id']) as $issue) {
                     $errors[] = $issue . ' Atleta: ' . (int) $player['athlete_id'] . '.';
                 }
+            }
+        }
+        if ($this->documents) {
+            foreach ($built['players'] as $player) {
+                if (!$this->documents->hasValidAthleteDocument((int) $player['athlete_id'])) $errors[] = 'Atleta sem documento de identificacao aprovado e valido: ' . (int) $player['athlete_id'] . '.';
             }
         }
         return array_values(array_unique($errors));

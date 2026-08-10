@@ -38,6 +38,7 @@ final class AthleteSeed
                 if ($isTest) $pdo->prepare('UPDATE athletes SET birth_date = ?, gender = \'male\', status = ?, deleted_at = NULL, updated_at = ? WHERE id = ?')->execute([$birthDate, $statuses[$teamIndex], $now, $athleteId]);
                 $secondary = $positions[$positionCodes[($teamIndex + $slot) % count($positionCodes)]];
                 $pdo->prepare('INSERT IGNORE INTO athlete_secondary_positions (athlete_id, position_id, created_at) VALUES (?, ?, ?)')->execute([$athleteId, $secondary, $now]);
+                self::document($pdo, $athleteId, null, $documentTypes['athlete_document'], $teamIndex, $now, $adminId, 'approved', 'identity');
                 if (\App\Services\AthleteRules::isMinor($birthDate)) {
                     $guardianId = self::guardian($pdo, $athleteId, $name, $now);
                     self::document($pdo, $athleteId, $guardianId, $documentTypes['guardian_authorization'], $teamIndex, $now, $adminId);
@@ -60,22 +61,23 @@ final class AthleteSeed
         return $guardianId;
     }
 
-    private static function document(PDO $pdo, int $athleteId, int $guardianId, int $typeId, int $index, string $now, int $adminId): void
+    private static function document(PDO $pdo, int $athleteId, ?int $guardianId, int $typeId, int $index, string $now, int $adminId, ?string $statusOverride = null, string $prefix = 'guardian'): void
     {
         $find = $pdo->prepare('SELECT id FROM athlete_documents WHERE athlete_id = ? AND document_type_id = ? AND deleted_at IS NULL LIMIT 1');
         $find->execute([$athleteId, $typeId]);
         if ($find->fetchColumn()) return;
         $directory = dirname(__DIR__, 2) . '/storage/private/athletes-seed';
         if (!is_dir($directory)) mkdir($directory, 0750, true);
-        $filename = 'guardian-' . $athleteId . '.pdf';
+        $filename = $prefix . '-' . $athleteId . '.pdf';
         $absolute = $directory . '/' . $filename;
         if (!is_file($absolute)) file_put_contents($absolute, "%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n2 0 obj<</Type/Pages/Count 0>>endobj\ntrailer<</Root 1 0 R>>\n%%EOF\n");
         $statuses = ['approved', 'pending', 'rejected', 'expired', 'replaced'];
-        $status = $statuses[$index % count($statuses)];
+        $status = $statusOverride ?? $statuses[$index % count($statuses)];
+        $originalName = $prefix === 'identity' ? 'documento-ficticio-' . $athleteId . '.pdf' : 'autorizacao-ficticia-' . $athleteId . '.pdf';
         $insert = $pdo->prepare('INSERT INTO athlete_documents (athlete_id, guardian_id, document_type_id, storage_path, original_name, mime_type, size_bytes, expires_at, status, observation, rejection_reason, reviewed_by, reviewed_at, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, \'application/pdf\', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
         $reviewed = in_array($status, ['approved', 'rejected', 'expired', 'replaced'], true) ? $adminId : null;
         $reviewedAt = $reviewed ? $now : null;
-        $insert->execute([$athleteId, $guardianId, $typeId, 'athletes-seed/' . $filename, 'autorizacao-ficticia-' . $athleteId . '.pdf', filesize($absolute), date('Y-m-d', strtotime('+1 year')), $status, 'Documento ficticio do seed.', $status === 'rejected' ? 'Arquivo ficticio rejeitado para teste.' : null, $reviewed, $reviewedAt, $adminId, $now, $now]);
+        $insert->execute([$athleteId, $guardianId, $typeId, 'athletes-seed/' . $filename, $originalName, filesize($absolute), date('Y-m-d', strtotime('+1 year')), $status, 'Documento ficticio do seed.', $status === 'rejected' ? 'Arquivo ficticio rejeitado para teste.' : null, $reviewed, $reviewedAt, $adminId, $now, $now]);
     }
 
     private static function idMap(PDO $pdo, string $table, string $column): array

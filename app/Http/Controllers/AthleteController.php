@@ -72,13 +72,19 @@ final class AthleteController extends Controller
         $guardianData = $this->guardianData($request);
         if (!$this->validCsrf($request)) return $this->formError($guard, $data, $guardianData, ['A sessao expirou.'], false, 419);
         $team = $this->access->team($guard, (int) $data['team_id'], true);
+        $data['requires_guardian'] = (int) ($team['requires_guardian'] ?? 0);
         $errors = $team ? $this->validateAthlete($data, $team, null) : ['Escolha uma equipe autorizada.'];
         $errors = array_merge($errors, $this->validatePositions($data));
         $minor = $this->isMinor($data);
-        if ($minor) $errors = array_merge($errors, $this->validateGuardianIfNeeded($guardianData));
-        if (!$minor && $this->hasGuardianInput($guardianData)) $errors = array_merge($errors, \App\Services\AthleteRules::validateGuardian($guardianData));
+        $needsGuardian = (bool) $data['requires_guardian'] && $minor;
+        if ($needsGuardian) $errors = array_merge($errors, $this->validateGuardianIfNeeded($guardianData));
         $stored = null;
-        if (($request->files['photo']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+        $identityStored = null;
+        $identityType = $this->documentTypes->findByKey('athlete_document');
+        if (!$identityType) $errors[] = 'Tipo de documento do atleta indisponivel.';
+        if (($request->files['photo']['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
+            $errors[] = 'Envie uma foto do atleta.';
+        } else {
             try {
                 $stored = $this->storage->storeOptimizedImage($request->files['photo'], 'athletes/' . $data['team_id'], ['max_width' => 1400, 'max_height' => 1400]);
                 $data['photo_path'] = $stored['path'];
@@ -86,16 +92,28 @@ final class AthleteController extends Controller
                 $errors[] = $exception->getMessage();
             }
         }
+        if (($request->files['identity_document']['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
+            $errors[] = 'Envie a foto ou o arquivo do documento do atleta.';
+        } else {
+            $identityStored = $this->storeIdentityDocument($request->files['identity_document'], 'team-' . $data['team_id'], $errors);
+        }
         if ($errors) {
             if ($stored) $this->storage->delete($stored['path']);
+            if ($identityStored) $this->storage->delete($identityStored['path']);
             return $this->formError($guard, $data, $guardianData, $errors, false, 422);
         }
+        $id = 0;
+        $identityDocumentId = 0;
         try {
             $id = $this->athletes->create($data, (int) $guard['id']);
             $this->athletes->syncSecondaryPositions($id, $data['secondary_position_ids']);
-            if ($minor || $this->hasGuardianInput($guardianData)) $this->createGuardianLink($id, $guardianData);
+            if ($needsGuardian) $this->createGuardianLink($id, $guardianData);
+            $identityDocumentId = $this->documents->create(['athlete_id' => $id, 'guardian_id' => 0, 'document_type_id' => (int) $identityType['id'], 'storage_path' => $identityStored['path'], 'original_name' => $identityStored['original_name'], 'mime_type' => $identityStored['mime'], 'size_bytes' => $identityStored['size'], 'expires_at' => '', 'observation' => 'Documento enviado no cadastro do atleta.'], (int) $guard['id']);
         } catch (\Throwable $exception) {
             if ($stored) $this->storage->delete($stored['path']);
+            if ($identityStored) $this->storage->delete($identityStored['path']);
+            if ($identityDocumentId) $this->documents->softDelete($identityDocumentId);
+            if ($id) $this->athletes->softDelete($id);
             return $this->formError($guard, $data, $guardianData, ['Nao foi possivel salvar o atleta.'], false, 422);
         }
         $this->audit->record('athletes.created', (int) $guard['id'], 'athlete', $id, ['team_id' => (int) $data['team_id']], $request);
@@ -137,15 +155,19 @@ final class AthleteController extends Controller
         $data = $this->athleteData($request, (string) $athlete['status']);
         $data['team_id'] = (int) $athlete['team_id'];
         $data['photo_path'] = $athlete['photo_path'];
+        $data['preferred_number'] = $athlete['preferred_number'] ?? null;
+        $data['dominant_foot'] = $athlete['dominant_foot'] ?? null;
+        $data['secondary_position_ids'] = array_map('intval', array_column($this->athletes->secondaryPositions((int) $athlete['id']), 'id'));
+        $data['requires_guardian'] = (int) ($athlete['requires_guardian'] ?? 0);
         $guardianData = $this->guardianData($request);
         if (!$this->validCsrf($request)) return $this->formError($guard, array_merge($athlete, $data), $guardianData, ['A sessao expirou.'], true, 419);
         $team = $this->access->team($guard, (int) $athlete['team_id'], true);
         $errors = $team ? $this->validateAthlete($data, $team, (int) $athlete['id']) : ['Equipe fora do escopo autorizado.'];
         $errors = array_merge($errors, $this->validatePositions($data));
         $minor = $this->isMinor($data);
+        $needsGuardian = (bool) $data['requires_guardian'] && $minor;
         $profileChanged = $this->profileChanged($data, $athlete, $this->athletes->secondaryPositions((int) $athlete['id']));
-        if ($minor && $profileChanged && !$this->guardians->hasActiveForAthlete((int) $athlete['id']) && !$this->hasGuardianInput($guardianData)) $errors[] = 'Atletas menores precisam de responsavel legal.';
-        if ($this->hasGuardianInput($guardianData)) $errors = array_merge($errors, \App\Services\AthleteRules::validateGuardian($guardianData));
+        if ($needsGuardian && $profileChanged && !$this->guardians->hasActiveForAthlete((int) $athlete['id']) && !$this->hasGuardianInput($guardianData)) $errors[] = 'Atletas menores precisam de responsavel legal.';
         $stored = null;
         if (($request->files['photo']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
             try {
@@ -155,17 +177,28 @@ final class AthleteController extends Controller
                 $errors[] = $exception->getMessage();
             }
         }
+        $identityStored = null;
+        $identityType = $this->documentTypes->findByKey('athlete_document');
+        $identityDocumentId = 0;
+        if (($request->files['identity_document']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+            if (!$identityType) $errors[] = 'Tipo de documento do atleta indisponivel.';
+            else $identityStored = $this->storeIdentityDocument($request->files['identity_document'], 'athlete-' . $athlete['id'], $errors);
+        }
         if ($this->athletes->duplicateExists((int) $data['team_id'], $data['full_name'], $data['birth_date'], (int) $athlete['id'])) $errors[] = 'Ja existe atleta com este nome e data de nascimento nesta equipe.';
         if ($errors) {
             if ($stored) $this->storage->delete($stored['path']);
+            if ($identityStored) $this->storage->delete($identityStored['path']);
             return $this->formError($guard, array_merge($athlete, $data), $guardianData, $errors, true, 422);
         }
         try {
+            if ($identityStored) $identityDocumentId = $this->documents->create(['athlete_id' => (int) $athlete['id'], 'guardian_id' => 0, 'document_type_id' => (int) $identityType['id'], 'storage_path' => $identityStored['path'], 'original_name' => $identityStored['original_name'], 'mime_type' => $identityStored['mime'], 'size_bytes' => $identityStored['size'], 'expires_at' => '', 'observation' => 'Documento atualizado pelo cadastro do atleta.'], (int) $guard['id']);
             $this->athletes->update((int) $athlete['id'], $data);
             $this->athletes->syncSecondaryPositions((int) $athlete['id'], $data['secondary_position_ids']);
-            if ($this->hasGuardianInput($guardianData)) $this->createGuardianLink((int) $athlete['id'], $guardianData);
+            if ($needsGuardian && $this->hasGuardianInput($guardianData)) $this->createGuardianLink((int) $athlete['id'], $guardianData);
         } catch (\Throwable) {
             if ($stored) $this->storage->delete($stored['path']);
+            if ($identityStored) $this->storage->delete($identityStored['path']);
+            if ($identityDocumentId) $this->documents->softDelete($identityDocumentId);
             return $this->formError($guard, array_merge($athlete, $data), $guardianData, ['Nao foi possivel atualizar o atleta.'], true, 422);
         }
         if ($stored && $athlete['photo_path']) $this->storage->delete((string) $athlete['photo_path']);
@@ -376,6 +409,17 @@ final class AthleteController extends Controller
         try { return AthleteRules::isMinor((string) $data['birth_date']); } catch (\Throwable) { return false; }
     }
 
+    private function storeIdentityDocument(array $file, string $directory, array &$errors): ?array
+    {
+        try {
+            UploadRules::validate($file, ['application/pdf' => ['pdf'], 'image/png' => ['png'], 'image/jpeg' => ['jpg', 'jpeg'], 'image/webp' => ['webp']], 10485760);
+            return $this->storage->store($file, 'athlete-documents/' . $directory, ['application/pdf', 'image/png', 'image/jpeg', 'image/webp'], 10485760);
+        } catch (\Throwable $exception) {
+            $errors[] = $exception->getMessage();
+            return null;
+        }
+    }
+
     private function createGuardianLink(int $athleteId, array $data): void
     {
         $guardianId = $this->guardians->create($data);
@@ -389,7 +433,7 @@ final class AthleteController extends Controller
 
     private function profileChanged(array $data, array $athlete, array $secondaryPositions): bool
     {
-        foreach (['full_name', 'sporting_name', 'birth_date', 'gender', 'preferred_number', 'dominant_foot', 'status', 'private_notes'] as $field) {
+        foreach (['full_name', 'sporting_name', 'birth_date', 'gender', 'status', 'private_notes'] as $field) {
             if ((string) ($data[$field] ?? '') !== (string) ($athlete[$field] ?? '')) return true;
         }
         if ((int) ($data['primary_position_id'] ?? 0) !== (int) ($athlete['primary_position_id'] ?? 0)) return true;
@@ -404,7 +448,7 @@ final class AthleteController extends Controller
     {
         $secondary = $request->body['secondary_position_ids'] ?? [];
         if (!is_array($secondary)) $secondary = [$secondary];
-        return ['team_id' => (int) ($request->body['team_id'] ?? 0), 'full_name' => trim((string) ($request->body['full_name'] ?? '')), 'sporting_name' => trim((string) ($request->body['sporting_name'] ?? '')), 'photo_path' => null, 'birth_date' => trim((string) ($request->body['birth_date'] ?? '')), 'gender' => trim((string) ($request->body['gender'] ?? '')), 'primary_position_id' => (int) ($request->body['primary_position_id'] ?? 0), 'secondary_position_ids' => array_values(array_filter(array_map('intval', $secondary))), 'preferred_number' => ($request->body['preferred_number'] ?? '') === '' ? null : (int) $request->body['preferred_number'], 'dominant_foot' => trim((string) ($request->body['dominant_foot'] ?? '')), 'status' => $status, 'private_notes' => trim((string) ($request->body['private_notes'] ?? ''))];
+        return ['team_id' => (int) ($request->body['team_id'] ?? 0), 'full_name' => trim((string) ($request->body['full_name'] ?? '')), 'sporting_name' => trim((string) ($request->body['sporting_name'] ?? '')), 'photo_path' => null, 'birth_date' => trim((string) ($request->body['birth_date'] ?? '')), 'gender' => trim((string) ($request->body['gender'] ?? '')), 'primary_position_id' => (int) ($request->body['primary_position_id'] ?? 0), 'secondary_position_ids' => array_values(array_filter(array_map('intval', $secondary))), 'preferred_number' => null, 'dominant_foot' => '', 'status' => $status, 'private_notes' => trim((string) ($request->body['private_notes'] ?? ''))];
     }
 
     private function guardianData(Request $request): array
@@ -414,7 +458,7 @@ final class AthleteController extends Controller
 
     private function blank(): array
     {
-        return ['team_id' => '', 'full_name' => '', 'sporting_name' => '', 'photo_path' => '', 'birth_date' => '', 'gender' => '', 'primary_position_id' => '', 'secondary_position_ids' => [], 'preferred_number' => '', 'dominant_foot' => '', 'status' => 'draft', 'private_notes' => ''];
+        return ['team_id' => '', 'full_name' => '', 'sporting_name' => '', 'photo_path' => '', 'birth_date' => '', 'gender' => '', 'primary_position_id' => '', 'secondary_position_ids' => [], 'preferred_number' => '', 'dominant_foot' => '', 'requires_guardian' => 0, 'status' => 'draft', 'private_notes' => ''];
     }
 
     private function formPage(string $title, array $user, array $record, bool $editing, array $errors): Response

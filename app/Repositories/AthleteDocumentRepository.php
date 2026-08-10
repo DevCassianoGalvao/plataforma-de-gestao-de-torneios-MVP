@@ -26,6 +26,13 @@ final class AthleteDocumentRepository
         return $row ?: null;
     }
 
+    public function hasValidAthleteDocument(int $athleteId): bool
+    {
+        $statement = $this->pdo->prepare("SELECT 1 FROM athlete_documents d INNER JOIN athlete_document_types dt ON dt.id = d.document_type_id WHERE d.athlete_id = ? AND d.id = (SELECT latest.id FROM athlete_documents latest INNER JOIN athlete_document_types latest_type ON latest_type.id = latest.document_type_id WHERE latest.athlete_id = d.athlete_id AND latest_type.`key` = 'athlete_document' AND latest.deleted_at IS NULL ORDER BY latest.created_at DESC, latest.id DESC LIMIT 1) AND d.status = 'approved' AND d.deleted_at IS NULL AND (d.expires_at IS NULL OR d.expires_at >= CURDATE()) LIMIT 1");
+        $statement->execute([$athleteId]);
+        return (bool) $statement->fetchColumn();
+    }
+
     public function create(array $data, int $createdBy): int
     {
         $statement = $this->pdo->prepare('INSERT INTO athlete_documents (athlete_id, guardian_id, document_type_id, storage_path, original_name, mime_type, size_bytes, expires_at, status, observation, rejection_reason, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, \'pending\', ?, NULL, ?, ?, ?)');

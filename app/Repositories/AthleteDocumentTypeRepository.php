@@ -24,4 +24,12 @@ final class AthleteDocumentTypeRepository
         $row = $statement->fetch();
         return $row ?: null;
     }
+
+    public function findByKey(string $key): ?array
+    {
+        $statement = $this->pdo->prepare('SELECT * FROM athlete_document_types WHERE `key` = ? AND active = 1 LIMIT 1');
+        $statement->execute([$key]);
+        $row = $statement->fetch();
+        return $row ?: null;
+    }
 }
