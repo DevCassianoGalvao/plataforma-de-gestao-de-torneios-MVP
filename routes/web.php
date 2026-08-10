@@ -321,7 +321,7 @@ $router->post('/admin/equipes/{slug}/comissao/{staff}/status', [$team, 'staffSta
 $router->get('/admin/equipes/{slug}/formacao', [$team, 'formation']);
 $router->post('/admin/equipes/{slug}/formacao', [$team, 'saveFormation']);
 
-$athlete = new AthleteController($users, $authorization, $audit, $athletes, $positions, $guardians, $athleteDocumentTypes, $athleteDocuments, $athleteAccess, $storage);
+$athlete = new AthleteController($users, $authorization, $audit, $athletes, $positions, $guardians, $athleteDocumentTypes, $athleteDocuments, $athleteAccess, $storage, $registrationService);
 $router->get('/admin/atletas', [$athlete, 'index']);
 $router->get('/admin/atletas/nova', [$athlete, 'createForm']);
 $router->post('/admin/atletas', [$athlete, 'create']);

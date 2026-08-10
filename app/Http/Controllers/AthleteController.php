@@ -15,6 +15,7 @@ use App\Repositories\PositionRepository;
 use App\Services\AthleteAccessService;
 use App\Services\AthleteRules;
 use App\Services\AuditService;
+use App\Services\RegistrationService;
 use App\Services\StorageService;
 use App\Services\UploadRules;
 
@@ -31,6 +32,7 @@ final class AthleteController extends Controller
         private readonly AthleteDocumentRepository $documents,
         private readonly AthleteAccessService $access,
         private readonly StorageService $storage,
+        private readonly RegistrationService $registrations,
     ) {
         parent::__construct($users, $authorization, $audit);
     }
@@ -117,7 +119,24 @@ final class AthleteController extends Controller
             return $this->formError($guard, $data, $guardianData, ['Nao foi possivel salvar o atleta.'], false, 422);
         }
         $this->audit->record('athletes.created', (int) $guard['id'], 'athlete', $id, ['team_id' => (int) $data['team_id']], $request);
-        Session::flash('athlete_message', 'Atleta cadastrado.');
+        if ((string) ($request->body['registration_action'] ?? '') === 'create') {
+            $registration = $this->registrations->createDraft(
+                (int) $guard['id'],
+                (int) $team['championship_id'],
+                (int) $data['team_id'],
+                $id,
+                null,
+                '',
+                $request,
+            );
+            if ($registration['ok']) {
+                Session::flash('registration_message', 'Atleta cadastrado e inscrição criada. Revise os dados e envie para análise.');
+                return Response::redirect(Config::url('/admin/inscricoes/' . $registration['id']));
+            }
+            Session::flash('athlete_message', 'Atleta cadastrado, mas não foi possível criar a inscrição: ' . implode(' ', $registration['errors']));
+        } else {
+            Session::flash('athlete_message', 'Atleta cadastrado.');
+        }
         return Response::redirect(Config::url('/admin/atletas/' . $id));
     }
 
@@ -464,12 +483,12 @@ final class AthleteController extends Controller
     private function formPage(string $title, array $user, array $record, bool $editing, array $errors): Response
     {
         $guardian = ['full_name' => '', 'relationship' => '', 'phone' => '', 'email' => '', 'document_number' => '', 'authorization_note' => ''];
-        return $this->page($title, 'admin/athletes/form', ['user' => $user, 'record' => $record, 'teams' => $editing ? [] : $this->access->authorizedTeams($user), 'positions' => $this->positions->list(), 'guardian' => $guardian, 'errors' => $errors, 'editing' => $editing]);
+        return $this->page($title, 'admin/athletes/form', ['user' => $user, 'record' => $record, 'teams' => $editing ? [] : $this->access->authorizedTeams($user), 'positions' => $this->positions->list(), 'guardian' => $guardian, 'errors' => $errors, 'editing' => $editing, 'canCreateRegistration' => !$editing && $this->authorization->can($user, 'registrations.create')]);
     }
 
     private function formError(array $user, array $record, array $guardian, array $errors, bool $editing, int $status): Response
     {
-        return $this->errorPage($editing ? 'Editar atleta' : 'Novo atleta', 'admin/athletes/form', ['user' => $user, 'record' => $record, 'teams' => $editing ? [] : $this->access->authorizedTeams($user), 'positions' => $this->positions->list(), 'guardian' => $guardian, 'errors' => $errors, 'editing' => $editing], $status);
+        return $this->errorPage($editing ? 'Editar atleta' : 'Novo atleta', 'admin/athletes/form', ['user' => $user, 'record' => $record, 'teams' => $editing ? [] : $this->access->authorizedTeams($user), 'positions' => $this->positions->list(), 'guardian' => $guardian, 'errors' => $errors, 'editing' => $editing, 'canCreateRegistration' => !$editing && $this->authorization->can($user, 'registrations.create')], $status);
     }
 
     private function guardianError(array $user, array $athlete, array $errors, array $guardian): Response
