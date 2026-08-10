@@ -304,7 +304,11 @@
                         var cells = row.querySelectorAll('td');
                         if (cells[0]) cells[0].textContent = String(item.position);
                         [item.matches_played, item.wins, item.draws, item.losses, item.goals_for, item.goals_against, item.goal_difference].forEach(function (value, offset) { if (cells[offset + 2]) cells[offset + 2].textContent = String(value); });
-                        if (cells[9]) cells[9].innerHTML = '<strong>' + String(item.points) + '</strong>';
+                        if (cells[9]) {
+                            var points = document.createElement('strong');
+                            points.textContent = String(item.points);
+                            cells[9].replaceChildren(points);
+                        }
                         row.classList.toggle('is-simulator-changed', Number(item.position_change || 0) !== 0);
                         row.dataset.simulatorPositionChange = String(item.position_change || 0);
                         var tbody = row.parentNode;
@@ -365,7 +369,11 @@
                     var cells = row.querySelectorAll('td');
                     if (cells[0]) cells[0].textContent = String(item.position);
                     [item.matches_played, item.wins, item.draws, item.losses, item.goals_for, item.goals_against, item.goal_difference].forEach(function (value, offset) { if (cells[offset + 2]) cells[offset + 2].textContent = String(value); });
-                    if (cells[9]) cells[9].innerHTML = '<strong>' + String(item.points) + '</strong>';
+                    if (cells[9]) {
+                        var points = document.createElement('strong');
+                        points.textContent = String(item.points);
+                        cells[9].replaceChildren(points);
+                    }
                     row.classList.toggle('is-simulator-changed', Number(item.position_change || 0) !== 0);
                 });
                 var table = freeSimulator.querySelector('[data-simulator-group="' + String(group.id) + '"] tbody');
