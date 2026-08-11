@@ -53,12 +53,12 @@ final class AccountabilityController extends Controller
     public function export(Request $request, array $params = []): Response
     {
         $kind = (string) ($params[1] ?? '');
-        $permission = match ($kind) { 'pdf' => 'accountability.export_pdf', 'xlsx' => 'accountability.export_xlsx', 'zip' => 'accountability.export_zip', default => 'accountability.export' };
+        $permission = match ($kind) { 'pdf' => 'accountability.export_pdf', 'xlsx' => 'accountability.export_xlsx', 'zip', 'atletas-documentos-zip' => 'accountability.export_zip', default => 'accountability.export' };
         $user = $this->guard($request, $permission);
         if ($user instanceof Response) return $user;
         $id = (int) ($params[0] ?? 0);
         if (!$this->reports->allowed($id, (int) $user['id'], $this->isAdministrator($user))) return Response::forbidden();
-        if (in_array($kind, ['partidas', 'atletas', 'sumulas', 'evidencias'], true)) {
+        if (in_array($kind, ['partidas', 'atletas', 'atletas-documentos', 'sumulas', 'evidencias'], true)) {
             $rows = $this->reports->rows($id, $kind); $csv = $this->csv($rows); $hash = hash('sha256', $csv);
             $this->reports->log($id, (int) $user['id'], $kind, count($rows), 'csv', [], [], 'prestacao-' . $kind . '-campeonato-' . $id . '.csv', $hash);
             $this->audit->record('accountability.exported', (int) $user['id'], 'championship', $id, ['kind' => $kind, 'rows' => count($rows), 'hash' => $hash], $request);

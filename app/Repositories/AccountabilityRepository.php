@@ -149,11 +149,19 @@ final class AccountabilityRepository
             'atletas' => "SELECT a.full_name AS atleta, a.sporting_name AS nome_esportivo, t.name AS equipe, 'Aprovada' AS inscricao, ar.decided_at AS aprovado_em FROM athlete_registrations ar INNER JOIN athletes a ON a.id = ar.athlete_id INNER JOIN teams t ON t.id = ar.team_id WHERE ar.championship_id = ? AND ar.status = 'approved' ORDER BY t.name, a.full_name",
             'sumulas' => "SELECT m.id AS partida_id, ht.name AS mandante, at.name AS visitante, v.version_number AS versao, v.verification_code AS codigo, v.created_at AS gerada_em FROM match_report_versions v INNER JOIN match_reports r ON r.id = v.match_report_id INNER JOIN matches m ON m.id = r.match_id INNER JOIN teams ht ON ht.id = m.home_team_id INNER JOIN teams at ON at.id = m.away_team_id WHERE m.championship_id = ? AND m.status = 'homologated' ORDER BY v.created_at DESC",
             'evidencias' => "SELECT mm.id, m.id AS partida_id, ci.name AS item_checklist, mm.title, mm.caption, mm.visibility, mm.review_status AS situacao, mm.captured_at, mm.created_at AS enviada_em, u.name AS enviado_por, r.name AS revisado_por, mm.reviewed_at AS revisado_em, mm.rejection_reason AS justificativa, mm.file_hash FROM match_media mm INNER JOIN matches m ON m.id = mm.match_id LEFT JOIN championship_evidence_checklist_items ci ON ci.id=mm.checklist_item_id INNER JOIN users u ON u.id=mm.uploaded_by LEFT JOIN users r ON r.id=mm.reviewed_by WHERE mm.championship_id = ? AND m.status = 'homologated' AND mm.status = 'approved' AND mm.review_status = 'approved' AND mm.deleted_at IS NULL ORDER BY mm.created_at DESC",
+            'atletas-documentos' => "SELECT a.full_name AS atleta, a.sporting_name AS nome_esportivo, a.birth_date AS nascimento, t.name AS equipe, 'Aprovada' AS inscricao, ar.decided_at AS aprovado_em, COALESCE(dt.name, 'Não enviado') AS tipo_documento, COALESCE(ad.status, 'Não enviado') AS situacao_documento, COALESCE(ad.original_name, '') AS arquivo, COALESCE(ad.expires_at, '') AS validade FROM athlete_registrations ar INNER JOIN athletes a ON a.id = ar.athlete_id INNER JOIN teams t ON t.id = ar.team_id LEFT JOIN athlete_documents ad ON ad.athlete_id = a.id AND ad.deleted_at IS NULL LEFT JOIN athlete_document_types dt ON dt.id = ad.document_type_id WHERE ar.championship_id = ? AND ar.status = 'approved' ORDER BY t.name, a.full_name, dt.display_order, ad.created_at DESC",
             default => [],
         };
         if ($sql === []) return [];
         $statement = $this->pdo->prepare($sql);
         $statement->execute([$id]);
+        return $statement->fetchAll();
+    }
+
+    public function athleteDocumentFiles(int $championshipId): array
+    {
+        $statement = $this->pdo->prepare("SELECT ad.id, ad.storage_path AS path, ad.original_name AS name, a.id AS athlete_id, a.full_name AS athlete_name, dt.name AS document_type FROM athlete_registrations ar INNER JOIN athletes a ON a.id = ar.athlete_id INNER JOIN athlete_documents ad ON ad.athlete_id = a.id AND ad.deleted_at IS NULL AND ad.status = 'approved' INNER JOIN athlete_document_types dt ON dt.id = ad.document_type_id WHERE ar.championship_id = ? AND ar.status = 'approved' ORDER BY a.full_name, ad.id");
+        $statement->execute([$championshipId]);
         return $statement->fetchAll();
     }
 

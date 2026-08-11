@@ -13,6 +13,15 @@ final class AccountabilityExportService
     public function generate(int $championshipId, string $format, array $filters, int $userId): array
     {
         $format = strtolower($format);
+        if ($format === 'atletas-documentos-zip') {
+            $rows = $this->repository->rows($championshipId, 'atletas-documentos');
+            $body = $this->athleteDocumentsZip($championshipId, $rows);
+            $hash = hash('sha256', $body);
+            $name = 'prestacao-atletas-documentos-campeonato-' . $championshipId . '-' . date('Ymd-His') . '.zip';
+            $this->repository->log($championshipId, $userId, 'atletas-documentos', count($rows), 'zip', [], [], $name, $hash);
+            $this->audit->record('accountability.exported', $userId, 'championship', $championshipId, ['format' => 'atletas-documentos-zip', 'rows' => count($rows), 'hash' => $hash], null);
+            return ['body' => $body, 'mime' => 'application/zip', 'name' => $name, 'hash' => $hash, 'count' => count($rows)];
+        }
         $rows = $this->repository->exportRows($championshipId, $filters);
         $matchIds = array_map(static fn (array $row): int => (int) $row['partida'], $rows);
         $kind = 'consolidado';
@@ -89,6 +98,30 @@ final class AccountabilityExportService
                 if (!$stored) { $manifest[] = 'PENDENTE: ' . $file['name']; continue; }
                 $zip->addFromString($file['name'], $stored['body']);
                 $manifest[] = 'INCLUÍDO: ' . $file['name'] . ' sha256=' . hash('sha256', $stored['body']);
+            }
+            $zip->addFromString('manifesto.txt', implode("\n", $manifest));
+            $zip->close();
+            return (string) file_get_contents($tmp);
+        } finally { @unlink($tmp); }
+    }
+
+    private function athleteDocumentsZip(int $championshipId, array $rows): string
+    {
+        if (!class_exists(ZipArchive::class)) throw new \RuntimeException('A extensão ZIP do PHP é necessária para gerar o pacote.');
+        $tmp = tempnam(sys_get_temp_dir(), 'torneio-athletes-');
+        if ($tmp === false) throw new \RuntimeException('Não foi possível preparar o pacote.');
+        try {
+            $zip = new ZipArchive();
+            if ($zip->open($tmp, ZipArchive::OVERWRITE) !== true) throw new \RuntimeException('Não foi possível criar o pacote.');
+            $zip->addFromString('atletas-documentos.csv', $this->csv($rows));
+            $manifest = ['Pacote privado de atletas e documentos', 'Campeonato: ' . $championshipId, 'Gerado em: ' . date('c'), 'Somente documentos aprovados e atletas com inscrição aprovada.'];
+            foreach ($this->repository->athleteDocumentFiles($championshipId) as $file) {
+                $stored = $this->storage->read((string) $file['path']);
+                $safeName = preg_replace('/[^A-Za-z0-9._-]+/', '-', basename((string) $file['name'])) ?: 'documento';
+                $entry = 'documentos/' . (int) $file['athlete_id'] . '-' . (int) $file['id'] . '-' . $safeName;
+                if (!$stored) { $manifest[] = 'PENDENTE: ' . $entry; continue; }
+                $zip->addFromString($entry, $stored['body']);
+                $manifest[] = 'INCLUÍDO: ' . $entry . ' sha256=' . hash('sha256', $stored['body']);
             }
             $zip->addFromString('manifesto.txt', implode("\n", $manifest));
             $zip->close();
