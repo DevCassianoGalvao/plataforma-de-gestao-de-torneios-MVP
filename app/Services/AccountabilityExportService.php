@@ -117,8 +117,11 @@ final class AccountabilityExportService
             $manifest = ['Pacote privado de atletas e documentos', 'Campeonato: ' . $championshipId, 'Gerado em: ' . date('c'), 'Somente documentos aprovados e atletas com inscrição aprovada.'];
             foreach ($this->repository->athleteDocumentFiles($championshipId) as $file) {
                 $stored = $this->storage->read((string) $file['path']);
-                $safeName = preg_replace('/[^A-Za-z0-9._-]+/', '-', basename((string) $file['name'])) ?: 'documento';
-                $entry = 'documentos/' . (int) $file['athlete_id'] . '-' . (int) $file['id'] . '-' . $safeName;
+                $extension = strtolower(pathinfo((string) $file['name'], PATHINFO_EXTENSION));
+                $suffix = $extension !== '' ? '.' . preg_replace('/[^a-z0-9]+/', '', $extension) : '';
+                $athleteName = $this->safeFilePart((string) $file['athlete_name']);
+                $documentType = $this->safeFilePart((string) $file['document_type']);
+                $entry = 'documentos/Atleta - ' . $athleteName . ' - ' . $documentType . ' - ' . (int) $file['id'] . $suffix;
                 if (!$stored) { $manifest[] = 'PENDENTE: ' . $entry; continue; }
                 $zip->addFromString($entry, $stored['body']);
                 $manifest[] = 'INCLUÍDO: ' . $entry . ' sha256=' . hash('sha256', $stored['body']);
@@ -127,6 +130,13 @@ final class AccountabilityExportService
             $zip->close();
             return (string) file_get_contents($tmp);
         } finally { @unlink($tmp); }
+    }
+
+    private function safeFilePart(string $value): string
+    {
+        $value = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', trim($value)) ?: trim($value);
+        $value = preg_replace('/[^A-Za-z0-9]+/', '-', $value) ?: 'sem-nome';
+        return trim($value, '-') ?: 'sem-nome';
     }
 
     private function pdf(array $rows, int $championshipId): string
