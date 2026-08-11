@@ -1578,6 +1578,7 @@ body.public-portal .champion-grid article {
 body.public-portal .portal-grid section { padding: 1.45rem; }
 body.public-portal .section-heading { margin-bottom: 1.2rem; }
 body.public-portal .section-heading h2 { font-size: 1.26rem; font-weight: 700; }
+body.public-portal .roster-count { display: inline-flex; align-items: center; justify-content: center; min-width: 1.55rem; height: 1.55rem; margin-left: .35rem; padding: 0 .35rem; border: 1px solid var(--portal-border); border-radius: 999px; color: var(--portal-muted); font-size: .72rem; font-weight: 700; vertical-align: .12em; }
 body.public-portal .section-heading a { color: var(--portal-green); font-size: .9rem; font-weight: 700; }
 body.public-portal .match-cards { gap: .9rem; }
 body.public-portal .match-cards-large { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.45rem; margin-top: 1.5rem; }
