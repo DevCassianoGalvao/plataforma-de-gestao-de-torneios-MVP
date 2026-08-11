@@ -9,6 +9,6 @@
         <label>Número da camisa (opcional) <input type="number" name="requested_number" min="1" max="99" placeholder="Pode ser definido no dia do jogo" value="<?= App\Core\View::e($record['requested_number'] ?? '') ?>"></label>
         <p class="muted">O número não precisa ser informado agora. Ele pode ser definido posteriormente pelo treinador na escalação ou na súmula.</p>
         <label>Observacoes <textarea name="observations" rows="4"><?= App\Core\View::e($record['observations'] ?? '') ?></textarea></label>
-        <button type="submit">Salvar rascunho</button>
+        <button type="submit">Enviar para análise</button>
     </form>
 </section>

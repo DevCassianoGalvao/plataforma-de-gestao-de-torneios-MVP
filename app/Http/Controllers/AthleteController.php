@@ -120,7 +120,7 @@ final class AthleteController extends Controller
         }
         $this->audit->record('athletes.created', (int) $guard['id'], 'athlete', $id, ['team_id' => (int) $data['team_id']], $request);
         if ((string) ($request->body['registration_action'] ?? '') === 'create') {
-            $registration = $this->registrations->createDraft(
+            $registration = $this->registrations->createSubmitted(
                 (int) $guard['id'],
                 (int) $team['championship_id'],
                 (int) $data['team_id'],
@@ -130,10 +130,10 @@ final class AthleteController extends Controller
                 $request,
             );
             if ($registration['ok']) {
-                Session::flash('registration_message', 'Atleta cadastrado e inscrição criada. Revise os dados e envie para análise.');
+                Session::flash('registration_message', 'Atleta cadastrado e enviado para analise administrativa.');
                 return Response::redirect(Config::url('/admin/inscricoes/' . $registration['id']));
             }
-            Session::flash('athlete_message', 'Atleta cadastrado, mas não foi possível criar a inscrição: ' . implode(' ', $registration['errors']));
+            Session::flash('athlete_message', 'Atleta cadastrado, mas nao foi possivel enviar a inscricao: ' . implode(' ', $registration['errors']));
         } else {
             Session::flash('athlete_message', 'Atleta cadastrado.');
         }

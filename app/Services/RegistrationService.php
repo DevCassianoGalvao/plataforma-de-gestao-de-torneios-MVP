@@ -31,6 +31,16 @@ final class RegistrationService
         return ['ok' => true, 'id' => $id, 'errors' => []];
     }
 
+    public function createSubmitted(int $userId, int $championshipId, int $teamId, int $athleteId, ?int $number, string $observations, ?Request $request = null): array
+    {
+        $created = $this->createDraft($userId, $championshipId, $teamId, $athleteId, $number, $observations, $request);
+        if (!$created['ok']) return $created;
+        $registration = $this->registrations->findByPair($championshipId, $teamId, $athleteId);
+        if (!$registration) return ['ok' => false, 'errors' => ['Nao foi possivel localizar a inscricao criada.']];
+        $this->move($registration, 'submitted', $userId, 'submitted', 'Enviada automaticamente pelo cadastro do atleta.', $request);
+        return $created;
+    }
+
     public function updateDraft(array $registration, int $userId, ?int $number, string $observations, ?Request $request = null): array
     {
         if (!in_array($registration['status'], ['draft', 'pending_correction'], true)) return ['ok' => false, 'errors' => ['Somente rascunhos ou inscricoes pendentes podem ser corrigidos.']];
@@ -67,6 +77,10 @@ final class RegistrationService
 
     public function approve(array $registration, int $userId, ?Request $request = null): array
     {
+        if ($registration['status'] === 'submitted') {
+            $this->move($registration, 'under_review', $userId, 'review_started', 'Analise iniciada automaticamente pela aprovacao do cadastro.', $request);
+            $registration['status'] = 'under_review';
+        }
         $issues = $this->approvalIssues($registration);
         if ($issues !== []) {
             $this->registrations->setIssues((int) $registration['id'], $issues, $userId);

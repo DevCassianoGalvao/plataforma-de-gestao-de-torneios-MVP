@@ -56,9 +56,9 @@ final class RegistrationController extends Controller
             $athlete = $this->athletes->findForUser((int) $data['athlete_id'], (int) $guard['id'], 'team', true);
             if (!$team || (int) $team['championship_id'] !== (int) $data['championship_id'] || !$athlete || (int) $athlete['team_id'] !== (int) $data['team_id']) return Response::forbidden();
         }
-        $result = $this->service->createDraft((int) $guard['id'], (int) $data['championship_id'], (int) $data['team_id'], (int) $data['athlete_id'], $data['requested_number'], $data['observations'], $request);
+        $result = $this->service->createSubmitted((int) $guard['id'], (int) $data['championship_id'], (int) $data['team_id'], (int) $data['athlete_id'], $data['requested_number'], $data['observations'], $request);
         if (!$result['ok']) return $this->formError($guard, $data, $result['errors'], 422);
-        Session::flash('registration_message', 'Rascunho de inscricao criado.');
+        Session::flash('registration_message', 'Inscricao enviada para analise.');
         return Response::redirect(Config::url('/admin/inscricoes/' . $result['id']));
     }
 
