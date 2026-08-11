@@ -196,10 +196,9 @@ final class RegistrationService
             $valid = false;
             foreach ($documents as $document) {
                 if ((int) $document['document_type_id'] !== (int) $requiredDocument['document_type_id']) continue;
-                $notExpired = empty($document['expires_at']) || $document['expires_at'] >= date('Y-m-d');
-                if ($document['status'] === 'approved' && $notExpired) $valid = true;
+                if ($document['status'] === 'approved') $valid = true;
             }
-            if (!$valid) $issues[] = 'Documento obrigatorio ausente, pendente ou vencido: ' . $requiredDocument['name'] . '.';
+            if (!$valid) $issues[] = 'Documento obrigatorio ausente ou pendente: ' . $requiredDocument['name'] . '.';
         }
         return $issues;
     }
