@@ -1,6 +1,7 @@
 <section>
     <div class="section-heading">
         <div><p class="eyebrow">Atleta</p><h1><?= App\Core\View::e($athlete['sporting_name'] ?: $athlete['full_name']) ?></h1><p><?= App\Core\View::e($athlete['full_name']) ?></p></div>
+        <?php if ($canCreateRegistration): ?><a class="button" href="<?= App\Core\View::e(App\Core\Config::url('/admin/inscricoes/nova?athlete_id=' . (int) $athlete['id'] . '&team_id=' . (int) $athlete['team_id'])) ?>">Criar inscrição</a><?php endif; ?>
         <?php if ($canEdit): ?><a class="button" href="<?= App\Core\View::e(App\Core\Config::url('/admin/atletas/' . $athlete['id'] . '/editar')) ?>">Editar</a><?php endif; ?>
     </div>
     <div class="athlete-profile-photo-wrap"><?php if (!empty($athlete['photo_path'])): ?><img class="athlete-profile-photo" src="<?= App\Core\View::e(App\Core\Config::url('/admin/atletas/' . $athlete['id'] . '/assets/photo?v=' . rawurlencode((string) $athlete['photo_path']))) ?>" alt="Foto de <?= App\Core\View::e($athlete['sporting_name'] ?: $athlete['full_name']) ?>"><?php else: ?><span class="athlete-profile-photo athlete-profile-photo-fallback" aria-label="Atleta sem foto cadastrada"><?= App\Core\View::e(strtoupper(substr((string) ($athlete['sporting_name'] ?: $athlete['full_name']), 0, 2))) ?></span><?php endif; ?></div>

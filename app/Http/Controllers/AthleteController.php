@@ -155,6 +155,7 @@ final class AthleteController extends Controller
             'canGuardians' => $this->canGuardianMutation($guard, (int) $athlete['id']),
             'canDocuments' => $this->canDocumentMutation($guard, (int) $athlete['id']),
             'canReviewDocuments' => $this->canReview($guard, (int) $athlete['id']),
+            'canCreateRegistration' => $this->canCreateRegistration($guard, (int) $athlete['team_id']),
             'message' => Session::consumeFlash('athlete_message'),
         ]);
     }
@@ -278,7 +279,7 @@ final class AthleteController extends Controller
     {
         [$guard, $athlete] = $this->context($request, (int) ($params[0] ?? 0), 'athlete_documents.view');
         if ($guard instanceof Response) return $guard;
-        return $this->page('Documentos do atleta', 'admin/athletes/documents', ['user' => $guard, 'athlete' => $athlete, 'items' => $this->documents->listForAthlete((int) $athlete['id']), 'types' => $this->documentTypes->list(), 'guardians' => $this->guardians->listForAthlete((int) $athlete['id']), 'canManage' => $this->canDocumentMutation($guard, (int) $athlete['id']), 'canReview' => $this->canReview($guard, (int) $athlete['id']), 'errors' => []]);
+        return $this->page('Documentos do atleta', 'admin/athletes/documents', ['user' => $guard, 'athlete' => $athlete, 'items' => $this->documents->listForAthlete((int) $athlete['id']), 'types' => $this->documentTypes->list(), 'guardians' => $this->guardians->listForAthlete((int) $athlete['id']), 'canManage' => $this->canDocumentMutation($guard, (int) $athlete['id']), 'canReview' => $this->canReview($guard, (int) $athlete['id']), 'canCreateRegistration' => $this->canCreateRegistration($guard, (int) $athlete['team_id']), 'errors' => []]);
     }
 
     public function saveDocument(Request $request, array $params = []): Response
@@ -426,6 +427,12 @@ final class AthleteController extends Controller
     private function isMinor(array $data): bool
     {
         try { return AthleteRules::isMinor((string) $data['birth_date']); } catch (\Throwable) { return false; }
+    }
+
+    private function canCreateRegistration(array $user, int $teamId): bool
+    {
+        if (!$this->authorization->can($user, 'registrations.create')) return false;
+        return $this->access->team($user, $teamId, true) !== null;
     }
 
     private function storeIdentityDocument(array $file, string $directory, array &$errors): ?array

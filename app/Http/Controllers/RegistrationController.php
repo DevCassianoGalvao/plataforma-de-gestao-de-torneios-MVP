@@ -32,7 +32,17 @@ final class RegistrationController extends Controller
     {
         $guard = $this->guard($request, 'registrations.create');
         if ($guard instanceof Response) return $guard;
-        return $this->formPage($guard, [], [], []);
+        $record = [
+            'athlete_id' => (int) ($request->query['athlete_id'] ?? 0),
+            'team_id' => (int) ($request->query['team_id'] ?? 0),
+        ];
+        foreach ($this->availableTeams($guard) as $team) {
+            if ((int) $team['id'] === $record['team_id']) {
+                $record['championship_id'] = (int) $team['championship_id'];
+                break;
+            }
+        }
+        return $this->formPage($guard, $record, [], []);
     }
 
     public function create(Request $request, array $params = []): Response
@@ -170,7 +180,8 @@ final class RegistrationController extends Controller
 
     private function formPage(array $user, array $record, array $errors, array $data = []): Response
     {
-        return $this->page('Nova inscricao', 'admin/registrations/form', ['user' => $user, 'record' => array_merge($record, $data), 'errors' => $errors, 'championships' => $this->formChampionships($user), 'teams' => $this->availableTeams($user), 'athletes' => $this->availableAthletes($user, (int) ($data['team_id'] ?? 0))]);
+        $record = array_merge($record, $data);
+        return $this->page('Nova inscricao', 'admin/registrations/form', ['user' => $user, 'record' => $record, 'errors' => $errors, 'championships' => $this->formChampionships($user), 'teams' => $this->availableTeams($user), 'athletes' => $this->availableAthletes($user, (int) ($record['team_id'] ?? 0))]);
     }
 
     private function formError(array $user, array $data, array $errors, int $status): Response

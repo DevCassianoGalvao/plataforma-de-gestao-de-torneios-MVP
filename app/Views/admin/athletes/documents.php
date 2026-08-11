@@ -1,5 +1,5 @@
 <section>
-    <div class="section-heading"><div><p class="eyebrow">Atleta</p><h1>Documentos</h1><p><?= App\Core\View::e($athlete['full_name']) ?></p></div><a href="<?= App\Core\View::e(App\Core\Config::url('/admin/atletas/' . $athlete['id'])) ?>">Voltar ao atleta</a></div>
+    <div class="section-heading"><div><p class="eyebrow">Atleta</p><h1>Documentos</h1><p><?= App\Core\View::e($athlete['full_name']) ?></p></div><div class="button-row"><a href="<?= App\Core\View::e(App\Core\Config::url('/admin/atletas/' . $athlete['id'])) ?>">Voltar ao atleta</a><?php if ($canCreateRegistration): ?><a class="button" href="<?= App\Core\View::e(App\Core\Config::url('/admin/inscricoes/nova?athlete_id=' . (int) $athlete['id'] . '&team_id=' . (int) $athlete['team_id'])) ?>">Criar inscrição</a><?php endif; ?></div></div>
     <?php foreach (($errors ?? []) as $error): ?><p class="alert" role="alert"><?= App\Core\View::e($error) ?></p><?php endforeach; ?>
     <?php if ($items === []): ?><p>Nenhum documento enviado.</p><?php else: ?><div class="table-wrap"><table><thead><tr><th>Tipo</th><th>Arquivo</th><th>Validade</th><th>Status</th><th>Motivo</th><th>Análise</th></tr></thead><tbody>
     <?php foreach ($items as $item): ?>
