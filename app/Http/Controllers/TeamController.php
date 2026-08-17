@@ -287,10 +287,15 @@ final class TeamController extends Controller
         $data = $this->staffData($request, $record['photo_path'] ?? null);
         if (!$this->validCsrf($request)) return $this->staffError($guard, $team, $data, ['A sessao expirou.'], $editing);
         $errors = TeamRules::validateStaff($data);
-        if (!$this->staffRoles->find((int) $data['staff_role_id'])) $errors[] = 'Escolha uma funcao valida.';
+        $staffRole = $this->staffRoles->find((int) $data['staff_role_id']);
+        if (!$staffRole) $errors[] = 'Escolha uma funcao valida.';
         if ($data['user_id']) {
             $candidate = $this->users->findById((int) $data['user_id']);
             if (!$candidate || $candidate['status'] !== 'active' || !in_array('team_manager', $this->authorization->roleKeys($candidate), true)) $errors[] = 'O usuario vinculado deve estar ativo e possuir perfil de treinador ou gestor.';
+            if ($staffRole && $staffRole['key'] === 'head_coach' && $data['status'] === 'active') {
+                $assignment = $this->teams->activeAssignmentForUser((int) $data['user_id'], 'head_coach');
+                if ($assignment && (int) $assignment['team_id'] !== (int) $team['id']) $errors[] = 'Este treinador ja possui um vinculo ativo com outra equipe.';
+            }
         }
         $file = $request->files['photo'] ?? [];
         $stored = null;
@@ -309,6 +314,9 @@ final class TeamController extends Controller
         try {
             $id = $editing ? (int) $record['id'] : $this->staff->create((int) $team['id'], $data);
             if ($editing) $this->staff->update($id, $data);
+            if ($staffRole && $staffRole['key'] === 'head_coach' && $data['status'] === 'active' && $data['user_id'] && !$this->teams->activeAssignmentExists((int) $team['id'], (int) $data['user_id'], 'head_coach')) {
+                $this->teams->createAssignment((int) $team['id'], (int) $data['user_id'], 'head_coach', (int) $guard['id'], (string) ($data['starts_at'] ?: date('Y-m-d')));
+            }
         } catch (\PDOException) {
             if ($stored) $this->storage->delete($stored['path']);
             return $this->staffError($guard, $team, $data, ['Ja existe um membro com esse nome nesta equipe.'], $editing);

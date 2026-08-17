@@ -81,6 +81,13 @@ final class TeamHttpTest
         $staffUpdate = $router->dispatch(Request::fake('POST', '/torneio-online/admin/equipes/equipe-http-admin/comissao/' . $staffId, ['_csrf' => Security::csrfToken(), 'staff_role_id' => $roleId, 'full_name' => 'Preparador HTTP Atualizado', 'display_name' => 'Prep Atualizado', 'email' => 'prep@example.test', 'status' => 'active', 'starts_at' => '2026-01-01']));
         assert_same(302, $staffUpdate->status, 'Edicao da comissao falhou');
         assert_same(302, $router->dispatch(Request::fake('POST', '/torneio-online/admin/equipes/equipe-http-admin/comissao/' . $staffId . '/status', ['_csrf' => Security::csrfToken(), 'status' => 'inactive']))->status, 'Inativacao da comissao falhou');
+        $coachRoleId = (int) $pdo->query("SELECT id FROM staff_roles WHERE `key` = 'head_coach' LIMIT 1")->fetchColumn();
+        $availableCoachId = (int) $pdo->query("SELECT id FROM users WHERE email = 'treinador-sem-equipe@torneios.local' LIMIT 1")->fetchColumn();
+        $coachCreate = $router->dispatch(Request::fake('POST', '/torneio-online/admin/equipes/equipe-http-admin/comissao', ['_csrf' => Security::csrfToken(), 'staff_role_id' => $coachRoleId, 'user_id' => $availableCoachId, 'full_name' => 'Treinador HTTP', 'display_name' => 'Treinador HTTP', 'email' => 'treinador-sem-equipe@torneios.local', 'status' => 'active', 'starts_at' => '2026-01-01']));
+        assert_same(302, $coachCreate->status, 'Treinador vinculado nao foi cadastrado na comissao');
+        assert_same(1, (int) $pdo->query("SELECT COUNT(*) FROM team_user_assignments WHERE team_id = {$teamId} AND user_id = {$availableCoachId} AND assignment_type = 'head_coach' AND status = 'active'")->fetchColumn(), 'Conta do treinador nao recebeu acesso automatico a equipe');
+        $teamWithCoach = $router->dispatch(Request::fake('GET', '/torneio-online/admin/equipes/equipe-http-admin'));
+        assert_true(str_contains($teamWithCoach->body, 'Treinador HTTP'), 'Pagina da equipe nao exibiu o treinador vinculado');
         assert_same(302, $router->dispatch(Request::fake('POST', '/torneio-online/admin/equipes/equipe-http-admin/formacao', ['_csrf' => Security::csrfToken(), 'formation_id' => $formationId]))->status, 'Formacao padrao nao foi salva');
         assert_same(302, $router->dispatch(Request::fake('POST', '/torneio-online/admin/equipes/equipe-http-admin/status', ['_csrf' => Security::csrfToken(), 'status' => 'active']))->status, 'Ativacao de equipe falhou');
         assert_same(302, $router->dispatch(Request::fake('POST', '/torneio-online/admin/equipes/equipe-http-admin/status', ['_csrf' => Security::csrfToken(), 'status' => 'inactive']))->status, 'Inativacao de equipe falhou');

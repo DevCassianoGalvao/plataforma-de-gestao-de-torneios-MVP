@@ -60,6 +60,7 @@ final class TeamIntegrationTest
         assert_same(0, count($teamRepository->listForUser((int) $outsider['id'], 'team')), 'Treinador sem vinculo recebeu equipes');
         $first = $teamRepository->findForUserBySlug('estrela-norte-fc', (int) $trainer['id'], 'team');
         assert_true($first !== null && $access->find($trainer, (int) $first['id'], 'teams.view') !== null, 'Treinador nao acessa equipe vinculada');
+        assert_true((string) $first['coach_name'] !== '', 'Consulta da equipe nao carregou o treinador');
         $foreign = $teamRepository->findForUserBySlug('serra-azul-futebol', (int) $trainer['id'], 'team');
         assert_true($foreign === null, 'Treinador acessou equipe de outro responsavel');
 
