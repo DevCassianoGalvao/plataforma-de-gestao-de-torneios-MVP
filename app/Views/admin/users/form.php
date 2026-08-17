@@ -10,6 +10,9 @@
             <label>Senha <input type="password" name="password" autocomplete="new-password" required></label>
             <label>Confirmar senha <input type="password" name="password_confirmation" autocomplete="new-password" required></label>
             <label>Status <select name="status"><option value="active">Ativo</option><option value="inactive">Inativo</option></select></label>
+        <?php else: ?>
+            <label>Nova senha <input type="password" name="password" autocomplete="new-password" minlength="8"><small>Deixe em branco para manter a senha atual.</small></label>
+            <label>Confirmar nova senha <input type="password" name="password_confirmation" autocomplete="new-password" minlength="8"></label>
         <?php endif; ?>
         <fieldset><legend>Perfis</legend><?php foreach ($roles as $role): ?><label class="check"><input type="checkbox" name="role_ids[]" value="<?= (int) $role['id'] ?>" <?= in_array((int) $role['id'], $selectedRoles ?? [], true) ? 'checked' : '' ?>> <?= App\Core\View::e($role['name']) ?></label><?php endforeach; ?></fieldset>
         <button type="submit">Salvar</button>

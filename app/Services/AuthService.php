@@ -25,9 +25,14 @@ final class AuthService
         $maxAttempts = max(3, (int) (Config::get('AUTH_MAX_ATTEMPTS', '5') ?? '5'));
         $windowMinutes = max(1, (int) (Config::get('AUTH_WINDOW_MINUTES', '15') ?? '15'));
         $recent = $this->recentFailures($emailHash, $request->ip(), $windowMinutes);
+        $emailFailures = $recent['email'];
+        // A shared office/cPanel IP must not lock every account after one
+        // person's mistakes. Keep a broader IP limit for abuse protection.
+        $ipFailures = $recent['ip'];
+        $ipLimit = $maxAttempts * 5;
         $locked = $user && $user['locked_until'] !== null && strtotime((string) $user['locked_until']) > time();
         $validPassword = password_verify($password, $user['password_hash'] ?? '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llCkR2c7QG8M0j2G9rM3u');
-        $valid = $user && $user['status'] === 'active' && !$locked && $validPassword && $recent < $maxAttempts;
+        $valid = $user && $user['status'] === 'active' && !$locked && $validPassword && $emailFailures < $maxAttempts && $ipFailures < $ipLimit;
 
         $this->recordAttempt($emailHash, $request, $valid);
         if (!$valid) {
@@ -46,6 +51,7 @@ final class AuthService
         }
 
         $this->users->markSuccessfulLogin((int) $user['id']);
+        $this->users->clearFailedLoginAttempts($emailHash, $request->ip());
         Session::regenerate();
         Security::rotateCsrf();
         Session::put('user_id', (int) $user['id']);
@@ -63,11 +69,13 @@ final class AuthService
         Session::destroy();
     }
 
-    private function recentFailures(string $emailHash, string $ip, int $minutes): int
+    private function recentFailures(string $emailHash, string $ip, int $minutes): array
     {
-        $statement = $this->pdo->prepare('SELECT COUNT(*) FROM login_attempts WHERE successful = 0 AND attempted_at >= ? AND (email_hash = ? OR ip = ?)');
-        $statement->execute([date('Y-m-d H:i:s', time() - $minutes * 60), $emailHash, $ip]);
-        return (int) $statement->fetchColumn();
+        $since = date('Y-m-d H:i:s', time() - $minutes * 60);
+        $statement = $this->pdo->prepare('SELECT SUM(email_hash = ?) AS email_failures, SUM(ip = ?) AS ip_failures FROM login_attempts WHERE successful = 0 AND attempted_at >= ?');
+        $statement->execute([$emailHash, $ip, $since]);
+        $row = $statement->fetch() ?: [];
+        return ['email' => (int) ($row['email_failures'] ?? 0), 'ip' => (int) ($row['ip_failures'] ?? 0)];
     }
 
     private function recordAttempt(string $emailHash, Request $request, bool $successful): void

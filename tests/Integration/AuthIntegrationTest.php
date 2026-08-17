@@ -60,6 +60,8 @@ final class AuthIntegrationTest
         $pdo->exec('DELETE FROM login_attempts');
         putenv('AUTH_MAX_ATTEMPTS');
         putenv('AUTH_LOCK_SECONDS');
+        $users->updatePassword((int) $admin['id'], password_hash('SenhaNova123', PASSWORD_DEFAULT));
+        assert_true($auth->attempt('admin@torneios.local', 'SenhaNova123', Request::fake('POST', '/login'))['ok'], 'Senha atualizada nao autenticou');
         $users->updatePassword((int) $admin['id'], password_hash($password, PASSWORD_DEFAULT));
     }
 }

@@ -69,10 +69,37 @@ final class UserRepository
 
     public function softDelete(int $id): bool
     {
-        $statement = $this->pdo->prepare('UPDATE users SET deleted_at = ?, status = \'inactive\', locked_until = NULL, failed_login_attempts = 0, updated_at = ? WHERE id = ? AND deleted_at IS NULL');
         $now = date('Y-m-d H:i:s');
-        $statement->execute([$now, $now, $id]);
-        return $statement->rowCount() === 1;
+        $this->pdo->beginTransaction();
+        try {
+            // Keep the user row for historical foreign keys, but remove active access
+            // and free the original e-mail for a future account.
+            $user = $this->pdo->prepare('SELECT email FROM users WHERE id = ? AND deleted_at IS NULL FOR UPDATE');
+            $user->execute([$id]);
+            $email = $user->fetchColumn();
+            if ($email === false) {
+                $this->pdo->rollBack();
+                return false;
+            }
+
+            $this->pdo->prepare('DELETE FROM user_roles WHERE user_id = ?')->execute([$id]);
+            $this->pdo->prepare('DELETE FROM password_reset_tokens WHERE user_id = ?')->execute([$id]);
+            $statement = $this->pdo->prepare('UPDATE users SET email = ?, deleted_at = ?, status = \'inactive\', locked_until = NULL, failed_login_attempts = 0, updated_at = ? WHERE id = ? AND deleted_at IS NULL');
+            $tombstoneEmail = '__deleted_' . $id . '_' . substr(hash('sha256', (string) $email), 0, 24) . '@invalid.local';
+            $statement->execute([$tombstoneEmail, $now, $now, $id]);
+            $changed = $statement->rowCount() === 1;
+            if ($changed) {
+                $this->pdo->commit();
+            } else {
+                $this->pdo->rollBack();
+            }
+            return $changed;
+        } catch (\Throwable $exception) {
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
+            throw $exception;
+        }
     }
 
     public function hasAnotherActiveAdministrator(int $excludedUserId): bool
@@ -86,6 +113,12 @@ final class UserRepository
     {
         $statement = $this->pdo->prepare('UPDATE users SET password_hash = ?, updated_at = ? WHERE id = ? AND deleted_at IS NULL');
         $statement->execute([$passwordHash, date('Y-m-d H:i:s'), $id]);
+    }
+
+    public function clearFailedLoginAttempts(string $emailHash, string $ip): void
+    {
+        $statement = $this->pdo->prepare('DELETE FROM login_attempts WHERE successful = 0 AND email_hash = ?');
+        $statement->execute([$emailHash]);
     }
 
     public function updateAvatar(int $id, string $path): void

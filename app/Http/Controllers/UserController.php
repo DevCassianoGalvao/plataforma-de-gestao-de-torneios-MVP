@@ -91,13 +91,19 @@ final class UserController extends Controller
         if (!$this->validCsrf($request)) {
             return $this->errorForm('edit', $guard, $request, ['A sessao expirou. Recarregue a pagina.'], $record, $id);
         }
+        $password = trim((string) ($request->body['password'] ?? ''));
+        $confirmation = (string) ($request->body['password_confirmation'] ?? '');
         $updated = ['id' => $id, 'name' => trim((string) ($request->body['name'] ?? '')), 'email' => strtolower(trim((string) ($request->body['email'] ?? ''))), 'status' => $record['status']];
-        $errors = $this->validateRecord($updated);
+        $errors = $this->validateRecord($updated, $password !== '' ? $password : null, $password !== '' ? $confirmation : null);
         if ($errors !== []) {
             return $this->errorForm('edit', $guard, $request, $errors, $updated, $id);
         }
         try {
             $this->users->update($id, $updated['name'], $updated['email']);
+            if ($password !== '') {
+                $this->users->updatePassword($id, password_hash($password, PASSWORD_DEFAULT));
+                $this->audit->record('users.password_changed', (int) $guard['id'], 'user', $id, [], $request);
+            }
             $this->audit->record('users.updated', (int) $guard['id'], 'user', $id, [], $request);
             if (array_key_exists('role_ids', $request->body)) {
                 if ($this->authorization->cannot($guard, 'users.manage_roles')) {
