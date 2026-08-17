@@ -84,6 +84,8 @@ final class UserRepository
 
             $this->pdo->prepare('DELETE FROM user_roles WHERE user_id = ?')->execute([$id]);
             $this->pdo->prepare('DELETE FROM password_reset_tokens WHERE user_id = ?')->execute([$id]);
+            $this->pdo->prepare("UPDATE team_user_assignments SET status = 'ended', ends_at = COALESCE(ends_at, ?), updated_at = ? WHERE user_id = ? AND status = 'active'")->execute([date('Y-m-d'), $now, $id]);
+            $this->pdo->prepare("UPDATE match_operator_assignments SET status = 'ended', ended_at = COALESCE(ended_at, ?) WHERE user_id = ? AND status = 'active'")->execute([$now, $id]);
             $statement = $this->pdo->prepare('UPDATE users SET email = ?, deleted_at = ?, status = \'inactive\', locked_until = NULL, failed_login_attempts = 0, updated_at = ? WHERE id = ? AND deleted_at IS NULL');
             $tombstoneEmail = '__deleted_' . $id . '_' . substr(hash('sha256', (string) $email), 0, 24) . '@invalid.local';
             $statement->execute([$tombstoneEmail, $now, $now, $id]);

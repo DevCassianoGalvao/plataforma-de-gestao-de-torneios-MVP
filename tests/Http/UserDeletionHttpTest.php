@@ -56,9 +56,9 @@ final class UserDeletionHttpTest
         $storedEmail = Database::connection()->prepare('SELECT email FROM users WHERE id = ?');
         $storedEmail->execute([$userId]);
         assert_true(str_ends_with((string) $storedEmail->fetchColumn(), '@invalid.local'), 'E-mail excluido continuou preso no banco');
-        $assignmentCheck = Database::connection()->prepare('SELECT COUNT(*) FROM team_user_assignments WHERE user_id = ?');
+        $assignmentCheck = Database::connection()->prepare("SELECT COUNT(*) FROM team_user_assignments WHERE user_id = ? AND status = 'ended' AND ends_at IS NOT NULL");
         $assignmentCheck->execute([$userId]);
-        assert_same(1, (int) $assignmentCheck->fetchColumn(), 'Historico de vinculo da equipe foi perdido');
+        assert_same(1, (int) $assignmentCheck->fetchColumn(), 'Vinculo da equipe excluida nao foi encerrado com o historico preservado');
         assert_true($repository->create('Mesmo e-mail', $email, password_hash('Teste1234', PASSWORD_DEFAULT)) > 0, 'E-mail de usuario excluido nao pode ser reutilizado');
 
         self::logout($router);
