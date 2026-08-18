@@ -41,6 +41,23 @@ final class ProductionReadinessHttpTest
         assert_same(200, $backups->status, 'Painel de backups nao abriu para administrador');
         assert_true(str_contains($backups->body, 'Periodicidade') && str_contains($backups->body, 'GOOGLE_DRIVE_ACCESS_TOKEN'), 'Configuracao de periodicidade/token nao renderizou');
         assert_same(403, $router->dispatch(Request::fake('POST', '/torneio-online/admin/backups/1/excluir', ['_csrf' => 'invalid']))->status, 'CSRF de exclusao de backup foi aceito');
+        $now = date('Y-m-d H:i:s');
+        $key = 'backup-http-delete-' . bin2hex(random_bytes(4));
+        $filename = $key . '.zip';
+        $backupPath = dirname(__DIR__, 2) . '/storage/backups/' . $filename;
+        file_put_contents($backupPath, 'backup http fixture');
+        $insertBackup = Database::connection()->prepare('INSERT INTO application_backups (backup_key, type, status, local_status, validation_status, remote_status, local_path, size_bytes, created_by, started_at, completed_at, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+        $insertBackup->execute([$key, 'manual', 'completed', 'completed', 'valid', 'not_configured', 'storage/backups/' . $filename, 19, (int) Auth::user()['id'], $now, $now, $now, $now]);
+        $backupId = (int) Database::connection()->lastInsertId();
+        try {
+            $deleteBackup = $router->dispatch(Request::fake('POST', '/torneio-online/admin/backups/' . $backupId . '/excluir', ['_csrf' => Security::csrfToken()]));
+            assert_same(302, $deleteBackup->status, 'Exclusao HTTP do backup falhou');
+            assert_same(0, (int) Database::connection()->query('SELECT COUNT(*) FROM application_backups WHERE id = ' . $backupId . ' AND deleted_at IS NULL')->fetchColumn(), 'Rota de exclusao ignorou o identificador do backup');
+        } finally {
+            @unlink($backupPath);
+            Database::connection()->prepare('DELETE FROM audit_logs WHERE action = ? AND resource_id = ?')->execute(['backup.deleted', (string) $backupId]);
+            Database::connection()->prepare('DELETE FROM application_backups WHERE id = ?')->execute([$backupId]);
+        }
         $monitoring = $router->dispatch(Request::fake('GET', '/torneio-online/admin/rodadas/acompanhamento'));
         assert_same(200, $monitoring->status, 'Acompanhamento por rodada nao abriu para administrador');
         assert_true(str_contains($monitoring->body, 'Acompanhamento por rodada'), 'Painel de acompanhamento nao renderizou');
