@@ -125,7 +125,7 @@ $selectedInterval = (int) ($settings['schedule_interval_days'] ?? 1);
                     <td><?= number_format((int) $backup['size_bytes'], 0, ',', '.') ?> bytes</td>
                     <td><?= Security::escape($remoteLabels[(string) $backup['remote_status']] ?? 'Não informado') ?></td>
                     <td class="table-actions">
-                        <?php if (!empty($backup['local_path'])): ?><a class="button button-secondary button-small" href="<?= Config::url('/admin/backups/' . $backup['id'] . '/download') ?>">Baixar</a><?php endif; ?>
+                        <?php if (!empty($backupAvailability[(int) $backup['id']])): ?><a class="button button-secondary button-small" href="<?= Config::url('/admin/backups/' . $backup['id'] . '/download') ?>">Baixar</a><?php elseif (!empty($backup['local_path'])): ?><span class="muted">Arquivo indisponível</span><?php endif; ?>
                         <?php if (($backup['remote_status'] ?? '') === 'failed'): ?><form method="post" action="<?= Config::url('/admin/backups/' . $backup['id'] . '/reenviar') ?>"><input type="hidden" name="_csrf" value="<?= Security::csrfToken() ?>"><button class="button button-secondary button-small" type="submit">Tentar envio novamente</button></form><?php endif; ?>
                         <form method="post" action="<?= Config::url('/admin/backups/' . $backup['id'] . '/excluir') ?>" onsubmit="return confirm('Excluir este backup local e remoto?')"><input type="hidden" name="_csrf" value="<?= Security::csrfToken() ?>"><button class="button button-danger button-small" type="submit">Excluir</button></form>
                     </td>

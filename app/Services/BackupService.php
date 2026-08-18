@@ -51,7 +51,34 @@ final class BackupService
 
     public function testRemote(): array { return $this->remote ? $this->remote->testConnection() : ['ok' => false, 'error' => 'Destino remoto nao configurado.']; }
     public function file(int $id): array { $row = $this->backups->find($id) ?? throw new \RuntimeException('Backup nao encontrado.'); $path = $this->safePath((string) $row['local_path']); if (!is_file($path)) throw new \RuntimeException('Arquivo local nao esta mais disponivel.'); return [$row, $path]; }
-    public function delete(int $id, int $userId): void { $row = $this->backups->find($id) ?? throw new \RuntimeException('Backup não encontrado ou já excluído.'); if (!empty($row['remote_id']) && $this->remote && !$this->remote->delete((string) $row['remote_id'])) throw new \RuntimeException('Não foi possível remover a cópia do Google Drive.'); $rawPath = trim((string) ($row['local_path'] ?? '')); if ($rawPath !== '') { $path = $this->safePath($rawPath, false); if (is_file($path) && !@unlink($path) && is_file($path)) throw new \RuntimeException('Não foi possível remover o arquivo local do backup.'); } $this->backups->softDelete($id, $userId); $this->audit->record('backup.deleted', $userId, 'application_backup', (string) $id, [], null); }
+    public function isLocalFileAvailable(array $backup): bool
+    {
+        try {
+            return is_file($this->safePath((string) ($backup['local_path'] ?? '')));
+        } catch (\RuntimeException) {
+            return false;
+        }
+    }
+    public function delete(int $id, int $userId): void
+    {
+        $row = $this->backups->find($id) ?? throw new \RuntimeException('Backup não encontrado ou já excluído.');
+        if (!empty($row['remote_id']) && $this->remote && !$this->remote->delete((string) $row['remote_id'])) throw new \RuntimeException('Não foi possível remover a cópia do Google Drive.');
+
+        $legacyPath = false;
+        $rawPath = trim((string) ($row['local_path'] ?? ''));
+        if ($rawPath !== '') {
+            try {
+                $path = $this->safePath($rawPath, false);
+                if (is_file($path) && !@unlink($path) && is_file($path)) throw new \RuntimeException('Não foi possível remover o arquivo local do backup.');
+            } catch (\RuntimeException $exception) {
+                // Imported history can point to a previous server. Do not delete outside storage.
+                if ($exception->getMessage() !== 'Caminho de backup inválido.') throw $exception;
+                $legacyPath = true;
+            }
+        }
+        $this->backups->softDelete($id, $userId);
+        $this->audit->record('backup.deleted', $userId, 'application_backup', (string) $id, ['legacy_path' => $legacyPath], null);
+    }
 
     private function sendRemote(int $id, string $path, string $name, string $hash): void { $result = $this->remote?->upload($path, $name, $hash) ?? ['ok' => false, 'error' => 'Destino remoto ausente.']; $attempts = (int) (($this->backups->find($id)['attempts'] ?? 0) + 1); if (($result['ok'] ?? false) && !empty($result['id'])) { $this->backups->update($id, ['remote_status' => 'completed', 'remote_id' => (string) $result['id'], 'remote_path' => $name, 'attempts' => $attempts, 'error_message' => null]); return; } $this->backups->update($id, ['status' => 'partially_completed', 'remote_status' => 'failed', 'attempts' => $attempts, 'error_message' => (string) ($result['error'] ?? 'Falha no envio remoto.')]); }
     private function directory(): string { $root = dirname(__DIR__, 2); $configured = trim((string) Config::get('BACKUP_DIR', 'storage/backups')); $path = preg_match('#^(?:[A-Za-z]:[\\\\/]|/)#', $configured) ? $configured : $root . DIRECTORY_SEPARATOR . trim(str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $configured), DIRECTORY_SEPARATOR); $storage = realpath($root . DIRECTORY_SEPARATOR . 'storage') ?: ($root . DIRECTORY_SEPARATOR . 'storage'); if (!$this->isWithin($path, $storage)) throw new \RuntimeException('BACKUP_DIR deve ficar dentro de storage.'); return rtrim($path, '\\/'); }

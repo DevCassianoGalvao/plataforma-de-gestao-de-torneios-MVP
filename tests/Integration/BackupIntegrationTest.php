@@ -47,5 +47,17 @@ final class BackupIntegrationTest
             $pdo->prepare('DELETE FROM audit_logs WHERE action = ? AND resource_id = ?')->execute(['backup.deleted', (string) $backupId]);
             $pdo->prepare('DELETE FROM application_backups WHERE id = ?')->execute([$backupId]);
         }
+
+        $legacyKey = 'backup-legacy-test-' . bin2hex(random_bytes(4));
+        $insert->execute([$legacyKey, 'manual', 'completed', 'completed', 'valid', 'not_configured', '/home/servidor-anterior/app/storage/backups/' . $legacyKey . '.zip', 14, (int) $admin['id'], $now, $now, $now, $now]);
+        $legacyId = (int) $pdo->lastInsertId();
+        try {
+            assert_true(!$service->isLocalFileAvailable($repository->find($legacyId) ?? []), 'Backup legado não pode aparecer como disponível');
+            $service->delete($legacyId, (int) $admin['id']);
+            assert_true($repository->find($legacyId) === null, 'Backup legado não foi removido do histórico ativo');
+        } finally {
+            $pdo->prepare('DELETE FROM audit_logs WHERE action = ? AND resource_id = ?')->execute(['backup.deleted', (string) $legacyId]);
+            $pdo->prepare('DELETE FROM application_backups WHERE id = ?')->execute([$legacyId]);
+        }
     }
 }
