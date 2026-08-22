@@ -130,12 +130,17 @@ final class ChampionshipController extends Controller
         if (!$this->validCsrf($request)) return $this->errorPage('Editar campeonato', 'admin/championships/form', ['record' => $championship, 'seasons' => $this->seasons->list(), 'categories' => $this->categories->list(), 'errors' => ['A sessao expirou.'], 'editing' => true], 419);
         $data = $this->generalData($request);
         $errors = $this->validateGeneral($data);
-        if ($errors) return $this->errorPage('Editar campeonato', 'admin/championships/form', ['record' => $data, 'seasons' => $this->seasons->list(), 'categories' => $this->categories->list(), 'errors' => $errors, 'editing' => true], 422);
+        $formRecord = array_merge($championship, $data);
+        if ($errors) return $this->errorPage('Editar campeonato', 'admin/championships/form', ['record' => $formRecord, 'seasons' => $this->seasons->list(), 'categories' => $this->categories->list(), 'errors' => $errors, 'editing' => true], 422);
+        $slugOwner = $this->championships->findBySlug($data['slug']);
+        if ($slugOwner && (int) $slugOwner['id'] !== (int) $championship['id']) {
+            return $this->errorPage('Editar campeonato', 'admin/championships/form', ['record' => $formRecord, 'seasons' => $this->seasons->list(), 'categories' => $this->categories->list(), 'errors' => ['Ja existe um campeonato com esse slug.'], 'editing' => true], 422);
+        }
         try {
             $this->championships->updateGeneral((int) $championship['id'], $data);
             $this->audit->record('championships.updated', (int) $guard['id'], 'championship', (int) $championship['id'], [], $request);
         } catch (\PDOException) {
-            return $this->errorPage('Editar campeonato', 'admin/championships/form', ['record' => $data, 'seasons' => $this->seasons->list(), 'categories' => $this->categories->list(), 'errors' => ['Ja existe um campeonato com esse slug.'], 'editing' => true], 422);
+            return $this->errorPage('Editar campeonato', 'admin/championships/form', ['record' => $formRecord, 'seasons' => $this->seasons->list(), 'categories' => $this->categories->list(), 'errors' => ['Ja existe um campeonato com esse slug.'], 'editing' => true], 422);
         }
         Session::flash('championship_message', 'Informacoes gerais atualizadas.');
         return Response::redirect(Config::url('/admin/campeonatos/' . $data['slug']));
