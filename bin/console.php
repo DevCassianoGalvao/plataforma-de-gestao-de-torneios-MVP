@@ -106,7 +106,7 @@ if ($command === 'db:seed:operator-demo') {
         if (str_starts_with($argument, '--operator-email=')) $operatorEmail = substr($argument, 17);
     }
     $result = OperatorDemoSeed::run(Database::connection(), $operatorEmail);
-    echo 'OPERATOR_DEMO_OK championship_id=' . $result['championshipId'] . ' slug=demonstracao-operador-2026 team_ids=' . $result['teamA'] . ',' . $result['teamB'] . ' match_id=' . $result['matchId'] . ' operator_assignment=' . $result['assignment'] . "\n";
+    echo 'OPERATOR_DEMO_OK championship_id=' . $result['championshipId'] . ' slug=demonstracao-operador-2026 team_ids=' . $result['teamA'] . ',' . $result['teamB'] . ' match_id=' . $result['matchId'] . ' athletes=' . $result['athleteCount'] . ' confirmed_lineups=' . $result['lineupCount'] . ' operator_assignment=' . $result['assignment'] . "\n";
     exit(0);
 }
 

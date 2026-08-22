@@ -5,6 +5,9 @@ O comando `db:seed:operator-demo` cria um cenário privado e separado da Copa Br
 - campeonato `demonstracao-operador-2026`;
 - dois times fictícios;
 - um local, uma fase, um grupo, uma rodada e uma partida agendada;
+- 28 atletas fictícios, sendo 14 por equipe, com posições e números de camisa;
+- inscrições aprovadas e prontas para o elenco oficial;
+- escalações confirmadas no esquema 4-3-3, com titulares, reservas, capitão e goleiro;
 - atribuição automática somente quando há um único operador ativo, ou por e-mail informado;
 - execução idempotente: repetir o comando não duplica o cenário.
 
@@ -34,7 +37,11 @@ O comando não cria usuário nem senha. Se não houver atribuição automática,
 1. Entre como operador.
 2. Abra **Partidas para operar**.
 3. Abra a partida do **Campeonato Demonstração do Operador 2026**.
-4. Registre os eventos e finalize o fluxo conforme necessário.
+4. Confira as escalações confirmadas das duas equipes.
+5. Registre gols, assistências, cartões, substituições e ocorrências.
+6. Use esse cenário para validar o fluxo sem tocar na Copa Brasil de Talentos.
+
+O primeiro resultado do comando deve informar `athletes=28` e `confirmed_lineups=2`. Em execuções seguintes, os mesmos atletas e escalações são reutilizados; portanto, repetir o comando é seguro.
 
 ## Exclusão
 
