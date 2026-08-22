@@ -31,7 +31,7 @@ final class MatchOperationRepository
 
     public function events(int $matchId): array
     {
-        $statement = $this->pdo->prepare('SELECT e.*, t.name AS team_name, a.full_name AS athlete_name, a.sporting_name AS athlete_sporting_name, ts.full_name AS staff_name, ts.display_name AS staff_display_name, ra.full_name AS related_athlete_name, ra.sporting_name AS related_athlete_sporting_name FROM match_operation_events e LEFT JOIN teams t ON t.id = e.team_id LEFT JOIN athletes a ON a.id = e.athlete_id LEFT JOIN team_staff ts ON ts.id = e.team_staff_id LEFT JOIN athletes ra ON ra.id = e.related_athlete_id WHERE e.match_id = ? ORDER BY e.created_at, e.id');
+        $statement = $this->pdo->prepare("SELECT e.*, t.name AS team_name, a.full_name AS athlete_name, a.sporting_name AS athlete_sporting_name, ts.full_name AS staff_name, ts.display_name AS staff_display_name, ra.full_name AS related_athlete_name, ra.sporting_name AS related_athlete_sporting_name FROM match_operation_events e LEFT JOIN (SELECT ml.match_id, mlp.athlete_id, MIN(ml.team_id) AS team_id FROM match_lineups ml INNER JOIN match_lineup_players mlp ON mlp.lineup_id = ml.id WHERE ml.status = 'confirmed' GROUP BY ml.match_id, mlp.athlete_id) lt ON lt.match_id = e.match_id AND lt.athlete_id = e.athlete_id LEFT JOIN teams t ON t.id = COALESCE(e.team_id, lt.team_id) LEFT JOIN athletes a ON a.id = e.athlete_id LEFT JOIN team_staff ts ON ts.id = e.team_staff_id LEFT JOIN athletes ra ON ra.id = e.related_athlete_id WHERE e.match_id = ? ORDER BY e.created_at, e.id");
         $statement->execute([$matchId]);
         return $statement->fetchAll();
     }
@@ -73,9 +73,28 @@ final class MatchOperationRepository
 
     public function score(array $operation): array
     {
-        $statement = $this->pdo->prepare("SELECT COALESCE(SUM(CASE WHEN e.team_id = ? THEN 1 ELSE 0 END), 0) AS home_score, COALESCE(SUM(CASE WHEN e.team_id = ? THEN 1 ELSE 0 END), 0) AS away_score FROM match_operation_events e WHERE e.match_id = ? AND e.valid = 1 AND e.event_type IN ('goal', 'own_goal')");
-        $statement->execute([(int) $operation['home_team_id'], (int) $operation['away_team_id'], (int) $operation['match_id']]);
-        $row = $statement->fetch() ?: ['home_score' => 0, 'away_score' => 0];
+        $events = $this->pdo->prepare("SELECT e.team_id, e.athlete_id, e.event_type, e.period, e.valid, lt.team_id AS lineup_team_id FROM match_operation_events e LEFT JOIN (SELECT ml.match_id, mlp.athlete_id, MIN(ml.team_id) AS team_id FROM match_lineups ml INNER JOIN match_lineup_players mlp ON mlp.lineup_id = ml.id WHERE ml.status = 'confirmed' GROUP BY ml.match_id, mlp.athlete_id) lt ON lt.match_id = e.match_id AND lt.athlete_id = e.athlete_id WHERE e.match_id = ?");
+        $events->execute([(int) $operation['match_id']]);
+        $homeScore = 0;
+        $awayScore = 0;
+        $homePenalties = 0;
+        $awayPenalties = 0;
+        $homeTeamId = (int) $operation['home_team_id'];
+        $awayTeamId = (int) $operation['away_team_id'];
+        foreach ($events->fetchAll() as $event) {
+            if ((int) $event['valid'] !== 1) continue;
+            $teamId = $event['team_id'] === null ? ($event['lineup_team_id'] === null ? null : (int) $event['lineup_team_id']) : (int) $event['team_id'];
+            if ($event['team_id'] === null && $event['event_type'] === 'own_goal' && $teamId !== null) $teamId = $teamId === $homeTeamId ? $awayTeamId : ($teamId === $awayTeamId ? $homeTeamId : null);
+            if ($event['period'] === 'penalties' && $event['event_type'] === 'penalty_scored') {
+                if ($teamId === $homeTeamId) $homePenalties++;
+                if ($teamId === $awayTeamId) $awayPenalties++;
+                continue;
+            }
+            if (!in_array($event['event_type'], ['goal', 'own_goal'], true)) continue;
+            if ($teamId === $homeTeamId) $homeScore++;
+            if ($teamId === $awayTeamId) $awayScore++;
+        }
+        $row = ['home_score' => $homeScore, 'away_score' => $awayScore];
         if ($operation['administrative_home_score'] !== null && $operation['administrative_away_score'] !== null) {
             $row['home_score'] = (int) $operation['administrative_home_score'];
             $row['away_score'] = (int) $operation['administrative_away_score'];
@@ -83,10 +102,7 @@ final class MatchOperationRepository
         } else {
             $row['administrative'] = false;
         }
-        $penalties = $this->pdo->prepare("SELECT COALESCE(SUM(CASE WHEN e.team_id = ? THEN 1 ELSE 0 END), 0) AS home_penalties, COALESCE(SUM(CASE WHEN e.team_id = ? THEN 1 ELSE 0 END), 0) AS away_penalties FROM match_operation_events e WHERE e.match_id = ? AND e.valid = 1 AND e.event_type = 'penalty_scored' AND e.period = 'penalties'");
-        $penalties->execute([(int) $operation['home_team_id'], (int) $operation['away_team_id'], (int) $operation['match_id']]);
-        $penaltyRow = $penalties->fetch() ?: ['home_penalties' => 0, 'away_penalties' => 0];
-        return ['home_score' => (int) $row['home_score'], 'away_score' => (int) $row['away_score'], 'home_penalties' => (int) $penaltyRow['home_penalties'], 'away_penalties' => (int) $penaltyRow['away_penalties'], 'administrative' => (bool) $row['administrative']];
+        return ['home_score' => (int) $row['home_score'], 'away_score' => (int) $row['away_score'], 'home_penalties' => $homePenalties, 'away_penalties' => $awayPenalties, 'administrative' => (bool) $row['administrative']];
     }
 
     public function matchSettings(int $championshipId): array

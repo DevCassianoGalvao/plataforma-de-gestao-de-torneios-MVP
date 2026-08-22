@@ -67,6 +67,7 @@ final class MatchOperationIntegrationTest
         assert_same('open', $operation['status'], 'Operacao nao iniciou aberta');
 
         assert_true($service->addEvent($operator, $match, ['event_type' => 'goal', 'period' => 'regular', 'team_id' => $match['home_team_id'], 'athlete_id' => $homeStarter])['ok'], 'Gol valido falhou');
+        assert_true($service->addEvent($operator, $match, ['event_type' => 'goal', 'period' => 'regular', 'athlete_id' => $homeSecondStarter])['ok'], 'Gol sem equipe nao foi inferido pela escalacao');
         assert_true($service->addEvent($operator, $match, ['event_type' => 'own_goal', 'period' => 'regular', 'team_id' => $match['home_team_id'], 'athlete_id' => $awayStarter])['ok'], 'Gol contra valido falhou');
         assert_true($service->addEvent($operator, $match, ['event_type' => 'assist', 'period' => 'regular', 'team_id' => $match['home_team_id'], 'athlete_id' => $homeSecondStarter, 'related_athlete_id' => $homeStarter])['ok'], 'Assistencia valida falhou');
         foreach (['yellow', 'second_yellow', 'red'] as $type) assert_true($service->addEvent($operator, $match, ['event_type' => $type, 'period' => 'regular', 'team_id' => $match['home_team_id'], 'athlete_id' => $homeStarter])['ok'], 'Registro disciplinar falhou: ' . $type);
@@ -76,7 +77,7 @@ final class MatchOperationIntegrationTest
         assert_true(!$service->addEvent($operator, $match, ['event_type' => 'penalty_scored', 'period' => 'regular', 'team_id' => $match['home_team_id'], 'athlete_id' => $homeStarter])['ok'], 'Penalti entrou no tempo normal');
         assert_true(!$service->addEvent($operator, $match, ['event_type' => 'goal', 'period' => 'regular', 'team_id' => 999999, 'athlete_id' => $homeStarter])['ok'], 'Evento de equipe fora da partida aceito');
         $score = $operations->score($operation);
-        assert_same(2, $score['home_score'], 'Gol contra nao foi atribuido ao time que marcou');
+        assert_same(3, $score['home_score'], 'Gol sem equipe ou gol contra nao foi atribuido ao time que marcou');
         assert_same(0, $score['away_score'], 'Placar visitante incorreto');
         assert_same(1, $score['home_penalties'], 'Penalti nao foi separado do placar normal');
         assert_same(0, $score['away_penalties'], 'Penalti perdido entrou no placar');

@@ -60,6 +60,11 @@ final class MatchOperationService
         if (!in_array($personType, ['athlete', 'staff'], true)) return $this->fail('Pessoa disciplinar invalida.');
         if (in_array($type, ['yellow', 'second_yellow', 'red'], true) && (($personType === 'athlete' && !$athleteId) || ($personType === 'staff' && !$staffId))) return $this->fail('Selecione a pessoa advertida.');
         if (in_array($type, ['goal', 'own_goal', 'assist'], true) && !$athleteId) return $this->fail('Selecione o atleta do registro.');
+        $athleteTeamId = $athleteId ? $this->athleteMatchTeam($match, $athleteId) : null;
+        if ($athleteId && $athleteTeamId === null) return $this->fail('Atleta nao pertence a uma escalacao confirmada valida.');
+        if ($athleteId && $teamId === null) $teamId = $type === 'own_goal' ? $this->opponentTeam($match, $athleteTeamId) : $athleteTeamId;
+        if ($athleteId && $type === 'own_goal' && $teamId !== $this->opponentTeam($match, $athleteTeamId)) return $this->fail('Gol contra deve ser atribuido a equipe adversaria.');
+        if ($athleteId && $type !== 'own_goal' && $teamId !== $athleteTeamId) return $this->fail('Atleta nao pertence a equipe selecionada.');
         if ($athleteId && !$this->athleteInLineup($match, $teamId, $athleteId, $type === 'own_goal')) return $this->fail('Atleta nao pertence a uma escalacao confirmada valida.');
         if ($staffId && (!$teamId || !$this->staffInLineup($match, $teamId, $staffId))) return $this->fail('Membro da comissao nao pertence a escalacao confirmada.');
         if ($type === 'assist') {
@@ -338,6 +343,14 @@ final class MatchOperationService
             foreach ($lineup['players'] as $player) if ((int) $player['athlete_id'] === $athleteId) return true;
         }
         return false;
+    }
+
+    private function athleteMatchTeam(array $match, int $athleteId): ?int
+    {
+        foreach ([(int) $match['home_team_id'], (int) $match['away_team_id']] as $teamId) {
+            if ($this->athleteInLineup($match, $teamId, $athleteId, false)) return $teamId;
+        }
+        return null;
     }
 
     private function isMatchTeam(array $match, int $teamId): bool
