@@ -553,6 +553,7 @@ $router->post('/admin/campeonatos/{slug}/evidencias/{id}/excluir', [$evidence, '
 $router->post('/admin/campeonatos/{slug}/evidencias/{id}/restaurar', [$evidence, 'restore']);
 $router->post('/admin/campeonatos/{slug}/evidencias/reordenar', [$evidence, 'reorder']);
 $router->post('/admin/campeonatos/{slug}/evidencias/duplicar', [$evidence, 'duplicate']);
+$router->post('/admin/campeonatos/{slug}/evidencias/modelo-futebol', [$evidence, 'applyPreset']);
 $router->post('/admin/campeonatos/{slug}/identidade', [$championship, 'identity']);
 $router->get('/admin/campeonatos/{slug}/identidade/carrossel', [$championship, 'carouselForm']);
 $router->post('/admin/campeonatos/{slug}/identidade/carrossel', [$championship, 'createCarouselSlide']);

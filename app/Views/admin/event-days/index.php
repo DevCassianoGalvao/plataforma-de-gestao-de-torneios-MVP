@@ -16,7 +16,7 @@ $base = App\Core\Config::url('/admin/dias-evento');
             </select>
         </label>
     </form>
-    <?php if ($championshipId): ?>
+    <?php if ($championshipId && !empty($canManage)): ?>
     <div class="panel">
         <p class="eyebrow">Novo registro</p><h2>Cadastrar dia de evento</h2>
         <form method="post" action="<?= $e($base) ?>" class="form-grid">
@@ -34,7 +34,7 @@ $base = App\Core\Config::url('/admin/dias-evento');
     <?php foreach ($eventDays as $day): ?>
     <article class="panel event-day-panel">
         <div class="section-heading"><div><p class="eyebrow"><?= $e($day['event_date']) ?></p><h2><?= $e($day['name'] ?: 'Dia de evento') ?></h2><p><?= $e($day['venue_name'] ? $day['venue_name'] . (!empty($day['venue_city']) ? ' - ' . $day['venue_city'] : '') : 'Vários locais ou local não definido') ?> · <?= (int) $day['media_count'] ?> evidência(s)</p></div>
-            <form method="post" action="<?= $e($base . '/' . (int) $day['id'] . '/excluir') ?>"><input type="hidden" name="_csrf" value="<?= $e(App\Core\Security::csrfToken()) ?>"><input type="hidden" name="championship_id" value="<?= $championshipId ?>"><button class="button-danger" type="submit">Arquivar</button></form>
+            <?php if (!empty($canManage)): ?><form method="post" action="<?= $e($base . '/' . (int) $day['id'] . '/excluir') ?>"><input type="hidden" name="_csrf" value="<?= $e(App\Core\Security::csrfToken()) ?>"><input type="hidden" name="championship_id" value="<?= $championshipId ?>"><button class="button-danger" type="submit">Arquivar</button></form><?php endif; ?>
         </div>
         <form method="post" enctype="multipart/form-data" action="<?= $e($base . '/' . (int) $day['id'] . '/evidencias') ?>" class="form-grid">
             <input type="hidden" name="_csrf" value="<?= $e(App\Core\Security::csrfToken()) ?>">
@@ -48,5 +48,5 @@ $base = App\Core\Config::url('/admin/dias-evento');
         <?php if (!empty($day['media'])): ?><div class="table-wrap"><table><thead><tr><th>Arquivo</th><th>Tipo</th><th>Análise</th><th>Ações</th></tr></thead><tbody><?php foreach ($day['media'] as $media): ?><tr><td><?= $e($media['title'] ?: $media['original_name']) ?><br><small><?= $e($media['original_name']) ?></small></td><td><?= $e($media['checklist_name'] ?: 'Dia de evento') ?></td><td><?= $e($media['review_status']) ?></td><td><a href="<?= $e($base . '/' . (int) $day['id'] . '/evidencias/' . (int) $media['id']) ?>">Baixar</a> <?php if ($media['review_status'] !== 'approved'): ?><form method="post" action="<?= $e($base . '/' . (int) $day['id'] . '/evidencias/' . (int) $media['id'] . '/analise') ?>" style="display:inline"><input type="hidden" name="_csrf" value="<?= $e(App\Core\Security::csrfToken()) ?>"><input type="hidden" name="decision" value="approved"><button type="submit">Aprovar</button></form><?php endif; ?></td></tr><?php endforeach; ?></tbody></table></div><?php endif; ?>
     </article>
     <?php endforeach; ?>
-    <?php if (!$eventDays): ?><div class="panel"><p>Nenhum dia de evento cadastrado neste campeonato.</p></div><?php endif; ?>
+    <?php if (!$eventDays): ?><div class="panel"><p>Nenhum dia de evento cadastrado neste campeonato.</p><?php if (empty($canManage)): ?><p class="muted">Peça ao administrador para cadastrar a data do evento. Depois disso, você poderá enviar as fotos da equipe de trabalho, arbitragem e público diretamente aqui.</p><?php endif; ?></div><?php endif; ?>
 </section>

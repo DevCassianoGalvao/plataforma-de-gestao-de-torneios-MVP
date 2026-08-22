@@ -78,4 +78,27 @@ final class EvidenceChecklistRepository
         $s = $this->pdo->prepare('SELECT COUNT(*) FROM championship_evidence_checklist_items WHERE championship_id = ? AND deleted_at IS NULL');
         $s->execute([$championshipId]); return (int) $s->fetchColumn();
     }
+
+    /** Apply the reusable football accountability checklist only to an empty championship. */
+    public function applyFootballAccountabilityPreset(int $championshipId, int $userId): int
+    {
+        if ($this->activeCount($championshipId) > 0) return 0;
+        $image = 'image/jpeg,image/png,image/webp';
+        $items = [
+            ['match', 'Equipes perfiladas', 'Foto das duas equipes perfiladas no centro do campo.', 'before_match', 1, 1, $image],
+            ['match', 'Fotos do jogo', 'Três fotos nítidas do jogo em andamento.', 'during_match', 3, 3, $image],
+            ['match', 'Foto da súmula', 'Foto completa, legível e nítida da súmula da partida.', 'after_match', 1, 1, $image.',application/pdf'],
+            ['event_day', 'Equipe de trabalho', 'Foto da equipe de trabalho do dia do evento.', 'event_day', 1, 1, $image],
+            ['event_day', 'Equipe de arbitragem', 'Foto da equipe de arbitragem do dia do evento.', 'event_day', 1, 1, $image],
+            ['event_day', 'Público 1', 'Foto ampla mostrando o público presente.', 'event_day', 1, 1, $image],
+            ['event_day', 'Público 2', 'Outra foto ampla do público presente.', 'event_day', 1, 1, $image],
+        ];
+        $this->pdo->beginTransaction();
+        try {
+            foreach ($items as $order => [$scope, $name, $description, $moment, $min, $max, $mimes]) {
+                $this->save($championshipId, ['scope'=>$scope,'name'=>$name,'description'=>$description,'is_required'=>1,'is_active'=>1,'display_order'=>$order+1,'expected_moment'=>$moment,'allowed_mime_types'=>$mimes,'min_files'=>$min,'max_files'=>$max,'max_file_size_bytes'=>10485760,'notes_required'=>0,'blocks_operation_start'=>0,'blocks_approval_submission'=>0,'blocks_document_completion'=>0,'show_in_accountability'=>1], $userId);
+            }
+            $this->pdo->commit(); return count($items);
+        } catch (\Throwable $e) { $this->pdo->rollBack(); throw $e; }
+    }
 }

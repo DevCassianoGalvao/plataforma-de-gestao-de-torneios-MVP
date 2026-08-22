@@ -19,7 +19,8 @@ final class EventDayController extends Controller
 
     public function index(Request $request,array $params=[]): Response
     {
-        $user=$this->guard($request,'evidence.checklist.manage');if($user instanceof Response)return $user;
+        $user=$this->guardAny($request,['evidence.checklist.manage','evidence.upload']);if($user instanceof Response)return $user;
+        $canManage=$this->authorization->can($user,'evidence.checklist.manage');
         $championships=$this->championships->listForUser((int)$user['id'],true);
         $championshipId=(int)($request->query['championship_id']??($championships[0]['id']??0));
         $championship=$this->championships->findForUser($championshipId,(int)$user['id'],true);if(!$championship)return Response::forbidden();
@@ -28,7 +29,7 @@ final class EventDayController extends Controller
             $eventDay['media'] = $this->days->media((int) $eventDay['id']);
         }
         unset($eventDay);
-        return $this->page('Dias de evento','admin/event-days/index',['user'=>$user,'championships'=>$championships,'championship'=>$championship,'eventDays'=>$eventDays,'venues'=>$this->schedules->listVenues($championshipId),'checklist'=>$this->days->checklist($championshipId),'message'=>Session::consumeFlash('event_day_message')]);
+        return $this->page('Dias de evento','admin/event-days/index',['user'=>$user,'canManage'=>$canManage,'championships'=>$championships,'championship'=>$championship,'eventDays'=>$eventDays,'venues'=>$this->schedules->listVenues($championshipId),'checklist'=>$this->days->checklist($championshipId),'message'=>Session::consumeFlash('event_day_message')]);
     }
 
     public function create(Request $request,array $params=[]): Response

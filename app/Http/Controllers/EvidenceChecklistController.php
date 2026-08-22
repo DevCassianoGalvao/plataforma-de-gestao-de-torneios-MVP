@@ -26,6 +26,17 @@ final class EvidenceChecklistController extends Controller
         Session::flash('evidence_checklist_message','Checklist duplicado com segurança.');
         return Response::redirect(Config::url('/admin/campeonatos/'.$champ['slug'].'/evidencias'));
     }
+    public function applyPreset(Request $request,array $params=[]):Response
+    {
+        $user=$this->guard($request,'evidence.checklist.manage'); if($user instanceof Response)return $user;
+        $champ=$this->items->championship((string)($params[0]??'')); if(!$champ)return Response::html('Campeonato não encontrado.',404);
+        if(!$this->validCsrf($request))return Response::forbidden('A sessão expirou.');
+        $count=$this->items->applyFootballAccountabilityPreset((int)$champ['id'],(int)$user['id']);
+        if($count===0)return Response::html('Este campeonato já possui itens ativos no checklist. Use a duplicação ou edite os itens existentes.',409);
+        $this->audit->record('evidence.checklist.preset_applied',(int)$user['id'],'championship',$champ['id'],['items'=>$count],$request);
+        Session::flash('evidence_checklist_message','Modelo de prestação de contas aplicado com '.$count.' itens.');
+        return Response::redirect(Config::url('/admin/campeonatos/'.$champ['slug'].'/evidencias'));
+    }
     private function mutate(Request $request,array $params,callable $callback,string $message):Response {$user=$this->guard($request,'evidence.checklist.manage');if($user instanceof Response)return $user;$champ=$this->items->championship((string)($params[0]??''));if(!$champ)return Response::html('Campeonato não encontrado.',404);if(!$this->validCsrf($request))return Response::forbidden('A sessão expirou.');if($callback($user,$champ)===null)return Response::html('Dados do checklist inválidos.',422);Session::flash('evidence_checklist_message',$message);return Response::redirect(Config::url('/admin/campeonatos/'.$champ['slug'].'/evidencias'));}
     private function input(Request $r): ?array
     {
@@ -35,7 +46,7 @@ final class EvidenceChecklistController extends Controller
         $bytes = filter_var($r->body['max_file_size_bytes'] ?? 10485760, FILTER_VALIDATE_INT);
         $moment = (string) ($r->body['expected_moment'] ?? 'after_match');
         $mimes = array_values(array_filter(array_map('trim', explode(',', (string) ($r->body['allowed_mime_types'] ?? '')))));
-        if ($name === '' || $min === false || $max === false || $min < 1 || $max < $min || $bytes === false || $bytes < 1024 || !in_array($moment, ['before_match', 'during_match', 'after_match', 'final_documentation'], true) || $mimes === []) return null;
+        if ($name === '' || $min === false || $max === false || $min < 1 || $max < $min || $bytes === false || $bytes < 1024 || !in_array($moment, ['before_match', 'during_match', 'after_match', 'final_documentation', 'event_day'], true) || $mimes === []) return null;
         $flag = static fn (string $key): int => (($r->body[$key] ?? '') === '1' ? 1 : 0);
         $scope = (string)($r->body['scope'] ?? 'match');
         if (!in_array($scope, ['match', 'event_day'], true)) return null;

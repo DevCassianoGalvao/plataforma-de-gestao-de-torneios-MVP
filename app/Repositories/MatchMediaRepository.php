@@ -18,17 +18,17 @@ final class MatchMediaRepository
     { $s=$this->pdo->prepare('SELECT * FROM match_media WHERE id=? AND deleted_at IS NULL LIMIT 1'); $s->execute([$id]); return $s->fetch() ?: null; }
     public function checklist(int $championshipId, int $matchId): array
     {
-        $s=$this->pdo->prepare("SELECT ci.*, COUNT(mm.id) AS total_files, SUM(mm.review_status='approved') AS approved_files, SUM(mm.review_status='submitted') AS submitted_files, SUM(mm.review_status='rejected') AS rejected_files, SUM(mm.caption IS NOT NULL AND TRIM(mm.caption) <> '') AS files_with_notes FROM championship_evidence_checklist_items ci LEFT JOIN match_media mm ON mm.checklist_item_id=ci.id AND mm.match_id=? AND mm.deleted_at IS NULL WHERE ci.championship_id=? AND ci.deleted_at IS NULL AND ci.is_active=1 GROUP BY ci.id ORDER BY ci.display_order,ci.id");
+        $s=$this->pdo->prepare("SELECT ci.*, COUNT(mm.id) AS total_files, SUM(mm.review_status='approved') AS approved_files, SUM(mm.review_status='submitted') AS submitted_files, SUM(mm.review_status='rejected') AS rejected_files, SUM(mm.caption IS NOT NULL AND TRIM(mm.caption) <> '') AS files_with_notes FROM championship_evidence_checklist_items ci LEFT JOIN match_media mm ON mm.checklist_item_id=ci.id AND mm.match_id=? AND mm.deleted_at IS NULL WHERE ci.championship_id=? AND ci.scope='match' AND ci.deleted_at IS NULL AND ci.is_active=1 GROUP BY ci.id ORDER BY ci.display_order,ci.id");
         $s->execute([$matchId,$championshipId]); return $s->fetchAll();
     }
     public function missing(int $championshipId, int $matchId, string $gate): array
     {
         $column=['start'=>'blocks_operation_start','approval'=>'blocks_approval_submission','document'=>'blocks_document_completion'][$gate] ?? 'blocks_approval_submission';
-        $s=$this->pdo->prepare("SELECT ci.* FROM championship_evidence_checklist_items ci LEFT JOIN match_media mm ON mm.checklist_item_id=ci.id AND mm.match_id=? AND mm.deleted_at IS NULL AND mm.review_status='approved' LEFT JOIN match_evidence_exceptions ex ON ex.match_id=? AND ex.checklist_item_id=ci.id AND ex.exception_type=? WHERE ci.championship_id=? AND ci.deleted_at IS NULL AND ci.is_active=1 AND ci.is_required=1 AND ci.$column=1 GROUP BY ci.id HAVING COUNT(mm.id) < ci.min_files AND COUNT(ex.id)=0 ORDER BY ci.display_order,ci.id");
+        $s=$this->pdo->prepare("SELECT ci.* FROM championship_evidence_checklist_items ci LEFT JOIN match_media mm ON mm.checklist_item_id=ci.id AND mm.match_id=? AND mm.deleted_at IS NULL AND mm.review_status='approved' LEFT JOIN match_evidence_exceptions ex ON ex.match_id=? AND ex.checklist_item_id=ci.id AND ex.exception_type=? WHERE ci.championship_id=? AND ci.scope='match' AND ci.deleted_at IS NULL AND ci.is_active=1 AND ci.is_required=1 AND ci.$column=1 GROUP BY ci.id HAVING COUNT(mm.id) < ci.min_files AND COUNT(ex.id)=0 ORDER BY ci.display_order,ci.id");
         $s->execute([$matchId,$matchId,$gate,$championshipId]); return $s->fetchAll();
     }
     public function itemForMatch(int $itemId, int $championshipId): ?array
-    { $s=$this->pdo->prepare('SELECT * FROM championship_evidence_checklist_items WHERE id=? AND championship_id=? AND deleted_at IS NULL AND is_active=1'); $s->execute([$itemId,$championshipId]); return $s->fetch() ?: null; }
+    { $s=$this->pdo->prepare("SELECT * FROM championship_evidence_checklist_items WHERE id=? AND championship_id=? AND scope='match' AND deleted_at IS NULL AND is_active=1"); $s->execute([$itemId,$championshipId]); return $s->fetch() ?: null; }
     public function countForItem(int $matchId, int $itemId): int
     { $s=$this->pdo->prepare('SELECT COUNT(*) FROM match_media WHERE match_id=? AND checklist_item_id=? AND deleted_at IS NULL'); $s->execute([$matchId,$itemId]); return (int)$s->fetchColumn(); }
     public function create(array $data): int
