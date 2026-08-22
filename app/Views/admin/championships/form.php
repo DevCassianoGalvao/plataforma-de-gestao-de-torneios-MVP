@@ -2,7 +2,7 @@
     <p class="eyebrow">Campeonato</p>
     <h1><?= !empty($editing) ? 'Editar informações gerais' : 'Novo campeonato' ?></h1>
     <?php foreach (($errors ?? []) as $error): ?><p class="alert" role="alert"><?= App\Core\View::e($error) ?></p><?php endforeach; ?>
-    <form method="post" action="<?= App\Core\View::e(App\Core\Config::url(!empty($editing) ? '/admin/campeonatos/' . ($record['id'] ?? $record['slug']) : '/admin/campeonatos')) ?>">
+    <form method="post" action="<?= App\Core\View::e(App\Core\Config::url(!empty($editing) ? '/admin/campeonatos/' . ($record['slug'] ?? '') : '/admin/campeonatos')) ?>">
         <input type="hidden" name="_csrf" value="<?= App\Core\View::e(App\Core\Security::csrfToken()) ?>">
         <label>Nome <input name="name" value="<?= App\Core\View::e($record['name'] ?? '') ?>" required></label>
         <label>Nome curto <input name="short_name" value="<?= App\Core\View::e($record['short_name'] ?? '') ?>" required></label>

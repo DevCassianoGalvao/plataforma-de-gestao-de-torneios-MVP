@@ -65,6 +65,13 @@ final class ChampionshipRepository
         return $row ?: null;
     }
 
+    public function slugExistsForAnother(int $id, string $slug): bool
+    {
+        $statement = $this->pdo->prepare('SELECT 1 FROM championships WHERE slug = ? AND id <> ? AND deleted_at IS NULL LIMIT 1');
+        $statement->execute([$slug, $id]);
+        return (bool) $statement->fetchColumn();
+    }
+
     public function create(array $data, int $createdBy): int
     {
         $statement = $this->pdo->prepare('INSERT INTO championships (name, short_name, slug, description, season_id, category_id, requires_guardian, allow_underage_athletes, starts_at, ends_at, registration_starts_at, registration_ends_at, status, visibility, default_theme, primary_color, secondary_color, accent_color, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
