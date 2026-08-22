@@ -210,7 +210,7 @@ final class PublicPortalRepository
 
     public function suspensions(int $championshipId): array
     {
-        $sql = "SELECT a.full_name, a.sporting_name, t.name AS team_name, s.matches_remaining, s.reason FROM discipline_suspensions s INNER JOIN athletes a ON a.id = s.athlete_id INNER JOIN teams t ON t.id = s.team_id WHERE s.championship_id = ? AND s.status = 'active' AND a.deleted_at IS NULL ORDER BY t.name, a.full_name";
+        $sql = "SELECT a.full_name, a.sporting_name, t.name AS team_name, GREATEST(s.total_matches - s.fulfilled_matches, 0) AS matches_remaining, s.notes AS reason FROM discipline_suspensions s INNER JOIN athletes a ON a.id = s.athlete_id INNER JOIN teams t ON t.id = s.team_id WHERE s.championship_id = ? AND s.status = 'active' AND a.deleted_at IS NULL ORDER BY t.name, a.full_name";
         $statement = $this->pdo->prepare($sql); $statement->execute([$championshipId]); return $statement->fetchAll();
     }
 
