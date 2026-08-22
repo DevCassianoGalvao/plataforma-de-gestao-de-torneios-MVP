@@ -25,6 +25,7 @@ use App\Database\ScheduleSeed;
 use App\Database\LineupSeed;
 use App\Database\MatchLineupDemoSeed;
 use App\Database\MatchOperationSeed;
+use App\Database\OperatorDemoSeed;
 use App\Database\DisciplineSeed;
 use App\Database\TacticalFormationSeed;
 use App\Database\TeamSeed;
@@ -94,6 +95,21 @@ if ($command === 'db:seed:copa-brasil-2026') {
     exit(0);
 }
 
+if ($command === 'db:seed:operator-demo') {
+    $confirmed = in_array('--confirm-demo', array_slice($argv, 2), true);
+    if (!$confirmed) {
+        fwrite(STDERR, "Este comando cria dados privados de demonstracao. Use --confirm-demo para confirmar.\n");
+        exit(1);
+    }
+    $operatorEmail = null;
+    foreach (array_slice($argv, 2) as $argument) {
+        if (str_starts_with($argument, '--operator-email=')) $operatorEmail = substr($argument, 17);
+    }
+    $result = OperatorDemoSeed::run(Database::connection(), $operatorEmail);
+    echo 'OPERATOR_DEMO_OK championship_id=' . $result['championshipId'] . ' slug=demonstracao-operador-2026 team_ids=' . $result['teamA'] . ',' . $result['teamB'] . ' match_id=' . $result['matchId'] . ' operator_assignment=' . $result['assignment'] . "\n";
+    exit(0);
+}
+
 if ($command === 'matches:publish-due') {
     $pdo = Database::connection();
     $result = (new MatchPublicationService(new MatchPublicationRepository($pdo), new AuditService($pdo)))->publishDue();
@@ -150,5 +166,5 @@ if ($command === 'db:seed:simulation-lineups') {
     exit(0);
 }
 
-echo "Comandos: migrate | migrate:status | matches:publish-due | backup:run | backup:schedule | db:seed | db:seed:copa-brasil-2026 | db:seed:simulation | db:seed:simulation-lineups\n";
+echo "Comandos: migrate | migrate:status | matches:publish-due | backup:run | backup:schedule | db:seed | db:seed:copa-brasil-2026 | db:seed:operator-demo | db:seed:simulation | db:seed:simulation-lineups\n";
 exit($command === 'help' ? 0 : 1);
