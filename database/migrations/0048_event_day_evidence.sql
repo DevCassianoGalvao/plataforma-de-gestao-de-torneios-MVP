@@ -1,0 +1,63 @@
+-- Base generica para evidencias de dias de evento, sem alterar partidas existentes.
+ALTER TABLE championship_evidence_checklist_items
+    ADD COLUMN scope VARCHAR(20) NOT NULL DEFAULT 'match' AFTER championship_id,
+    ADD INDEX idx_evidence_checklist_scope (championship_id, scope, is_active, display_order, deleted_at);
+
+CREATE TABLE event_days (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    championship_id BIGINT UNSIGNED NOT NULL,
+    venue_id BIGINT UNSIGNED NULL,
+    event_date DATE NOT NULL,
+    name VARCHAR(180) NULL,
+    notes VARCHAR(1000) NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'active',
+    created_by BIGINT UNSIGNED NOT NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    deleted_at DATETIME NULL,
+    deleted_by BIGINT UNSIGNED NULL,
+    INDEX idx_event_days_championship (championship_id, event_date, status, deleted_at),
+    INDEX idx_event_days_venue (venue_id, event_date, deleted_at),
+    CONSTRAINT fk_event_days_championship FOREIGN KEY (championship_id) REFERENCES championships (id),
+    CONSTRAINT fk_event_days_venue FOREIGN KEY (venue_id) REFERENCES venues (id) ON DELETE SET NULL,
+    CONSTRAINT fk_event_days_created_by FOREIGN KEY (created_by) REFERENCES users (id),
+    CONSTRAINT fk_event_days_deleted_by FOREIGN KEY (deleted_by) REFERENCES users (id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE event_day_media (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    event_day_id BIGINT UNSIGNED NOT NULL,
+    championship_id BIGINT UNSIGNED NOT NULL,
+    checklist_item_id BIGINT UNSIGNED NULL,
+    title VARCHAR(180) NOT NULL,
+    caption VARCHAR(500) NULL,
+    storage_path VARCHAR(255) NOT NULL,
+    original_name VARCHAR(255) NOT NULL,
+    mime_type VARCHAR(100) NOT NULL,
+    file_hash CHAR(64) NULL,
+    visibility VARCHAR(20) NOT NULL DEFAULT 'accountability',
+    status VARCHAR(20) NOT NULL DEFAULT 'approved',
+    review_status VARCHAR(20) NOT NULL DEFAULT 'approved',
+    captured_at DATETIME NULL,
+    uploaded_by BIGINT UNSIGNED NOT NULL,
+    reviewed_by BIGINT UNSIGNED NULL,
+    reviewed_at DATETIME NULL,
+    rejection_reason VARCHAR(1000) NULL,
+    supersedes_media_id BIGINT UNSIGNED NULL,
+    replaced_by_media_id BIGINT UNSIGNED NULL,
+    removed_by BIGINT UNSIGNED NULL,
+    removed_reason VARCHAR(1000) NULL,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL,
+    deleted_at DATETIME NULL,
+    INDEX idx_event_day_media_day (event_day_id, checklist_item_id, review_status, deleted_at),
+    INDEX idx_event_day_media_championship (championship_id, visibility, status, review_status, deleted_at),
+    CONSTRAINT fk_event_day_media_day FOREIGN KEY (event_day_id) REFERENCES event_days (id),
+    CONSTRAINT fk_event_day_media_championship FOREIGN KEY (championship_id) REFERENCES championships (id),
+    CONSTRAINT fk_event_day_media_checklist FOREIGN KEY (checklist_item_id) REFERENCES championship_evidence_checklist_items (id) ON DELETE SET NULL,
+    CONSTRAINT fk_event_day_media_uploaded_by FOREIGN KEY (uploaded_by) REFERENCES users (id),
+    CONSTRAINT fk_event_day_media_reviewed_by FOREIGN KEY (reviewed_by) REFERENCES users (id) ON DELETE SET NULL,
+    CONSTRAINT fk_event_day_media_supersedes FOREIGN KEY (supersedes_media_id) REFERENCES event_day_media (id) ON DELETE SET NULL,
+    CONSTRAINT fk_event_day_media_replaced_by FOREIGN KEY (replaced_by_media_id) REFERENCES event_day_media (id) ON DELETE SET NULL,
+    CONSTRAINT fk_event_day_media_removed_by FOREIGN KEY (removed_by) REFERENCES users (id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
