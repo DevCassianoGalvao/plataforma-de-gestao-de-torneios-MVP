@@ -2722,7 +2722,6 @@ body.public-portal .simulator-note strong { color: var(--portal-primary); }
 .evidence-status-list{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
 .status-chip{display:inline-flex;align-items:center;padding:4px 9px;border:1px solid var(--ui-border,#263b54);border-radius:999px;font-size:.72rem;font-weight:700;color:var(--ui-text-muted,#aeb7ca);background:rgba(16,28,43,.72)}
 .status-chip-success{color:var(--ui-secondary-soft,#4ae176);border-color:rgba(74,225,118,.42);background:rgba(34,197,94,.1)}
-.page-stack:has(input[name="checklist_item_id"])>.panel{border-left:3px solid rgba(96,165,250,.65)}
 .page-stack:has(input[name="checklist_item_id"])>.panel form{margin-top:14px;padding-top:14px;border-top:1px solid var(--ui-border,#263b54)}
 .page-stack:has(input[name="checklist_item_id"])>.panel>.panel{margin-top:14px;padding:14px;border-color:rgba(96,165,250,.25);background:rgba(8,18,30,.45)}
 @media (max-width:700px){.evidence-checklist-fields{grid-template-columns:1fr}.evidence-flow-note,.event-days-guide{flex-direction:column}.page-stack:has(input[name="checklist_item_id"])>.panel{padding:14px}}
