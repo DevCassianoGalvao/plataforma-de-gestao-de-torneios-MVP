@@ -59,16 +59,16 @@ final class ChampionshipRepository
 
     public function create(array $data, int $createdBy): int
     {
-        $statement = $this->pdo->prepare('INSERT INTO championships (name, short_name, slug, description, season_id, category_id, requires_guardian, starts_at, ends_at, registration_starts_at, registration_ends_at, status, visibility, default_theme, primary_color, secondary_color, accent_color, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+        $statement = $this->pdo->prepare('INSERT INTO championships (name, short_name, slug, description, season_id, category_id, requires_guardian, allow_underage_athletes, starts_at, ends_at, registration_starts_at, registration_ends_at, status, visibility, default_theme, primary_color, secondary_color, accent_color, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
         $now = date('Y-m-d H:i:s');
-        $statement->execute([$data['name'], $data['short_name'], $data['slug'], $data['description'], $data['season_id'], $data['category_id'], (int) ($data['requires_guardian'] ?? 0), $data['starts_at'], $data['ends_at'], $data['registration_starts_at'], $data['registration_ends_at'], $data['status'], $data['visibility'], $data['default_theme'], $data['primary_color'], $data['secondary_color'], $data['accent_color'], $createdBy, $now, $now]);
+        $statement->execute([$data['name'], $data['short_name'], $data['slug'], $data['description'], $data['season_id'], $data['category_id'], (int) ($data['requires_guardian'] ?? 0), (int) ($data['allow_underage_athletes'] ?? 0), $data['starts_at'], $data['ends_at'], $data['registration_starts_at'], $data['registration_ends_at'], $data['status'], $data['visibility'], $data['default_theme'], $data['primary_color'], $data['secondary_color'], $data['accent_color'], $createdBy, $now, $now]);
         return (int) $this->pdo->lastInsertId();
     }
 
     public function updateGeneral(int $id, array $data): void
     {
-        $statement = $this->pdo->prepare('UPDATE championships SET name = ?, short_name = ?, slug = ?, description = ?, season_id = ?, category_id = ?, requires_guardian = ?, starts_at = ?, ends_at = ?, registration_starts_at = ?, registration_ends_at = ?, visibility = ?, updated_at = ? WHERE id = ? AND deleted_at IS NULL');
-        $statement->execute([$data['name'], $data['short_name'], $data['slug'], $data['description'], $data['season_id'], $data['category_id'], (int) ($data['requires_guardian'] ?? 0), $data['starts_at'], $data['ends_at'], $data['registration_starts_at'], $data['registration_ends_at'], $data['visibility'], date('Y-m-d H:i:s'), $id]);
+        $statement = $this->pdo->prepare('UPDATE championships SET name = ?, short_name = ?, slug = ?, description = ?, season_id = ?, category_id = ?, requires_guardian = ?, allow_underage_athletes = ?, starts_at = ?, ends_at = ?, registration_starts_at = ?, registration_ends_at = ?, visibility = ?, updated_at = ? WHERE id = ? AND deleted_at IS NULL');
+        $statement->execute([$data['name'], $data['short_name'], $data['slug'], $data['description'], $data['season_id'], $data['category_id'], (int) ($data['requires_guardian'] ?? 0), (int) ($data['allow_underage_athletes'] ?? 0), $data['starts_at'], $data['ends_at'], $data['registration_starts_at'], $data['registration_ends_at'], $data['visibility'], date('Y-m-d H:i:s'), $id]);
     }
 
     public function updateIdentity(int $id, array $data): void

@@ -38,7 +38,7 @@ final class AthleteRules
             if ($team) {
                 $minimum = $team['minimum_age'];
                 $maximum = $team['maximum_age'];
-                if ($minimum !== null && $age < (int) $minimum) $errors[] = 'Atleta abaixo da idade minima da categoria.';
+                if ($minimum !== null && $age < (int) $minimum && !self::adultCategoryAllowsMinor($age, (int) $minimum, $team)) $errors[] = 'Atleta abaixo da idade minima da categoria.';
                 if ($maximum !== null && $age > (int) $maximum) $errors[] = 'Atleta acima da idade maxima da categoria.';
                 $rule = strtolower(trim((string) ($team['gender_rule'] ?? '')));
                 $gender = strtolower(trim((string) ($data['gender'] ?? '')));
@@ -90,5 +90,10 @@ final class AthleteRules
     private static function genderKey(string $rule): string
     {
         return in_array($rule, ['male', 'masculino'], true) ? 'male' : 'female';
+    }
+
+    private static function adultCategoryAllowsMinor(int $age, int $minimumAge, array $team): bool
+    {
+        return !empty($team['allow_underage_athletes']) && $age < 18 && $minimumAge >= 18;
     }
 }

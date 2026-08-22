@@ -169,7 +169,9 @@ final class RegistrationService
     {
         $issues = [];
         $age = (int) ($athlete['age'] ?? $athlete['athlete_age'] ?? -1);
-        if ($championship['minimum_age'] !== null && $age < (int) $championship['minimum_age']) $issues[] = 'A idade do atleta esta abaixo do minimo da categoria.';
+        $minimumAge = $championship['minimum_age'] !== null ? (int) $championship['minimum_age'] : null;
+        $allowsMinorInAdultCategory = !empty($championship['allow_underage_athletes']) && $age < 18 && $minimumAge !== null && $minimumAge >= 18;
+        if ($minimumAge !== null && $age < $minimumAge && !$allowsMinorInAdultCategory) $issues[] = 'A idade do atleta esta abaixo do minimo da categoria.';
         if ($championship['maximum_age'] !== null && $age > (int) $championship['maximum_age']) $issues[] = 'A idade do atleta supera o maximo da categoria.';
         if (!empty($championship['gender_rule']) && (string) $athlete['gender'] !== (string) $championship['gender_rule']) $issues[] = 'O genero do atleta nao e compativel com a categoria.';
         return $issues;

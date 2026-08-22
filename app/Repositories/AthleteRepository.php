@@ -50,7 +50,7 @@ final class AthleteRepository
     public function findForUser(int $id, int $userId, string $scope, bool $mutation = false): ?array
     {
         [$scopeSql, $scopeParams] = $this->scopeSql($userId, $scope, $mutation);
-        $statement = $this->pdo->prepare('SELECT a.*, c.id AS championship_id, c.requires_guardian, TIMESTAMPDIFF(YEAR, a.birth_date, CURDATE()) AS age, p.name AS primary_position_name, p.`code` AS primary_position_code, t.name AS team_name, t.slug AS team_slug, c.name AS championship_name, c.slug AS championship_slug, cat.name AS category_name, cat.minimum_age, cat.maximum_age, cat.gender_rule FROM athletes a INNER JOIN positions p ON p.id = a.primary_position_id INNER JOIN teams t ON t.id = a.team_id INNER JOIN championships c ON c.id = t.championship_id INNER JOIN categories cat ON cat.id = c.category_id WHERE a.id = ? AND a.deleted_at IS NULL AND ' . $scopeSql . ' LIMIT 1');
+        $statement = $this->pdo->prepare('SELECT a.*, c.id AS championship_id, c.requires_guardian, c.allow_underage_athletes, TIMESTAMPDIFF(YEAR, a.birth_date, CURDATE()) AS age, p.name AS primary_position_name, p.`code` AS primary_position_code, t.name AS team_name, t.slug AS team_slug, c.name AS championship_name, c.slug AS championship_slug, cat.name AS category_name, cat.minimum_age, cat.maximum_age, cat.gender_rule FROM athletes a INNER JOIN positions p ON p.id = a.primary_position_id INNER JOIN teams t ON t.id = a.team_id INNER JOIN championships c ON c.id = t.championship_id INNER JOIN categories cat ON cat.id = c.category_id WHERE a.id = ? AND a.deleted_at IS NULL AND ' . $scopeSql . ' LIMIT 1');
         $statement->execute(array_merge([$id], $scopeParams));
         $row = $statement->fetch();
         return $row ?: null;
