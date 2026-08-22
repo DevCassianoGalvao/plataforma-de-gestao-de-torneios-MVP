@@ -17,6 +17,12 @@ final class EvidenceChecklistRepository
     public function championships(): array
     { return $this->pdo->query('SELECT id,name FROM championships WHERE deleted_at IS NULL ORDER BY name')->fetchAll(); }
 
+    public function championshipById(int $id): ?array
+    {
+        $s = $this->pdo->prepare('SELECT id,name,slug FROM championships WHERE id = ? AND deleted_at IS NULL LIMIT 1');
+        $s->execute([$id]); return $s->fetch() ?: null;
+    }
+
     public function items(int $championshipId, bool $includeDeleted = false): array
     {
         $where = $includeDeleted ? '' : ' AND deleted_at IS NULL';
@@ -33,12 +39,12 @@ final class EvidenceChecklistRepository
     public function save(int $championshipId, array $data, int $userId, ?int $id = null): int
     {
         $now = date('Y-m-d H:i:s');
-        $values = [$data['name'], $data['description'], $data['is_required'], $data['is_active'], $data['display_order'], $data['expected_moment'], $data['allowed_mime_types'], $data['min_files'], $data['max_files'], $data['max_file_size_bytes'], $data['notes_required'], $data['blocks_operation_start'], $data['blocks_approval_submission'], $data['blocks_document_completion'], $data['show_in_accountability']];
+        $values = [$data['scope'] ?? 'match', $data['name'], $data['description'], $data['is_required'], $data['is_active'], $data['display_order'], $data['expected_moment'], $data['allowed_mime_types'], $data['min_files'], $data['max_files'], $data['max_file_size_bytes'], $data['notes_required'], $data['blocks_operation_start'], $data['blocks_approval_submission'], $data['blocks_document_completion'], $data['show_in_accountability']];
         if ($id !== null) {
-            $s = $this->pdo->prepare('UPDATE championship_evidence_checklist_items SET name=?, description=?, is_required=?, is_active=?, display_order=?, expected_moment=?, allowed_mime_types=?, min_files=?, max_files=?, max_file_size_bytes=?, notes_required=?, blocks_operation_start=?, blocks_approval_submission=?, blocks_document_completion=?, show_in_accountability=?, updated_at=? WHERE id=? AND championship_id=? AND deleted_at IS NULL');
+            $s = $this->pdo->prepare('UPDATE championship_evidence_checklist_items SET scope=?, name=?, description=?, is_required=?, is_active=?, display_order=?, expected_moment=?, allowed_mime_types=?, min_files=?, max_files=?, max_file_size_bytes=?, notes_required=?, blocks_operation_start=?, blocks_approval_submission=?, blocks_document_completion=?, show_in_accountability=?, updated_at=? WHERE id=? AND championship_id=? AND deleted_at IS NULL');
             $s->execute([...$values, $now, $id, $championshipId]); return $id;
         }
-        $s = $this->pdo->prepare('INSERT INTO championship_evidence_checklist_items (championship_id,name,description,is_required,is_active,display_order,expected_moment,allowed_mime_types,min_files,max_files,max_file_size_bytes,notes_required,blocks_operation_start,blocks_approval_submission,blocks_document_completion,show_in_accountability,created_by,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
+        $s = $this->pdo->prepare('INSERT INTO championship_evidence_checklist_items (championship_id,scope,name,description,is_required,is_active,display_order,expected_moment,allowed_mime_types,min_files,max_files,max_file_size_bytes,notes_required,blocks_operation_start,blocks_approval_submission,blocks_document_completion,show_in_accountability,created_by,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
         $s->execute([$championshipId, ...$values, $userId, $now, $now]); return (int) $this->pdo->lastInsertId();
     }
 
@@ -50,6 +56,26 @@ final class EvidenceChecklistRepository
     { $s = $this->pdo->prepare('UPDATE championship_evidence_checklist_items SET deleted_at=NULL, deleted_by=NULL, updated_at=? WHERE id=? AND championship_id=? AND deleted_at IS NOT NULL'); return $s->execute([date('Y-m-d H:i:s'),$id,$championshipId]); }
     public function reorder(int $championshipId, array $ids): void
     { $s=$this->pdo->prepare('UPDATE championship_evidence_checklist_items SET display_order=?, updated_at=? WHERE id=? AND championship_id=? AND deleted_at IS NULL'); foreach (array_values(array_unique(array_map('intval',$ids))) as $order=>$id) $s->execute([$order+1,date('Y-m-d H:i:s'),$id,$championshipId]); }
-    public function duplicate(int $fromChampionshipId, int $toChampionshipId, int $userId): int
-    { $count=0; foreach($this->items($fromChampionshipId) as $item){ $copy=$item; unset($copy['id']); $this->save($toChampionshipId,$copy,$userId); $count++; } return $count; }
+    public function duplicate(int $fromChampionshipId, int $toChampionshipId, int $userId): ?int
+    {
+        if ($fromChampionshipId === $toChampionshipId || $this->activeCount($toChampionshipId) > 0) return null;
+        $items = $this->items($fromChampionshipId);
+        $this->pdo->beginTransaction();
+        try {
+            $count = 0;
+            foreach ($items as $item) {
+                $copy = $item;
+                unset($copy['id'], $copy['usage_count'], $copy['deleted_at'], $copy['deleted_by']);
+                $this->save($toChampionshipId, $copy, $userId);
+                $count++;
+            }
+            $this->pdo->commit(); return $count;
+        } catch (\Throwable $e) { $this->pdo->rollBack(); throw $e; }
+    }
+
+    public function activeCount(int $championshipId): int
+    {
+        $s = $this->pdo->prepare('SELECT COUNT(*) FROM championship_evidence_checklist_items WHERE championship_id = ? AND deleted_at IS NULL');
+        $s->execute([$championshipId]); return (int) $s->fetchColumn();
+    }
 }
