@@ -84,7 +84,7 @@ final class AccountabilityRepository
             'teams' => $load('SELECT DISTINCT t.id, t.name FROM teams t INNER JOIN matches m ON (m.home_team_id = t.id OR m.away_team_id = t.id) WHERE m.championship_id = ? ORDER BY t.name'),
             'venues' => $load('SELECT DISTINCT v.id, v.name, v.city FROM venues v INNER JOIN matches m ON m.venue_id = v.id WHERE m.championship_id = ? ORDER BY v.city, v.name'),
             'cities' => $load("SELECT DISTINCT v.city AS name FROM venues v INNER JOIN matches m ON m.venue_id = v.id WHERE m.championship_id = ? AND v.city IS NOT NULL AND v.city <> '' ORDER BY v.city"),
-            'event_days' => $load('SELECT ed.id, ed.name, ed.event_date, v.name AS venue_name, v.city FROM event_days ed LEFT JOIN venues v ON v.id = ed.venue_id WHERE ed.championship_id = ? AND ed.deleted_at IS NULL AND ed.status = \'active\' ORDER BY ed.event_date, ed.id'),
+            'event_days' => $load('SELECT ed.id, ed.name, ed.event_date, v.name AS venue_name, v.city, (SELECT COUNT(*) FROM event_day_media edm WHERE edm.event_day_id = ed.id AND edm.championship_id = ed.championship_id AND edm.status = \'approved\' AND edm.review_status = \'approved\' AND edm.deleted_at IS NULL) AS approved_evidence_count FROM event_days ed LEFT JOIN venues v ON v.id = ed.venue_id WHERE ed.championship_id = ? AND ed.deleted_at IS NULL AND ed.status = \'active\' ORDER BY ed.event_date, ed.id'),
         ];
     }
 
@@ -145,7 +145,7 @@ final class AccountabilityRepository
         $media = $this->pdo->prepare("SELECT id, title, caption, storage_path, original_name, mime_type, captured_at, created_at FROM match_media WHERE match_id = ? AND deleted_at IS NULL AND status = 'approved' AND review_status = 'approved' ORDER BY created_at");
         $media->execute([$matchId]);
         $match['evidencias'] = $media->fetchAll();
-        $eventMedia = $this->pdo->prepare("SELECT edm.id, edm.title, edm.caption, edm.storage_path, edm.original_name, edm.mime_type, edm.captured_at, edm.created_at, ed.name AS event_day_name, ed.event_date, venue.name AS venue_name, venue.city FROM event_day_media edm INNER JOIN event_days ed ON ed.id = edm.event_day_id LEFT JOIN venues venue ON venue.id = ed.venue_id WHERE edm.championship_id = ? AND ed.event_date = ? AND (ed.venue_id IS NULL OR ed.venue_id = ?) AND edm.status = 'approved' AND edm.review_status = 'approved' AND edm.deleted_at IS NULL ORDER BY edm.created_at");
+        $eventMedia = $this->pdo->prepare("SELECT edm.id, edm.title, edm.caption, edm.storage_path, edm.original_name, edm.mime_type, edm.captured_at, edm.created_at, ed.name AS event_day_name, ed.event_date, venue.name AS venue_name, venue.city FROM event_day_media edm INNER JOIN event_days ed ON ed.id = edm.event_day_id LEFT JOIN venues venue ON venue.id = ed.venue_id LEFT JOIN championship_evidence_checklist_items ci ON ci.id = edm.checklist_item_id WHERE edm.championship_id = ? AND ed.event_date = ? AND (ed.venue_id IS NULL OR ed.venue_id = ?) AND edm.status = 'approved' AND edm.review_status = 'approved' AND edm.deleted_at IS NULL AND (edm.checklist_item_id IS NULL OR ci.show_in_accountability = 1) ORDER BY edm.created_at");
         $eventMedia->execute([$championshipId, $match['match_date'], $match['venue_id'] ?? null]);
         $match['evidencias_dia_evento'] = $eventMedia->fetchAll();
         $match['document_status'] = $this->documentStatus($championshipId, $matchId);
@@ -173,7 +173,7 @@ final class AccountabilityRepository
                 $allowed = array_fill_keys($matchIds, true);
                 $rows = array_values(array_filter($rows, static fn (array $row): bool => isset($allowed[(int) $row['partida_id']])));
             }
-            $where = ['edm.championship_id = ?', "edm.status = 'approved'", "edm.review_status = 'approved'", 'edm.deleted_at IS NULL', 'ed.deleted_at IS NULL'];
+            $where = ['edm.championship_id = ?', "edm.status = 'approved'", "edm.review_status = 'approved'", 'edm.deleted_at IS NULL', 'ed.deleted_at IS NULL', '(edm.checklist_item_id IS NULL OR ci.show_in_accountability = 1)'];
             $params = [$id];
             if (!empty($filters['event_day_id']) && ctype_digit((string) $filters['event_day_id'])) { $where[] = 'ed.id = ?'; $params[] = (int) $filters['event_day_id']; }
             if (!empty($filters['venue_id']) && ctype_digit((string) $filters['venue_id'])) { $where[] = 'ed.venue_id = ?'; $params[] = (int) $filters['venue_id']; }
@@ -229,7 +229,7 @@ final class AccountabilityRepository
         if (!empty($filters['city'])) { $eventWhere[] = 'venue.city = ?'; $eventParams[] = (string) $filters['city']; }
         if (!empty($filters['from'])) { $eventWhere[] = 'ed.event_date >= ?'; $eventParams[] = substr((string) $filters['from'], 0, 10); }
         if (!empty($filters['to'])) { $eventWhere[] = 'ed.event_date <= ?'; $eventParams[] = substr((string) $filters['to'], 0, 10); }
-        $eventStatement = $this->pdo->prepare("SELECT edm.storage_path, edm.original_name, edm.id, ed.id AS event_day_id FROM event_day_media edm INNER JOIN event_days ed ON ed.id = edm.event_day_id LEFT JOIN venues venue ON venue.id = ed.venue_id WHERE " . implode(' AND ', $eventWhere) . " AND edm.status = 'approved' AND edm.review_status = 'approved' AND edm.deleted_at IS NULL ORDER BY edm.id");
+        $eventStatement = $this->pdo->prepare("SELECT edm.storage_path, edm.original_name, edm.id, ed.id AS event_day_id FROM event_day_media edm INNER JOIN event_days ed ON ed.id = edm.event_day_id LEFT JOIN venues venue ON venue.id = ed.venue_id LEFT JOIN championship_evidence_checklist_items ci ON ci.id = edm.checklist_item_id WHERE " . implode(' AND ', $eventWhere) . " AND edm.status = 'approved' AND edm.review_status = 'approved' AND edm.deleted_at IS NULL AND (edm.checklist_item_id IS NULL OR ci.show_in_accountability = 1) ORDER BY edm.id");
         $eventStatement->execute($eventParams);
         foreach ($eventStatement->fetchAll() as $item) $files[] = ['path' => $item['storage_path'], 'name' => 'evidencias/dia-evento-' . (int) $item['event_day_id'] . '-' . (int) $item['id'] . '-' . basename((string) $item['original_name'])];
         return ['matches' => $matches, 'files' => $files];

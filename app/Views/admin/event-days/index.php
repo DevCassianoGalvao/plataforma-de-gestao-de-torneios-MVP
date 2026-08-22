@@ -4,11 +4,12 @@ $e = static fn (mixed $value): string => App\Core\View::e($value);
 $championshipId = (int) ($championship['id'] ?? 0);
 $base = App\Core\Config::url('/admin/dias-evento');
 ?>
-<section>
+<section class="page-stack event-days-page">
     <div class="section-heading">
-        <div><p class="eyebrow">Prestação de contas</p><h1>Dias de evento</h1><p>Organize evidências por data, local e campeonato. Cada dia pode ter um local diferente.</p></div>
+        <div><p class="eyebrow"><span class="section-heading-icon" data-icon="calendar-days" aria-hidden="true"></span>Prestação de contas</p><h1>Dias de evento</h1><p>Cadastre cada data do campeonato para liberar o envio das fotos de trabalho, arbitragem e público.</p></div>
     </div>
     <?php if (!empty($message)): ?><p class="success" role="status"><?= $e($message) ?></p><?php endif; ?>
+    <article class="panel event-days-guide"><div class="event-days-guide-icon" data-icon="camera" aria-hidden="true"></div><div><h2>Fluxo das evidências do dia</h2><p>1. Cadastre a data e o local. 2. O operador escolhe o tipo de evidência no envio. 3. O administrador aprova os arquivos. 4. A prestação de contas baixa somente o que foi aprovado.</p><p class="muted">Os itens precisam estar ativos no checklist do campeonato. Se não houver um dia cadastrado, eles não aparecem para o operador.</p></div></article>
     <form method="get" class="filters">
         <label>Campeonato
             <select name="championship_id" onchange="this.form.submit()">

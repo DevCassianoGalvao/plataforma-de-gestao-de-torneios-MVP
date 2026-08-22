@@ -2708,3 +2708,21 @@ body.public-portal .simulator-note strong { color: var(--portal-primary); }
     body.public-portal .simulator-group-table .team-list-mark { flex-basis: 1.15rem; width: 1.15rem; height: 1.15rem; }
     body.public-portal .simulator-score-control input { width: 2.7rem; }
 }
+/* Evidências: configuração e envio com leitura rápida no desktop e no celular. */
+.evidence-checklist-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px}
+.evidence-toggle{display:grid;grid-template-columns:auto minmax(0,1fr);gap:2px 10px;align-items:start;padding:13px 14px;border:1px solid var(--ui-border,#263b54);border-radius:12px;background:rgba(16,28,43,.62);cursor:pointer}
+.evidence-toggle-input{width:16px!important;height:16px!important;margin:3px 0 0!important;accent-color:var(--ui-primary,#2563eb)}
+.evidence-toggle span{font-weight:700;color:var(--ui-text,#d9e3f7)}
+.evidence-toggle small{grid-column:2;color:var(--ui-text-muted,#aeb7ca);font-size:.78rem;line-height:1.4}
+.evidence-flow-note,.event-days-guide{display:flex;gap:16px;align-items:flex-start}
+.evidence-flow-icon,.event-days-guide-icon{flex:0 0 40px;width:40px;height:40px;display:grid;place-items:center;border-radius:12px;background:rgba(34,197,94,.12);color:var(--ui-secondary,#22c55e)}
+.evidence-flow-icon svg,.event-days-guide-icon svg{width:21px;height:21px}
+.evidence-item-card{overflow:hidden}
+.evidence-item-icon{display:inline-flex;width:16px;height:16px;vertical-align:-3px;margin-right:5px;color:var(--ui-secondary,#22c55e)}
+.evidence-status-list{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+.status-chip{display:inline-flex;align-items:center;padding:4px 9px;border:1px solid var(--ui-border,#263b54);border-radius:999px;font-size:.72rem;font-weight:700;color:var(--ui-text-muted,#aeb7ca);background:rgba(16,28,43,.72)}
+.status-chip-success{color:var(--ui-secondary-soft,#4ae176);border-color:rgba(74,225,118,.42);background:rgba(34,197,94,.1)}
+.page-stack:has(input[name="checklist_item_id"])>.panel{border-left:3px solid rgba(96,165,250,.65)}
+.page-stack:has(input[name="checklist_item_id"])>.panel form{margin-top:14px;padding-top:14px;border-top:1px solid var(--ui-border,#263b54)}
+.page-stack:has(input[name="checklist_item_id"])>.panel>.panel{margin-top:14px;padding:14px;border-color:rgba(96,165,250,.25);background:rgba(8,18,30,.45)}
+@media (max-width:700px){.evidence-checklist-fields{grid-template-columns:1fr}.evidence-flow-note,.event-days-guide{flex-direction:column}.page-stack:has(input[name="checklist_item_id"])>.panel{padding:14px}}
