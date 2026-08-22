@@ -124,14 +124,26 @@ final class AccountabilityExportService
             $zip = new ZipArchive();
             if ($zip->open($tmp, ZipArchive::OVERWRITE) !== true) throw new \RuntimeException('Não foi possível criar o pacote.');
             $zip->addFromString('atletas-documentos.csv', $this->csv($rows));
-            $manifest = ['Pacote privado de atletas e documentos', 'Campeonato: ' . $championshipId, 'Gerado em: ' . date('c'), 'Somente documentos aprovados e atletas com inscrição aprovada.'];
-            foreach ($this->repository->athleteDocumentFiles($championshipId) as $file) {
-                $stored = $this->storage->read((string) $file['path']);
-                $extension = strtolower(pathinfo((string) $file['name'], PATHINFO_EXTENSION));
-                $suffix = $extension !== '' ? '.' . preg_replace('/[^a-z0-9]+/', '', $extension) : '';
+            $manifest = ['Pacote privado de atletas, fotos e documentos', 'Campeonato: ' . $championshipId, 'Gerado em: ' . date('c'), 'Somente atletas com inscrição aprovada, fotos cadastradas e documentos aprovados.'];
+            $seenAthletes = [];
+            foreach ($this->repository->athleteFiles($championshipId) as $file) {
+                $athleteId = (int) $file['athlete_id'];
                 $athleteName = $this->safeFilePart((string) $file['athlete_name']);
+                $teamName = $this->safeFilePart((string) $file['team_name']);
+                $folder = 'atletas/' . $teamName . '/' . $athleteName . ' - ' . $athleteId;
+                if (!isset($seenAthletes[$athleteId])) {
+                    $seenAthletes[$athleteId] = true;
+                    $photoEntry = $folder . '/foto-atleta.webp';
+                    $photo = $this->storage->read((string) ($file['photo_path'] ?? ''));
+                    if (!$photo) $manifest[] = 'PENDENTE: ' . $photoEntry;
+                    else { $zip->addFromString($photoEntry, $photo['body']); $manifest[] = 'INCLUÍDO: ' . $photoEntry . ' sha256=' . hash('sha256', $photo['body']); }
+                }
+                if (empty($file['document_id'])) continue;
+                $extension = strtolower(pathinfo((string) $file['document_name'], PATHINFO_EXTENSION));
+                $suffix = $extension !== '' ? '.' . preg_replace('/[^a-z0-9]+/', '', $extension) : '';
                 $documentType = $this->safeFilePart((string) $file['document_type']);
-                $entry = 'documentos/Atleta - ' . $athleteName . ' - ' . $documentType . ' - ' . (int) $file['id'] . $suffix;
+                $entry = $folder . '/documentos/' . $documentType . ' - ' . (int) $file['document_id'] . $suffix;
+                $stored = $this->storage->read((string) $file['document_path']);
                 if (!$stored) { $manifest[] = 'PENDENTE: ' . $entry; continue; }
                 $zip->addFromString($entry, $stored['body']);
                 $manifest[] = 'INCLUÍDO: ' . $entry . ' sha256=' . hash('sha256', $stored['body']);

@@ -84,11 +84,12 @@ final class AthleteController extends Controller
         $identityStored = null;
         $identityType = $this->documentTypes->findByKey('athlete_document');
         if (!$identityType) $errors[] = 'Tipo de documento do atleta indisponivel.';
-        if (($request->files['photo']['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
+        $photo = $this->uploadedFile($request, 'photo_camera', 'photo');
+        if ($photo === null) {
             $errors[] = 'Envie uma foto do atleta.';
         } else {
             try {
-                $stored = $this->storage->storeOptimizedImage($request->files['photo'], 'athletes/' . $data['team_id'], ['max_width' => 1400, 'max_height' => 1400]);
+                $stored = $this->storage->storeOptimizedImage($photo, 'athletes/' . $data['team_id'], ['max_width' => 1400, 'max_height' => 1400]);
                 $data['photo_path'] = $stored['path'];
             } catch (\Throwable $exception) {
                 $errors[] = $exception->getMessage();
@@ -189,9 +190,10 @@ final class AthleteController extends Controller
         $profileChanged = $this->profileChanged($data, $athlete, $this->athletes->secondaryPositions((int) $athlete['id']));
         if ($needsGuardian && $profileChanged && !$this->guardians->hasActiveForAthlete((int) $athlete['id']) && !$this->hasGuardianInput($guardianData)) $errors[] = 'Atletas menores precisam de responsavel legal.';
         $stored = null;
-        if (($request->files['photo']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+        $photo = $this->uploadedFile($request, 'photo_camera', 'photo');
+        if ($photo !== null) {
             try {
-                $stored = $this->storage->storeOptimizedImage($request->files['photo'], 'athletes/' . $data['team_id'], ['max_width' => 1400, 'max_height' => 1400]);
+                $stored = $this->storage->storeOptimizedImage($photo, 'athletes/' . $data['team_id'], ['max_width' => 1400, 'max_height' => 1400]);
                 $data['photo_path'] = $stored['path'];
             } catch (\Throwable $exception) {
                 $errors[] = $exception->getMessage();
@@ -494,6 +496,15 @@ final class AthleteController extends Controller
     private function hasGuardianInput(array $data): bool
     {
         return trim((string) ($data['full_name'] ?? '')) !== '' || trim((string) ($data['document_number'] ?? '')) !== '';
+    }
+
+    private function uploadedFile(Request $request, string $primary, ?string $fallback = null): ?array
+    {
+        foreach (array_filter([$primary, $fallback]) as $name) {
+            $file = $request->files[$name] ?? null;
+            if (is_array($file) && (int) ($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) return $file;
+        }
+        return null;
     }
 
     private function profileChanged(array $data, array $athlete, array $secondaryPositions): bool

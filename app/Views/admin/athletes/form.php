@@ -15,8 +15,9 @@
             <label>Nome esportivo <input name="sporting_name" value="<?= App\Core\View::e($record['sporting_name'] ?? '') ?>"></label>
             <label>Data de nascimento <input type="date" name="birth_date" value="<?= App\Core\View::e($record['birth_date'] ?? '') ?>" required></label>
             <label>Gênero <select name="gender"><option value="">Não informado</option><?php foreach (['male' => 'Masculino', 'female' => 'Feminino', 'other' => 'Outro'] as $key => $label): ?><option value="<?= $key ?>" <?= ($record['gender'] ?? '') === $key ? 'selected' : '' ?>><?= $label ?></option><?php endforeach; ?></select></label>
-            <label>Foto do atleta <input type="file" name="photo" accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp" <?= empty($editing) ? 'required' : '' ?>></label>
-            <p class="muted"><?= empty($editing) ? 'Envie uma foto nítida para identificação.' : 'Envie outra foto somente se quiser substituir a atual.' ?></p>
+            <label>Enviar foto do atleta <input type="file" name="photo" accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp"></label>
+            <label>Fotografar agora <input type="file" name="photo_camera" accept="image/*" capture="user"></label>
+            <p class="muted"><?= empty($editing) ? 'Escolha um arquivo ou fotografe pelo celular. Uma das opções é obrigatória.' : 'Escolha um arquivo ou fotografe agora somente se quiser substituir a foto atual.' ?></p>
             <?php if (!empty($editing) && !empty($record['photo_path'])): ?><p class="current-athlete-photo"><img class="athlete-profile-photo" src="<?= App\Core\View::e(App\Core\Config::url('/admin/atletas/' . $record['id'] . '/assets/photo?v=' . rawurlencode((string) $record['photo_path']))) ?>" alt="Foto atual do atleta"><span>Foto atual.</span></p><?php endif; ?>
         </fieldset>
         <fieldset>
@@ -26,8 +27,8 @@
         <fieldset>
             <legend>Documento de identificação</legend>
             <p class="muted">O documento fica protegido e só pode ser consultado pela equipe autorizada. Ele será analisado antes de o atleta ser escalado.</p>
-            <label>Foto ou arquivo do documento <input type="file" name="identity_document" accept=".pdf,.png,.jpg,.jpeg,.webp,application/pdf,image/png,image/jpeg,image/webp" <?= empty($editing) ? 'required' : '' ?>></label>
-            <p class="muted"><?= empty($editing) ? 'Obrigatório no cadastro.' : 'Envie um novo arquivo para substituir o documento em análise.' ?></p>
+            <label>Foto ou arquivo do documento <input type="file" name="identity_document" accept=".pdf,.png,.jpg,.jpeg,.webp,application/pdf,image/png,image/jpeg,image/webp" capture="environment" <?= empty($editing) ? 'required' : '' ?>></label>
+            <p class="muted"><?= empty($editing) ? 'Obrigatório no cadastro. No celular, você pode fotografar o documento ou escolher um arquivo.' : 'Envie um novo arquivo ou fotografe agora para substituir o documento em análise.' ?></p>
         </fieldset>
         <?php $showGuardian = !empty($record['requires_guardian']); ?>
         <fieldset id="athlete-guardian-fields" <?= $showGuardian ? '' : 'hidden' ?>>
