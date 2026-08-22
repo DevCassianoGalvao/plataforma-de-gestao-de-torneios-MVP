@@ -44,6 +44,7 @@ require dirname(__DIR__) . '/tests/Integration/ScheduleIntegrationTest.php';
 require dirname(__DIR__) . '/tests/Integration/LineupIntegrationTest.php';
 require dirname(__DIR__) . '/tests/Integration/MatchOperationIntegrationTest.php';
 require dirname(__DIR__) . '/tests/Integration/EvidenceChecklistIntegrationTest.php';
+require dirname(__DIR__) . '/tests/Integration/EventDayIntegrationTest.php';
 require dirname(__DIR__) . '/tests/Integration/RoundMonitoringIntegrationTest.php';
 require dirname(__DIR__) . '/tests/Integration/SimulationIntegrationTest.php';
 require dirname(__DIR__) . '/tests/Integration/DisciplineIntegrationTest.php';
@@ -76,6 +77,7 @@ require dirname(__DIR__) . '/tests/Http/PublicPortalHttpTest.php';
 require dirname(__DIR__) . '/tests/Http/ProductionReadinessHttpTest.php';
 require dirname(__DIR__) . '/tests/Http/SimulationHttpTest.php';
 require dirname(__DIR__) . '/tests/Http/AccountabilityRetentionHttpTest.php';
+require dirname(__DIR__) . '/tests/Http/EventDayHttpTest.php';
 require dirname(__DIR__) . '/tests/Http/PermanentDeletionHttpTest.php';
 require dirname(__DIR__) . '/tests/Http/UserDeletionHttpTest.php';
 
@@ -111,6 +113,7 @@ use Tests\Integration\ScheduleIntegrationTest;
 use Tests\Integration\LineupIntegrationTest;
 use Tests\Integration\MatchOperationIntegrationTest;
 use Tests\Integration\EvidenceChecklistIntegrationTest;
+use Tests\Integration\EventDayIntegrationTest;
 use Tests\Integration\RoundMonitoringIntegrationTest;
 use Tests\Integration\SimulationIntegrationTest;
 use Tests\Integration\DisciplineIntegrationTest;
@@ -142,6 +145,7 @@ use Tests\Http\PublicPortalHttpTest;
 use Tests\Http\ProductionReadinessHttpTest;
 use Tests\Http\SimulationHttpTest;
 use Tests\Http\AccountabilityRetentionHttpTest;
+use Tests\Http\EventDayHttpTest;
 use Tests\Http\PermanentDeletionHttpTest;
 use Tests\Http\UserDeletionHttpTest;
 
@@ -179,6 +183,7 @@ try {
     LineupIntegrationTest::run();
     MatchOperationIntegrationTest::run();
     EvidenceChecklistIntegrationTest::run();
+    EventDayIntegrationTest::run();
     RoundMonitoringIntegrationTest::run();
     SimulationIntegrationTest::run();
     DisciplineIntegrationTest::run();
@@ -212,9 +217,10 @@ try {
     BackupIntegrationTest::run();
     AdvancedRectificationIntegrationTest::run();
     AccountabilityRetentionHttpTest::run();
+    EventDayHttpTest::run();
     PermanentDeletionHttpTest::run();
     UserDeletionHttpTest::run();
-    echo "MVP_TESTS_OK unit=17 integration=24 http=19\n";
+    echo "MVP_TESTS_OK unit=17 integration=25 http=20\n";
 } finally {
     Database::disconnect();
     $server->exec('DROP DATABASE IF EXISTS ' . $quoted);

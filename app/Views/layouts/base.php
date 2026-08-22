@@ -48,7 +48,7 @@ $isExactActive = static fn (string $path): bool => $currentPath === App\Core\Con
 $isRegistrationsActive = $isActive('/admin/inscricoes');
 $sidebarGroupActive = [
     'overview' => $isExactActive('/admin') || $isActive('/admin/campeonatos') || $isActive('/admin/notificacoes'),
-    'operation' => $isActive('/admin/tabela') || $isActive('/minhas-partidas') || $isActive('/admin/rodadas') || $isActive('/prestacao'),
+    'operation' => $isActive('/admin/tabela') || $isActive('/minhas-partidas') || $isActive('/admin/rodadas') || $isActive('/admin/dias-evento') || $isActive('/prestacao'),
     'sport' => $isActive('/admin/campeonatos') || $isActive('/admin/equipes') || $isActive('/admin/atletas') || $isActive('/admin/inscricoes') || $isActive('/admin/vai-e-vem'),
     'content' => $isActive('/admin/noticias') || $isActive('/admin/arbitros') || $isActive('/admin/contatos'),
     'access' => $isActive('/admin/usuarios') || $isActive('/admin/auditoria') || $isActive('/admin/backups') || $isActive('/admin/retencao'),
@@ -88,6 +88,7 @@ $sidebarGroupActive = [
             <?php if ($canMenu('schedule.view')): ?><a href="<?= $e(App\Core\Config::url('/admin/tabela')) ?>"<?= $isActive('/admin/tabela') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="schedule" aria-hidden="true">TB</span><span class="nav-label">Tabela e partidas</span></a><?php endif; ?>
             <?php if ($canMenu('matches.operate')): ?><a href="<?= $e(App\Core\Config::url('/minhas-partidas')) ?>"<?= $isActive('/minhas-partidas') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="clipboard-check" aria-hidden="true">OP</span><span class="nav-label">Partidas para operar</span></a><?php endif; ?>
             <?php if ($canMenu('round.monitor.view')): ?><a href="<?= $e(App\Core\Config::url('/admin/rodadas/acompanhamento')) ?>"<?= $isActive('/admin/rodadas') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="clipboard-check" aria-hidden="true">RD</span><span class="nav-label">Acompanhamento por rodada</span></a><?php endif; ?>
+            <?php if ($isAdministrator && $canMenu('evidence.checklist.manage')): ?><a href="<?= $e(App\Core\Config::url('/admin/dias-evento')) ?>"<?= $isActive('/admin/dias-evento') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="calendar" aria-hidden="true">DE</span><span class="nav-label">Dias de evento</span></a><?php endif; ?>
             <?php if ($canMenu('simulation.view')): ?><a href="<?= $e(App\Core\Config::url('/admin/simulacoes')) ?>"<?= $isActive('/admin/simulacoes') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="chart" aria-hidden="true">SM</span><span class="nav-label">Simulações</span></a><?php endif; ?>
             <?php if ($canMenu('accountability.view')): ?><a href="<?= $e(App\Core\Config::url('/prestacao')) ?>"<?= $isActive('/prestacao') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="file-check-2" aria-hidden="true">PC</span><span class="nav-label">Prestação de contas</span></a><?php endif; ?>
                 </div>
