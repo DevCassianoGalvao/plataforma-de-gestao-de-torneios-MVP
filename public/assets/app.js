@@ -14,6 +14,28 @@
         boxes.forEach(function (box) { box.addEventListener('change', update); });
         update();
     });
+    document.querySelectorAll('[data-select-all], [data-registration-select-all]').forEach(function (master) {
+        var form = master.closest('form');
+        if (!form) return;
+        var itemSelector = master.hasAttribute('data-registration-select-all') ? '[data-registration-select-item]' : '[data-select-item]';
+        master.addEventListener('change', function () {
+            form.querySelectorAll(itemSelector).forEach(function (item) { item.checked = master.checked; });
+        });
+    });
+    document.querySelectorAll('[data-bulk-form], [data-registration-bulk-form]').forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            var itemSelector = form.hasAttribute('data-registration-bulk-form') ? '[data-registration-select-item]' : '[data-select-item]';
+            if (!form.querySelector(itemSelector + ':checked')) {
+                event.preventDefault();
+                window.alert(form.hasAttribute('data-registration-bulk-form') ? 'Selecione ao menos uma inscrição.' : 'Selecione ao menos um documento.');
+                return;
+            }
+            var question = form.hasAttribute('data-registration-bulk-form')
+                ? 'Aprovar as inscrições selecionadas e incluí-las no elenco oficial?'
+                : 'Aprovar os documentos selecionados?';
+            if (!window.confirm(question)) event.preventDefault();
+        });
+    });
     document.querySelectorAll('[data-history-back]').forEach(function (button) { button.addEventListener('click', function () { if (window.history.length > 1) window.history.back(); else window.location.href = '/'; }); });
     var iconPaths = {
         'layout-dashboard': '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="4" rx="1"/><rect x="14" y="10" width="7" height="11" rx="1"/><rect x="3" y="13" width="7" height="8" rx="1"/>',

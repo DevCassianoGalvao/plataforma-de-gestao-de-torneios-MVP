@@ -18,7 +18,6 @@ $canBulkReview = $status === 'pending';
         <?php foreach ($items as $item): ?><tr><td><?php if ($canBulkReview): ?><input type="checkbox" name="document_ids[]" value="<?= (int) $item['id'] ?>" data-select-item><?php endif; ?></td><td><strong><?= $e($item['sporting_name'] ?: $item['athlete_name']) ?></strong><br><small><?= $e($item['athlete_name']) ?></small></td><td><?= $e($item['team_name']) ?></td><td><?= $e($item['document_type_name']) ?></td><td><span class="status status-<?= $e($item['status']) ?>"><?= $e($documentStatusLabels[$item['status']] ?? $item['status']) ?></span></td><td><?= $e($item['created_at']) ?></td><td><a href="<?= $e(App\Core\Config::url('/admin/atletas/' . $item['athlete_id'] . '/documentos')) ?>">Abrir atleta</a></td></tr><?php endforeach; ?>
         </tbody></table></div>
     <?php if ($canBulkReview): ?></form>
-    <script>document.querySelector('[data-select-all]')?.addEventListener('change', function(){document.querySelectorAll('[data-select-item]').forEach(function(item){item.checked=this.checked;}, this);});document.querySelector('[data-bulk-form]')?.addEventListener('submit', function(event){if(!document.querySelector('[data-select-item]:checked')){event.preventDefault();alert('Selecione ao menos um documento.');}else if(!confirm('Aprovar os documentos selecionados?')){event.preventDefault();}});</script>
     <?php endif; ?>
     <?php endif; ?>
 </section>
