@@ -58,7 +58,7 @@ final class AccountabilityController extends Controller
         if ($user instanceof Response) return $user;
         $id = (int) ($params[0] ?? 0);
         if (!$this->reports->allowed($id, (int) $user['id'], $this->isAdministrator($user))) return Response::forbidden();
-        if (in_array($kind, ['partidas', 'atletas', 'atletas-documentos', 'sumulas', 'evidencias'], true)) {
+        if (in_array($kind, ['partidas', 'atletas', 'atletas-documentos', 'sumulas'], true)) {
             $rows = $this->reports->rows($id, $kind); $csv = $this->csv($rows); $hash = hash('sha256', $csv);
             $this->reports->log($id, (int) $user['id'], $kind, count($rows), 'csv', [], [], 'prestacao-' . $kind . '-campeonato-' . $id . '.csv', $hash);
             $this->audit->record('accountability.exported', (int) $user['id'], 'championship', $id, ['kind' => $kind, 'rows' => count($rows), 'hash' => $hash], $request);
@@ -88,7 +88,7 @@ final class AccountabilityController extends Controller
         } catch (\Throwable) { return $this->errorPage('Prestação de contas', 'errors/500', ['message' => 'Não foi possível anexar a súmula assinada.'], 422); }
     }
 
-    private function filters(array $query): array { return array_intersect_key($query, array_flip(['phase_id', 'group_id', 'round_id', 'team_id', 'from', 'to', 'document_status'])); }
+    private function filters(array $query): array { return array_intersect_key($query, array_flip(['phase_id', 'group_id', 'round_id', 'team_id', 'venue_id', 'city', 'event_day_id', 'from', 'to', 'document_status'])); }
     private function isAdministrator(array $user): bool { return in_array('administrator', $this->authorization->roleKeys($user), true); }
     private function csv(array $rows): string { $out = fopen('php://temp', 'r+'); fwrite($out, "\xEF\xBB\xBF"); if ($rows !== []) { fputcsv($out, array_keys($rows[0]), ';'); foreach ($rows as $row) fputcsv($out, $row, ';'); } rewind($out); return stream_get_contents($out) ?: ''; }
 }

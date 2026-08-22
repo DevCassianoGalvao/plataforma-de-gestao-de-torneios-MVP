@@ -26,6 +26,7 @@ final class AccountabilityRetentionHttpTest
         assert_true(str_contains($retention->body, 'Retenção e arquivamento'), 'Tela de retenção sem título');
         $accountability = $router->dispatch(Request::fake('GET', '/torneio-online/prestacao/campeonatos/' . $championshipId));
         assert_same(200, $accountability->status, 'Administrador não abriu prestação detalhada');
+        assert_true(str_contains($accountability->body, 'Evidências CSV') && str_contains($accountability->body, 'Cidade'), 'Prestação sem exportação ou filtros de dia de evento');
         $matchId = (int) $pdo->query("SELECT id FROM matches WHERE championship_id = {$championshipId} AND status = 'homologated' ORDER BY id LIMIT 1")->fetchColumn();
         $matchDetail = $router->dispatch(Request::fake('GET', '/torneio-online/prestacao/campeonatos/' . $championshipId . '/partidas/' . $matchId));
         assert_same(200, $matchDetail->status, 'Administrador nao abriu detalhe da partida na prestacao');

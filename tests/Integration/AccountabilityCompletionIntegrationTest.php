@@ -22,6 +22,9 @@ final class AccountabilityCompletionIntegrationTest
         assert_true($championshipId > 0 && (bool) $admin, 'Fixture de prestação de contas ausente');
 
         $repository = new AccountabilityRepository($pdo);
+        $options = $repository->filterOptions($championshipId);
+        assert_true(array_key_exists('venues', $options) && array_key_exists('cities', $options) && array_key_exists('event_days', $options), 'Filtros de local e dia de evento ausentes');
+        assert_true(array_key_exists('dias_evento', $repository->summary($championshipId)), 'Resumo sem contador de dias de evento');
         $repository->saveSettings($championshipId, (int) $admin['id'], ['require_current_report' => 1, 'require_signed_report' => 0, 'require_approved_evidence' => 0]);
         assert_same(1, (int) $repository->settings($championshipId)['require_current_report'], 'Configuração documental não foi salva');
 
@@ -35,5 +38,7 @@ final class AccountabilityCompletionIntegrationTest
         }
         assert_true((int) $pdo->query('SELECT COUNT(*) FROM accountability_export_logs')->fetchColumn() >= 4, 'Exportações não foram registradas');
         foreach ($repository->matches($championshipId) as $match) assert_same('homologated', (string) $pdo->query('SELECT status FROM matches WHERE id = ' . (int) $match['id'])->fetchColumn(), 'Prestação incluiu partida não aprovada');
+        $evidenceRows = $repository->rows($championshipId, 'evidencias', ['city' => '__cidade_inexistente__']);
+        assert_same([], $evidenceRows, 'Filtro de cidade deixou evidência fora do escopo');
     }
 }

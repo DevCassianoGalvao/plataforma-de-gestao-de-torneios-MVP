@@ -175,6 +175,8 @@ Vai e Vem nao altera automaticamente `athletes.team_id`. A movimentacao publicad
 
 Tabelas novas: `championship_accountability_settings`, `match_rectification_changes`, `championship_rectification_settings`, `retention_policies` e `retention_actions`. Nenhuma delas mistura simulações com registros oficiais.
 
+As migrations `0048_event_day_evidence.sql` e `0049_round_labels.sql` adicionam evidências por dia de evento e rótulos administrativos de rodada. São alterações aditivas; dias, locais e cidades reais continuam sendo configurados pelo administrador.
+
 # Read model publico
 
 A Etapa 15 nao cria migration ou tabela nova. `PublicPortalRepository` compoe o portal a partir de `championships`, fases, grupos, partidas, equipes, elenco aprovado, classificacao, mata-mata, eventos, disciplina, noticias e transferencias existentes. As consultas usam listas explicitas de colunas e filtros de visibilidade/status para manter a fronteira de privacidade.

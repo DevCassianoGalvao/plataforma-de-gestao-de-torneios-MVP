@@ -26,6 +26,8 @@ Legenda: `[ ]` pendente, `[x]` concluído com evidência. Nenhuma etapa futura d
 
 Além das Etapas 1 a 17, esta rodada concluiu as pendências operacionais de prestação de contas, retificação avançada, retenção e testes focados. As migrations `0036_accountability_completion.sql`, `0037_advanced_rectification.sql` e `0038_retention_policies.sql` são incrementais e não alteram dados existentes por seed destrutivo.
 
+Também foi concluída a extensão configurável de prestação por dia de evento: as migrations `0048_event_day_evidence.sql` e `0049_round_labels.sql` adicionam dias, evidências e rótulos administrativos de rodada. O painel filtra e exporta evidências por fase, rodada, local, cidade e dia de evento. A checklist da Copa Brasil é criada de forma idempotente pelo seed, sem inserir cidades ou locais fictícios.
+
 Evidências atuais: `LINT_OK files=342` e `MVP_TESTS_OK unit=17 integration=23 http=18`, sempre em banco de teste descartável.
 
 ## Estado da Etapa 3

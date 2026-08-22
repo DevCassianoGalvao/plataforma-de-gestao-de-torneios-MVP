@@ -28,6 +28,7 @@ final class CopaBrasilTalentos2026Seed
             $championshipId = self::championship($pdo, $seasonId, $categoryId, $adminId, $now);
             $regulationId = self::regulation($pdo, $championshipId, $adminId, $now);
             self::assets($pdo, $championshipId, $regulationId, $now);
+            self::evidenceChecklist($pdo, $championshipId, $adminId, $now);
             self::regulationSettings($pdo, $regulationId, $now);
             $phases = self::phases($pdo, $championshipId, $adminId, $now);
             $teams = self::teams($pdo, $championshipId, $adminId, $now);
@@ -327,6 +328,24 @@ final class CopaBrasilTalentos2026Seed
                 $stored = $storage->store(['error' => UPLOAD_ERR_OK, 'size' => filesize($document), 'tmp_name' => $document, 'name' => basename($document)], 'regulations/' . $regulationId, ['application/pdf'], 10485760);
                 $pdo->prepare('INSERT INTO regulation_documents (regulation_id, storage_path, original_name, version_label, visibility, created_at) VALUES (?, ?, ?, ?, ?, ?)')->execute([$regulationId, $stored['path'], basename($document), 'Regulamento oficial recebido', 'public', $now]);
             }
+        }
+    }
+
+    private static function evidenceChecklist(PDO $pdo, int $championshipId, int $adminId, string $now): void
+    {
+        $items = [
+            ['match', 'Súmula da partida', 'Súmula assinada ou foto da súmula.', 1, 1, 'application/pdf,image/jpeg,image/png,image/webp'],
+            ['match', 'Fotos da partida', 'Fotos registradas durante a partida.', 1, 20, 'image/jpeg,image/png,image/webp'],
+            ['event_day', 'Fotos do dia do evento', 'Fotos gerais do dia, organização e atividades.', 1, 50, 'image/jpeg,image/png,image/webp'],
+            ['event_day', 'Comprovante do local', 'Documento ou registro do local utilizado.', 0, 5, 'image/jpeg,image/png,image/webp,application/pdf'],
+            ['event_day', 'Lista de presença', 'Lista de presença ou controle equivalente.', 0, 5, 'image/jpeg,image/png,image/webp,application/pdf'],
+        ];
+        $exists = $pdo->prepare('SELECT 1 FROM championship_evidence_checklist_items WHERE championship_id = ? AND scope = ? AND name = ? AND deleted_at IS NULL LIMIT 1');
+        $insert = $pdo->prepare('INSERT INTO championship_evidence_checklist_items (championship_id, scope, name, description, is_required, is_active, display_order, expected_moment, allowed_mime_types, min_files, max_files, max_file_size_bytes, notes_required, blocks_operation_start, blocks_approval_submission, blocks_document_completion, show_in_accountability, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, 1, ?, ?, ?, ?, ?, ?, 0, 0, 0, 0, 1, ?, ?, ?)');
+        foreach ($items as $order => [$scope, $name, $description, $required, $maxFiles, $mimeTypes]) {
+            $exists->execute([$championshipId, $scope, $name]);
+            if ($exists->fetchColumn()) continue;
+            $insert->execute([$championshipId, $scope, $name, $description, $required, $order + 1, $scope === 'event_day' ? 'event_day' : 'after_match', $mimeTypes, 1, $maxFiles, 12582912, $adminId, $now, $now]);
         }
     }
 

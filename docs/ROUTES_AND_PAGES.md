@@ -6,7 +6,10 @@ Todas as URLs respeitam `APP_BASE_PATH=/torneio-online`.
 
 - `GET /prestacao/campeonatos/{id}/partidas/{matchId}`: detalhe oficial da prestação.
 - `GET /prestacao/campeonatos/{id}/exportar/{formato}`: CSV, Excel, PDF ou pacote privado.
+- `GET /prestacao/campeonatos/{id}/exportar/evidencias`: CSV das evidências aprovadas, com filtros de local, cidade e dia de evento.
+- `GET /prestacao/campeonatos/{id}/exportar/evidencias-xlsx`: Excel das evidências aprovadas, com os mesmos filtros.
 - `POST /prestacao/campeonatos/{id}/partidas/{matchId}/sumula-assinada`: anexo privado da súmula assinada.
+- `GET /admin/dias-evento`: cadastro administrativo de dias de evento e respectivos locais.
 - `GET /admin/retencao`: políticas e histórico de retenção.
 - `POST /admin/retencao/{scope}`: atualiza uma política.
 - `POST /admin/retencao/{entity}/{id}/arquivar|restaurar`: mutação controlada com motivo e CSRF.

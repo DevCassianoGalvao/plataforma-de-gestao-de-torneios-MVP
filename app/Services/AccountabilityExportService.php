@@ -22,6 +22,16 @@ final class AccountabilityExportService
             $this->audit->record('accountability.exported', $userId, 'championship', $championshipId, ['format' => 'atletas-documentos-zip', 'rows' => count($rows), 'hash' => $hash], null);
             return ['body' => $body, 'mime' => 'application/zip', 'name' => $name, 'hash' => $hash, 'count' => count($rows)];
         }
+        if (in_array($format, ['evidencias', 'evidencias-xlsx'], true)) {
+            $rows = $this->repository->rows($championshipId, 'evidencias', $filters);
+            if ($format === 'evidencias') { $body = $this->csv($rows); $mime = 'text/csv; charset=UTF-8'; $extension = 'csv'; }
+            else { $body = $this->xlsx($rows); $mime = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'; $extension = 'xlsx'; }
+            $name = 'prestacao-evidencias-campeonato-' . $championshipId . '-' . date('Ymd-His') . '.' . $extension;
+            $hash = hash('sha256', $body);
+            $this->repository->log($championshipId, $userId, 'evidencias', count($rows), $extension, $filters, [], $name, $hash);
+            $this->audit->record('accountability.exported', $userId, 'championship', $championshipId, ['format' => $format, 'rows' => count($rows), 'hash' => $hash], null);
+            return ['body' => $body, 'mime' => $mime, 'name' => $name, 'hash' => $hash, 'count' => count($rows)];
+        }
         $rows = $this->repository->exportRows($championshipId, $filters);
         $matchIds = array_map(static fn (array $row): int => (int) $row['partida'], $rows);
         $kind = 'consolidado';
