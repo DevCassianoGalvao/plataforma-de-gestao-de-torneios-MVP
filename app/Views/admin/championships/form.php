@@ -9,11 +9,12 @@
         <label>Slug <input name="slug" value="<?= App\Core\View::e($record['slug'] ?? '') ?>" placeholder="copa-brasil-de-talentos-2026"></label>
         <label>Descrição <textarea name="description" rows="4"><?= App\Core\View::e($record['description'] ?? '') ?></textarea></label>
         <label>Temporada <select name="season_id" required><option value="">Selecione</option><?php foreach ($seasons as $season): ?><option value="<?= (int) $season['id'] ?>" <?= (string) ($record['season_id'] ?? '') === (string) $season['id'] ? 'selected' : '' ?>><?= App\Core\View::e($season['name']) ?></option><?php endforeach; ?></select></label>
-        <label>Categoria <select name="category_id" required><option value="">Selecione</option><?php foreach ($categories as $category): ?><option value="<?= (int) $category['id'] ?>" <?= (string) ($record['category_id'] ?? '') === (string) $category['id'] ? 'selected' : '' ?>><?= App\Core\View::e($category['name']) ?></option><?php endforeach; ?></select></label>
+        <label>Categoria <select name="category_id" id="championship-category" required><option value="">Selecione</option><?php foreach ($categories as $category): ?><option value="<?= (int) $category['id'] ?>" data-min-age="<?= App\Core\View::e((string) ($category['minimum_age'] ?? '')) ?>" data-max-age="<?= App\Core\View::e((string) ($category['maximum_age'] ?? '')) ?>" <?= (string) ($record['category_id'] ?? '') === (string) $category['id'] ? 'selected' : '' ?>><?= App\Core\View::e($category['name']) ?></option><?php endforeach; ?></select></label>
         <fieldset>
             <legend>Regras de cadastro</legend>
-            <label class="check"><input type="checkbox" name="requires_guardian" value="1" <?= !empty($record['requires_guardian']) ? 'checked' : '' ?>> Campeonato para menores</label>
-            <p class="muted">Ative somente quando o campeonato exigir responsável legal e autorização dos pais. Em campeonatos adultos, esses campos não serão solicitados.</p>
+            <label class="check"><input type="checkbox" id="championship-requires-guardian" name="requires_guardian" value="1" <?= !empty($record['requires_guardian']) ? 'checked' : '' ?>> Responsável legal para atletas menores</label>
+            <p class="muted">A categoria continua definindo a idade permitida. Esta regra só solicita responsável legal e autorização quando um atleta menor de idade for aceito pela categoria.</p>
+            <p class="alert" id="minor-category-warning" hidden>A categoria selecionada começa em 18 anos ou mais. Marcar esta regra não libera menores; ajuste a categoria se o campeonato aceitar atletas abaixo de 18 anos.</p>
         </fieldset>
         <label>Início <input type="date" name="starts_at" value="<?= App\Core\View::e($record['starts_at'] ?? '') ?>"></label>
         <label>Fim <input type="date" name="ends_at" value="<?= App\Core\View::e($record['ends_at'] ?? '') ?>"></label>
@@ -23,3 +24,24 @@
         <button type="submit">Salvar informações</button>
     </form>
 </section>
+<script>
+(() => {
+    const category = document.getElementById('championship-category');
+    const guardian = document.getElementById('championship-requires-guardian');
+    const warning = document.getElementById('minor-category-warning');
+
+    if (!category || !guardian || !warning) {
+        return;
+    }
+
+    const updateWarning = () => {
+        const option = category.options[category.selectedIndex];
+        const minAge = option?.dataset.minAge === '' ? null : Number(option?.dataset.minAge);
+        warning.hidden = !(guardian.checked && Number.isFinite(minAge) && minAge >= 18);
+    };
+
+    category.addEventListener('change', updateWarning);
+    guardian.addEventListener('change', updateWarning);
+    updateWarning();
+})();
+</script>
