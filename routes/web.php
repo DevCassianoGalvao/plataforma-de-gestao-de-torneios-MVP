@@ -333,6 +333,8 @@ $router->post('/admin/atletas/{id}/excluir', [$athlete, 'delete']);
 $router->get('/admin/atletas/{id}/responsaveis', [$athlete, 'guardians']);
 $router->post('/admin/atletas/{id}/responsaveis', [$athlete, 'saveGuardian']);
 $router->get('/admin/atletas/{id}/documentos', [$athlete, 'documents']);
+$router->get('/admin/documentos', [$athlete, 'documentsIndex']);
+$router->post('/admin/documentos/aprovar-em-lote', [$athlete, 'bulkReviewDocuments']);
 $router->post('/admin/atletas/{id}/documentos', [$athlete, 'saveDocument']);
 $router->get('/admin/atletas/{id}/documentos/{documentId}', [$athlete, 'documentAsset']);
 $router->post('/admin/atletas/{id}/documentos/{documentId}/status', [$athlete, 'reviewDocument']);
@@ -341,6 +343,7 @@ $router->get('/admin/posicoes', [$athlete, 'positions']);
 
 $registration = new RegistrationController($users, $authorization, $audit, $registrationAccess, $registrationService, $athletes, $teams);
 $router->get('/admin/inscricoes', [$registration, 'index']);
+$router->post('/admin/inscricoes/aprovar-em-lote', [$registration, 'bulkApprove']);
 $router->get('/admin/inscricoes/nova', [$registration, 'createForm']);
 $router->post('/admin/inscricoes', [$registration, 'create']);
 $router->get('/admin/inscricoes/elenco', [$registration, 'roster']);

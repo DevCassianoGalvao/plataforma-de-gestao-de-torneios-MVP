@@ -26,6 +26,38 @@ final class AthleteDocumentRepository
         return $row ?: null;
     }
 
+    public function listForReview(int $userId, string $scope, array $filters = []): array
+    {
+        $where = ['d.deleted_at IS NULL'];
+        $params = [];
+        if (($filters['status'] ?? '') !== '') {
+            $where[] = 'd.status = ?';
+            $params[] = (string) $filters['status'];
+        }
+        if ($scope === 'team') {
+            $where[] = 'EXISTS (SELECT 1 FROM team_user_assignments tua WHERE tua.team_id = a.team_id AND tua.user_id = ? AND tua.status = \'active\')';
+            $params[] = $userId;
+        }
+        $sql = 'SELECT d.*, dt.name AS document_type_name, a.full_name AS athlete_name, a.sporting_name, t.name AS team_name, u.name AS reviewer_name FROM athlete_documents d INNER JOIN athlete_document_types dt ON dt.id = d.document_type_id INNER JOIN athletes a ON a.id = d.athlete_id AND a.deleted_at IS NULL INNER JOIN teams t ON t.id = a.team_id LEFT JOIN users u ON u.id = d.reviewed_by WHERE ' . implode(' AND ', $where) . ' ORDER BY CASE WHEN d.status = \'pending\' THEN 0 ELSE 1 END, d.created_at ASC, d.id ASC';
+        $statement = $this->pdo->prepare($sql);
+        $statement->execute($params);
+        return $statement->fetchAll();
+    }
+
+    public function findForReview(int $id, int $userId, string $scope): ?array
+    {
+        $where = ['d.id = ?', 'd.deleted_at IS NULL'];
+        $params = [$id];
+        if ($scope === 'team') {
+            $where[] = 'EXISTS (SELECT 1 FROM team_user_assignments tua WHERE tua.team_id = a.team_id AND tua.user_id = ? AND tua.status = \'active\')';
+            $params[] = $userId;
+        }
+        $statement = $this->pdo->prepare('SELECT d.*, a.full_name AS athlete_name, a.sporting_name, t.name AS team_name FROM athlete_documents d INNER JOIN athletes a ON a.id = d.athlete_id AND a.deleted_at IS NULL INNER JOIN teams t ON t.id = a.team_id WHERE ' . implode(' AND ', $where) . ' LIMIT 1');
+        $statement->execute($params);
+        $row = $statement->fetch();
+        return $row ?: null;
+    }
+
     public function hasValidAthleteDocument(int $athleteId): bool
     {
         $statement = $this->pdo->prepare("SELECT 1 FROM athlete_documents d INNER JOIN athlete_document_types dt ON dt.id = d.document_type_id WHERE d.athlete_id = ? AND d.id = (SELECT latest.id FROM athlete_documents latest INNER JOIN athlete_document_types latest_type ON latest_type.id = latest.document_type_id WHERE latest.athlete_id = d.athlete_id AND latest_type.`key` = 'athlete_document' AND latest.deleted_at IS NULL ORDER BY latest.created_at DESC, latest.id DESC LIMIT 1) AND d.status = 'approved' AND d.deleted_at IS NULL AND (d.expires_at IS NULL OR d.expires_at >= CURDATE()) LIMIT 1");

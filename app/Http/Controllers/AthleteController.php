@@ -282,6 +282,45 @@ final class AthleteController extends Controller
         return $this->page('Documentos do atleta', 'admin/athletes/documents', ['user' => $guard, 'athlete' => $athlete, 'items' => $this->documents->listForAthlete((int) $athlete['id']), 'types' => $this->documentTypes->list(), 'guardians' => $this->guardians->listForAthlete((int) $athlete['id']), 'canManage' => $this->canDocumentMutation($guard, (int) $athlete['id']), 'canReview' => $this->canReview($guard, (int) $athlete['id']), 'canCreateRegistration' => $this->canCreateRegistration($guard, (int) $athlete['team_id']), 'errors' => []]);
     }
 
+    public function documentsIndex(Request $request, array $params = []): Response
+    {
+        $guard = $this->guard($request, 'athlete_documents.review');
+        if ($guard instanceof Response) return $guard;
+        $filters = ['status' => (string) ($request->query['status'] ?? 'pending')];
+        return $this->page('Documentos para análise', 'admin/athletes/documents-index', [
+            'user' => $guard,
+            'items' => $this->documents->listForReview((int) $guard['id'], $this->access->scope($guard), $filters),
+            'status' => $filters['status'],
+            'message' => Session::consumeFlash('document_message'),
+        ]);
+    }
+
+    public function bulkReviewDocuments(Request $request, array $params = []): Response
+    {
+        $guard = $this->guard($request, 'athlete_documents.review');
+        if ($guard instanceof Response) return $guard;
+        if (!$this->validCsrf($request)) return Response::forbidden('A sessao expirou.');
+        $ids = array_values(array_unique(array_filter(array_map('intval', (array) ($request->body['document_ids'] ?? [])), static fn (int $id): bool => $id > 0)));
+        if ($ids === []) {
+            Session::flash('document_message', 'Selecione ao menos um documento pendente.');
+            return Response::redirect(Config::url('/admin/documentos'));
+        }
+        $approved = 0;
+        $skipped = 0;
+        foreach ($ids as $id) {
+            $document = $this->documents->findForReview($id, (int) $guard['id'], $this->access->scope($guard));
+            if (!$document || (string) $document['status'] !== 'pending') {
+                $skipped++;
+                continue;
+            }
+            $this->documents->review($id, 'approved', null, (int) $guard['id']);
+            $approved++;
+            $this->audit->record('athlete_documents.bulk_approved', (int) $guard['id'], 'athlete_document', $id, ['athlete_id' => (int) $document['athlete_id']], $request);
+        }
+        Session::flash('document_message', sprintf('%d documento(s) aprovado(s).%s', $approved, $skipped ? ' ' . $skipped . ' item(ns) ignorado(s) por estarem fora do escopo ou sem pendencia.' : ''));
+        return Response::redirect(Config::url('/admin/documentos'));
+    }
+
     public function saveDocument(Request $request, array $params = []): Response
     {
         [$guard, $athlete] = $this->context($request, (int) ($params[0] ?? 0), 'athlete_documents.view');

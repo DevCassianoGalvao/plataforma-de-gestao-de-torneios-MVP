@@ -21,7 +21,7 @@ $canMenu = static function (string $permission) use (&$menuPermissions, $current
     return $menuPermissions[$permission] ??= $menuAuth->can($currentUser, $permission);
 };
 $showOperationGroup = $canMenu('schedule.view') || $canMenu('matches.operate') || $canMenu('round.monitor.view') || $canMenu('simulation.view') || $canMenu('accountability.view');
-$showSportGroup = $canMenu('teams.view') || $canMenu('athletes.view') || $canMenu('registrations.view') || $canMenu('rosters.view') || $canMenu('transfers.manage') || $canMenu('transfers.request');
+$showSportGroup = $canMenu('teams.view') || $canMenu('athletes.view') || $canMenu('registrations.view') || $canMenu('rosters.view') || $canMenu('athlete_documents.review') || $canMenu('transfers.manage') || $canMenu('transfers.request');
 $showContentGroup = $canMenu('content.manage') || $canMenu('championships.view') || $isAdministrator;
 $showAccessGroup = $isAdministrator && ($canMenu('users.view') || $canMenu('audit.view') || $canMenu('backup.view') || $canMenu('retention.view'));
 $showHistoryBack = ($title ?? '') !== 'Painel administrativo';
@@ -99,6 +99,7 @@ $sidebarGroupActive = [
             <?php if ($canMenu('teams.view')): ?><a href="<?= $e(App\Core\Config::url('/admin/equipes')) ?>"<?= $isActive('/admin/equipes') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="team" aria-hidden="true">EQ</span><span class="nav-label">Equipes</span></a><?php endif; ?>
             <?php if ($canMenu('athletes.view')): ?><a href="<?= $e(App\Core\Config::url('/admin/atletas')) ?>"<?= $isActive('/admin/atletas') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="athlete" aria-hidden="true">AT</span><span class="nav-label">Atletas</span></a><?php endif; ?>
             <?php if ($canMenu('registrations.view') || $canMenu('rosters.view')): ?><a href="<?= $e(App\Core\Config::url('/admin/inscricoes')) ?>"<?= $isRegistrationsActive ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="registration" aria-hidden="true">IN</span><span class="nav-label">Inscrições</span></a><?php endif; ?>
+            <?php if ($canMenu('athlete_documents.review')): ?><a href="<?= $e(App\Core\Config::url('/admin/documentos')) ?>"<?= $isActive('/admin/documentos') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="file-check-2" aria-hidden="true">DC</span><span class="nav-label">Documentos para análise</span></a><?php endif; ?>
             <?php if ($canMenu('transfers.manage') || $canMenu('transfers.request')): ?><a href="<?= $e(App\Core\Config::url('/admin/vai-e-vem')) ?>"<?= $isActive('/admin/vai-e-vem') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="transfer" aria-hidden="true">VV</span><span class="nav-label">Vai e Vem</span></a><?php endif; ?>
                 </div>
             </div>

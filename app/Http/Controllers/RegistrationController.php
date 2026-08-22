@@ -25,7 +25,35 @@ final class RegistrationController extends Controller
         $guard = $this->guard($request, 'registrations.view');
         if ($guard instanceof Response) return $guard;
         $filters = ['status' => (string) ($request->query['status'] ?? ''), 'championship_id' => (string) ($request->query['championship_id'] ?? ''), 'team_id' => (string) ($request->query['team_id'] ?? ''), 'athlete_id' => (string) ($request->query['athlete_id'] ?? '')];
-        return $this->page('Inscricoes', 'admin/registrations/index', ['user' => $guard, 'items' => $this->access->list($guard, $filters), 'query' => $filters, 'statuses' => RegistrationRules::STATUSES, 'championships' => $this->access->authorizedChampionships($guard), 'teams' => $this->availableTeams($guard), 'canCreate' => $this->authorization->can($guard, 'registrations.create'), 'message' => Session::consumeFlash('registration_message')]);
+        return $this->page('Inscricoes', 'admin/registrations/index', ['user' => $guard, 'items' => $this->access->list($guard, $filters), 'query' => $filters, 'statuses' => RegistrationRules::STATUSES, 'championships' => $this->access->authorizedChampionships($guard), 'teams' => $this->availableTeams($guard), 'canCreate' => $this->authorization->can($guard, 'registrations.create'), 'canBulkApprove' => $this->canReview($guard, ['status' => 'submitted']), 'message' => Session::consumeFlash('registration_message')]);
+    }
+
+    public function bulkApprove(Request $request, array $params = []): Response
+    {
+        $guard = $this->guard($request, 'registrations.review');
+        if ($guard instanceof Response) return $guard;
+        if (!$this->validCsrf($request)) return Response::forbidden('A sessao expirou.');
+        $ids = array_values(array_unique(array_filter(array_map('intval', (array) ($request->body['registration_ids'] ?? [])), static fn (int $id): bool => $id > 0)));
+        if ($ids === []) {
+            Session::flash('registration_message', 'Selecione ao menos uma inscricao.');
+            return Response::redirect(Config::url('/admin/inscricoes'));
+        }
+        $approved = 0;
+        $failed = [];
+        foreach ($ids as $id) {
+            $registration = $this->access->find($guard, $id);
+            if (!$registration || !$this->canReview($guard, $registration) || !in_array((string) $registration['status'], ['submitted', 'under_review'], true)) {
+                $failed[] = '#' . $id . ': fora do escopo ou status nao analisavel';
+                continue;
+            }
+            $result = $this->service->approve($registration, (int) $guard['id'], $request);
+            if ($result['ok']) $approved++;
+            else $failed[] = '#' . $id . ': ' . implode(', ', $result['errors']);
+        }
+        $message = $approved . ' inscricao(oes) aprovada(s) e incluida(s) no elenco oficial.';
+        if ($failed !== []) $message .= ' Nao aprovadas: ' . implode(' | ', $failed);
+        Session::flash('registration_message', $message);
+        return Response::redirect(Config::url('/admin/inscricoes'));
     }
 
     public function createForm(Request $request, array $params = []): Response
