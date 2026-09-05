@@ -2733,6 +2733,7 @@ body.public-portal .standings-group-label:first-of-type { margin-top: .25rem; }
 /* Portal: coluna de secoes empilhadas na home (sem esticar e deixar buraco) */
 body.public-portal .portal-grid-main > .portal-col { display: flex; flex-direction: column; gap: 1.4rem; align-self: start; min-width: 0; }
 body.public-portal .portal-col .home-rankings { grid-template-columns: 1fr; }
+body.public-portal .portal-home-body--single { grid-template-columns: minmax(0, 1fr); }
 @media (max-width: 980px) { body.public-portal .portal-grid-main > .portal-col { gap: 1rem; } }
 
 /* Portal: card de confronto no estilo da pagina da partida, com escudos e sem placar */
