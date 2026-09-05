@@ -2725,3 +2725,11 @@ body.public-portal .simulator-note strong { color: var(--portal-primary); }
 .page-stack:has(input[name="checklist_item_id"])>.panel form{margin-top:14px;padding-top:14px;border-top:1px solid var(--ui-border,#263b54)}
 .page-stack:has(input[name="checklist_item_id"])>.panel>.panel{margin-top:14px;padding:14px;border-color:rgba(96,165,250,.25);background:rgba(8,18,30,.45)}
 @media (max-width:700px){.evidence-checklist-fields{grid-template-columns:1fr}.evidence-flow-note,.event-days-guide{flex-direction:column}.page-stack:has(input[name="checklist_item_id"])>.panel{padding:14px}}
+
+/* Portal: placar centralizado nos cards de jogo + rotulo de grupo na tabela resumida */
+body.public-portal .match-card strong { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: .55rem; }
+body.public-portal .match-card strong > span:first-child { text-align: right; min-width: 0; }
+body.public-portal .match-card strong > span:last-child { text-align: left; min-width: 0; }
+body.public-portal .match-card strong > b { text-align: center; }
+body.public-portal .standings-group-label { margin: 1rem 0 .35rem; color: var(--portal-yellow, var(--ui-secondary-soft)); font: 700 .7rem/1 "JetBrains Mono", monospace; letter-spacing: .09em; text-transform: uppercase; }
+body.public-portal .standings-group-label:first-of-type { margin-top: .25rem; }

@@ -28,7 +28,7 @@ final class PublicPortalRepository
 
     public function currentPhase(int $championshipId): ?array
     {
-        $statement = $this->pdo->prepare("SELECT id, name, slug, phase_type, sequence_number, status FROM competition_phases WHERE championship_id = ? AND status IN ('configured', 'published', 'in_progress', 'finished') ORDER BY CASE status WHEN 'in_progress' THEN 0 WHEN 'published' THEN 1 ELSE 2 END, sequence_number DESC, id DESC LIMIT 1"); $statement->execute([$championshipId]); return $statement->fetch() ?: null;
+        $statement = $this->pdo->prepare("SELECT p.id, p.name, p.slug, p.phase_type, p.sequence_number, p.status FROM competition_phases p WHERE p.championship_id = ? AND p.status IN ('configured', 'published', 'in_progress', 'finished') ORDER BY (p.status = 'in_progress') DESC, EXISTS (SELECT 1 FROM matches m WHERE m.phase_id = p.id AND m.status NOT IN ('finished', 'homologated', 'cancelled')) DESC, (p.status = 'finished') ASC, p.sequence_number ASC, p.id ASC LIMIT 1"); $statement->execute([$championshipId]); return $statement->fetch() ?: null;
     }
 
     public function nextMatches(int $championshipId, int $limit = 8): array
