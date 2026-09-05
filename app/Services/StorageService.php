@@ -63,14 +63,19 @@ final class StorageService
         $maxBytes = (int) ($options['max_bytes'] ?? self::imageUploadLimit());
         $maxWidth = max(1, (int) ($options['max_width'] ?? 1920));
         $maxHeight = max(1, (int) ($options['max_height'] ?? 1440));
-        $maxPixels = max(1, (int) ($options['max_pixels'] ?? 12000000));
+        $maxPixels = self::imagePixelLimit($options['max_pixels'] ?? null);
         $quality = min(100, max(1, (int) ($options['quality'] ?? 82)));
         $validated = UploadRules::validate($file, ['image/jpeg' => ['jpg', 'jpeg'], 'image/png' => ['png'], 'image/webp' => ['webp']], $maxBytes);
         $temporary = (string) $file['tmp_name'];
         $dimensions = @getimagesize($temporary);
-        if ($dimensions === false || (int) $dimensions[0] < 1 || (int) $dimensions[1] < 1 || ((int) $dimensions[0] * (int) $dimensions[1]) > $maxPixels) {
-            throw new \RuntimeException('A imagem possui dimensoes invalidas ou excede o limite de 12 megapixels.');
+        if ($dimensions === false || (int) $dimensions[0] < 1 || (int) $dimensions[1] < 1) {
+            throw new \RuntimeException('A imagem possui dimensoes invalidas.');
         }
+        $pixels = (int) $dimensions[0] * (int) $dimensions[1];
+        if ($pixels > $maxPixels) {
+            throw new \RuntimeException('A imagem tem ' . number_format($pixels / 1000000, 1, ',', '.') . ' megapixels e excede o limite de ' . number_format($maxPixels / 1000000, 0, ',', '.') . ' MP. Reduza a resolucao e envie novamente.');
+        }
+        self::ensureMemoryForPixels($pixels);
 
         $source = @imagecreatefromstring((string) file_get_contents($temporary));
         if ($source === false) {
@@ -196,6 +201,46 @@ final class StorageService
     {
         $configured = filter_var(getenv('IMAGE_UPLOAD_MAX_BYTES') ?: 12582912, FILTER_VALIDATE_INT);
         return is_int($configured) && $configured >= 1048576 && $configured <= 20971520 ? $configured : 12582912;
+    }
+
+    /** Limite de pixels da imagem: prioriza a opcao do chamador, depois IMAGE_UPLOAD_MAX_PIXELS, com teto de seguranca. */
+    private static function imagePixelLimit(mixed $override): int
+    {
+        if ($override !== null) {
+            return max(1000000, min((int) $override, 120000000));
+        }
+        $configured = filter_var(getenv('IMAGE_UPLOAD_MAX_PIXELS') ?: 50000000, FILTER_VALIDATE_INT);
+        $configured = is_int($configured) ? $configured : 50000000;
+        return max(1000000, min($configured, 120000000));
+    }
+
+    /** Fotos de camera/banco de imagens estouram o memory_limit padrao ao serem decodificadas pelo GD; eleva o limite so o necessario para processar e converter. */
+    private static function ensureMemoryForPixels(int $pixels): void
+    {
+        $current = self::iniBytes((string) ini_get('memory_limit'));
+        if ($current === -1) {
+            return;
+        }
+        $needed = (int) ($pixels * 4 * 2.3) + 96 * 1024 * 1024;
+        $target = min($needed, 1024 * 1024 * 1024);
+        if ($target > $current) {
+            @ini_set('memory_limit', (string) $target);
+        }
+    }
+
+    private static function iniBytes(string $value): int
+    {
+        $value = trim($value);
+        if ($value === '' || $value === '-1') {
+            return -1;
+        }
+        $number = (int) $value;
+        return match (strtolower($value[strlen($value) - 1])) {
+            'g' => $number * 1024 ** 3,
+            'm' => $number * 1024 ** 2,
+            'k' => $number * 1024,
+            default => $number,
+        };
     }
 
     private function orientImage($image, string $path, string $mime)

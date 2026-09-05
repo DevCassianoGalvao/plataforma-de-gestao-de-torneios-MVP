@@ -35,7 +35,7 @@ memory_limit = 256M
 max_execution_time = 60
 ```
 
-O sistema aceita JPEG, PNG e WebP, corrige orientação de celulares, limita imagens a 12 MP, redimensiona proporcionalmente e salva WebP. `IMAGE_UPLOAD_MAX_BYTES=12582912` controla o limite de entrada da aplicação; não defina valor maior que o `upload_max_filesize` do PHP. Favicon e documentos permanecem no formato enviado.
+O sistema aceita JPEG, PNG e WebP, corrige orientação de celulares, redimensiona proporcionalmente e salva WebP. `IMAGE_UPLOAD_MAX_BYTES=12582912` controla o limite de tamanho em bytes; não defina valor maior que o `upload_max_filesize` do PHP. `IMAGE_UPLOAD_MAX_PIXELS=50000000` controla o limite de resolução (padrão 50 MP, teto 120 MP); o serviço eleva o `memory_limit` do PHP só durante a conversão de imagens grandes. Favicon e documentos permanecem no formato enviado.
 
 O `.htaccess` da raiz impede listagem, bloqueia o código privado e encaminha as requisições para `public`. O `public/.htaccess` trata as requisições quando `public` e o Document Root. O `public/uploads/.htaccess` impede execução de scripts em uploads publicos.
 
