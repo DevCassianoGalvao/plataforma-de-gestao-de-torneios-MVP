@@ -27,7 +27,7 @@
         <fieldset>
             <legend>Documento de identificação</legend>
             <p class="muted">O documento fica protegido e só pode ser consultado pela equipe autorizada. Ele será analisado antes de o atleta ser escalado.</p>
-            <label>Foto ou arquivo do documento <input type="file" name="identity_document" accept=".pdf,.png,.jpg,.jpeg,.webp,application/pdf,image/png,image/jpeg,image/webp" capture="environment" <?= empty($editing) ? 'required' : '' ?>></label>
+            <label>Foto ou arquivo do documento <input type="file" name="identity_document" accept=".pdf,.png,.jpg,.jpeg,.webp,application/pdf,image/png,image/jpeg,image/webp" <?= empty($editing) ? 'required' : '' ?>></label>
             <p class="muted"><?= empty($editing) ? 'Obrigatório no cadastro. No celular, você pode fotografar o documento ou escolher um arquivo.' : 'Envie um novo arquivo ou fotografe agora para substituir o documento em análise.' ?></p>
         </fieldset>
         <?php $showGuardian = !empty($record['requires_guardian']); ?>

@@ -42,7 +42,7 @@ $base = App\Core\Config::url('/admin/dias-evento');
             <label>Título <input name="title" placeholder="Ex.: Foto da equipe de trabalho"></label>
             <label>Data e hora da captura <input type="datetime-local" name="captured_at"></label>
             <?php if ($checklist): ?><label>Tipo de evidência <select name="checklist_item_id"><option value="0">Sem tipo específico</option><?php foreach ($checklist as $item): ?><option value="<?= (int) $item['id'] ?>"><?= $e($item['name']) ?></option><?php endforeach; ?></select></label><?php endif; ?>
-            <label class="form-grid-full">Arquivos <input type="file" name="files[]" accept="image/jpeg,image/png,image/webp,application/pdf" capture="environment" multiple required><span class="muted">No celular, escolha arquivos ou use a câmera para registrar as evidências.</span></label>
+            <label class="form-grid-full">Arquivos <input type="file" name="files[]" accept="image/jpeg,image/png,image/webp,application/pdf" multiple required><span class="muted">No celular, escolha arquivos da galeria ou use a câmera para registrar as evidências.</span></label>
             <label class="form-grid-full">Legenda <textarea name="caption" rows="2"></textarea></label>
             <button type="submit">Enviar evidências</button>
         </form>
