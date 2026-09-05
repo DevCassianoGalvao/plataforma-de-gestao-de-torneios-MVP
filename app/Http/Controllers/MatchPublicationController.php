@@ -21,9 +21,12 @@ final class MatchPublicationController extends Controller
     {
         $user = $this->guard($request, 'match_publication.manage');
         if ($user instanceof Response) return $user;
-        if (!in_array('administrator', $this->authorization->roleKeys($user), true)) return Response::forbidden();
+        $roles = $this->authorization->roleKeys($user);
+        $isAdmin = in_array('administrator', $roles, true);
+        $isOrganizer = in_array('organizer', $roles, true);
+        if (!$isAdmin && !$isOrganizer) return Response::forbidden();
         if (!$this->validCsrf($request)) return Response::forbidden('A sessão expirou.');
-        $match = $this->schedules->matchById((int) ($params[0] ?? 0));
+        $match = $isAdmin ? $this->schedules->matchById((int) ($params[0] ?? 0)) : $this->schedules->matchForUser((int) ($params[0] ?? 0), (int) $user['id'], 'championship');
         if (!$match) return Response::html('Partida não encontrada.', 404);
         $action = (string) ($request->body['action'] ?? '');
         $reason = trim((string) ($request->body['reason'] ?? ''));

@@ -20,8 +20,11 @@ final class EligibilityController extends Controller
     {
         $user = $this->guard($request, 'regulations.grant_exception');
         if ($user instanceof Response) return $user;
-        if (!in_array('administrator', $this->authorization->roleKeys($user), true) || !$this->validCsrf($request)) return Response::forbidden('Apenas administrador pode liberar excecao.');
-        $match = $this->schedules->matchById((int) ($params[0] ?? 0));
+        $roles = $this->authorization->roleKeys($user);
+        $isAdmin = in_array('administrator', $roles, true);
+        $isOrganizer = in_array('organizer', $roles, true);
+        if ((!$isAdmin && !$isOrganizer) || !$this->validCsrf($request)) return Response::forbidden('Sem permissao para liberar excecao.');
+        $match = $isAdmin ? $this->schedules->matchById((int) ($params[0] ?? 0)) : $this->schedules->matchForUser((int) ($params[0] ?? 0), (int) $user['id'], 'championship');
         if (!$match) return Response::html('Partida nao encontrada.', 404);
         $ruleId = (int) ($request->body['rule_id'] ?? 0);
         $rule = $this->eligibility->ruleForMatch($match, $ruleId);

@@ -17,6 +17,7 @@ final class StandingsAccessService
     {
         $roles = $this->authorization->roleKeys($user);
         if (in_array('administrator', $roles, true)) return 'administrator';
+        if (in_array('organizer', $roles, true)) return 'championship';
         if (in_array('team_manager', $roles, true)) return 'team';
         return 'none';
     }
@@ -28,6 +29,7 @@ final class StandingsAccessService
         if (!$phase) return false;
         $scope = $this->scope($user);
         if ($scope === 'administrator') return true;
+        if ($scope === 'championship') return $this->championships->findForUser((int) $phase['championship_id'], (int) $user['id'], false) !== null;
         if ($scope !== 'team') return false;
         foreach ($this->teams->listForUser((int) $user['id'], 'team', ['championship_id' => $phase['championship_id']]) as $team) return true;
         return false;
@@ -35,6 +37,6 @@ final class StandingsAccessService
 
     public function canManage(array $user, int $phaseId, string $permission): bool
     {
-        return $this->authorization->can($user, $permission) && $this->scope($user) === 'administrator' && $this->canViewPhase($user, $phaseId);
+        return $this->authorization->can($user, $permission) && in_array($this->scope($user), ['administrator', 'championship'], true) && $this->canViewPhase($user, $phaseId);
     }
 }

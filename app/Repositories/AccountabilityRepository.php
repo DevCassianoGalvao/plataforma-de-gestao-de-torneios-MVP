@@ -12,7 +12,7 @@ final class AccountabilityRepository
     public function championshipsFor(int $userId, bool $administrator): array
     {
         if ($administrator) return $this->pdo->query("SELECT id, name, slug FROM championships WHERE deleted_at IS NULL ORDER BY name")->fetchAll();
-        $statement = $this->pdo->prepare("SELECT c.id, c.name, c.slug FROM championships c INNER JOIN championship_user_assignments a ON a.championship_id = c.id WHERE a.user_id = ? AND a.assignment_type = 'accountability' AND c.deleted_at IS NULL ORDER BY c.name");
+        $statement = $this->pdo->prepare("SELECT c.id, c.name, c.slug FROM championships c INNER JOIN championship_user_assignments a ON a.championship_id = c.id WHERE a.user_id = ? AND a.assignment_type IN ('accountability', 'organizer') AND c.deleted_at IS NULL ORDER BY c.name");
         $statement->execute([$userId]);
         return $statement->fetchAll();
     }
@@ -20,7 +20,7 @@ final class AccountabilityRepository
     public function allowed(int $championshipId, int $userId, bool $administrator): bool
     {
         if ($administrator) return true;
-        $statement = $this->pdo->prepare("SELECT 1 FROM championship_user_assignments WHERE championship_id = ? AND user_id = ? AND assignment_type = 'accountability'");
+        $statement = $this->pdo->prepare("SELECT 1 FROM championship_user_assignments WHERE championship_id = ? AND user_id = ? AND assignment_type IN ('accountability', 'organizer')");
         $statement->execute([$championshipId, $userId]);
         return (bool) $statement->fetchColumn();
     }

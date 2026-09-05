@@ -38,6 +38,10 @@ final class AthleteDocumentRepository
             $where[] = 'EXISTS (SELECT 1 FROM team_user_assignments tua WHERE tua.team_id = a.team_id AND tua.user_id = ? AND tua.status = \'active\')';
             $params[] = $userId;
         }
+        if ($scope === 'championship') {
+            $where[] = 'EXISTS (SELECT 1 FROM championship_user_assignments cua WHERE cua.championship_id = t.championship_id AND cua.user_id = ? AND cua.assignment_type = \'organizer\')';
+            $params[] = $userId;
+        }
         $sql = 'SELECT d.*, dt.name AS document_type_name, a.full_name AS athlete_name, a.sporting_name, t.name AS team_name, u.name AS reviewer_name FROM athlete_documents d INNER JOIN athlete_document_types dt ON dt.id = d.document_type_id INNER JOIN athletes a ON a.id = d.athlete_id AND a.deleted_at IS NULL INNER JOIN teams t ON t.id = a.team_id LEFT JOIN users u ON u.id = d.reviewed_by WHERE ' . implode(' AND ', $where) . ' ORDER BY CASE WHEN d.status = \'pending\' THEN 0 ELSE 1 END, d.created_at ASC, d.id ASC';
         $statement = $this->pdo->prepare($sql);
         $statement->execute($params);
@@ -50,6 +54,10 @@ final class AthleteDocumentRepository
         $params = [$id];
         if ($scope === 'team') {
             $where[] = 'EXISTS (SELECT 1 FROM team_user_assignments tua WHERE tua.team_id = a.team_id AND tua.user_id = ? AND tua.status = \'active\')';
+            $params[] = $userId;
+        }
+        if ($scope === 'championship') {
+            $where[] = 'EXISTS (SELECT 1 FROM championship_user_assignments cua WHERE cua.championship_id = t.championship_id AND cua.user_id = ? AND cua.assignment_type = \'organizer\')';
             $params[] = $userId;
         }
         $statement = $this->pdo->prepare('SELECT d.*, a.full_name AS athlete_name, a.sporting_name, t.name AS team_name FROM athlete_documents d INNER JOIN athletes a ON a.id = d.athlete_id AND a.deleted_at IS NULL INNER JOIN teams t ON t.id = a.team_id WHERE ' . implode(' AND ', $where) . ' LIMIT 1');

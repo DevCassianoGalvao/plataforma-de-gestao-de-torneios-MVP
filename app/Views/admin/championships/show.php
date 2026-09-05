@@ -13,6 +13,7 @@
         <a class="link-card" href="<?= App\Core\View::e(App\Core\Config::url('/admin/campeonatos/' . $championship['slug'] . '/identidade')) ?>"><strong>Identidade</strong><span>Cores, tema e arquivos</span></a>
         <a class="link-card" href="<?= App\Core\View::e(App\Core\Config::url('/admin/campeonatos/' . $championship['slug'] . '/regulamento')) ?>"><strong>Regulamento</strong><span><?= $regulation ? App\Core\View::e($regulation['status'] . ' · versão ' . $regulation['version_number']) : 'Ainda não criado' ?></span></a>
         <a class="link-card" href="<?= App\Core\View::e(App\Core\Config::url('/admin/campeonatos/' . $championship['slug'] . '/parceiros')) ?>"><strong>Parceiros</strong><span>Patrocinadores, apoiadores e organizadores</span></a>
+        <a class="link-card" href="<?= App\Core\View::e(App\Core\Config::url('/admin/campeonatos/' . $championship['slug'] . '/organizadores')) ?>"><strong>Organizadores</strong><span>Vincular quem administra todo o campeonato</span></a>
         <a class="link-card" href="<?= App\Core\View::e(App\Core\Config::url('/admin/campeonatos/' . $championship['slug'] . '/prestacao')) ?>"><strong>Prestação de contas</strong><span>Vincular usuários e controlar acesso aos relatórios</span></a>
         <a class="link-card" href="<?= App\Core\View::e(App\Core\Config::url('/admin/campeonatos/' . $championship['slug'] . '/evidencias')) ?>"><strong>Checklist de evidências</strong><span>Definir fotos e documentos exigidos por partida</span></a>
     </div>

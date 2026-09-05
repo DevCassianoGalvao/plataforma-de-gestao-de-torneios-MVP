@@ -112,6 +112,48 @@ final class ChampionshipController extends Controller
         return Response::redirect(Config::url('/admin/campeonatos/' . $championship['slug'] . '/prestacao'));
     }
 
+    public function organizers(Request $request, array $params = []): Response
+    {
+        $guard = $this->guard($request, 'championships.manage_assignments');
+        if ($guard instanceof Response) return $guard;
+        $championship = $this->resolve($params[0] ?? '', $guard, true);
+        if (!$championship) return Response::html('Campeonato nao encontrado ou sem acesso.', 404);
+        return $this->page('Organizadores do campeonato', 'admin/championships/organizers', $this->organizersViewData($guard, $championship));
+    }
+
+    public function assignOrganizer(Request $request, array $params = []): Response
+    {
+        $guard = $this->guard($request, 'championships.manage_assignments');
+        if ($guard instanceof Response) return $guard;
+        $championship = $this->resolve($params[0] ?? '', $guard, true);
+        if (!$championship) return Response::html('Campeonato nao encontrado ou sem acesso.', 404);
+        if (!$this->validCsrf($request)) return Response::forbidden('A sessao expirou.');
+        $userId = (int) ($request->body['user_id'] ?? 0);
+        $candidate = $this->userRepository->findById($userId);
+        $roleKeys = $candidate ? array_map(static fn (array $role): string => (string) $role['key'], $this->userRepository->roles($userId)) : [];
+        if (!$candidate || $candidate['status'] !== 'active' || !in_array('organizer', $roleKeys, true)) {
+            return $this->errorPage('Organizadores do campeonato', 'admin/championships/organizers', $this->organizersViewData($guard, $championship, ['Selecione um usuário ativo com o perfil Organizador do campeonato.']), 422);
+        }
+        $this->championships->assignOrganizer((int) $championship['id'], $userId, (int) $guard['id']);
+        $this->audit->record('championships.organizer_assigned', (int) $guard['id'], 'championship', (int) $championship['id'], ['user_id' => $userId], $request);
+        Session::flash('championship_organizer_message', 'Organizador vinculado ao campeonato.');
+        return Response::redirect(Config::url('/admin/campeonatos/' . $championship['slug'] . '/organizadores'));
+    }
+
+    public function unassignOrganizer(Request $request, array $params = []): Response
+    {
+        $guard = $this->guard($request, 'championships.manage_assignments');
+        if ($guard instanceof Response) return $guard;
+        $championship = $this->resolve($params[0] ?? '', $guard, true);
+        if (!$championship) return Response::html('Campeonato nao encontrado ou sem acesso.', 404);
+        if (!$this->validCsrf($request)) return Response::forbidden('A sessao expirou.');
+        $userId = (int) ($params[1] ?? 0);
+        $this->championships->unassignOrganizer((int) $championship['id'], $userId);
+        $this->audit->record('championships.organizer_unassigned', (int) $guard['id'], 'championship', (int) $championship['id'], ['user_id' => $userId], $request);
+        Session::flash('championship_organizer_message', 'Vínculo de organizador encerrado.');
+        return Response::redirect(Config::url('/admin/campeonatos/' . $championship['slug'] . '/organizadores'));
+    }
+
     public function editForm(Request $request, array $params = []): Response
     {
         $guard = $this->guard($request, 'championships.update');
@@ -316,6 +358,18 @@ final class ChampionshipController extends Controller
             'candidates' => $this->userRepository->listByRole('accountability'),
             'errors' => $errors,
             'message' => Session::consumeFlash('championship_accountability_message'),
+        ];
+    }
+
+    private function organizersViewData(array $user, array $championship, array $errors = []): array
+    {
+        return [
+            'user' => $user,
+            'championship' => $championship,
+            'assignments' => $this->championships->organizerAssignments((int) $championship['id']),
+            'candidates' => $this->userRepository->listByRole('organizer'),
+            'errors' => $errors,
+            'message' => Session::consumeFlash('championship_organizer_message'),
         ];
     }
 

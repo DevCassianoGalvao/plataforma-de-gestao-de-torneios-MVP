@@ -148,6 +148,7 @@ final class TeamRepository
     private function scopeSql(int $userId, string $scope, bool $mutation): array
     {
         if ($scope === 'administrator') return ['1 = 1', []];
+        if ($scope === 'championship') return ["EXISTS (SELECT 1 FROM championship_user_assignments cua WHERE cua.championship_id = t.championship_id AND cua.user_id = ? AND cua.assignment_type = 'organizer')", [$userId]];
         $types = $mutation ? "'manager', 'head_coach'" : "'manager', 'head_coach', 'assistant_coach', 'viewer'";
         return ["EXISTS (SELECT 1 FROM team_user_assignments tua WHERE tua.team_id = t.id AND tua.user_id = ? AND tua.assignment_type IN ({$types}) AND tua.status = 'active')", [$userId]];
     }

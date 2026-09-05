@@ -15,6 +15,11 @@ final class TransferRepository
     public function championshipsForUser(int $userId, array $roles, bool $administrator): array
     {
         if ($administrator) return $this->pdo->query("SELECT id, name, slug FROM championships WHERE deleted_at IS NULL ORDER BY name")->fetchAll();
+        if (in_array('organizer', $roles, true)) {
+            $s = $this->pdo->prepare("SELECT c.id, c.name, c.slug FROM championships c INNER JOIN championship_user_assignments cua ON cua.championship_id = c.id AND cua.user_id = ? AND cua.assignment_type = 'organizer' WHERE c.deleted_at IS NULL ORDER BY c.name");
+            $s->execute([$userId]);
+            return $s->fetchAll();
+        }
         return [];
     }
 

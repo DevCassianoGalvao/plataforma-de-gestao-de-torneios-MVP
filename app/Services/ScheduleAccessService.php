@@ -17,6 +17,7 @@ final class ScheduleAccessService
     {
         $roles = $this->authorization->roleKeys($user);
         if (in_array('administrator', $roles, true)) return 'administrator';
+        if (in_array('organizer', $roles, true)) return 'championship';
         if (in_array('team_manager', $roles, true)) return 'team';
         return 'none';
     }
@@ -25,13 +26,14 @@ final class ScheduleAccessService
     {
         $scope = $this->scope($user);
         if ($scope === 'administrator') return $this->championships->findForUser($championshipId, 0, true);
+        if ($scope === 'championship') return $this->championships->findForUser($championshipId, (int) $user['id'], false);
         return null;
     }
 
     public function canManage(array $user, int $championshipId): bool
     {
         $scope = $this->scope($user);
-        return $scope === 'administrator' && $this->championship($user, $championshipId) !== null && $this->authorization->can($user, 'schedule.update');
+        return in_array($scope, ['administrator', 'championship'], true) && $this->championship($user, $championshipId) !== null && $this->authorization->can($user, 'schedule.update');
     }
 
     public function canGenerate(array $user, int $championshipId): bool
@@ -53,6 +55,7 @@ final class ScheduleAccessService
     {
         $scope = $this->scope($user);
         if ($scope === 'administrator') return $this->teams->listForUser(0, 'administrator', ['championship_id' => $championshipId, 'status' => 'active']);
+        if ($scope === 'championship') return $this->teams->listForUser((int) $user['id'], 'championship', ['championship_id' => $championshipId, 'status' => 'active']);
         return $this->teams->listForUser((int) $user['id'], 'team', ['championship_id' => $championshipId, 'status' => 'active']);
     }
 }

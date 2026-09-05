@@ -16,6 +16,7 @@ final class TeamAccessService
     {
         $roles = $this->authorization->roleKeys($user);
         if (in_array('administrator', $roles, true)) return 'administrator';
+        if (in_array('organizer', $roles, true)) return 'championship';
         return 'team';
     }
 
@@ -39,6 +40,7 @@ final class TeamAccessService
     {
         $scope = $this->scope($user);
         if ($scope === 'administrator') return $this->championships->listForUser((int) $user['id'], true);
+        if ($scope === 'championship') return $this->championships->listForUser((int) $user['id'], false);
         return [];
     }
 

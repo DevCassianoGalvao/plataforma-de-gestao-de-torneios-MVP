@@ -18,9 +18,21 @@ final class AuthSeed
         $now = date('Y-m-d H:i:s');
         $roles = [
             ['administrator', 'Administrador', 'Acesso global ao sistema.'],
+            ['organizer', 'Organizador do campeonato', 'Administra integralmente os campeonatos atribuidos, sem acesso global.'],
             ['team_manager', 'Treinador ou gestor de equipe', 'Opera a equipe autorizada.'],
             ['match_operator', 'Operador de partida', 'Opera partidas atribuidas.'],
             ['accountability', 'Prestacao de contas', 'Consulta e exporta evidencias autorizadas.'],
+        ];
+        $organizerGlobalOnly = [
+            'system.configure',
+            'users.view', 'users.create', 'users.update', 'users.deactivate', 'users.delete', 'users.manage_roles',
+            'audit.view',
+            'championships.create', 'championships.archive',
+            'seasons.manage', 'categories.manage', 'positions.manage', 'tactical_formations.manage',
+            'backup.view', 'backup.run', 'backup.download', 'backup.retry', 'backup.delete', 'backup.restore', 'backup.configure',
+            'retention.view', 'retention.manage', 'retention.archive', 'retention.restore', 'retention.purge',
+            'simulation.manage',
+            'match_publication.run',
         ];
         $permissions = [
             ['system.access', 'Acessar painel', 'Acessa o painel administrativo.', 'sistema'],
@@ -210,6 +222,7 @@ final class AuthSeed
         }
         $rolePermissions = [
             'administrator' => array_keys($permissionIds),
+            'organizer' => array_values(array_diff(array_keys($permissionIds), $organizerGlobalOnly)),
             'team_manager' => ['teams.view', 'teams.manage_own', 'teams.select_default_formation', 'team_staff.view', 'team_staff.create', 'team_staff.update', 'team_staff.deactivate', 'team_staff.manage_own', 'tactical_formations.view', 'athletes.view', 'athletes.create', 'athletes.manage_own', 'positions.view', 'athlete_guardians.view', 'athlete_guardians.create', 'athlete_guardians.update', 'athlete_guardians.manage_own', 'athlete_documents.view', 'athlete_documents.create', 'athlete_documents.update', 'athlete_documents.manage_own', 'registrations.view', 'registrations.create', 'registrations.update', 'registrations.submit', 'registrations.correct', 'registrations.cancel', 'registrations.manage_own', 'rosters.view', 'matches.view', 'schedule.view', 'lineups.view', 'lineups.create', 'lineups.update', 'lineups.confirm', 'lineups.manage_own', 'match_operation.view', 'discipline.view', 'suspensions.view', 'standings.view', 'match_reports.view', 'match_reports.download', 'transfers.request', 'teams.manage_identity'],
             'match_operator' => ['matches.view', 'matches.operate', 'lineups.view', 'match_operation.view', 'match_operation.operate', 'discipline.view', 'match_reports.view', 'match_reports.download', 'evidence.upload', 'evidence.remove', 'evidence.download'],
             'accountability' => ['championships.view', 'matches.view', 'match_reports.view', 'match_reports.download', 'match_reports.package', 'accountability.view', 'accountability.detail', 'accountability.export', 'accountability.export_pdf', 'accountability.export_xlsx', 'accountability.export_zip', 'match_reports.signed_upload', 'evidence.download', 'round.monitor.view', 'round.report.generate', 'round.package.download'],

@@ -166,6 +166,7 @@ final class RegistrationRepository
     private function scopeSql(int $userId, string $scope): array
     {
         if ($scope === 'administrator') return ['1 = 1', []];
+        if ($scope === 'championship') return ["EXISTS (SELECT 1 FROM championship_user_assignments cua WHERE cua.championship_id = ar.championship_id AND cua.user_id = ? AND cua.assignment_type = 'organizer')", [$userId]];
         return ["EXISTS (SELECT 1 FROM team_user_assignments tua WHERE tua.team_id = ar.team_id AND tua.user_id = ? AND tua.assignment_type IN ('manager', 'head_coach') AND tua.status = 'active')", [$userId]];
     }
 }

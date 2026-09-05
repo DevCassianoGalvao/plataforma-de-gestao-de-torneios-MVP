@@ -17,6 +17,11 @@ final class ChampionshipAccessService
         return in_array('administrator', $this->authorization->roleKeys($user), true);
     }
 
+    public function isOrganizer(array $user): bool
+    {
+        return in_array('organizer', $this->authorization->roleKeys($user), true);
+    }
+
     public function canView(array $user, int $championshipId): bool
     {
         if ($this->authorization->cannot($user, 'championships.view')) {
@@ -42,6 +47,6 @@ final class ChampionshipAccessService
 
     public function canManageAssignments(array $user, int $championshipId): bool
     {
-        return $this->isAdministrator($user) && $this->find($user, $championshipId, 'championships.manage_assignments', true) !== null;
+        return ($this->isAdministrator($user) || $this->isOrganizer($user)) && $this->find($user, $championshipId, 'championships.manage_assignments', true) !== null;
     }
 }

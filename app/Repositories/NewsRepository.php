@@ -18,6 +18,11 @@ final class NewsRepository
         if ($administrator) {
             return $this->pdo->query('SELECT c.id, c.name, c.slug FROM championships c WHERE c.deleted_at IS NULL ORDER BY c.name')->fetchAll();
         }
+        if (in_array('organizer', $roles, true)) {
+            $statement = $this->pdo->prepare("SELECT c.id, c.name, c.slug FROM championships c INNER JOIN championship_user_assignments cua ON cua.championship_id = c.id AND cua.user_id = ? AND cua.assignment_type = 'organizer' WHERE c.deleted_at IS NULL ORDER BY c.name");
+            $statement->execute([$userId]);
+            return $statement->fetchAll();
+        }
         return [];
     }
 

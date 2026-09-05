@@ -12,14 +12,14 @@ final class RoundMonitoringRepository
     public function championshipsFor(int $userId, bool $administrator): array
     {
         if ($administrator) return $this->pdo->query('SELECT id, name FROM championships WHERE deleted_at IS NULL ORDER BY name')->fetchAll();
-        $s = $this->pdo->prepare("SELECT c.id, c.name FROM championships c INNER JOIN championship_user_assignments a ON a.championship_id=c.id WHERE a.user_id=? AND a.assignment_type='accountability' AND c.deleted_at IS NULL ORDER BY c.name");
+        $s = $this->pdo->prepare("SELECT c.id, c.name FROM championships c INNER JOIN championship_user_assignments a ON a.championship_id=c.id WHERE a.user_id=? AND a.assignment_type IN ('accountability', 'organizer') AND c.deleted_at IS NULL ORDER BY c.name");
         $s->execute([$userId]); return $s->fetchAll();
     }
 
     public function allowed(int $championshipId, int $userId, bool $administrator): bool
     {
         if ($administrator) return true;
-        $s = $this->pdo->prepare("SELECT 1 FROM championship_user_assignments WHERE championship_id=? AND user_id=? AND assignment_type='accountability' LIMIT 1");
+        $s = $this->pdo->prepare("SELECT 1 FROM championship_user_assignments WHERE championship_id=? AND user_id=? AND assignment_type IN ('accountability', 'organizer') LIMIT 1");
         $s->execute([$championshipId, $userId]); return (bool) $s->fetchColumn();
     }
 
@@ -47,7 +47,7 @@ final class RoundMonitoringRepository
 
     public function options(int $userId, bool $administrator): array
     {
-        $scope = $administrator ? '1=1' : "EXISTS (SELECT 1 FROM championship_user_assignments cua WHERE cua.championship_id=c.id AND cua.user_id=" . (int) $userId . " AND cua.assignment_type='accountability')";
+        $scope = $administrator ? '1=1' : "EXISTS (SELECT 1 FROM championship_user_assignments cua WHERE cua.championship_id=c.id AND cua.user_id=" . (int) $userId . " AND cua.assignment_type IN ('accountability', 'organizer'))";
         return [
             'phases' => $this->pdo->query("SELECT p.id,p.name,c.name AS championship_name FROM competition_phases p INNER JOIN championships c ON c.id=p.championship_id WHERE c.deleted_at IS NULL AND $scope ORDER BY c.name,p.sequence_number")->fetchAll(),
             'groups' => $this->pdo->query("SELECT g.id,g.name,p.name AS phase_name FROM competition_groups g INNER JOIN competition_phases p ON p.id=g.phase_id INNER JOIN championships c ON c.id=p.championship_id WHERE c.deleted_at IS NULL AND $scope ORDER BY p.sequence_number,g.display_order")->fetchAll(),
@@ -63,7 +63,7 @@ final class RoundMonitoringRepository
         foreach (['championship_id' => 'c.id', 'phase_id' => 'p.id', 'group_id' => 'g.id', 'round_id' => 'r.id'] as $key => $column) {
             if (($filters[$key] ?? '') !== '') { $conditions[] = $column . '=?'; $params[] = (int) $filters[$key]; }
         }
-        if (!$administrator) { $conditions[] = "EXISTS (SELECT 1 FROM championship_user_assignments cua WHERE cua.championship_id=c.id AND cua.user_id=? AND cua.assignment_type='accountability')"; $params[] = $userId; }
+        if (!$administrator) { $conditions[] = "EXISTS (SELECT 1 FROM championship_user_assignments cua WHERE cua.championship_id=c.id AND cua.user_id=? AND cua.assignment_type IN ('accountability', 'organizer'))"; $params[] = $userId; }
         if (!empty($filters['from'])) { $conditions[] = '(r.period_end IS NULL OR r.period_end >= ?)'; $params[] = $filters['from']; }
         if (!empty($filters['to'])) { $conditions[] = '(r.period_start IS NULL OR r.period_start <= ?)'; $params[] = $filters['to']; }
         if (!empty($filters['team_id'])) { $conditions[] = 'EXISTS (SELECT 1 FROM matches mt WHERE mt.round_id=r.id AND (mt.home_team_id=? OR mt.away_team_id=?))'; $params[]=(int)$filters['team_id']; $params[]=(int)$filters['team_id']; }

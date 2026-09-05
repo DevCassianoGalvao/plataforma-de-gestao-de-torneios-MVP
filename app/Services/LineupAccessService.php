@@ -17,6 +17,7 @@ final class LineupAccessService
     {
         $roles = $this->authorization->roleKeys($user);
         if (in_array('administrator', $roles, true)) return 'administrator';
+        if (in_array('organizer', $roles, true)) return 'championship';
         if (in_array('team_manager', $roles, true)) return 'team';
         if (in_array('match_operator', $roles, true)) return 'operator';
         return 'none';
@@ -32,7 +33,7 @@ final class LineupAccessService
     public function canManageTeam(array $user, array $match, int $teamId): bool
     {
         if (!in_array($teamId, [(int) $match['home_team_id'], (int) $match['away_team_id']], true)) return false;
-        if ($this->scope($user) === 'administrator') return $this->authorization->can($user, 'lineups.update');
+        if (in_array($this->scope($user), ['administrator', 'championship'], true)) return $this->authorization->can($user, 'lineups.update') && $this->matchForUser($user, (int) $match['id']) !== null;
         if ($this->scope($user) !== 'team' || $this->authorization->cannot($user, 'lineups.manage_own')) return false;
         return $this->teams->findForUser($teamId, (int) $user['id'], 'team', true) !== null;
     }
@@ -45,7 +46,7 @@ final class LineupAccessService
 
     public function canReopen(array $user, array $match, int $teamId): bool
     {
-        return $this->scope($user) === 'administrator' && $this->authorization->can($user, 'lineups.reopen') && in_array($teamId, [(int) $match['home_team_id'], (int) $match['away_team_id']], true);
+        return in_array($this->scope($user), ['administrator', 'championship'], true) && $this->authorization->can($user, 'lineups.reopen') && in_array($teamId, [(int) $match['home_team_id'], (int) $match['away_team_id']], true) && $this->matchForUser($user, (int) $match['id']) !== null;
     }
 
     public function canView(array $user, array $match, ?array $lineup = null): bool
@@ -54,6 +55,7 @@ final class LineupAccessService
         if ($scope === 'none') return false;
         if ($scope === 'operator') return $lineup !== null && $lineup['status'] === 'confirmed';
         if ($scope === 'administrator') return $this->authorization->can($user, 'lineups.view');
+        if ($scope === 'championship') return $this->authorization->can($user, 'lineups.view') && $this->matchForUser($user, (int) $match['id']) !== null;
         return $this->authorization->can($user, 'lineups.view') && $this->schedules->matchForUser((int) $match['id'], (int) $user['id'], 'team') !== null;
     }
 

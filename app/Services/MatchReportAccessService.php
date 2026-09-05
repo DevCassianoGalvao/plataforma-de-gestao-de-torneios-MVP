@@ -31,20 +31,21 @@ final class MatchReportAccessService
     public function canGenerate(array $user, array $match): bool
     {
         $roles = $this->authorization->roleKeys($user);
-        $canGenerate = $this->authorization->can($user, 'match_reports.generate');
-        return $canGenerate && in_array('administrator', $roles, true);
+        if (!$this->authorization->can($user, 'match_reports.generate')) return false;
+        if (in_array('administrator', $roles, true)) return true;
+        return in_array('organizer', $roles, true) && $this->matchForUser($user, (int) $match['id']) !== null;
     }
 
     public function canPackage(array $user, int $championshipId): bool
     {
         if (!$this->authorization->can($user, 'match_reports.package')) return false;
-        $roles = $this->authorization->roleKeys($user);
-        return in_array('administrator', $roles, true);
+        return $this->authorizedChampionship($user, $championshipId);
     }
 
     public function authorizedChampionship(array $user, int $championshipId): bool
     {
         $roles = $this->authorization->roleKeys($user);
-        return in_array('administrator', $roles, true) && $this->championships->findForUser($championshipId, 0, true) !== null;
+        if (in_array('administrator', $roles, true)) return $this->championships->findForUser($championshipId, 0, true) !== null;
+        return in_array('organizer', $roles, true) && $this->championships->findForUser($championshipId, (int) $user['id'], false) !== null;
     }
 }
