@@ -60,7 +60,22 @@ final class PublicPortalRepository
 
     public function standings(int $championshipId): array
     {
-        $sql = "SELECT s.group_id, s.position, s.matches_played, s.wins, s.draws, s.losses, s.goals_for, s.goals_against, s.goal_difference, s.points, s.win_percentage, s.situation, g.name AS group_name, p.name AS phase_name, t.id AS team_id, t.name AS team_name, t.short_name AS team_short_name, t.slug, t.shield_path FROM competition_standings s INNER JOIN competition_groups g ON g.id = s.group_id INNER JOIN competition_phases p ON p.id = s.phase_id INNER JOIN teams t ON t.id = s.team_id WHERE s.championship_id = ? AND p.status <> 'draft' AND NOT EXISTS (SELECT 1 FROM matches m LEFT JOIN match_publications mp ON mp.match_id = m.id WHERE m.group_id = s.group_id AND m.status = 'homologated' AND (mp.id IS NULL OR mp.status <> 'published')) ORDER BY p.sequence_number, g.display_order, s.position"; $statement = $this->pdo->prepare($sql); $statement->execute([$championshipId]); return $statement->fetchAll();
+        $sql = "SELECT s.group_id, s.position, s.matches_played, s.wins, s.draws, s.losses, s.goals_for, s.goals_against, s.goal_difference, s.points, s.win_percentage, s.situation, g.name AS group_name, p.name AS phase_name, t.id AS team_id, t.name AS team_name, t.short_name AS team_short_name, t.slug, t.shield_path FROM competition_standings s INNER JOIN competition_groups g ON g.id = s.group_id INNER JOIN competition_phases p ON p.id = s.phase_id INNER JOIN teams t ON t.id = s.team_id WHERE s.championship_id = ? AND p.status <> 'draft' AND NOT EXISTS (SELECT 1 FROM matches m LEFT JOIN match_publications mp ON mp.match_id = m.id WHERE m.group_id = s.group_id AND m.status = 'homologated' AND (mp.id IS NULL OR mp.status <> 'published')) ORDER BY p.sequence_number, g.display_order, s.position"; $statement = $this->pdo->prepare($sql); $statement->execute([$championshipId]); $rows = $statement->fetchAll();
+        return $rows !== [] ? $rows : $this->zeroedStandings($championshipId);
+    }
+
+    /** Antes de qualquer partida homologada nao existe registro em competition_standings; monta a tabela zerada a partir dos grupos publicados para o portal nao ficar vazio. */
+    private function zeroedStandings(int $championshipId): array
+    {
+        $sql = "SELECT g.id AS group_id, g.name AS group_name, p.name AS phase_name, t.id AS team_id, t.name AS team_name, t.short_name AS team_short_name, t.slug, t.shield_path FROM competition_groups g INNER JOIN competition_phases p ON p.id = g.phase_id INNER JOIN group_teams gt ON gt.group_id = g.id AND gt.status = 'active' INNER JOIN teams t ON t.id = gt.team_id WHERE p.championship_id = ? AND p.phase_type = 'groups' AND p.status <> 'draft' AND g.status <> 'draft' ORDER BY p.sequence_number, g.display_order, gt.position IS NULL, gt.position, t.name";
+        $statement = $this->pdo->prepare($sql); $statement->execute([$championshipId]); $teams = $statement->fetchAll();
+        $position = []; $rows = [];
+        foreach ($teams as $team) {
+            $groupId = (int) $team['group_id'];
+            $position[$groupId] = ($position[$groupId] ?? 0) + 1;
+            $rows[] = ['group_id' => $groupId, 'position' => $position[$groupId], 'matches_played' => 0, 'wins' => 0, 'draws' => 0, 'losses' => 0, 'goals_for' => 0, 'goals_against' => 0, 'goal_difference' => 0, 'points' => 0, 'win_percentage' => 0, 'situation' => 'pending', 'group_name' => $team['group_name'], 'phase_name' => $team['phase_name'], 'team_id' => (int) $team['team_id'], 'team_name' => $team['team_name'], 'team_short_name' => $team['team_short_name'], 'slug' => $team['slug'], 'shield_path' => $team['shield_path']];
+        }
+        return $rows;
     }
 
     public function knockout(int $championshipId): array
