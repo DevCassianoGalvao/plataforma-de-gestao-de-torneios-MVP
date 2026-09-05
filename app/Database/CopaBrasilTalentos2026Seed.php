@@ -33,7 +33,8 @@ final class CopaBrasilTalentos2026Seed
             $phases = self::phases($pdo, $championshipId, $adminId, $now);
             $teams = self::teams($pdo, $championshipId, $adminId, $now);
             $trainerAccounts = self::coaches($pdo, $championshipId, $teams, $adminId, $now, $trainerPassword);
-            self::groups($pdo, $phases['groups'], $teams, $now);
+            self::groups($pdo, $phases['groups'], $championshipId, $now);
+            self::schedule($pdo, $championshipId, $phases['groups'], $adminId, $now);
             self::eligibility($pdo, $regulationId, $phases['groups'], $phases['knockout'], $now);
             self::assignment($pdo, $championshipId, $adminId, $now);
             $pdo->commit();
@@ -102,8 +103,8 @@ final class CopaBrasilTalentos2026Seed
     private static function regulationSettings(PDO $pdo, int $regulationId, string $now): void
     {
         self::upsert($pdo, 'regulation_format_settings', $regulationId, [
-            'group_count' => 2, 'teams_per_group' => 5, 'qualified_per_group' => 2, 'group_rounds' => 'single', 'home_and_away' => 0,
-            'knockout_starts_at' => 'semifinals', 'third_place_match' => 0, 'final_format' => 'two_legs',
+            'group_count' => 2, 'teams_per_group' => 5, 'qualified_per_group' => 4, 'group_rounds' => 'single', 'home_and_away' => 0,
+            'knockout_starts_at' => 'quarterfinals', 'third_place_match' => 0, 'final_format' => 'two_legs',
         ], $now);
         self::upsert($pdo, 'regulation_points_settings', $regulationId, ['points_win' => 3, 'points_draw' => 1, 'points_loss' => 0, 'wo_winner_goals' => 3, 'wo_loser_goals' => 0], $now);
         self::upsert($pdo, 'regulation_discipline_settings', $regulationId, [
@@ -134,7 +135,13 @@ final class CopaBrasilTalentos2026Seed
         foreach (['head_to_head', 'wins', 'goal_difference', 'goals_conceded', 'fewer_cards', 'draw_lots'] as $priority => $name) $criterion->execute([$regulationId, $name, $priority + 1, $now]);
         $pdo->prepare('DELETE FROM regulation_knockout_pairings WHERE regulation_id = ?')->execute([$regulationId]);
         $pairing = $pdo->prepare('INSERT INTO regulation_knockout_pairings (regulation_id, stage, tie_number, home_source, away_source, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)');
-        foreach ([['semifinals', 1, 'A1', 'B2'], ['semifinals', 2, 'B1', 'A2'], ['final', 1, 'SF1', 'SF2']] as $item) $pairing->execute([$regulationId, $item[0], $item[1], $item[2], $item[3], $now, $now]);
+        $knockoutPairings = [
+            ['quarterfinals', 1, 'A1', 'B4'], ['quarterfinals', 2, 'B1', 'A4'],
+            ['quarterfinals', 3, 'A2', 'B3'], ['quarterfinals', 4, 'B2', 'A3'],
+            ['semifinals', 1, 'QF1', 'QF3'], ['semifinals', 2, 'QF2', 'QF4'],
+            ['final', 1, 'SF1', 'SF2'],
+        ];
+        foreach ($knockoutPairings as $item) $pairing->execute([$regulationId, $item[0], $item[1], $item[2], $item[3], $now, $now]);
         $docType = (int) $pdo->query("SELECT id FROM athlete_document_types WHERE `key` = 'athlete_document' LIMIT 1")->fetchColumn();
         if ($docType) {
             $pdo->prepare('DELETE FROM regulation_required_documents WHERE regulation_id = ?')->execute([$regulationId]);
@@ -145,13 +152,13 @@ final class CopaBrasilTalentos2026Seed
     private static function phases(PDO $pdo, int $championshipId, int $adminId, string $now): array
     {
         $phase = $pdo->prepare('INSERT INTO competition_phases (championship_id, name, slug, phase_type, sequence_number, group_count, teams_per_group, qualified_per_group, status, published_at, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE name = VALUES(name), phase_type = VALUES(phase_type), sequence_number = VALUES(sequence_number), group_count = VALUES(group_count), teams_per_group = VALUES(teams_per_group), qualified_per_group = VALUES(qualified_per_group), status = VALUES(status), published_at = COALESCE(published_at, VALUES(published_at)), updated_at = VALUES(updated_at)');
-        $phase->execute([$championshipId, 'Fase de grupos', 'fase-grupos', 'groups', 1, 2, 5, 2, 'published', $now, $adminId, $now, $now]);
-        $phase->execute([$championshipId, 'Mata-mata', 'mata-mata', 'knockout', 2, 1, 4, 0, 'published', $now, $adminId, $now, $now]);
+        $phase->execute([$championshipId, 'Fase de grupos', 'fase-grupos', 'groups', 1, 2, 5, 4, 'published', $now, $adminId, $now, $now]);
+        $phase->execute([$championshipId, 'Mata-mata', 'mata-mata', 'knockout', 2, 1, 8, 0, 'published', $now, $adminId, $now, $now]);
         $find = $pdo->prepare('SELECT id, slug FROM competition_phases WHERE championship_id = ? AND slug IN (?, ?) ORDER BY sequence_number');
         $find->execute([$championshipId, 'fase-grupos', 'mata-mata']);
         $result = ['groups' => 0, 'knockout' => 0];
         foreach ($find->fetchAll() as $item) $result[$item['slug'] === 'fase-grupos' ? 'groups' : 'knockout'] = (int) $item['id'];
-        $group = $pdo->prepare('INSERT INTO competition_groups (phase_id, name, code, display_order, teams_limit, qualified_limit, status, published_at, created_at, updated_at) VALUES (?, ?, ?, ?, 5, 2, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE name = VALUES(name), teams_limit = 5, qualified_limit = 2, status = VALUES(status), published_at = COALESCE(published_at, VALUES(published_at)), updated_at = VALUES(updated_at)');
+        $group = $pdo->prepare('INSERT INTO competition_groups (phase_id, name, code, display_order, teams_limit, qualified_limit, status, published_at, created_at, updated_at) VALUES (?, ?, ?, ?, 5, 4, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE name = VALUES(name), teams_limit = 5, qualified_limit = 4, status = VALUES(status), published_at = COALESCE(published_at, VALUES(published_at)), updated_at = VALUES(updated_at)');
         $group->execute([$result['groups'], 'Grupo A', 'A', 1, 'published', $now, $now, $now]);
         $group->execute([$result['groups'], 'Grupo B', 'B', 2, 'published', $now, $now, $now]);
         $group->execute([$result['knockout'], 'Chave principal', 'KO', 1, 'published', $now, $now, $now]);
@@ -284,15 +291,116 @@ final class CopaBrasilTalentos2026Seed
         return ['created' => $created, 'linked' => $linked];
     }
 
-    private static function groups(PDO $pdo, int $phaseId, array $teamIds, string $now): void
+    /** Grupos oficiais definidos no sorteio de 05/09/2026. */
+    private static function drawnGroups(): array
+    {
+        return [
+            'A' => ['boa-esperanca-fc', 'lumiar-fc', 'viguinha-fc', 'rio-bonito-fc', 'ousadia-e-alegria-fc'],
+            'B' => ['bragantino-fc', 'sana-fc', 'santiago-fc', 'retiro-saudoso-fc', 'mury-fc'],
+        ];
+    }
+
+    private static function groups(PDO $pdo, int $phaseId, int $championshipId, string $now): void
     {
         $find = $pdo->prepare('SELECT id, code FROM competition_groups WHERE phase_id = ? ORDER BY display_order');
         $find->execute([$phaseId]);
-        $groups = $find->fetchAll();
-        if (count($groups) < 2) throw new \RuntimeException('Os grupos da Copa nao foram criados.');
-        $pdo->prepare("UPDATE group_teams SET status = 'withdrawn', withdrawn_at = ?, updated_at = ? WHERE phase_id = ? AND team_id NOT IN (" . implode(',', array_fill(0, count($teamIds), '?')) . ")")->execute(array_merge([$now, $now, $phaseId], $teamIds));
+        $groupIdByCode = [];
+        foreach ($find->fetchAll() as $row) $groupIdByCode[(string) $row['code']] = (int) $row['id'];
+        if (count($groupIdByCode) < 2) throw new \RuntimeException('Os grupos da Copa nao foram criados.');
+
+        $teamId = $pdo->prepare('SELECT id FROM teams WHERE championship_id = ? AND slug = ? AND deleted_at IS NULL LIMIT 1');
+        $rows = [];
+        $allIds = [];
+        foreach (self::drawnGroups() as $code => $slugs) {
+            if (!isset($groupIdByCode[$code])) throw new \RuntimeException('Grupo do sorteio nao encontrado: ' . $code);
+            foreach ($slugs as $position => $slug) {
+                $teamId->execute([$championshipId, $slug]);
+                $id = (int) $teamId->fetchColumn();
+                if (!$id) throw new \RuntimeException('Equipe do sorteio nao encontrada: ' . $slug);
+                $rows[] = [$groupIdByCode[$code], $id, $position + 1];
+                $allIds[] = $id;
+            }
+        }
+        $pdo->prepare("UPDATE group_teams SET status = 'withdrawn', withdrawn_at = ?, updated_at = ? WHERE phase_id = ? AND team_id NOT IN (" . implode(',', array_fill(0, count($allIds), '?')) . ")")->execute(array_merge([$now, $now, $phaseId], $allIds));
         $insert = $pdo->prepare("INSERT INTO group_teams (phase_id, group_id, team_id, position, status, joined_at, updated_at) VALUES (?, ?, ?, ?, 'active', ?, ?) ON DUPLICATE KEY UPDATE group_id = VALUES(group_id), position = VALUES(position), status = 'active', withdrawn_at = NULL, updated_at = VALUES(updated_at)");
-        foreach (array_chunk($teamIds, 5) as $groupIndex => $chunk) foreach ($chunk as $position => $teamId) $insert->execute([$phaseId, (int) $groups[$groupIndex]['id'], $teamId, $position + 1, $now, $now]);
+        foreach ($rows as [$groupId, $id, $position]) $insert->execute([$phaseId, $groupId, $id, $position, $now, $now]);
+    }
+
+    /**
+     * Tabela oficial da fase de grupos (sorteio de 05/09/2026).
+     * Fins de semana 04/10 e 25/10 nao tem rodada (eleicoes) e sao ignorados.
+     */
+    private static function schedule(PDO $pdo, int $championshipId, int $phaseId, int $adminId, string $now): void
+    {
+        $groupIdByCode = [];
+        $find = $pdo->prepare('SELECT id, code FROM competition_groups WHERE phase_id = ? ORDER BY display_order');
+        $find->execute([$phaseId]);
+        foreach ($find->fetchAll() as $row) $groupIdByCode[(string) $row['code']] = (int) $row['id'];
+        if (count($groupIdByCode) < 2) throw new \RuntimeException('Os grupos da Copa nao foram criados.');
+
+        $teamIdBySlug = [];
+        $teams = $pdo->prepare('SELECT id, slug FROM teams WHERE championship_id = ? AND deleted_at IS NULL');
+        $teams->execute([$championshipId]);
+        foreach ($teams->fetchAll() as $row) $teamIdBySlug[(string) $row['slug']] = (int) $row['id'];
+
+        // [rodada => [label, data, [ [grupo, hora, mandante_slug, visitante_slug], ... ]]]
+        $rounds = [
+            1 => ['1ª rodada', '2026-09-27', [
+                ['A', '09:00:00', 'lumiar-fc', 'ousadia-e-alegria-fc'],
+                ['B', '11:00:00', 'bragantino-fc', 'sana-fc'],
+                ['A', '13:00:00', 'viguinha-fc', 'rio-bonito-fc'],
+                ['B', '15:00:00', 'santiago-fc', 'retiro-saudoso-fc'],
+            ]],
+            2 => ['2ª rodada', '2026-10-11', [
+                ['B', '09:00:00', 'mury-fc', 'sana-fc'],
+                ['A', '11:00:00', 'boa-esperanca-fc', 'ousadia-e-alegria-fc'],
+                ['B', '13:00:00', 'bragantino-fc', 'santiago-fc'],
+                ['A', '15:00:00', 'lumiar-fc', 'viguinha-fc'],
+            ]],
+            3 => ['3ª rodada', '2026-10-18', [
+                ['A', '09:00:00', 'boa-esperanca-fc', 'rio-bonito-fc'],
+                ['B', '11:00:00', 'sana-fc', 'santiago-fc'],
+                ['A', '13:00:00', 'ousadia-e-alegria-fc', 'viguinha-fc'],
+                ['B', '15:00:00', 'mury-fc', 'retiro-saudoso-fc'],
+            ]],
+            4 => ['4ª rodada', '2026-11-01', [
+                ['B', '09:00:00', 'retiro-saudoso-fc', 'bragantino-fc'],
+                ['A', '11:00:00', 'boa-esperanca-fc', 'viguinha-fc'],
+                ['B', '13:00:00', 'mury-fc', 'santiago-fc'],
+                ['A', '15:00:00', 'rio-bonito-fc', 'lumiar-fc'],
+            ]],
+            5 => ['5ª rodada', '2026-11-08', [
+                ['B', '09:00:00', 'mury-fc', 'bragantino-fc'],
+                ['A', '11:00:00', 'rio-bonito-fc', 'ousadia-e-alegria-fc'],
+                ['A', '13:00:00', 'boa-esperanca-fc', 'lumiar-fc'],
+                ['B', '15:00:00', 'retiro-saudoso-fc', 'sana-fc'],
+            ]],
+        ];
+
+        $roundInsert = $pdo->prepare('INSERT INTO competition_rounds (phase_id, group_id, round_number, round_label, period_start, period_end, status, published_at, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, \'published\', ?, ?, ?) ON DUPLICATE KEY UPDATE round_label = VALUES(round_label), period_start = VALUES(period_start), period_end = VALUES(period_end), status = \'published\', published_at = COALESCE(published_at, VALUES(published_at)), updated_at = VALUES(updated_at)');
+        $roundLookup = $pdo->prepare('SELECT id FROM competition_rounds WHERE group_id = ? AND round_number = ? LIMIT 1');
+        $matchInsert = $pdo->prepare('INSERT INTO matches (championship_id, phase_id, group_id, round_id, home_team_id, away_team_id, venue_id, fixture_key, leg_number, match_order, match_date, match_time, status, observation, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, NULL, ?, 1, ?, ?, ?, \'scheduled\', NULL, ?, ?, ?) ON DUPLICATE KEY UPDATE group_id = VALUES(group_id), round_id = VALUES(round_id), match_order = VALUES(match_order), match_date = VALUES(match_date), match_time = VALUES(match_time), status = IF(status IN (\'finished\', \'homologated\', \'wo\', \'cancelled\'), status, \'scheduled\'), updated_at = VALUES(updated_at), id = LAST_INSERT_ID(id)');
+        $publish = $pdo->prepare('INSERT INTO match_publications (match_id, status, published_at, published_by, created_at, updated_at) VALUES (?, \'published\', ?, ?, ?, ?) ON DUPLICATE KEY UPDATE status = \'published\', published_at = COALESCE(match_publications.published_at, VALUES(published_at)), published_by = COALESCE(match_publications.published_by, VALUES(published_by)), updated_at = VALUES(updated_at)');
+
+        foreach ($rounds as $number => [$label, $date, $games]) {
+            foreach (['A', 'B'] as $code) {
+                $roundInsert->execute([$phaseId, $groupIdByCode[$code], $number, $label, $date, $date, $now, $now, $now]);
+            }
+            $orderByGroup = [];
+            foreach ($games as [$code, $time, $homeSlug, $awaySlug]) {
+                $groupId = $groupIdByCode[$code] ?? 0;
+                $homeId = $teamIdBySlug[$homeSlug] ?? 0;
+                $awayId = $teamIdBySlug[$awaySlug] ?? 0;
+                if (!$groupId || !$homeId || !$awayId) throw new \RuntimeException('Dados do jogo nao encontrados: ' . $homeSlug . ' x ' . $awaySlug);
+                $roundLookup->execute([$groupId, $number]);
+                $roundId = (int) $roundLookup->fetchColumn();
+                if (!$roundId) throw new \RuntimeException('Rodada nao encontrada apos criacao: grupo ' . $code . ' rodada ' . $number);
+                $orderByGroup[$groupId] = ($orderByGroup[$groupId] ?? 0) + 1;
+                $fixtureKey = hash('sha256', implode(':', [$phaseId, $groupId, $number, 1, $homeId, $awayId]));
+                $matchInsert->execute([$championshipId, $phaseId, $groupId, $roundId, $homeId, $awayId, $fixtureKey, $orderByGroup[$groupId], $date, $time, $adminId, $now, $now]);
+                $publish->execute([(int) $pdo->lastInsertId(), $now, $adminId, $now, $now]);
+            }
+        }
     }
 
     private static function eligibility(PDO $pdo, int $regulationId, int $groupsPhaseId, int $knockoutPhaseId, string $now): void

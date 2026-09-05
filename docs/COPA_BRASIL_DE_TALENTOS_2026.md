@@ -8,10 +8,12 @@ Este documento registra a configuração inicial da Copa Brasil de Talentos 2026
 
 - Temporada: 2026.
 - Categoria: Adulto Masculino.
-- Dez equipes, distribuídas em dois grupos de cinco.
-- Fase de grupos em turno único, com as equipes jogando entre si.
-- Dois classificados por grupo.
-- Semifinais: primeiro do Grupo A contra segundo do Grupo B e primeiro do Grupo B contra segundo do Grupo A.
+- Dez equipes, distribuídas em dois grupos de cinco conforme o sorteio de 05/09/2026.
+  - Grupo A: Boa Esperança, Lumiar, Viguinha, Rio Bonito e Ousadia e Alegria.
+  - Grupo B: Bragantino, Sana FC, Santiago, Retiro Saudoso e Mury.
+- Fase de grupos em turno único, cada equipe joga quatro partidas dentro do próprio grupo.
+- Quatro classificados por grupo, oito equipes no mata-mata.
+- Quartas de final: 1º G1 x 4º G2, 2º G1 x 3º G2, 1º G2 x 4º G1 e 2º G2 x 3º G1.
 - Semifinais e final em ida e volta.
 - Pontuação: vitória vale 3 pontos, empate vale 1 ponto e derrota vale 0 ponto.
 - Desempates: confronto direto, vitórias, saldo de gols, menor número de gols sofridos, menor número de cartões somados e sorteio.
@@ -44,7 +46,7 @@ Os nomes utilizados na ordem dos arquivos enviados são:
 9. Ousadia e Alegria FC
 10. Rio Bonito FC
 
-A distribuição inicial é sequencial: cinco primeiras equipes no Grupo A e cinco seguintes no Grupo B. O regulamento não informa datas, horários, locais ou nomes completos de todos os treinadores; por isso esses dados não foram inventados e permanecem editáveis no painel.
+A distribuição dos grupos segue o sorteio oficial de 05/09/2026 (ver acima), não mais a ordem dos arquivos. O regulamento não informa locais nem nomes completos de todos os treinadores; esses dados permanecem editáveis no painel. As datas e horários das rodadas vêm do sorteio e são criados pelo seed (ver "Tabela da fase de grupos").
 
 ## Execução
 
@@ -65,9 +67,23 @@ COPA_TRAINER_INITIAL_PASSWORD='Copa2026!Inicial' ALLOW_COPA_BRASIL_SEED=1 php bi
 
 Sem essa variável, o comando é bloqueado para evitar uma configuração acidental. O seed não altera a senha nem cria usuário demo quando já existe um administrador ativo.
 
+## Tabela da fase de grupos
+
+O seed cria as cinco rodadas de cada grupo e as vinte partidas do sorteio oficial, todas com status `scheduled` e publicadas no portal público (`match_publications = published`). Sem local definido (`venue_id` nulo); o operador ajusta o local pelo painel.
+
+| Rodada | Data | Jogos (09h / 11h / 13h / 15h) |
+| --- | --- | --- |
+| 1ª rodada | 27/09/2026 | Lumiar x Ousadia e Alegria · Bragantino x Sana · Viguinha x Rio Bonito · Santiago x Retiro Saudoso |
+| 2ª rodada | 11/10/2026 | Mury x Sana · Boa Esperança x Ousadia e Alegria · Bragantino x Santiago · Lumiar x Viguinha |
+| 3ª rodada | 18/10/2026 | Boa Esperança x Rio Bonito · Sana x Santiago · Ousadia e Alegria x Viguinha · Mury x Retiro Saudoso |
+| 4ª rodada | 01/11/2026 | Retiro Saudoso x Bragantino · Boa Esperança x Viguinha · Mury x Santiago · Rio Bonito x Lumiar |
+| 5ª rodada | 08/11/2026 | Mury x Bragantino · Rio Bonito x Ousadia e Alegria · Boa Esperança x Lumiar · Retiro Saudoso x Sana |
+
+Os fins de semana de 04/10 e 25/10 não têm rodada (eleições) e não geram registro. Reexecutar o seed é idempotente: as partidas são reconhecidas pela `fixture_key` e apenas atualizadas enquanto não tiverem resultado (`finished`, `homologated`, `wo`, `cancelled` são preservados).
+
 ## O que ainda depende de operação
 
-O seed não cria partidas com datas fictícias, atletas, inscrições ou resultados. Esses dados devem ser cadastrados pelo fluxo administrativo quando a organização fornecer as informações reais. A estrutura de W.O., os campos regulamentares e a configuração do mata-mata estão preparados, mas a decisão de W.O. deve ser registrada pelo operador e aprovada conforme o fluxo oficial.
+O seed não cria atletas, inscrições ou resultados. Esses dados devem ser cadastrados pelo fluxo administrativo quando a organização fornecer as informações reais. A estrutura de W.O., os campos regulamentares e a configuração do mata-mata estão preparados, mas a decisão de W.O. deve ser registrada pelo operador e aprovada conforme o fluxo oficial.
 
 O modelo atual já suporta a configuração de ida e volta. O cálculo agregado de uma disputa de duas partidas e a geração automática dos dois jogos de cada confronto devem ser validados em uma rodada específica antes da publicação da tabela oficial.
 ## Acessos dos treinadores
