@@ -5,7 +5,7 @@ Versão web para enviar aos treinadores: publicada como Artifact (link compartil
 
 ## Acesso
 
-- **Endereço:** `https://www.cassianogalvao.com.br/torneio-online/login`
+- **Endereço:** `https://torneioonlineweb.com.br/login`
 - **E-mail:** o que a organização enviou para o treinador.
 - **Senha inicial:** definida pela organização (`COPA_TRAINER_INITIAL_PASSWORD` no seed). O treinador troca no passo 2.
 
