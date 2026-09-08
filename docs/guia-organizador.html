@@ -1,0 +1,444 @@
+<meta charset="utf-8">
+<title>Guia do Organizador</title>
+<meta name="description" content="O que o Organizador do campeonato pode fazer no painel e em que ordem montar a competição.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+  :root {
+    --paper: #F1EEE2;
+    --card: #FBFAF4;
+    --ink: #15211B;
+    --muted: #56685C;
+    --pitch: #1E4634;
+    --pitch-ink: #F3F0E4;
+    --gold: #9C7118;
+    --gold-line: #C6A24A;
+    --gold-soft: #ECE1C2;
+    --line: #DAD3BE;
+    --good: #2C7B50;
+    --shadow: 0 1px 0 rgba(21,33,27,.04), 0 12px 30px -18px rgba(21,33,27,.28);
+    --display: "Bricolage Grotesque", "Trebuchet MS", sans-serif;
+    --body: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #0E1712;
+      --card: #16221B;
+      --ink: #E7E9DD;
+      --muted: #93A497;
+      --pitch: #24523C;
+      --pitch-ink: #EAF1E9;
+      --gold: #D9B45F;
+      --gold-line: #B48F3F;
+      --gold-soft: #26332A;
+      --line: #293630;
+      --good: #58B584;
+      --shadow: 0 1px 0 rgba(0,0,0,.25), 0 16px 34px -20px rgba(0,0,0,.7);
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #0E1712;
+    --card: #16221B;
+    --ink: #E7E9DD;
+    --muted: #93A497;
+    --pitch: #24523C;
+    --pitch-ink: #EAF1E9;
+    --gold: #D9B45F;
+    --gold-line: #B48F3F;
+    --gold-soft: #26332A;
+    --line: #293630;
+    --good: #58B584;
+    --shadow: 0 1px 0 rgba(0,0,0,.25), 0 16px 34px -20px rgba(0,0,0,.7);
+  }
+
+  * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-text-size-adjust: 100%;
+  }
+  .wrap {
+    max-width: 40rem;
+    margin: 0 auto;
+    padding: clamp(1.4rem, 6vw, 2.4rem) clamp(1.15rem, 5vw, 1.75rem) 3rem;
+  }
+
+  .eyebrow {
+    margin: 0 0 .5rem;
+    font-family: var(--mono);
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+  h1 {
+    margin: 0;
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: clamp(2rem, 8vw, 2.7rem);
+    line-height: 1.05;
+    letter-spacing: -.015em;
+    text-wrap: balance;
+  }
+  .lede { margin: .7rem 0 0; color: var(--muted); max-width: 46ch; }
+
+  h2.sec {
+    margin: 1.25rem 0 .55rem;
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 1.28rem;
+    letter-spacing: -.02em;
+    text-wrap: balance;
+  }
+  h2.sec .tag {
+    display: block;
+    margin-bottom: .1rem;
+    font-family: var(--mono);
+    font-size: .64rem;
+    font-weight: 700;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+
+  .rule { height: 2px; margin: 1.05rem 0; background: var(--gold-line); border: 0; opacity: .55; }
+
+  .access {
+    background: var(--gold-soft);
+    border: 1px solid var(--gold-line);
+    border-radius: 12px;
+    padding: 1rem 1.1rem;
+    box-shadow: var(--shadow);
+  }
+  .access h2 { margin: 0 0 .55rem; font-family: var(--display); font-size: 1.05rem; letter-spacing: -.01em; }
+  .access dl { margin: 0; display: grid; gap: .55rem; }
+  .access dt {
+    font-family: var(--mono);
+    font-size: .68rem;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .access dd { margin: .1rem 0 0; }
+  .url { display: inline-block; font-family: var(--mono); font-weight: 700; font-size: .95rem; word-break: break-all; }
+  a.url { color: var(--gold); text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 3px; }
+  .fill {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: .9rem;
+    font-weight: 700;
+    color: var(--gold);
+    background: color-mix(in srgb, var(--gold) 12%, transparent);
+    border: 1px dashed var(--gold-line);
+    border-radius: 6px;
+    padding: .05rem .45rem;
+  }
+  .access p.note { margin: .7rem 0 0; color: var(--muted); font-size: .9rem; }
+
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; gap: .78rem; }
+  .steps > li {
+    display: grid;
+    grid-template-columns: 2.1rem 1fr;
+    column-gap: .9rem;
+    row-gap: .2rem;
+    break-inside: avoid;
+  }
+  .n {
+    grid-row: 1;
+    align-self: start;
+    width: 2.1rem;
+    height: 2.1rem;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--pitch);
+    color: var(--pitch-ink);
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 1.02rem;
+    font-variant-numeric: tabular-nums;
+  }
+  .steps h3 {
+    grid-column: 2;
+    margin: 0;
+    min-height: 2.1rem;
+    display: flex;
+    align-items: center;
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 1.1rem;
+    line-height: 1.22;
+    letter-spacing: -.01em;
+    text-wrap: balance;
+  }
+  .steps p { grid-column: 2; margin: .15rem 0 0; }
+  .steps .path { grid-column: 2; }
+  .path {
+    display: inline-block;
+    margin-top: .4rem;
+    font-family: var(--mono);
+    font-size: .8rem;
+    font-weight: 500;
+    color: var(--ink);
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    padding: .3rem .55rem;
+  }
+  .path b { color: var(--gold); font-weight: 700; }
+
+  .areas { margin: 0; display: grid; gap: 0; }
+  .areas > div {
+    display: grid;
+    grid-template-columns: .9rem 1fr;
+    column-gap: .7rem;
+    padding: .5rem 0;
+    border-top: 1px solid var(--line);
+    break-inside: avoid;
+  }
+  .areas > div:first-child { border-top: 0; }
+  .areas .mk {
+    width: .5rem;
+    height: .5rem;
+    margin-top: .5rem;
+    border-radius: 2px;
+    background: var(--gold);
+  }
+  .areas dt { font-family: var(--display); font-weight: 700; font-size: 1.02rem; letter-spacing: -.005em; }
+  .areas dd { grid-column: 2; margin: .1rem 0 0; color: var(--muted); font-size: .95rem; }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 1rem 1.15rem;
+    box-shadow: var(--shadow);
+    break-inside: avoid;
+  }
+  .card h2 { margin: 0 0 .35rem; font-family: var(--display); font-size: 1.12rem; letter-spacing: -.01em; }
+
+  .nots { margin: .2rem 0 0; padding: 0; list-style: none; display: grid; gap: .45rem; }
+  .nots li {
+    display: grid;
+    grid-template-columns: 1rem 1fr;
+    column-gap: .55rem;
+    color: var(--muted);
+    font-size: .95rem;
+  }
+  .nots li::before {
+    content: "\00d7";
+    color: #B5443A;
+    font-weight: 700;
+    line-height: 1.5;
+  }
+  :root[data-theme="dark"] .nots li::before,
+  :root:not([data-theme="light"]) .nots li::before { color: #D9776D; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .nots li::before { color: #D9776D; }
+  }
+
+  footer {
+    margin-top: 1.6rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-size: .88rem;
+  }
+
+  a { color: var(--gold); text-underline-offset: 2px; }
+  a:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; border-radius: 3px; }
+
+  @media (min-width: 34rem) { body { font-size: 17px; } }
+
+  h2.sec { break-inside: avoid; }
+  @page { margin: 12mm 15mm; }
+  @media print {
+    :root { --paper: #fff; }
+    body { font-size: 11pt; line-height: 1.36; }
+    .wrap { max-width: none; margin: 0; padding: 0; }
+    .access, .card { box-shadow: none; }
+    header, .access { break-after: avoid; }
+    h2.sec { break-after: avoid; }
+  }
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Copa Brasil de Talentos 2026</p>
+    <h1>Guia do Organizador</h1>
+    <p class="lede">O acesso <strong>Organizador do campeonato</strong> administra tudo de um campeonato — e nada fora dele. Este guia mostra o que fica em cada área e em que ordem montar a competição.</p>
+  </header>
+
+  <hr class="rule">
+
+  <section class="access" aria-label="Seus dados de acesso">
+    <h2>Seus dados de acesso</h2>
+    <dl>
+      <div>
+        <dt>Endereço</dt>
+        <dd><a class="url" href="https://torneioonlineweb.com.br/login" target="_blank" rel="noopener">https://torneioonlineweb.com.br/login</a></dd>
+      </div>
+      <div>
+        <dt>E-mail</dt>
+        <dd>o e-mail que a organização cadastrou para você.</dd>
+      </div>
+      <div>
+        <dt>Senha inicial</dt>
+        <dd><span class="fill">[a organização informa]</span> — você troca no primeiro acesso.</dd>
+      </div>
+    </dl>
+    <p class="note">O administrador cria o seu usuário, atribui o perfil <strong>Organizador do campeonato</strong> e vincula você ao campeonato. A partir daí, tudo abaixo é com você.</p>
+  </section>
+
+  <h2 class="sec"><span class="tag">Comece por aqui</span>Primeiro acesso</h2>
+  <ol class="steps">
+    <li>
+      <span class="n">1</span>
+      <h3>Entrar</h3>
+      <p>Abra o endereço acima, informe e-mail e senha inicial, toque em <strong>Entrar</strong>.</p>
+    </li>
+    <li>
+      <span class="n">2</span>
+      <h3>Trocar a senha</h3>
+      <p>Menu → <strong>Meu perfil</strong> → <strong>Alterar senha</strong>.</p>
+    </li>
+    <li>
+      <span class="n">3</span>
+      <h3>Abrir o seu campeonato</h3>
+      <p>Menu → <strong>Campeonatos</strong> → toque no campeonato vinculado a você. Você só enxerga o seu.</p>
+    </li>
+  </ol>
+
+  <h2 class="sec"><span class="tag">Montagem</span>Preparar o campeonato — nesta ordem</h2>
+  <ol class="steps">
+    <li>
+      <span class="n">1</span>
+      <h3>Identidade do portal</h3>
+      <p>No campeonato → <strong>Identidade</strong>. Cores, tema (claro/escuro), logo, favicon e banner que aparecem no portal público.</p>
+    </li>
+    <li>
+      <span class="n">2</span>
+      <h3>Regulamento</h3>
+      <p>No campeonato → <strong>Regulamento</strong>. Formato (grupos, classificados por grupo, início do mata-mata), pontuação, critérios de desempate, disciplina, tamanho do elenco, regras avançadas e elegibilidade entre fases. Ao final, <strong>publique</strong> a versão.</p>
+    </li>
+    <li>
+      <span class="n">3</span>
+      <h3>Parceiros e conteúdo do portal</h3>
+      <p>No campeonato → <strong>Parceiros</strong> (patrocinadores, apoiadores, organização) e <strong>Carrossel de destaques</strong>. Textos e matérias em Menu → <strong>Notícias</strong>.</p>
+    </li>
+    <li>
+      <span class="n">4</span>
+      <h3>Checklist de evidências</h3>
+      <p>No campeonato → <strong>Checklist de evidências</strong>. Define quais fotos e documentos são exigidos por partida e por dia de evento.</p>
+    </li>
+    <li>
+      <span class="n">5</span>
+      <h3>Equipes e comissão técnica</h3>
+      <p>Menu → <strong>Equipes</strong>. Cadastre cada equipe, escudo e cores, vincule o <strong>treinador</strong> (perfil Treinador/Gestor) e cadastre a comissão técnica.</p>
+      <span class="path">Equipes → <b>Abrir</b> → Comissão técnica / Responsáveis</span>
+    </li>
+    <li>
+      <span class="n">6</span>
+      <h3>Atletas e documentos</h3>
+      <p>Menu → <strong>Atletas</strong>. Você também pode cadastrar atletas, responsáveis legais e documentos. Analise os documentos enviados em Menu → <strong>Documentos para análise</strong>.</p>
+    </li>
+    <li>
+      <span class="n">7</span>
+      <h3>Inscrições e elenco oficial</h3>
+      <p>Menu → <strong>Inscrições</strong>. Analise, <strong>aprove</strong>, rejeite ou marque pendências. As inscrições aprovadas formam o <strong>Elenco oficial</strong>.</p>
+    </li>
+    <li>
+      <span class="n">8</span>
+      <h3>Fases, grupos e tabela</h3>
+      <p>Menu → <strong>Operação</strong> → <strong>Tabela e partidas</strong>. Crie as fases, monte os grupos, distribua as equipes, gere a tabela e ajuste datas, horários e locais.</p>
+    </li>
+    <li>
+      <span class="n">9</span>
+      <h3>Publicar as partidas</h3>
+      <p>Publique as partidas no portal público. As datas e os confrontos passam a aparecer para a torcida.</p>
+    </li>
+  </ol>
+
+  <h2 class="sec"><span class="tag">Rodada a rodada</span>Durante a competição</h2>
+  <dl class="areas">
+    <div>
+      <span class="mk" aria-hidden="true"></span>
+      <dt>Central da partida</dt>
+      <dd>Operar a partida, registrar gols, cartões e arbitragem, homologar o resultado, revisar e retificar quando preciso.</dd>
+    </div>
+    <div>
+      <span class="mk" aria-hidden="true"></span>
+      <dt>Escalações</dt>
+      <dd>Ver, confirmar e reabrir a escalação de cada equipe por partida.</dd>
+    </div>
+    <div>
+      <span class="mk" aria-hidden="true"></span>
+      <dt>Evidências e dias de evento</dt>
+      <dd>Conferir e aprovar as fotos e documentos exigidos, por partida e pelo dia do evento.</dd>
+    </div>
+    <div>
+      <span class="mk" aria-hidden="true"></span>
+      <dt>Disciplina e suspensões</dt>
+      <dd>Cartões acumulados, suspensões automáticas, suspensão manual, revogar suspensão, anular cartão.</dd>
+    </div>
+    <div>
+      <span class="mk" aria-hidden="true"></span>
+      <dt>Classificação e mata-mata</dt>
+      <dd>Recalcular a classificação, gerar a chave a partir dos classificados e avançar os vencedores.</dd>
+    </div>
+    <div>
+      <span class="mk" aria-hidden="true"></span>
+      <dt>Súmulas</dt>
+      <dd>Gerar a súmula após a homologação, baixar em PDF e montar o pacote por rodada ou por campeonato.</dd>
+    </div>
+    <div>
+      <span class="mk" aria-hidden="true"></span>
+      <dt>Acompanhamento por rodada</dt>
+      <dd>Cobertura esportiva e documental de cada rodada, prazos de documentos, relatórios e envio ou aprovação em lote.</dd>
+    </div>
+    <div>
+      <span class="mk" aria-hidden="true"></span>
+      <dt>Prestação de contas</dt>
+      <dd>Consultar os dados consolidados e exportar em PDF, Excel ou pacote ZIP com os documentos.</dd>
+    </div>
+    <div>
+      <span class="mk" aria-hidden="true"></span>
+      <dt>Vai e Vem</dt>
+      <dd>Aprovar, publicar e cancelar transferências de atletas entre as equipes do campeonato.</dd>
+    </div>
+    <div>
+      <span class="mk" aria-hidden="true"></span>
+      <dt>Simulações internas</dt>
+      <dd>Testar cenários de resultado sem alterar nada oficial.</dd>
+    </div>
+    <div>
+      <span class="mk" aria-hidden="true"></span>
+      <dt>Organizadores e arbitragem</dt>
+      <dd>No campeonato → <strong>Organizadores</strong>: vincular outra pessoa como organizador ou como prestação de contas. Menu → <strong>Arbitragem</strong>: cadastrar árbitros e oficiais.</dd>
+    </div>
+  </dl>
+
+  <h2 class="sec"><span class="tag">Limites</span>O que este acesso não faz</h2>
+  <div class="card">
+    <ul class="nots">
+      <li>Criar ou arquivar campeonatos.</li>
+      <li>Gerenciar usuários e perfis do sistema.</li>
+      <li>Temporadas, categorias e catálogos globais (posições, formações táticas).</li>
+      <li>Backup, retenção e exclusão definitiva de dados.</li>
+      <li>Logs de auditoria e configurações gerais do sistema.</li>
+      <li>Ver ou alterar qualquer outro campeonato.</li>
+    </ul>
+  </div>
+
+  <footer>
+    Precisa de algo fora desta lista? Fale com o administrador da plataforma.
+  </footer>
+</div>
