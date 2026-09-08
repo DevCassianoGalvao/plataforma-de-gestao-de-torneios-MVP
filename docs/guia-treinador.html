@@ -1,0 +1,429 @@
+<title>Guia do Treinador</title>
+<meta name="description" content="Passo a passo para o treinador preparar a equipe na Copa Brasil de Talentos 2026.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+  :root {
+    --paper: #F1EEE2;
+    --card: #FBFAF4;
+    --ink: #15211B;
+    --muted: #56685C;
+    --pitch: #1E4634;
+    --pitch-ink: #F3F0E4;
+    --gold: #9C7118;
+    --gold-line: #C6A24A;
+    --gold-soft: #ECE1C2;
+    --line: #DAD3BE;
+    --good: #2C7B50;
+    --shadow: 0 1px 0 rgba(21,33,27,.04), 0 12px 30px -18px rgba(21,33,27,.28);
+    --display: "Bricolage Grotesque", "Trebuchet MS", sans-serif;
+    --body: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #0E1712;
+      --card: #16221B;
+      --ink: #E7E9DD;
+      --muted: #93A497;
+      --pitch: #24523C;
+      --pitch-ink: #EAF1E9;
+      --gold: #D9B45F;
+      --gold-line: #B48F3F;
+      --gold-soft: #26332A;
+      --line: #293630;
+      --good: #58B584;
+      --shadow: 0 1px 0 rgba(0,0,0,.25), 0 16px 34px -20px rgba(0,0,0,.7);
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #0E1712;
+    --card: #16221B;
+    --ink: #E7E9DD;
+    --muted: #93A497;
+    --pitch: #24523C;
+    --pitch-ink: #EAF1E9;
+    --gold: #D9B45F;
+    --gold-line: #B48F3F;
+    --gold-soft: #26332A;
+    --line: #293630;
+    --good: #58B584;
+    --shadow: 0 1px 0 rgba(0,0,0,.25), 0 16px 34px -20px rgba(0,0,0,.7);
+  }
+
+  * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-text-size-adjust: 100%;
+  }
+  .wrap {
+    max-width: 40rem;
+    margin: 0 auto;
+    padding: clamp(1.4rem, 6vw, 2.4rem) clamp(1.15rem, 5vw, 1.75rem) 3rem;
+  }
+
+  .eyebrow {
+    margin: 0 0 .5rem;
+    font-family: var(--mono);
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+  h1 {
+    margin: 0;
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: clamp(2rem, 8vw, 2.7rem);
+    line-height: 1.05;
+    letter-spacing: -.015em;
+    text-wrap: balance;
+  }
+  .lede {
+    margin: .7rem 0 0;
+    color: var(--muted);
+    max-width: 40ch;
+  }
+
+  .rule {
+    height: 2px;
+    margin: 1.05rem 0;
+    background: var(--gold-line);
+    border: 0;
+    opacity: .55;
+  }
+
+  .access {
+    background: var(--gold-soft);
+    border: 1px solid var(--gold-line);
+    border-radius: 12px;
+    padding: 1rem 1.1rem;
+    box-shadow: var(--shadow);
+  }
+  .access h2 {
+    margin: 0 0 .55rem;
+    font-family: var(--display);
+    font-size: 1.05rem;
+    letter-spacing: -.01em;
+  }
+  .access dl { margin: 0; display: grid; gap: .55rem; }
+  .access dt {
+    font-family: var(--mono);
+    font-size: .68rem;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .access dd { margin: .1rem 0 0; }
+  .url {
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: .95rem;
+    word-break: break-all;
+  }
+  .fill {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: .9rem;
+    font-weight: 700;
+    color: var(--gold);
+    background: color-mix(in srgb, var(--gold) 12%, transparent);
+    border: 1px dashed var(--gold-line);
+    border-radius: 6px;
+    padding: .05rem .45rem;
+  }
+
+  .steps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: .78rem;
+  }
+  .steps > li {
+    display: grid;
+    grid-template-columns: 2.1rem 1fr;
+    column-gap: .9rem;
+    row-gap: .2rem;
+    break-inside: avoid;
+  }
+  .n {
+    grid-row: 1;
+    align-self: start;
+    width: 2.1rem;
+    height: 2.1rem;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--pitch);
+    color: var(--pitch-ink);
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 1.02rem;
+    font-variant-numeric: tabular-nums;
+  }
+  .steps h2 {
+    grid-column: 2;
+    margin: 0;
+    min-height: 2.1rem;
+    display: flex;
+    align-items: center;
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 1.12rem;
+    line-height: 1.22;
+    letter-spacing: -.01em;
+    text-wrap: balance;
+  }
+  .steps p { grid-column: 2; margin: .15rem 0 0; }
+  .steps .path { grid-column: 2; }
+  .steps .sub { color: var(--muted); font-size: .93rem; }
+  .path {
+    display: inline-block;
+    margin-top: .4rem;
+    font-family: var(--mono);
+    font-size: .8rem;
+    font-weight: 500;
+    color: var(--ink);
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    padding: .3rem .55rem;
+  }
+  .path b { color: var(--gold); font-weight: 700; }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 1.1rem 1.2rem;
+    box-shadow: var(--shadow);
+  }
+  .card h2 {
+    margin: 0 0 .3rem;
+    font-family: var(--display);
+    font-size: 1.15rem;
+    letter-spacing: -.01em;
+  }
+  .card > p:first-of-type { margin-top: 0; }
+
+  .status {
+    margin: .9rem 0 0;
+    display: grid;
+    gap: 0;
+  }
+  .status > div {
+    display: grid;
+    grid-template-columns: minmax(0, 8.5rem) 1fr;
+    gap: .2rem .9rem;
+    padding: .5rem 0;
+    border-top: 1px solid var(--line);
+  }
+  .status > div:first-child { border-top: 0; }
+  .status dt {
+    display: flex;
+    align-items: center;
+    gap: .45rem;
+    font-weight: 600;
+  }
+  .status dd { margin: 0; color: var(--muted); font-size: .95rem; }
+  .dot {
+    width: .6rem;
+    height: .6rem;
+    border-radius: 50%;
+    flex: 0 0 auto;
+    background: var(--muted);
+  }
+  .dot.wait { background: var(--gold); }
+  .dot.ok { background: var(--good); }
+  .dot.stop { background: #B5443A; }
+  :root[data-theme="dark"] .dot.stop,
+  :root:not([data-theme="light"]) .dot.stop { background: #D9776D; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .dot.stop { background: #D9776D; }
+  }
+
+  .card { break-inside: avoid; }
+  .status > div { break-inside: avoid; }
+
+  .tip {
+    margin-top: .9rem;
+    padding-left: .9rem;
+    border-left: 3px solid var(--gold-line);
+    color: var(--muted);
+    font-size: .93rem;
+  }
+  .tip strong { color: var(--ink); font-weight: 600; }
+
+  footer {
+    margin-top: 1.6rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-size: .88rem;
+  }
+
+  a { color: var(--gold); text-underline-offset: 2px; }
+  a:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 2px;
+    border-radius: 3px;
+  }
+
+  @media (min-width: 34rem) {
+    body { font-size: 17px; }
+  }
+
+  @page { margin: 12mm 15mm; }
+  @media print {
+    :root { --paper: #fff; }
+    body { font-size: 11pt; line-height: 1.36; }
+    .wrap { max-width: none; margin: 0; padding: 0; }
+    .access, .card { box-shadow: none; }
+    a { color: var(--ink); }
+    header, .access { break-after: avoid; }
+    footer { break-inside: avoid; }
+  }
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Copa Brasil de Talentos 2026</p>
+    <h1>Guia do Treinador</h1>
+    <p class="lede">Dez passos para deixar a sua equipe pronta na plataforma. Dá para fazer tudo pelo celular.</p>
+  </header>
+
+  <hr class="rule">
+
+  <section class="access" aria-label="Seus dados de acesso">
+    <h2>Seus dados de acesso</h2>
+    <dl>
+      <div>
+        <dt>Endereço</dt>
+        <dd><span class="url">cassianogalvao.com.br/torneio-online/login</span></dd>
+      </div>
+      <div>
+        <dt>E-mail</dt>
+        <dd>o e-mail que a organização enviou para você.</dd>
+      </div>
+      <div>
+        <dt>Senha inicial</dt>
+        <dd><span class="fill">[a organização informa]</span> — você troca no passo 2.</dd>
+      </div>
+    </dl>
+  </section>
+
+  <hr class="rule">
+
+  <ol class="steps">
+    <li>
+      <span class="n">1</span>
+      <h2>Entrar na plataforma</h2>
+      <p>Abra o endereço acima, digite o seu e-mail e a senha inicial e toque em <strong>Entrar</strong>.</p>
+    </li>
+
+    <li>
+      <span class="n">2</span>
+      <h2>Trocar a senha</h2>
+      <p>Menu lateral → <strong>Meu perfil</strong> → <strong>Alterar senha</strong>. Escolha uma senha só sua e guarde.</p>
+    </li>
+
+    <li>
+      <span class="n">3</span>
+      <h2>Conferir a sua equipe</h2>
+      <p>Menu → <strong>Equipes e Atletas</strong> → <strong>Equipes</strong> → botão <strong>Abrir</strong> na sua equipe.</p>
+      <p class="sub">É nesta página que ficam a Comissão técnica e a Formação.</p>
+    </li>
+
+    <li>
+      <span class="n">4</span>
+      <h2>Cadastrar a comissão técnica</h2>
+      <p>Na página da equipe, toque em <strong>Comissão técnica</strong> → <strong>Cadastrar</strong>. Escolha a função (treinador, auxiliar técnico, preparador físico, massagista…), o nome e, se quiser, uma foto.</p>
+      <span class="path">Equipes → <b>Abrir</b> → Comissão técnica → Cadastrar</span>
+    </li>
+
+    <li>
+      <span class="n">5</span>
+      <h2>Cadastrar os atletas</h2>
+      <p>Menu → <strong>Atletas</strong> → <strong>Cadastrar atleta</strong>. Para cada jogador preencha: nome completo, data de nascimento, posição, <strong>foto do rosto</strong> e <strong>foto ou PDF de um documento com foto</strong> (RG, CNH…).</p>
+      <p class="sub">Repita para todo o elenco. O regulamento pede <strong>22 atletas</strong>.</p>
+    </li>
+
+    <li>
+      <span class="n">6</span>
+      <h2>Inscrever os atletas no campeonato</h2>
+      <p>Menu → <strong>Inscrições</strong> → <strong>Nova inscrição</strong> → escolha o atleta → salve → <strong>Enviar para análise</strong>. Uma inscrição por atleta.</p>
+    </li>
+
+    <li>
+      <span class="n">7</span>
+      <h2>Acompanhar o status</h2>
+      <p>Na lista de <strong>Inscrições</strong>, cada atleta mostra a situação (Enviadas, Em análise, Pendente, Aprovadas…). O guia mais abaixo explica cada uma.</p>
+    </li>
+
+    <li>
+      <span class="n">8</span>
+      <h2>Resolver pendências</h2>
+      <p>Se aparecer <strong>Pendente</strong> ou algo na coluna <strong>Pendências</strong>, toque em <strong>Abrir</strong>, leia o motivo, corrija (troque o documento, ajuste o dado) e <strong>reenvie</strong>.</p>
+    </li>
+
+    <li>
+      <span class="n">9</span>
+      <h2>Conferir o elenco oficial</h2>
+      <p>Quando o status vira <strong>Aprovadas</strong>, o atleta entra no <strong>Elenco oficial</strong> (botão no topo da tela de Inscrições). Esse é o elenco liberado para jogar.</p>
+    </li>
+
+    <li>
+      <span class="n">10</span>
+      <h2>Ver a tabela de jogos</h2>
+      <p>Menu → <strong>Operação</strong> → <strong>Tabela e partidas</strong>. Datas, horários e adversários da sua chave.</p>
+    </li>
+  </ol>
+
+  <hr class="rule">
+
+  <section class="card" aria-label="O que cada status significa">
+    <h2>O que cada status quer dizer</h2>
+    <p class="sub">Na coluna <strong>Status</strong> da tela de Inscrições.</p>
+    <dl class="status">
+      <div>
+        <dt><span class="dot"></span>Rascunho</dt>
+        <dd>Você começou mas não enviou. Abra e toque em Enviar para análise.</dd>
+      </div>
+      <div>
+        <dt><span class="dot wait"></span>Enviadas / Em análise</dt>
+        <dd>Está com a organização. É só aguardar.</dd>
+      </div>
+      <div>
+        <dt><span class="dot wait"></span>Pendente</dt>
+        <dd>Falta corrigir algo. Abra, leia o motivo, ajuste e reenvie.</dd>
+      </div>
+      <div>
+        <dt><span class="dot ok"></span>Aprovadas</dt>
+        <dd>Atleta liberado. Já aparece no elenco oficial.</dd>
+      </div>
+      <div>
+        <dt><span class="dot stop"></span>Rejeitadas</dt>
+        <dd>A inscrição não foi aceita. Fale com a organização.</dd>
+      </div>
+      <div>
+        <dt><span class="dot stop"></span>Suspensas / Canceladas</dt>
+        <dd>Atleta fora por decisão da organização.</dd>
+      </div>
+    </dl>
+  </section>
+
+  <p class="tip"><strong>Anexar foto ou documento no celular:</strong> quando abrir a janela, escolha <strong>Fototeca</strong> / <strong>Galeria</strong> para pegar uma imagem salva, <strong>Tirar foto</strong> para fotografar na hora, ou <strong>Escolher arquivo</strong> para um PDF.</p>
+
+  <footer>
+    Ficou com dúvida em algum passo? Fale com a organização da Copa Brasil de Talentos 2026.
+  </footer>
+</div>
