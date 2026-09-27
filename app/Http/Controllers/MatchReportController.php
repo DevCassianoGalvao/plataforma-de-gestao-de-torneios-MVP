@@ -8,15 +8,37 @@ use App\Core\Request;
 use App\Core\Response;
 use App\Core\Session;
 use App\Repositories\MatchReportRepository;
+use App\Repositories\RegistrationRepository;
 use App\Services\MatchReportAccessService;
 use App\Services\MatchReportService;
+use App\Services\Slugger;
 use App\Services\StorageService;
+use App\Services\SumulaSpreadsheetService;
 
 final class MatchReportController extends Controller
 {
-    public function __construct($users, \App\Services\AuthorizationService $authorization, \App\Services\AuditService $audit, private readonly MatchReportRepository $reports, private readonly MatchReportService $service, private readonly MatchReportAccessService $access, private readonly StorageService $storage)
+    public function __construct($users, \App\Services\AuthorizationService $authorization, \App\Services\AuditService $audit, private readonly MatchReportRepository $reports, private readonly MatchReportService $service, private readonly MatchReportAccessService $access, private readonly StorageService $storage, private readonly RegistrationRepository $registrations, private readonly SumulaSpreadsheetService $sumulaSpreadsheet)
     {
         parent::__construct($users, $authorization, $audit);
+    }
+
+    public function spreadsheet(Request $request, array $params = []): Response
+    {
+        $guard = $this->guard($request, 'match_reports.spreadsheet'); if ($guard instanceof Response) return $guard;
+        $match = $this->access->matchForUser($guard, (int) ($params[0] ?? 0));
+        if (!$match) return Response::forbidden();
+        $home = $this->registrations->officialRoster((int) $match['championship_id'], (int) $match['home_team_id']);
+        $away = $this->registrations->officialRoster((int) $match['championship_id'], (int) $match['away_team_id']);
+        try {
+            $file = $this->sumulaSpreadsheet->build($match, $home, $away);
+        } catch (\Throwable $exception) {
+            return Response::html($exception->getMessage(), 422);
+        }
+        $body = file_get_contents($file);
+        @unlink($file);
+        $name = 'sumula-' . $match['id'] . '-' . Slugger::make((string) $match['home_team_name']) . '-x-' . Slugger::make((string) $match['away_team_name']) . '.xlsx';
+        $this->audit->record('match_reports.spreadsheet_downloaded', (int) $guard['id'], 'match', (int) $match['id'], [], $request);
+        return Response::binary((string) $body, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', $name);
     }
 
     public function show(Request $request, array $params = []): Response

@@ -145,6 +145,7 @@ final class AuthSeed
             ['match_reports.download', 'Baixar sumulas', 'Baixa PDFs de sumulas autorizadas.', 'sumulas'],
             ['match_reports.generate', 'Gerar sumulas', 'Gera versoes imutaveis apos homologacao.', 'sumulas'],
             ['match_reports.package', 'Baixar pacotes de sumulas', 'Baixa pacotes autorizados por rodada ou campeonato.', 'sumulas'],
+            ['match_reports.spreadsheet', 'Baixar sumula em planilha', 'Baixa a planilha de sumula no modelo oficial, com os atletas das duas equipes da partida.', 'sumulas'],
             ['seasons.view', 'Visualizar temporadas', 'Consulta temporadas.', 'temporadas'],
             ['seasons.manage', 'Gerenciar temporadas', 'Cria e edita temporadas.', 'temporadas'],
             ['categories.view', 'Visualizar categorias', 'Consulta categorias.', 'categorias'],
@@ -224,7 +225,7 @@ final class AuthSeed
             'administrator' => array_keys($permissionIds),
             'organizer' => array_values(array_diff(array_keys($permissionIds), $organizerGlobalOnly)),
             'team_manager' => ['teams.view', 'teams.manage_own', 'teams.select_default_formation', 'team_staff.view', 'team_staff.create', 'team_staff.update', 'team_staff.deactivate', 'team_staff.manage_own', 'tactical_formations.view', 'athletes.view', 'athletes.create', 'athletes.manage_own', 'positions.view', 'athlete_guardians.view', 'athlete_guardians.create', 'athlete_guardians.update', 'athlete_guardians.manage_own', 'athlete_documents.view', 'athlete_documents.create', 'athlete_documents.update', 'athlete_documents.manage_own', 'registrations.view', 'registrations.create', 'registrations.update', 'registrations.submit', 'registrations.correct', 'registrations.cancel', 'registrations.manage_own', 'rosters.view', 'matches.view', 'schedule.view', 'lineups.view', 'lineups.create', 'lineups.update', 'lineups.confirm', 'lineups.manage_own', 'match_operation.view', 'discipline.view', 'suspensions.view', 'standings.view', 'match_reports.view', 'match_reports.download', 'transfers.request', 'teams.manage_identity'],
-            'match_operator' => ['matches.view', 'matches.operate', 'lineups.view', 'match_operation.view', 'match_operation.operate', 'discipline.view', 'match_reports.view', 'match_reports.download', 'evidence.upload', 'evidence.remove', 'evidence.download'],
+            'match_operator' => ['matches.view', 'matches.operate', 'lineups.view', 'match_operation.view', 'match_operation.operate', 'discipline.view', 'match_reports.view', 'match_reports.download', 'match_reports.spreadsheet', 'evidence.upload', 'evidence.remove', 'evidence.download'],
             'accountability' => ['championships.view', 'matches.view', 'match_reports.view', 'match_reports.download', 'match_reports.package', 'accountability.view', 'accountability.detail', 'accountability.export', 'accountability.export_pdf', 'accountability.export_xlsx', 'accountability.export_zip', 'match_reports.signed_upload', 'evidence.download', 'round.monitor.view', 'round.report.generate', 'round.package.download'],
         ];
         $link = $pdo->prepare('INSERT IGNORE INTO role_permissions (role_id, permission_id, created_at) VALUES (?, ?, ?)');

@@ -1,10 +1,11 @@
 <section>
     <div class="section-heading"><div><p class="eyebrow"><?= App\Core\View::e($item['championship_name']) ?></p><h1><?= App\Core\View::e($item['home_team_name']) ?> x <?= App\Core\View::e($item['away_team_name']) ?></h1><p><?= App\Core\View::e($item['phase_name']) ?> / <?= App\Core\View::e($item['group_name']) ?> / Rodada <?= (int) $item['round_number'] ?></p></div><span class="status status-<?= App\Core\View::e($item['status']) ?>"><?= App\Core\View::e($item['status']) ?></span></div>
     <?php if (!empty($message)): ?><p class="success" role="status"><?= App\Core\View::e($message) ?></p><?php endif; ?>
-    <?php if ($canLineups || $canOperation || $canManage): ?>
+    <?php if ($canLineups || $canOperation || $canManage || $canSpreadsheet): ?>
         <nav class="match-workflow-actions" aria-label="Fluxo de trabalho da partida">
             <?php if ($canLineups): ?><a class="match-workflow-action match-workflow-action--lineups" href="<?= App\Core\View::e(App\Core\Config::url('/admin/partidas/' . $item['id'] . '/escalacoes')) ?>"><span class="match-workflow-icon" data-icon="users-round"></span><span><strong>Escalações</strong><small>Definir titulares e reservas</small></span></a><?php endif; ?>
             <?php if ($canOperation): ?><a class="match-workflow-action match-workflow-action--operation" href="<?= App\Core\View::e(App\Core\Config::url('/admin/partidas/' . $item['id'] . '/operacao')) ?>"><span class="match-workflow-icon" data-icon="clipboard-check"></span><span><strong>Central operacional</strong><small>Registrar e finalizar a partida</small></span></a><?php endif; ?>
+            <?php if ($canSpreadsheet): ?><a class="match-workflow-action match-workflow-action--spreadsheet" href="<?= App\Core\View::e(App\Core\Config::url('/admin/partidas/' . $item['id'] . '/sumula/planilha')) ?>"><span class="match-workflow-icon" data-icon="file-spreadsheet"></span><span><strong>Súmula em planilha</strong><small>Modelo oficial com os atletas das duas equipes</small></span></a><?php endif; ?>
             <?php if ($canManage): ?><a class="match-workflow-action match-workflow-action--operator" href="<?= App\Core\View::e(App\Core\Config::url('/admin/partidas/' . $item['id'] . '/operadores')) ?>"><span class="match-workflow-icon" data-icon="user-round"></span><span><strong>Atribuir operador</strong><small>Definir responsável pela operação</small></span></a><?php endif; ?>
         </nav>
     <?php endif; ?>

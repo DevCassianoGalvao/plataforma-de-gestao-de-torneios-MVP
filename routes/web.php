@@ -112,6 +112,7 @@ use App\Services\MatchReportAccessService;
 use App\Services\MatchReportService;
 use App\Services\MatchReportHtmlRenderer;
 use App\Services\MatchReportPdf;
+use App\Services\SumulaSpreadsheetService;
 use App\Services\NewsAccessService;
 use App\Services\NewsImageService;
 use App\Services\NewsService;
@@ -432,10 +433,12 @@ $router->post('/admin/partidas/{id}/operacao/retificacao/decidir', [$operation, 
 $router->post('/admin/partidas/{id}/operacao/retificacao/evento', [$operation, 'rectificationEvent']);
 $router->post('/admin/partidas/{id}/operacao/retificacao/concluir', [$operation, 'completeRectification']);
 
-$reports = new MatchReportController($users, $authorization, $audit, $matchReports, $matchReportService, $matchReportAccess, $storage);
+$sumulaSpreadsheet = new SumulaSpreadsheetService(dirname(__DIR__) . '/docs/REFERENCIA_SUMULA.xlsx');
+$reports = new MatchReportController($users, $authorization, $audit, $matchReports, $matchReportService, $matchReportAccess, $storage, $registrations, $sumulaSpreadsheet);
 $router->get('/admin/partidas/{id}/sumula', [$reports, 'show']);
 $router->post('/admin/partidas/{id}/sumula/gerar', [$reports, 'generate']);
 $router->get('/admin/partidas/{id}/sumula/pdf', [$reports, 'currentPdf']);
+$router->get('/admin/partidas/{id}/sumula/planilha', [$reports, 'spreadsheet']);
 $router->get('/admin/sumulas/versoes/{id}/pdf', [$reports, 'pdf']);
 $router->get('/admin/sumulas/rodadas/{id}.zip', [$reports, 'roundPackage']);
 $router->get('/admin/sumulas/campeonatos/{id}.zip', [$reports, 'championshipPackage']);
