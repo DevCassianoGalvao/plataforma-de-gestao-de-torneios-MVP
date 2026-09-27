@@ -13,6 +13,8 @@ namespace App\Services;
 final class SumulaSpreadsheetService
 {
     private const MAX_ATHLETES = 25;
+    /** Estilo (cellXfs index) do modelo: fundo branco, Arial 14 -- usado na coluna do visitante. */
+    private const NAME_CELL_STYLE = '60';
     private const SHEET_ENTRY = 'xl/worksheets/sheet1.xml';
     /** As outras duas abas do modelo trazem dados reais (inclusive CPF) de outro campeonato; ficam vazias. */
     private const OTHER_SHEET_ENTRIES = ['xl/worksheets/sheet2.xml', 'xl/worksheets/sheet3.xml'];
@@ -71,12 +73,19 @@ final class SumulaSpreadsheetService
             $row = 8 + $i;
             $this->setCell($doc, $xpath, 'A' . $row, $homeNames[$i] ?? '');
             $this->setCell($doc, $xpath, 'W' . $row, $awayNames[$i] ?? '');
+            // O modelo original usa estilo 55 (fundo verde) na coluna do mandante e estilo 60
+            // (fundo branco, fonte 14) na do visitante. Padroniza as duas para o estilo 60 para
+            // as duas equipes ficarem visualmente identicas.
+            $this->setCellStyle($xpath, 'A' . $row, self::NAME_CELL_STYLE);
+            $this->setCellStyle($xpath, 'W' . $row, self::NAME_CELL_STYLE);
         }
         // Linha 33 do modelo original ainda carrega nomes reais do torneio de referencia
         // (o lado direito nem sempre tem celula ali); apaga os dois lados por garantia, mesmo
         // fora do intervalo de dados que preenchemos, para nenhum resto da planilha antiga vazar.
         $this->setCell($doc, $xpath, 'A33', '');
         $this->setCell($doc, $xpath, 'W33', '');
+        $this->setCellStyle($xpath, 'A33', self::NAME_CELL_STYLE);
+        $this->setCellStyle($xpath, 'W33', self::NAME_CELL_STYLE);
 
         $zip->addFromString(self::SHEET_ENTRY, (string) $doc->saveXML());
 
@@ -120,6 +129,15 @@ final class SumulaSpreadsheetService
             }
         }
         return $names;
+    }
+
+    private function setCellStyle(\DOMXPath $xpath, string $ref, string $styleIndex): void
+    {
+        $nodes = $xpath->query("//*[local-name()='c'][@r='" . $ref . "']");
+        if ($nodes === false || $nodes->length === 0) {
+            return;
+        }
+        $nodes->item(0)->setAttribute('s', $styleIndex);
     }
 
     private function setCell(\DOMDocument $doc, \DOMXPath $xpath, string $ref, string $value): void
