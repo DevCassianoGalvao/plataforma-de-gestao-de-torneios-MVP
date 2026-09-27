@@ -106,11 +106,15 @@ final class SumulaSpreadsheetService
     }
 
     /** @param array<int, array<string, mixed>> $athletes @return list<string> */
+    /**
+     * Sempre o nome completo (nunca o apelido/nome esportivo), na ordem alfabetica ja definida
+     * por RegistrationRepository::officialRoster() (ORDER BY ... a.full_name).
+     */
     private function athleteNames(array $athletes): array
     {
         $names = [];
         foreach ($athletes as $athlete) {
-            $name = trim((string) ($athlete['sporting_name'] ?? '')) ?: trim((string) ($athlete['athlete_name'] ?? $athlete['full_name'] ?? ''));
+            $name = trim((string) ($athlete['athlete_name'] ?? $athlete['full_name'] ?? ''));
             if ($name !== '') {
                 $names[] = $name;
             }
