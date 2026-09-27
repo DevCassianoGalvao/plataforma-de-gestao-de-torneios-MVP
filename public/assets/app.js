@@ -47,6 +47,7 @@
         'users-round': '<path d="M18 21a6 6 0 0 0-12 0M15 3.5a4 4 0 0 1 0 7.5M21 21a6 6 0 0 0-3.5-5.5M9 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8Z"/>',
         'file-check-2': '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6M8 15l2 2 4-4"/>',
         'clipboard-check': '<rect x="4" y="4" width="16" height="17" rx="2"/><path d="M9 4.5V3h6v1.5M8 13l2 2 4-4"/>',
+        'file-spreadsheet': '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M8 13h2M8 17h2M14 13h2M14 17h2"/>',
         'arrow-left-right': '<path d="M8 3 4 7l4 4M4 7h16M16 21l4-4-4-4M20 17H4"/>',
         'newspaper': '<path d="M4 4h16v16H4zM8 8h8M8 12h8M8 16h5"/>',
         'bell': '<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/>',
