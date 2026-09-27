@@ -28,12 +28,18 @@ final class RegistrationRules
         return $number === null || $number === '' || (filter_var($number, FILTER_VALIDATE_INT) !== false && (int) $number >= 1 && (int) $number <= 99);
     }
 
+    /**
+     * Sem data configurada = sem restricao (mesma filosofia de allow_registration_after_start em
+     * RegistrationService: um campo em branco nunca deve bloquear inscricao para sempre e sem aviso
+     * claro). Cada data so passa a valer quando o admin efetivamente a preenche.
+     */
     public static function windowOpen(array $championship, ?\DateTimeImmutable $now = null): bool
     {
         $now ??= new \DateTimeImmutable('today');
         $start = !empty($championship['registration_starts_at']) ? new \DateTimeImmutable((string) $championship['registration_starts_at']) : null;
         $end = !empty($championship['registration_ends_at']) ? new \DateTimeImmutable((string) $championship['registration_ends_at']) : null;
-        if (!$start || !$end) return false;
-        return $now >= $start && $now <= $end;
+        if ($start && $now < $start) return false;
+        if ($end && $now > $end) return false;
+        return true;
     }
 }
