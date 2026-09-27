@@ -78,7 +78,9 @@ final class CopaBrasilTalentos2026Seed
         $id = (int) $find->fetchColumn();
         $values = ['Copa Brasil de Talentos 2026', 'Copa Brasil de Talentos', 'copa-brasil-de-talentos-2026', 'Competicao de futebol com dez equipes, duas fases de grupos e mata-mata conforme o regulamento oficial enviado a organizacao.', $seasonId, $categoryId, 'configured', 'public', 'dark', '#0A49DB', '#001B67', '#D9A441'];
         if ($id) {
-            $pdo->prepare('UPDATE championships SET name = ?, short_name = ?, description = ?, season_id = ?, category_id = ?, starts_at = NULL, ends_at = NULL, registration_starts_at = NULL, registration_ends_at = NULL, status = ?, visibility = ?, default_theme = ?, primary_color = ?, secondary_color = ?, accent_color = ?, updated_at = ? WHERE id = ? AND deleted_at IS NULL')->execute([$values[0], $values[1], $values[3], $seasonId, $categoryId, $values[6], $values[7], $values[8], $values[9], $values[10], $values[11], $now, $id]);
+            // Datas (inicio, fim, janela de inscricao) nao sao tocadas aqui: sao geridas pelo admin/organizador
+            // na edicao do campeonato e nao podem ser zeradas a cada reexecucao idempotente deste seed.
+            $pdo->prepare('UPDATE championships SET name = ?, short_name = ?, description = ?, season_id = ?, category_id = ?, status = ?, visibility = ?, default_theme = ?, primary_color = ?, secondary_color = ?, accent_color = ?, updated_at = ? WHERE id = ? AND deleted_at IS NULL')->execute([$values[0], $values[1], $values[3], $seasonId, $categoryId, $values[6], $values[7], $values[8], $values[9], $values[10], $values[11], $now, $id]);
             return $id;
         }
         $insert = $pdo->prepare('INSERT INTO championships (name, short_name, slug, description, season_id, category_id, starts_at, ends_at, registration_starts_at, registration_ends_at, status, visibility, default_theme, primary_color, secondary_color, accent_color, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, NULL, NULL, NULL, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
