@@ -25,6 +25,7 @@ final class ChampionshipRepository
             $term = '%' . trim((string) $filters['search']) . '%';
             array_push($params, $term, $term, $term);
         }
+        if (($filters['status'] ?? '') === '') $conditions[] = "c.status <> 'archived'";
         foreach (['status' => 'c.status', 'season_id' => 'c.season_id', 'category_id' => 'c.category_id'] as $key => $column) {
             if (($filters[$key] ?? '') !== '') {
                 $conditions[] = $column . ' = ?';
@@ -96,6 +97,26 @@ final class ChampionshipRepository
     {
         $statement = $this->pdo->prepare('UPDATE championships SET status = ?, updated_at = ? WHERE id = ? AND deleted_at IS NULL');
         $statement->execute([$status, date('Y-m-d H:i:s'), $id]);
+    }
+
+    public function archive(int $id, string $previousStatus): void
+    {
+        $statement = $this->pdo->prepare("UPDATE championships SET status = 'archived', status_before_archive = ?, updated_at = ? WHERE id = ? AND status <> 'archived' AND deleted_at IS NULL");
+        $statement->execute([$previousStatus, date('Y-m-d H:i:s'), $id]);
+    }
+
+    public function restore(int $id): void
+    {
+        $statement = $this->pdo->prepare("UPDATE championships SET status = COALESCE(status_before_archive, 'draft'), status_before_archive = NULL, updated_at = ? WHERE id = ? AND status = 'archived' AND deleted_at IS NULL");
+        $statement->execute([date('Y-m-d H:i:s'), $id]);
+    }
+
+    /** Exclusao logica: os dados ficam no banco, mas somem de todo o sistema. O slug e liberado para reuso. */
+    public function softDelete(int $id): void
+    {
+        $now = date('Y-m-d H:i:s');
+        $statement = $this->pdo->prepare("UPDATE championships SET deleted_at = ?, slug = LEFT(CONCAT('excluido-', id, '-', slug), 190), updated_at = ? WHERE id = ? AND status = 'archived' AND deleted_at IS NULL");
+        $statement->execute([$now, $now, $id]);
     }
 
     public function assignments(int $championshipId): array

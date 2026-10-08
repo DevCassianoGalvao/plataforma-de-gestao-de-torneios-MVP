@@ -67,7 +67,7 @@ final class ChampionshipController extends Controller
         if ($guard instanceof Response) return $guard;
         $championship = $this->resolve($params[0] ?? '', $guard);
         if (!$championship) return $this->access->isAdministrator($guard) ? Response::html('Campeonato nao encontrado.', 404) : Response::forbidden();
-        return $this->page((string) $championship['name'], 'admin/championships/show', ['user' => $guard, 'championship' => $championship, 'regulation' => $this->regulationsFor($championship), 'message' => Session::consumeFlash('championship_message')]);
+        return $this->page((string) $championship['name'], 'admin/championships/show', ['user' => $guard, 'championship' => $championship, 'regulation' => $this->regulationsFor($championship), 'isAdministrator' => $this->access->isAdministrator($guard), 'message' => Session::consumeFlash('championship_message')]);
     }
 
     public function accountability(Request $request, array $params = []): Response
@@ -311,10 +311,42 @@ final class ChampionshipController extends Controller
         $championship = $this->resolve($params[0] ?? '', $guard, true);
         if (!$championship) return Response::html('Campeonato nao encontrado ou sem acesso.', 404);
         if (!$this->validCsrf($request)) return Response::forbidden('A sessao expirou.');
-        $result = $this->statusService->transition($championship, 'archived');
-        if (!$result['ok']) return $this->errorPage('Arquivar campeonato', 'errors/simple', ['message' => $result['message']], 422);
-        $this->audit->record('championships.archived', (int) $guard['id'], 'championship', (int) $championship['id'], [], $request);
+        if ($championship['status'] === 'archived') return $this->errorPage('Arquivar campeonato', 'errors/simple', ['message' => 'O campeonato ja esta arquivado.'], 422);
+        if (($request->body['confirm'] ?? '') !== '1') return $this->errorPage('Arquivar campeonato', 'errors/simple', ['message' => 'Marque a confirmacao para arquivar.'], 422);
+        $this->championships->archive((int) $championship['id'], (string) $championship['status']);
+        $this->audit->record('championships.archived', (int) $guard['id'], 'championship', (int) $championship['id'], ['previous_status' => $championship['status']], $request);
+        Session::flash('championship_message', 'Campeonato arquivado. Ele saiu da lista e do site; voce pode restaura-lo nesta pagina.');
         return Response::redirect(Config::url('/admin/campeonatos/' . $championship['slug']));
+    }
+
+    public function restore(Request $request, array $params = []): Response
+    {
+        $guard = $this->guard($request, 'championships.archive');
+        if ($guard instanceof Response) return $guard;
+        $championship = $this->resolve($params[0] ?? '', $guard, true);
+        if (!$championship) return Response::html('Campeonato nao encontrado ou sem acesso.', 404);
+        if (!$this->validCsrf($request)) return Response::forbidden('A sessao expirou.');
+        if ($championship['status'] !== 'archived') return $this->errorPage('Restaurar campeonato', 'errors/simple', ['message' => 'Somente campeonatos arquivados podem ser restaurados.'], 422);
+        $this->championships->restore((int) $championship['id']);
+        $this->audit->record('championships.restored', (int) $guard['id'], 'championship', (int) $championship['id'], [], $request);
+        Session::flash('championship_message', 'Campeonato restaurado.');
+        return Response::redirect(Config::url('/admin/campeonatos/' . $championship['slug']));
+    }
+
+    public function delete(Request $request, array $params = []): Response
+    {
+        $guard = $this->guard($request, 'championships.archive');
+        if ($guard instanceof Response) return $guard;
+        if (!$this->access->isAdministrator($guard)) return Response::forbidden('Somente administradores podem excluir campeonatos.');
+        $championship = $this->resolve($params[0] ?? '', $guard, true);
+        if (!$championship) return Response::html('Campeonato nao encontrado ou sem acesso.', 404);
+        if (!$this->validCsrf($request)) return Response::forbidden('A sessao expirou.');
+        if ($championship['status'] !== 'archived') return $this->errorPage('Excluir campeonato', 'errors/simple', ['message' => 'Arquive o campeonato antes de excluir.'], 422);
+        if (trim((string) ($request->body['confirmation'] ?? '')) !== 'EXCLUIR') return $this->errorPage('Excluir campeonato', 'errors/simple', ['message' => 'Confirmacao incorreta. Digite EXCLUIR (em maiusculas) para excluir o campeonato.'], 422);
+        $this->championships->softDelete((int) $championship['id']);
+        $this->audit->record('championships.deleted', (int) $guard['id'], 'championship', (int) $championship['id'], ['name' => $championship['name'], 'slug' => $championship['slug']], $request);
+        Session::flash('championship_message', 'Campeonato "' . $championship['name'] . '" excluido.');
+        return Response::redirect(Config::url('/admin/campeonatos'));
     }
 
     public function asset(Request $request, array $params = []): Response

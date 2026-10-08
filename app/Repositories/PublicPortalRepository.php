@@ -12,13 +12,13 @@ final class PublicPortalRepository
 
     public function championship(string $slug): ?array
     {
-        $sql = "SELECT c.id, c.name, c.short_name, c.slug, c.description, c.starts_at, c.ends_at, c.status, c.visibility, c.default_theme, c.primary_color, c.secondary_color, c.accent_color, c.logo_path, c.logo_light_path, c.logo_dark_path, c.banner_path, c.favicon_path, c.social_image_path, s.name AS season_name, s.year AS season_year, cat.name AS category_name, cat.slug AS category_slug FROM championships c INNER JOIN seasons s ON s.id = c.season_id INNER JOIN categories cat ON cat.id = c.category_id WHERE c.slug = ? AND c.visibility = 'public' AND c.status <> 'draft' AND c.deleted_at IS NULL LIMIT 1";
+        $sql = "SELECT c.id, c.name, c.short_name, c.slug, c.description, c.starts_at, c.ends_at, c.status, c.visibility, c.default_theme, c.primary_color, c.secondary_color, c.accent_color, c.logo_path, c.logo_light_path, c.logo_dark_path, c.banner_path, c.favicon_path, c.social_image_path, s.name AS season_name, s.year AS season_year, cat.name AS category_name, cat.slug AS category_slug FROM championships c INNER JOIN seasons s ON s.id = c.season_id INNER JOIN categories cat ON cat.id = c.category_id WHERE c.slug = ? AND c.visibility = 'public' AND c.status NOT IN ('draft', 'archived') AND c.deleted_at IS NULL LIMIT 1";
         $statement = $this->pdo->prepare($sql); $statement->execute([$slug]); return $statement->fetch() ?: null;
     }
 
     public function publicChampionships(): array
     {
-        return $this->pdo->query("SELECT id, slug, name, updated_at FROM championships WHERE visibility = 'public' AND status <> 'draft' AND deleted_at IS NULL ORDER BY name")->fetchAll();
+        return $this->pdo->query("SELECT id, slug, name, updated_at FROM championships WHERE visibility = 'public' AND status NOT IN ('draft', 'archived') AND deleted_at IS NULL ORDER BY name")->fetchAll();
     }
 
     public function phases(int $championshipId): array

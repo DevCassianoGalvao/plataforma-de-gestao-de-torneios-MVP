@@ -21,5 +21,23 @@
     <ul class="checklist"><li class="done">Informações gerais</li><li class="<?= $championship['logo_path'] || $championship['primary_color'] !== '#123C32' ? 'done' : '' ?>">Identidade basica</li><li class="<?= $regulation && $regulation['status'] === 'published' ? 'done' : '' ?>">Regulamento</li><li class="done">Equipes e elenco oficial</li><li class="done">Tabela, partidas e operação</li></ul>
     <h2>Status</h2>
     <form method="post" action="<?= App\Core\View::e(App\Core\Config::url('/admin/campeonatos/' . $championship['slug'] . '/status')) ?>" class="inline-form"><input type="hidden" name="_csrf" value="<?= App\Core\View::e(App\Core\Security::csrfToken()) ?>"><label>Próxima etapa <select name="status"><option value="registration">Abrir inscricoes</option><option value="configured">Marcar configurado</option><option value="in_progress">Iniciar campeonato</option><option value="finished">Finalizar campeonato</option></select></label><button type="submit">Atualizar status</button></form>
-    <form method="post" action="<?= App\Core\View::e(App\Core\Config::url('/admin/campeonatos/' . $championship['slug'] . '/arquivar')) ?>"><input type="hidden" name="_csrf" value="<?= App\Core\View::e(App\Core\Security::csrfToken()) ?>"><button type="submit">Arquivar</button></form>
+    <?php $slugUrl = '/admin/campeonatos/' . $championship['slug']; $csrf = App\Core\View::e(App\Core\Security::csrfToken()); ?>
+    <h2>Arquivar ou excluir</h2>
+    <?php if ($championship['status'] !== 'archived'): ?>
+        <article class="panel">
+            <p><strong>Arquivar</strong> tira o campeonato da lista e do site público. Nenhum dado é apagado e você pode restaurar quando quiser.</p>
+            <form method="post" action="<?= App\Core\View::e(App\Core\Config::url($slugUrl . '/arquivar')) ?>" class="inline-form"><input type="hidden" name="_csrf" value="<?= $csrf ?>"><label><input type="checkbox" name="confirm" value="1" required> Confirmo que quero arquivar este campeonato</label><button type="submit">Arquivar campeonato</button></form>
+        </article>
+    <?php else: ?>
+        <article class="panel">
+            <p><strong>Este campeonato está arquivado.</strong> Ele não aparece na lista nem no site. Restaurar devolve o status que ele tinha antes de ser arquivado.</p>
+            <form method="post" action="<?= App\Core\View::e(App\Core\Config::url($slugUrl . '/restaurar')) ?>"><input type="hidden" name="_csrf" value="<?= $csrf ?>"><button type="submit">Restaurar campeonato</button></form>
+        </article>
+        <?php if (!empty($isAdministrator)): ?>
+            <article class="panel">
+                <p><strong>Excluir definitivamente.</strong> O campeonato e tudo ligado a ele (equipes, partidas, resultados, notícias) somem do sistema e não podem ser restaurados pelo painel.</p>
+                <form method="post" action="<?= App\Core\View::e(App\Core\Config::url($slugUrl . '/excluir')) ?>" class="inline-form"><input type="hidden" name="_csrf" value="<?= $csrf ?>"><label>Digite <strong>EXCLUIR</strong> para confirmar <input name="confirmation" required autocomplete="off" pattern="EXCLUIR" placeholder="EXCLUIR"></label><button type="submit" class="button-danger">Excluir campeonato</button></form>
+            </article>
+        <?php endif; ?>
+    <?php endif; ?>
 </section>

@@ -567,6 +567,8 @@ $router->post('/admin/campeonatos/{slug}/identidade/carrossel/{id}/excluir', [$c
 $router->get('/admin/campeonatos/{slug}/assets/{field}', [$championship, 'asset']);
 $router->post('/admin/campeonatos/{slug}/status', [$championship, 'status']);
 $router->post('/admin/campeonatos/{slug}/arquivar', [$championship, 'archive']);
+$router->post('/admin/campeonatos/{slug}/restaurar', [$championship, 'restore']);
+$router->post('/admin/campeonatos/{slug}/excluir', [$championship, 'delete']);
 $partner = new PartnerController($users, $authorization, $audit, $partners, $championships, $access, $storage);
 $router->get('/admin/campeonatos/{slug}/parceiros', [$partner, 'index']);
 $router->post('/admin/campeonatos/{slug}/parceiros', [$partner, 'save']);
