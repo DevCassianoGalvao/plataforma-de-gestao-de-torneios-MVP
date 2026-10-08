@@ -16,10 +16,10 @@ final class NewsRepository
     public function championshipsForUser(int $userId, array $roles, bool $administrator): array
     {
         if ($administrator) {
-            return $this->pdo->query('SELECT c.id, c.name, c.slug FROM championships c WHERE c.deleted_at IS NULL ORDER BY c.name')->fetchAll();
+            return $this->pdo->query('SELECT c.id, c.name, c.slug FROM championships c WHERE c.deleted_at IS NULL AND c.archived_at IS NULL ORDER BY c.name')->fetchAll();
         }
         if (in_array('organizer', $roles, true)) {
-            $statement = $this->pdo->prepare("SELECT c.id, c.name, c.slug FROM championships c INNER JOIN championship_user_assignments cua ON cua.championship_id = c.id AND cua.user_id = ? AND cua.assignment_type = 'organizer' WHERE c.deleted_at IS NULL ORDER BY c.name");
+            $statement = $this->pdo->prepare("SELECT c.id, c.name, c.slug FROM championships c INNER JOIN championship_user_assignments cua ON cua.championship_id = c.id AND cua.user_id = ? AND cua.assignment_type = 'organizer' WHERE c.deleted_at IS NULL AND c.archived_at IS NULL ORDER BY c.name");
             $statement->execute([$userId]);
             return $statement->fetchAll();
         }
@@ -28,7 +28,7 @@ final class NewsRepository
 
     public function find(int $id): ?array
     {
-        $statement = $this->pdo->prepare('SELECT n.*, c.name AS championship_name, c.slug AS championship_slug, c.visibility AS championship_visibility, u.name AS author_name FROM news_articles n INNER JOIN championships c ON c.id = n.championship_id INNER JOIN users u ON u.id = n.author_id WHERE n.id = ? AND n.deleted_at IS NULL LIMIT 1');
+        $statement = $this->pdo->prepare('SELECT n.*, c.name AS championship_name, c.slug AS championship_slug, c.visibility AS championship_visibility, u.name AS author_name FROM news_articles n INNER JOIN championships c ON c.id = n.championship_id AND c.archived_at IS NULL INNER JOIN users u ON u.id = n.author_id WHERE n.id = ? AND n.deleted_at IS NULL LIMIT 1');
         $statement->execute([$id]);
         return $statement->fetch() ?: null;
     }
@@ -36,7 +36,7 @@ final class NewsRepository
     public function listAdmin(?array $championshipIds, array $filters = [], int $limit = 20, int $offset = 0): array
     {
         [$where, $params] = $this->adminWhere($championshipIds, $filters);
-        $sql = 'SELECT n.*, c.name AS championship_name, c.slug AS championship_slug, u.name AS author_name FROM news_articles n INNER JOIN championships c ON c.id = n.championship_id INNER JOIN users u ON u.id = n.author_id WHERE ' . implode(' AND ', $where) . ' ORDER BY COALESCE(n.published_at, n.updated_at) DESC, n.id DESC LIMIT ' . max(1, $limit) . ' OFFSET ' . max(0, $offset);
+        $sql = 'SELECT n.*, c.name AS championship_name, c.slug AS championship_slug, u.name AS author_name FROM news_articles n INNER JOIN championships c ON c.id = n.championship_id AND c.archived_at IS NULL INNER JOIN users u ON u.id = n.author_id WHERE ' . implode(' AND ', $where) . ' ORDER BY COALESCE(n.published_at, n.updated_at) DESC, n.id DESC LIMIT ' . max(1, $limit) . ' OFFSET ' . max(0, $offset);
         $statement = $this->pdo->prepare($sql);
         $statement->execute($params);
         return $statement->fetchAll();
@@ -90,7 +90,7 @@ final class NewsRepository
 
     public function publicChampionship(string $slug): ?array
     {
-        $statement = $this->pdo->prepare('SELECT c.*, s.name AS season_name, cat.name AS category_name FROM championships c INNER JOIN seasons s ON s.id = c.season_id INNER JOIN categories cat ON cat.id = c.category_id WHERE c.slug = ? AND c.visibility = \'public\' AND c.status <> \'draft\' AND c.deleted_at IS NULL LIMIT 1');
+        $statement = $this->pdo->prepare('SELECT c.*, s.name AS season_name, cat.name AS category_name FROM championships c INNER JOIN seasons s ON s.id = c.season_id INNER JOIN categories cat ON cat.id = c.category_id WHERE c.slug = ? AND c.visibility = \'public\' AND c.status <> \'draft\' AND c.deleted_at IS NULL AND c.archived_at IS NULL LIMIT 1');
         $statement->execute([$slug]);
         return $statement->fetch() ?: null;
     }
@@ -98,7 +98,7 @@ final class NewsRepository
     public function listPublished(int $championshipId, string $search = '', int $limit = 12, int $offset = 0): array
     {
         [$where, $params] = $this->publicWhere($championshipId, $search);
-        $sql = 'SELECT n.*, c.name AS championship_name, c.slug AS championship_slug, u.name AS author_name FROM news_articles n INNER JOIN championships c ON c.id = n.championship_id INNER JOIN users u ON u.id = n.author_id WHERE ' . implode(' AND ', $where) . ' ORDER BY n.featured DESC, n.published_at DESC, n.id DESC LIMIT ' . max(1, $limit) . ' OFFSET ' . max(0, $offset);
+        $sql = 'SELECT n.*, c.name AS championship_name, c.slug AS championship_slug, u.name AS author_name FROM news_articles n INNER JOIN championships c ON c.id = n.championship_id AND c.archived_at IS NULL INNER JOIN users u ON u.id = n.author_id WHERE ' . implode(' AND ', $where) . ' ORDER BY n.featured DESC, n.published_at DESC, n.id DESC LIMIT ' . max(1, $limit) . ' OFFSET ' . max(0, $offset);
         $statement = $this->pdo->prepare($sql);
         $statement->execute($params);
         return $statement->fetchAll();
@@ -107,14 +107,14 @@ final class NewsRepository
     public function countPublished(int $championshipId, string $search = ''): int
     {
         [$where, $params] = $this->publicWhere($championshipId, $search);
-        $statement = $this->pdo->prepare('SELECT COUNT(*) FROM news_articles n INNER JOIN championships c ON c.id = n.championship_id WHERE ' . implode(' AND ', $where));
+        $statement = $this->pdo->prepare('SELECT COUNT(*) FROM news_articles n INNER JOIN championships c ON c.id = n.championship_id AND c.archived_at IS NULL WHERE ' . implode(' AND ', $where));
         $statement->execute($params);
         return (int) $statement->fetchColumn();
     }
 
     public function publicFind(string $championshipSlug, string $newsSlug): ?array
     {
-        $statement = $this->pdo->prepare('SELECT n.*, c.name AS championship_name, c.slug AS championship_slug, u.name AS author_name FROM news_articles n INNER JOIN championships c ON c.id = n.championship_id INNER JOIN users u ON u.id = n.author_id WHERE c.slug = ? AND c.visibility = \'public\' AND c.status <> \'draft\' AND c.deleted_at IS NULL AND n.slug = ? AND n.status IN (\'published\', \'scheduled\') AND n.published_at IS NOT NULL AND n.published_at <= ? AND n.deleted_at IS NULL LIMIT 1');
+        $statement = $this->pdo->prepare('SELECT n.*, c.name AS championship_name, c.slug AS championship_slug, u.name AS author_name FROM news_articles n INNER JOIN championships c ON c.id = n.championship_id AND c.archived_at IS NULL INNER JOIN users u ON u.id = n.author_id WHERE c.slug = ? AND c.visibility = \'public\' AND c.status <> \'draft\' AND c.deleted_at IS NULL AND c.archived_at IS NULL AND n.slug = ? AND n.status IN (\'published\', \'scheduled\') AND n.published_at IS NOT NULL AND n.published_at <= ? AND n.deleted_at IS NULL LIMIT 1');
         $statement->execute([$championshipSlug, $newsSlug, date('Y-m-d H:i:s')]);
         return $statement->fetch() ?: null;
     }
@@ -139,7 +139,7 @@ final class NewsRepository
 
     private function publicWhere(int $championshipId, string $search): array
     {
-        $where = ['n.championship_id = ?', 'n.status IN (\'published\', \'scheduled\')', 'n.published_at IS NOT NULL', 'n.published_at <= ?', 'n.deleted_at IS NULL', 'c.visibility = \'public\'', 'c.status <> \'draft\'', 'c.deleted_at IS NULL'];
+        $where = ['n.championship_id = ?', 'n.status IN (\'published\', \'scheduled\')', 'n.published_at IS NOT NULL', 'n.published_at <= ?', 'n.deleted_at IS NULL', 'c.visibility = \'public\'', 'c.status <> \'draft\'', 'c.deleted_at IS NULL AND c.archived_at IS NULL'];
         $params = [$championshipId, date('Y-m-d H:i:s')];
         if (trim($search) !== '') { $where[] = '(n.title LIKE ? OR n.summary LIKE ?)'; $term = '%' . trim($search) . '%'; array_push($params, $term, $term); }
         return [$where, $params];

@@ -19,7 +19,7 @@ final class ContactRepository
 
     public function list(int $limit = 100): array
     {
-        $statement = $this->pdo->query('SELECT cm.*, c.name AS championship_name, u.name AS handler_name FROM public_contact_messages cm LEFT JOIN championships c ON c.id = cm.championship_id LEFT JOIN users u ON u.id = cm.handled_by ORDER BY FIELD(cm.status, \'new\', \'in_progress\', \'resolved\', \'archived\'), cm.created_at DESC, cm.id DESC LIMIT ' . max(1, min(200, $limit)));
+        $statement = $this->pdo->query('SELECT cm.*, c.name AS championship_name, u.name AS handler_name FROM public_contact_messages cm LEFT JOIN championships c ON c.id = cm.championship_id LEFT JOIN users u ON u.id = cm.handled_by WHERE (c.id IS NULL OR c.archived_at IS NULL) ORDER BY FIELD(cm.status, \'new\', \'in_progress\', \'resolved\', \'archived\'), cm.created_at DESC, cm.id DESC LIMIT ' . max(1, min(200, $limit)));
         return $statement->fetchAll();
     }
 

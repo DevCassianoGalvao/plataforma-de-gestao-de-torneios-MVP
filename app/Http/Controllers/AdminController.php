@@ -35,7 +35,7 @@ final class AdminController extends Controller
     private function championshipLinks(): array
     {
         $pdo = Database::connection();
-        return $pdo->query("SELECT slug, name, visibility, status FROM championships WHERE deleted_at IS NULL ORDER BY name")->fetchAll();
+        return $pdo->query("SELECT slug, name, visibility, status FROM championships WHERE deleted_at IS NULL AND archived_at IS NULL ORDER BY name")->fetchAll();
     }
 
     private function metrics(): array
@@ -49,17 +49,17 @@ final class AdminController extends Controller
             }
         };
         return [
-            'championships' => $count($pdo, "SELECT COUNT(*) FROM championships WHERE deleted_at IS NULL"),
-            'teams' => $count($pdo, "SELECT COUNT(*) FROM teams WHERE deleted_at IS NULL AND status = 'active'"),
+            'championships' => $count($pdo, "SELECT COUNT(*) FROM championships WHERE deleted_at IS NULL AND archived_at IS NULL"),
+            'teams' => $count($pdo, "SELECT COUNT(*) FROM teams WHERE deleted_at IS NULL AND status = 'active' AND championship_id IN (SELECT id FROM championships WHERE deleted_at IS NULL AND archived_at IS NULL)"),
             'athletes' => $count($pdo, "SELECT COUNT(*) FROM athletes WHERE deleted_at IS NULL AND status = 'active'"),
-            'registrations' => $count($pdo, "SELECT COUNT(*) FROM athlete_registrations WHERE status = 'approved'"),
-            'pending_registrations' => $count($pdo, "SELECT COUNT(*) FROM athlete_registrations WHERE status IN ('submitted', 'under_review', 'pending_correction')"),
-            'upcoming_matches' => $count($pdo, "SELECT COUNT(*) FROM matches WHERE status IN ('scheduled', 'confirmed') AND (match_date IS NULL OR match_date >= CURRENT_DATE)"),
-            'awaiting_homologation' => $count($pdo, "SELECT COUNT(*) FROM match_operations WHERE status = 'awaiting_homologation'"),
-            'suspended' => $count($pdo, "SELECT COUNT(*) FROM discipline_suspensions WHERE status = 'active'"),
-            'at_risk' => $count($pdo, "SELECT COUNT(*) FROM (SELECT athlete_id FROM discipline_ledger WHERE status = 'considered' AND card_type = 'yellow' GROUP BY athlete_id HAVING COUNT(*) >= 2) warning_rows"),
-            'homologated_results' => $count($pdo, "SELECT COUNT(*) FROM matches WHERE status = 'homologated'"),
-            'published_news' => $count($pdo, "SELECT COUNT(*) FROM news_articles WHERE deleted_at IS NULL AND status = 'published'"),
+            'registrations' => $count($pdo, "SELECT COUNT(*) FROM athlete_registrations WHERE status = 'approved' AND championship_id IN (SELECT id FROM championships WHERE deleted_at IS NULL AND archived_at IS NULL)"),
+            'pending_registrations' => $count($pdo, "SELECT COUNT(*) FROM athlete_registrations WHERE status IN ('submitted', 'under_review', 'pending_correction') AND championship_id IN (SELECT id FROM championships WHERE deleted_at IS NULL AND archived_at IS NULL)"),
+            'upcoming_matches' => $count($pdo, "SELECT COUNT(*) FROM matches WHERE status IN ('scheduled', 'confirmed') AND (match_date IS NULL OR match_date >= CURRENT_DATE) AND championship_id IN (SELECT id FROM championships WHERE deleted_at IS NULL AND archived_at IS NULL)"),
+            'awaiting_homologation' => $count($pdo, "SELECT COUNT(*) FROM match_operations mo INNER JOIN matches m ON m.id = mo.match_id WHERE mo.status = 'awaiting_homologation' AND m.championship_id IN (SELECT id FROM championships WHERE deleted_at IS NULL AND archived_at IS NULL)"),
+            'suspended' => $count($pdo, "SELECT COUNT(*) FROM discipline_suspensions WHERE status = 'active' AND championship_id IN (SELECT id FROM championships WHERE deleted_at IS NULL AND archived_at IS NULL)"),
+            'at_risk' => $count($pdo, "SELECT COUNT(*) FROM (SELECT athlete_id FROM discipline_ledger WHERE status = 'considered' AND card_type = 'yellow' AND championship_id IN (SELECT id FROM championships WHERE deleted_at IS NULL AND archived_at IS NULL) GROUP BY athlete_id HAVING COUNT(*) >= 2) warning_rows"),
+            'homologated_results' => $count($pdo, "SELECT COUNT(*) FROM matches WHERE status = 'homologated' AND championship_id IN (SELECT id FROM championships WHERE deleted_at IS NULL AND archived_at IS NULL)"),
+            'published_news' => $count($pdo, "SELECT COUNT(*) FROM news_articles WHERE deleted_at IS NULL AND status = 'published' AND championship_id IN (SELECT id FROM championships WHERE deleted_at IS NULL AND archived_at IS NULL)"),
         ];
     }
 }

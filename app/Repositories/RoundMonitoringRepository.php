@@ -11,8 +11,8 @@ final class RoundMonitoringRepository
 
     public function championshipsFor(int $userId, bool $administrator): array
     {
-        if ($administrator) return $this->pdo->query('SELECT id, name FROM championships WHERE deleted_at IS NULL ORDER BY name')->fetchAll();
-        $s = $this->pdo->prepare("SELECT c.id, c.name FROM championships c INNER JOIN championship_user_assignments a ON a.championship_id=c.id WHERE a.user_id=? AND a.assignment_type IN ('accountability', 'organizer') AND c.deleted_at IS NULL ORDER BY c.name");
+        if ($administrator) return $this->pdo->query('SELECT id, name FROM championships WHERE deleted_at IS NULL AND archived_at IS NULL ORDER BY name')->fetchAll();
+        $s = $this->pdo->prepare("SELECT c.id, c.name FROM championships c INNER JOIN championship_user_assignments a ON a.championship_id=c.id WHERE a.user_id=? AND a.assignment_type IN ('accountability', 'organizer') AND c.deleted_at IS NULL AND c.archived_at IS NULL ORDER BY c.name");
         $s->execute([$userId]); return $s->fetchAll();
     }
 
@@ -49,17 +49,17 @@ final class RoundMonitoringRepository
     {
         $scope = $administrator ? '1=1' : "EXISTS (SELECT 1 FROM championship_user_assignments cua WHERE cua.championship_id=c.id AND cua.user_id=" . (int) $userId . " AND cua.assignment_type IN ('accountability', 'organizer'))";
         return [
-            'phases' => $this->pdo->query("SELECT p.id,p.name,c.name AS championship_name FROM competition_phases p INNER JOIN championships c ON c.id=p.championship_id WHERE c.deleted_at IS NULL AND $scope ORDER BY c.name,p.sequence_number")->fetchAll(),
-            'groups' => $this->pdo->query("SELECT g.id,g.name,p.name AS phase_name FROM competition_groups g INNER JOIN competition_phases p ON p.id=g.phase_id INNER JOIN championships c ON c.id=p.championship_id WHERE c.deleted_at IS NULL AND $scope ORDER BY p.sequence_number,g.display_order")->fetchAll(),
-            'teams' => $this->pdo->query("SELECT t.id,t.name FROM teams t INNER JOIN championships c ON c.id=t.championship_id WHERE t.deleted_at IS NULL AND $scope ORDER BY t.name")->fetchAll(),
-            'operators' => $this->pdo->query("SELECT DISTINCT u.id,u.name FROM users u INNER JOIN match_operator_assignments moa ON moa.user_id=u.id AND moa.status='active' INNER JOIN matches m ON m.id=moa.match_id INNER JOIN championships c ON c.id=m.championship_id WHERE c.deleted_at IS NULL AND $scope ORDER BY u.name")->fetchAll(),
-            'rounds' => $this->pdo->query("SELECT r.id,r.round_number,g.name AS group_name,p.name AS phase_name,c.name AS championship_name FROM competition_rounds r INNER JOIN competition_groups g ON g.id=r.group_id INNER JOIN competition_phases p ON p.id=r.phase_id INNER JOIN championships c ON c.id=p.championship_id WHERE c.deleted_at IS NULL AND $scope ORDER BY c.name,p.sequence_number,g.display_order,r.round_number")->fetchAll(),
+            'phases' => $this->pdo->query("SELECT p.id,p.name,c.name AS championship_name FROM competition_phases p INNER JOIN championships c ON c.id=p.championship_id AND c.archived_at IS NULL WHERE c.deleted_at IS NULL AND c.archived_at IS NULL AND $scope ORDER BY c.name,p.sequence_number")->fetchAll(),
+            'groups' => $this->pdo->query("SELECT g.id,g.name,p.name AS phase_name FROM competition_groups g INNER JOIN competition_phases p ON p.id=g.phase_id INNER JOIN championships c ON c.id=p.championship_id AND c.archived_at IS NULL WHERE c.deleted_at IS NULL AND c.archived_at IS NULL AND $scope ORDER BY p.sequence_number,g.display_order")->fetchAll(),
+            'teams' => $this->pdo->query("SELECT t.id,t.name FROM teams t INNER JOIN championships c ON c.id=t.championship_id AND c.archived_at IS NULL WHERE t.deleted_at IS NULL AND $scope ORDER BY t.name")->fetchAll(),
+            'operators' => $this->pdo->query("SELECT DISTINCT u.id,u.name FROM users u INNER JOIN match_operator_assignments moa ON moa.user_id=u.id AND moa.status='active' INNER JOIN matches m ON m.id=moa.match_id INNER JOIN championships c ON c.id=m.championship_id AND c.archived_at IS NULL WHERE c.deleted_at IS NULL AND c.archived_at IS NULL AND $scope ORDER BY u.name")->fetchAll(),
+            'rounds' => $this->pdo->query("SELECT r.id,r.round_number,g.name AS group_name,p.name AS phase_name,c.name AS championship_name FROM competition_rounds r INNER JOIN competition_groups g ON g.id=r.group_id INNER JOIN competition_phases p ON p.id=r.phase_id INNER JOIN championships c ON c.id=p.championship_id AND c.archived_at IS NULL WHERE c.deleted_at IS NULL AND c.archived_at IS NULL AND $scope ORDER BY c.name,p.sequence_number,g.display_order,r.round_number")->fetchAll(),
         ];
     }
 
     public function rounds(array $filters, int $userId, bool $administrator): array
     {
-        $conditions = ['c.deleted_at IS NULL']; $params = [];
+        $conditions = ['c.deleted_at IS NULL AND c.archived_at IS NULL']; $params = [];
         foreach (['championship_id' => 'c.id', 'phase_id' => 'p.id', 'group_id' => 'g.id', 'round_id' => 'r.id'] as $key => $column) {
             if (($filters[$key] ?? '') !== '') { $conditions[] = $column . '=?'; $params[] = (int) $filters[$key]; }
         }
@@ -88,7 +88,7 @@ final class RoundMonitoringRepository
         (SELECT COUNT(*) FROM matches m INNER JOIN match_operations o ON o.match_id=m.id WHERE m.round_id=r.id AND o.status=\'open\') AS reports_in_progress_count,
         (SELECT COUNT(*) FROM matches m WHERE m.round_id=r.id AND EXISTS (SELECT 1 FROM match_reports mr WHERE mr.match_id=m.id AND mr.current_version_id IS NOT NULL)) AS reports_generated_count,
         (SELECT COUNT(*) FROM matches m WHERE m.round_id=r.id AND m.status IN (\'finished\',\'homologated\') AND EXISTS (SELECT 1 FROM championship_evidence_checklist_items ci WHERE ci.championship_id=m.championship_id AND ci.is_active=1 AND ci.is_required=1 AND ci.deleted_at IS NULL) AND EXISTS (SELECT 1 FROM championship_evidence_checklist_items ci WHERE ci.championship_id=m.championship_id AND ci.is_active=1 AND ci.is_required=1 AND ci.deleted_at IS NULL AND NOT EXISTS (SELECT 1 FROM match_media mm WHERE mm.match_id=m.id AND mm.checklist_item_id=ci.id AND mm.deleted_at IS NULL AND mm.review_status=\'approved\'))) AS evidence_missing_count
-        FROM competition_rounds r INNER JOIN competition_phases p ON p.id=r.phase_id INNER JOIN competition_groups g ON g.id=r.group_id INNER JOIN championships c ON c.id=p.championship_id LEFT JOIN championship_document_deadlines d ON d.championship_id=c.id WHERE ' . implode(' AND ', $conditions) . ' ORDER BY r.period_start IS NULL, r.period_start, c.name, p.sequence_number, g.display_order, r.round_number';
+        FROM competition_rounds r INNER JOIN competition_phases p ON p.id=r.phase_id INNER JOIN competition_groups g ON g.id=r.group_id INNER JOIN championships c ON c.id=p.championship_id AND c.archived_at IS NULL LEFT JOIN championship_document_deadlines d ON d.championship_id=c.id WHERE ' . implode(' AND ', $conditions) . ' ORDER BY r.period_start IS NULL, r.period_start, c.name, p.sequence_number, g.display_order, r.round_number';
         $s=$this->pdo->prepare($sql); $s->execute($params); $rows=$s->fetchAll();
         return array_values(array_filter(array_map(fn(array $row): array => $this->decorate($row), $rows), fn(array $row): bool => $this->matchesFilters($row,$filters)));
     }
@@ -104,7 +104,7 @@ final class RoundMonitoringRepository
 
     public function round(int $id): ?array
     {
-        $s=$this->pdo->prepare('SELECT r.*, p.championship_id, p.name AS phase_name, g.name AS group_name, c.name AS championship_name FROM competition_rounds r INNER JOIN competition_phases p ON p.id=r.phase_id INNER JOIN competition_groups g ON g.id=r.group_id INNER JOIN championships c ON c.id=p.championship_id WHERE r.id=? LIMIT 1');
+        $s=$this->pdo->prepare('SELECT r.*, p.championship_id, p.name AS phase_name, g.name AS group_name, c.name AS championship_name FROM competition_rounds r INNER JOIN competition_phases p ON p.id=r.phase_id INNER JOIN competition_groups g ON g.id=r.group_id INNER JOIN championships c ON c.id=p.championship_id AND c.archived_at IS NULL WHERE r.id=? LIMIT 1');
         $s->execute([$id]); return $s->fetch() ?: null;
     }
 

@@ -13,7 +13,7 @@ final class StandingsRepository
 
     public function phase(int $phaseId): ?array
     {
-        $statement = $this->pdo->prepare('SELECT p.*, c.name AS championship_name FROM competition_phases p INNER JOIN championships c ON c.id = p.championship_id WHERE p.id = ? LIMIT 1');
+        $statement = $this->pdo->prepare('SELECT p.*, c.name AS championship_name FROM competition_phases p INNER JOIN championships c ON c.id = p.championship_id AND c.archived_at IS NULL WHERE p.id = ? LIMIT 1');
         $statement->execute([$phaseId]);
         return $statement->fetch() ?: null;
     }

@@ -9,11 +9,11 @@ use App\Repositories\RegulationRepository;
 final class ChampionshipStatusService
 {
     private const TRANSITIONS = [
-        'draft' => ['registration', 'archived'],
-        'registration' => ['configured', 'archived'],
-        'configured' => ['in_progress', 'archived'],
+        'draft' => ['registration'],
+        'registration' => ['configured'],
+        'configured' => ['in_progress'],
         'in_progress' => ['finished'],
-        'finished' => ['archived'],
+        'finished' => [],
         'archived' => [],
     ];
 

@@ -101,13 +101,14 @@ final class ChampionshipRepository
 
     public function archive(int $id, string $previousStatus): void
     {
-        $statement = $this->pdo->prepare("UPDATE championships SET status = 'archived', status_before_archive = ?, updated_at = ? WHERE id = ? AND status <> 'archived' AND deleted_at IS NULL");
-        $statement->execute([$previousStatus, date('Y-m-d H:i:s'), $id]);
+        $now = date('Y-m-d H:i:s');
+        $statement = $this->pdo->prepare("UPDATE championships SET status = 'archived', status_before_archive = ?, archived_at = ?, updated_at = ? WHERE id = ? AND status <> 'archived' AND deleted_at IS NULL");
+        $statement->execute([$previousStatus, $now, $now, $id]);
     }
 
     public function restore(int $id): void
     {
-        $statement = $this->pdo->prepare("UPDATE championships SET status = COALESCE(status_before_archive, 'draft'), status_before_archive = NULL, updated_at = ? WHERE id = ? AND status = 'archived' AND deleted_at IS NULL");
+        $statement = $this->pdo->prepare("UPDATE championships SET status = COALESCE(status_before_archive, 'draft'), status_before_archive = NULL, archived_at = NULL, updated_at = ? WHERE id = ? AND status = 'archived' AND deleted_at IS NULL");
         $statement->execute([date('Y-m-d H:i:s'), $id]);
     }
 

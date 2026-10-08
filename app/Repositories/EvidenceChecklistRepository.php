@@ -11,15 +11,15 @@ final class EvidenceChecklistRepository
 
     public function championship(string $slug): ?array
     {
-        $s = $this->pdo->prepare('SELECT * FROM championships WHERE slug = ? AND deleted_at IS NULL LIMIT 1');
+        $s = $this->pdo->prepare('SELECT * FROM championships WHERE slug = ? AND deleted_at IS NULL AND archived_at IS NULL LIMIT 1');
         $s->execute([$slug]); return $s->fetch() ?: null;
     }
     public function championships(): array
-    { return $this->pdo->query('SELECT id,name FROM championships WHERE deleted_at IS NULL ORDER BY name')->fetchAll(); }
+    { return $this->pdo->query('SELECT id,name FROM championships WHERE deleted_at IS NULL AND archived_at IS NULL ORDER BY name')->fetchAll(); }
 
     public function championshipById(int $id): ?array
     {
-        $s = $this->pdo->prepare('SELECT id,name,slug FROM championships WHERE id = ? AND deleted_at IS NULL LIMIT 1');
+        $s = $this->pdo->prepare('SELECT id,name,slug FROM championships WHERE id = ? AND deleted_at IS NULL AND archived_at IS NULL LIMIT 1');
         $s->execute([$id]); return $s->fetch() ?: null;
     }
 

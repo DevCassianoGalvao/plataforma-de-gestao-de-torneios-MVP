@@ -14,9 +14,9 @@ final class TransferRepository
 
     public function championshipsForUser(int $userId, array $roles, bool $administrator): array
     {
-        if ($administrator) return $this->pdo->query("SELECT id, name, slug FROM championships WHERE deleted_at IS NULL ORDER BY name")->fetchAll();
+        if ($administrator) return $this->pdo->query("SELECT id, name, slug FROM championships WHERE deleted_at IS NULL AND archived_at IS NULL ORDER BY name")->fetchAll();
         if (in_array('organizer', $roles, true)) {
-            $s = $this->pdo->prepare("SELECT c.id, c.name, c.slug FROM championships c INNER JOIN championship_user_assignments cua ON cua.championship_id = c.id AND cua.user_id = ? AND cua.assignment_type = 'organizer' WHERE c.deleted_at IS NULL ORDER BY c.name");
+            $s = $this->pdo->prepare("SELECT c.id, c.name, c.slug FROM championships c INNER JOIN championship_user_assignments cua ON cua.championship_id = c.id AND cua.user_id = ? AND cua.assignment_type = 'organizer' WHERE c.deleted_at IS NULL AND c.archived_at IS NULL ORDER BY c.name");
             $s->execute([$userId]);
             return $s->fetchAll();
         }
@@ -42,21 +42,21 @@ final class TransferRepository
 
     public function championshipsForOwnTeams(int $userId): array
     {
-        $s = $this->pdo->prepare("SELECT DISTINCT c.id, c.name, c.slug FROM championships c INNER JOIN teams t ON t.championship_id = c.id WHERE c.deleted_at IS NULL AND EXISTS (SELECT 1 FROM team_user_assignments tua WHERE tua.team_id = t.id AND tua.user_id = ? AND tua.assignment_type IN ('manager', 'head_coach') AND tua.status = 'active') ORDER BY c.name");
+        $s = $this->pdo->prepare("SELECT DISTINCT c.id, c.name, c.slug FROM championships c INNER JOIN teams t ON t.championship_id = c.id WHERE c.deleted_at IS NULL AND c.archived_at IS NULL AND EXISTS (SELECT 1 FROM team_user_assignments tua WHERE tua.team_id = t.id AND tua.user_id = ? AND tua.assignment_type IN ('manager', 'head_coach') AND tua.status = 'active') ORDER BY c.name");
         $s->execute([$userId]);
         return $s->fetchAll();
     }
 
     public function find(int $id): ?array
     {
-        $s = $this->pdo->prepare("SELECT m.*, c.name AS championship_name, c.slug AS championship_slug, c.visibility AS championship_visibility, a.full_name AS athlete_name, a.sporting_name, a.photo_path, pt.name AS previous_team_name, nt.name AS new_team_name, u.name AS author_name FROM transfer_movements m INNER JOIN championships c ON c.id = m.championship_id INNER JOIN athletes a ON a.id = m.athlete_id LEFT JOIN teams pt ON pt.id = m.previous_team_id LEFT JOIN teams nt ON nt.id = m.new_team_id INNER JOIN users u ON u.id = m.author_id WHERE m.id = ? AND m.deleted_at IS NULL LIMIT 1");
+        $s = $this->pdo->prepare("SELECT m.*, c.name AS championship_name, c.slug AS championship_slug, c.visibility AS championship_visibility, a.full_name AS athlete_name, a.sporting_name, a.photo_path, pt.name AS previous_team_name, nt.name AS new_team_name, u.name AS author_name FROM transfer_movements m INNER JOIN championships c ON c.id = m.championship_id AND c.archived_at IS NULL INNER JOIN athletes a ON a.id = m.athlete_id LEFT JOIN teams pt ON pt.id = m.previous_team_id LEFT JOIN teams nt ON nt.id = m.new_team_id INNER JOIN users u ON u.id = m.author_id WHERE m.id = ? AND m.deleted_at IS NULL LIMIT 1");
         $s->execute([$id]); return $s->fetch() ?: null;
     }
 
     public function listAdmin(?array $championshipIds, array $filters = [], int $limit = 20, int $offset = 0, ?array $ownTeamIds = null): array
     {
         [$where, $params] = $this->where($championshipIds, $filters, false, $ownTeamIds);
-        $sql = "SELECT m.*, c.name AS championship_name, a.full_name AS athlete_name, a.sporting_name, pt.name AS previous_team_name, nt.name AS new_team_name, u.name AS author_name FROM transfer_movements m INNER JOIN championships c ON c.id = m.championship_id INNER JOIN athletes a ON a.id = m.athlete_id LEFT JOIN teams pt ON pt.id = m.previous_team_id LEFT JOIN teams nt ON nt.id = m.new_team_id INNER JOIN users u ON u.id = m.author_id WHERE " . implode(' AND ', $where) . " ORDER BY m.movement_date DESC, m.id DESC LIMIT " . max(1, $limit) . " OFFSET " . max(0, $offset);
+        $sql = "SELECT m.*, c.name AS championship_name, a.full_name AS athlete_name, a.sporting_name, pt.name AS previous_team_name, nt.name AS new_team_name, u.name AS author_name FROM transfer_movements m INNER JOIN championships c ON c.id = m.championship_id AND c.archived_at IS NULL INNER JOIN athletes a ON a.id = m.athlete_id LEFT JOIN teams pt ON pt.id = m.previous_team_id LEFT JOIN teams nt ON nt.id = m.new_team_id INNER JOIN users u ON u.id = m.author_id WHERE " . implode(' AND ', $where) . " ORDER BY m.movement_date DESC, m.id DESC LIMIT " . max(1, $limit) . " OFFSET " . max(0, $offset);
         $s = $this->pdo->prepare($sql); $s->execute($params); return $s->fetchAll();
     }
 
@@ -67,20 +67,20 @@ final class TransferRepository
 
     public function publicChampionship(string $slug): ?array
     {
-        $s = $this->pdo->prepare("SELECT c.*, s.name AS season_name, cat.name AS category_name FROM championships c INNER JOIN seasons s ON s.id = c.season_id INNER JOIN categories cat ON cat.id = c.category_id WHERE c.slug = ? AND c.visibility = 'public' AND c.status <> 'draft' AND c.deleted_at IS NULL LIMIT 1"); $s->execute([$slug]); return $s->fetch() ?: null;
+        $s = $this->pdo->prepare("SELECT c.*, s.name AS season_name, cat.name AS category_name FROM championships c INNER JOIN seasons s ON s.id = c.season_id INNER JOIN categories cat ON cat.id = c.category_id WHERE c.slug = ? AND c.visibility = 'public' AND c.status <> 'draft' AND c.deleted_at IS NULL AND c.archived_at IS NULL LIMIT 1"); $s->execute([$slug]); return $s->fetch() ?: null;
     }
 
     public function listPublic(int $championshipId, array $filters = [], int $limit = 12, int $offset = 0): array
     {
         [$where, $params] = $this->where([$championshipId], $filters, true); $where[] = "c.visibility = 'public' AND c.status <> 'draft'";
         $where[] = "m.status = 'published' AND m.published_at IS NOT NULL AND m.published_at <= ?"; $params[] = date('Y-m-d H:i:s');
-        $sql = "SELECT m.id, m.athlete_id, m.type, m.movement_date, m.public_observation, a.full_name AS athlete_name, a.sporting_name, a.photo_path, pt.name AS previous_team_name, pt.slug AS previous_team_slug, pt.shield_path AS previous_team_shield_path, nt.name AS new_team_name, nt.slug AS new_team_slug, nt.shield_path AS new_team_shield_path FROM transfer_movements m INNER JOIN athletes a ON a.id = m.athlete_id LEFT JOIN teams pt ON pt.id = m.previous_team_id LEFT JOIN teams nt ON nt.id = m.new_team_id INNER JOIN championships c ON c.id = m.championship_id WHERE " . implode(' AND ', $where) . " ORDER BY m.movement_date DESC, m.id DESC LIMIT " . max(1, $limit) . " OFFSET " . max(0, $offset);
+        $sql = "SELECT m.id, m.athlete_id, m.type, m.movement_date, m.public_observation, a.full_name AS athlete_name, a.sporting_name, a.photo_path, pt.name AS previous_team_name, pt.slug AS previous_team_slug, pt.shield_path AS previous_team_shield_path, nt.name AS new_team_name, nt.slug AS new_team_slug, nt.shield_path AS new_team_shield_path FROM transfer_movements m INNER JOIN athletes a ON a.id = m.athlete_id LEFT JOIN teams pt ON pt.id = m.previous_team_id LEFT JOIN teams nt ON nt.id = m.new_team_id INNER JOIN championships c ON c.id = m.championship_id AND c.archived_at IS NULL WHERE " . implode(' AND ', $where) . " ORDER BY m.movement_date DESC, m.id DESC LIMIT " . max(1, $limit) . " OFFSET " . max(0, $offset);
         $s = $this->pdo->prepare($sql); $s->execute($params); return $s->fetchAll();
     }
 
     public function countPublic(int $championshipId, array $filters = []): int
     {
-        [$where, $params] = $this->where([$championshipId], $filters, true); $where[] = "c.visibility = 'public' AND c.status <> 'draft'"; $where[] = "m.status = 'published' AND m.published_at IS NOT NULL AND m.published_at <= ?"; $params[] = date('Y-m-d H:i:s'); $s = $this->pdo->prepare('SELECT COUNT(*) FROM transfer_movements m INNER JOIN championships c ON c.id = m.championship_id INNER JOIN athletes a ON a.id = m.athlete_id LEFT JOIN teams pt ON pt.id = m.previous_team_id LEFT JOIN teams nt ON nt.id = m.new_team_id WHERE ' . implode(' AND ', $where)); $s->execute($params); return (int) $s->fetchColumn();
+        [$where, $params] = $this->where([$championshipId], $filters, true); $where[] = "c.visibility = 'public' AND c.status <> 'draft'"; $where[] = "m.status = 'published' AND m.published_at IS NOT NULL AND m.published_at <= ?"; $params[] = date('Y-m-d H:i:s'); $s = $this->pdo->prepare('SELECT COUNT(*) FROM transfer_movements m INNER JOIN championships c ON c.id = m.championship_id AND c.archived_at IS NULL INNER JOIN athletes a ON a.id = m.athlete_id LEFT JOIN teams pt ON pt.id = m.previous_team_id LEFT JOIN teams nt ON nt.id = m.new_team_id WHERE ' . implode(' AND ', $where)); $s->execute($params); return (int) $s->fetchColumn();
     }
 
     public function publicFind(int $id, int $championshipId): ?array
@@ -92,7 +92,7 @@ final class TransferRepository
     {
         $where = ['a.deleted_at IS NULL']; $params = [];
         $this->scopeIds($championshipIds, 'c.id', $where, $params);
-        $s = $this->pdo->prepare('SELECT a.id, a.full_name, a.sporting_name, a.team_id, t.name AS team_name, c.id AS championship_id FROM athletes a INNER JOIN teams t ON t.id = a.team_id INNER JOIN championships c ON c.id = t.championship_id WHERE ' . implode(' AND ', $where) . ' ORDER BY a.full_name'); $s->execute($params); return $s->fetchAll();
+        $s = $this->pdo->prepare('SELECT a.id, a.full_name, a.sporting_name, a.team_id, t.name AS team_name, c.id AS championship_id FROM athletes a INNER JOIN teams t ON t.id = a.team_id INNER JOIN championships c ON c.id = t.championship_id AND c.archived_at IS NULL WHERE ' . implode(' AND ', $where) . ' ORDER BY a.full_name'); $s->execute($params); return $s->fetchAll();
     }
 
     public function teamsForChampionships(?array $championshipIds): array
@@ -102,7 +102,7 @@ final class TransferRepository
 
     public function athleteInChampionship(int $athleteId, int $championshipId): ?array
     {
-        $s = $this->pdo->prepare('SELECT a.id, a.team_id, a.full_name, c.id AS championship_id FROM athletes a INNER JOIN teams t ON t.id = a.team_id INNER JOIN championships c ON c.id = t.championship_id WHERE a.id = ? AND c.id = ? AND a.deleted_at IS NULL AND t.deleted_at IS NULL LIMIT 1'); $s->execute([$athleteId, $championshipId]); return $s->fetch() ?: null;
+        $s = $this->pdo->prepare('SELECT a.id, a.team_id, a.full_name, c.id AS championship_id FROM athletes a INNER JOIN teams t ON t.id = a.team_id INNER JOIN championships c ON c.id = t.championship_id AND c.archived_at IS NULL WHERE a.id = ? AND c.id = ? AND a.deleted_at IS NULL AND t.deleted_at IS NULL LIMIT 1'); $s->execute([$athleteId, $championshipId]); return $s->fetch() ?: null;
     }
 
     public function teamInChampionship(int $teamId, int $championshipId): bool { $s = $this->pdo->prepare('SELECT id FROM teams WHERE id = ? AND championship_id = ? AND deleted_at IS NULL'); $s->execute([$teamId, $championshipId]); return (bool) $s->fetchColumn(); }

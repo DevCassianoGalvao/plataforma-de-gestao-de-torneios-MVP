@@ -13,7 +13,7 @@ final class DisciplineRepository
 
     public function match(int $matchId): ?array
     {
-        $statement = $this->pdo->prepare('SELECT m.*, p.name AS phase_name, p.slug AS phase_slug, c.name AS championship_name FROM matches m INNER JOIN competition_phases p ON p.id = m.phase_id INNER JOIN championships c ON c.id = m.championship_id WHERE m.id = ? LIMIT 1');
+        $statement = $this->pdo->prepare('SELECT m.*, p.name AS phase_name, p.slug AS phase_slug, c.name AS championship_name FROM matches m INNER JOIN competition_phases p ON p.id = m.phase_id INNER JOIN championships c ON c.id = m.championship_id AND c.archived_at IS NULL WHERE m.id = ? LIMIT 1');
         $statement->execute([$matchId]);
         return $statement->fetch() ?: null;
     }

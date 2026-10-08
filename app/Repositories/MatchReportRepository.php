@@ -13,7 +13,7 @@ final class MatchReportRepository
 
     public function match(int $matchId): ?array
     {
-        $sql = 'SELECT m.*, c.name AS championship_name, c.short_name AS championship_short_name, s.name AS season_name, cat.name AS category_name, p.name AS phase_name, g.name AS group_name, r.round_number, ht.name AS home_team_name, ht.short_name AS home_team_short_name, at.name AS away_team_name, at.short_name AS away_team_short_name, v.name AS venue_name FROM matches m INNER JOIN championships c ON c.id = m.championship_id LEFT JOIN seasons s ON s.id = c.season_id LEFT JOIN categories cat ON cat.id = c.category_id INNER JOIN competition_phases p ON p.id = m.phase_id INNER JOIN competition_groups g ON g.id = m.group_id INNER JOIN competition_rounds r ON r.id = m.round_id INNER JOIN teams ht ON ht.id = m.home_team_id INNER JOIN teams at ON at.id = m.away_team_id LEFT JOIN venues v ON v.id = m.venue_id WHERE m.id = ? LIMIT 1';
+        $sql = 'SELECT m.*, c.name AS championship_name, c.short_name AS championship_short_name, s.name AS season_name, cat.name AS category_name, p.name AS phase_name, g.name AS group_name, r.round_number, ht.name AS home_team_name, ht.short_name AS home_team_short_name, at.name AS away_team_name, at.short_name AS away_team_short_name, v.name AS venue_name FROM matches m INNER JOIN championships c ON c.id = m.championship_id AND c.archived_at IS NULL LEFT JOIN seasons s ON s.id = c.season_id LEFT JOIN categories cat ON cat.id = c.category_id INNER JOIN competition_phases p ON p.id = m.phase_id INNER JOIN competition_groups g ON g.id = m.group_id INNER JOIN competition_rounds r ON r.id = m.round_id INNER JOIN teams ht ON ht.id = m.home_team_id INNER JOIN teams at ON at.id = m.away_team_id LEFT JOIN venues v ON v.id = m.venue_id WHERE m.id = ? LIMIT 1';
         $statement = $this->pdo->prepare($sql);
         $statement->execute([$matchId]);
         return $statement->fetch() ?: null;
@@ -172,7 +172,7 @@ final class MatchReportRepository
 
     private function currentList(string $where, array $params): array
     {
-        $sql = 'SELECT v.*, r.match_id, r.championship_id, m.round_id, m.match_date, m.match_time, c.name AS championship_name, ht.name AS home_team_name, at.name AS away_team_name FROM match_report_versions v INNER JOIN match_reports r ON r.current_version_id = v.id INNER JOIN matches m ON m.id = r.match_id INNER JOIN championships c ON c.id = m.championship_id INNER JOIN teams ht ON ht.id = m.home_team_id INNER JOIN teams at ON at.id = m.away_team_id WHERE ' . $where . ' ORDER BY m.match_date, m.match_time, m.id';
+        $sql = 'SELECT v.*, r.match_id, r.championship_id, m.round_id, m.match_date, m.match_time, c.name AS championship_name, ht.name AS home_team_name, at.name AS away_team_name FROM match_report_versions v INNER JOIN match_reports r ON r.current_version_id = v.id INNER JOIN matches m ON m.id = r.match_id INNER JOIN championships c ON c.id = m.championship_id AND c.archived_at IS NULL INNER JOIN teams ht ON ht.id = m.home_team_id INNER JOIN teams at ON at.id = m.away_team_id WHERE ' . $where . ' ORDER BY m.match_date, m.match_time, m.id';
         $statement = $this->pdo->prepare($sql);
         $statement->execute($params);
         return $statement->fetchAll();

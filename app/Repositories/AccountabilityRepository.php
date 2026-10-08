@@ -11,8 +11,8 @@ final class AccountabilityRepository
 
     public function championshipsFor(int $userId, bool $administrator): array
     {
-        if ($administrator) return $this->pdo->query("SELECT id, name, slug FROM championships WHERE deleted_at IS NULL ORDER BY name")->fetchAll();
-        $statement = $this->pdo->prepare("SELECT c.id, c.name, c.slug FROM championships c INNER JOIN championship_user_assignments a ON a.championship_id = c.id WHERE a.user_id = ? AND a.assignment_type IN ('accountability', 'organizer') AND c.deleted_at IS NULL ORDER BY c.name");
+        if ($administrator) return $this->pdo->query("SELECT id, name, slug FROM championships WHERE deleted_at IS NULL AND archived_at IS NULL ORDER BY name")->fetchAll();
+        $statement = $this->pdo->prepare("SELECT c.id, c.name, c.slug FROM championships c INNER JOIN championship_user_assignments a ON a.championship_id = c.id WHERE a.user_id = ? AND a.assignment_type IN ('accountability', 'organizer') AND c.deleted_at IS NULL AND c.archived_at IS NULL ORDER BY c.name");
         $statement->execute([$userId]);
         return $statement->fetchAll();
     }
@@ -132,7 +132,7 @@ final class AccountabilityRepository
 
     public function matchDetail(int $championshipId, int $matchId): ?array
     {
-        $statement = $this->pdo->prepare("SELECT m.*, c.name AS championship_name, p.name AS phase_name, g.name AS group_name, r.round_number, COALESCE(NULLIF(r.round_label, ''), CONCAT('Rodada ', r.round_number)) AS rodada_label, venue.name AS venue_name, venue.city AS venue_city, ht.name AS home_team_name, at.name AS away_team_name, mo.id AS operation_id, mo.status AS operation_status, mo.review_status, mo.administrative_home_score, mo.administrative_away_score FROM matches m INNER JOIN championships c ON c.id = m.championship_id INNER JOIN competition_phases p ON p.id = m.phase_id INNER JOIN competition_groups g ON g.id = m.group_id INNER JOIN competition_rounds r ON r.id = m.round_id INNER JOIN teams ht ON ht.id = m.home_team_id INNER JOIN teams at ON at.id = m.away_team_id LEFT JOIN venues venue ON venue.id = m.venue_id LEFT JOIN match_operations mo ON mo.match_id = m.id WHERE m.id = ? AND m.championship_id = ? AND m.status = 'homologated' LIMIT 1");
+        $statement = $this->pdo->prepare("SELECT m.*, c.name AS championship_name, p.name AS phase_name, g.name AS group_name, r.round_number, COALESCE(NULLIF(r.round_label, ''), CONCAT('Rodada ', r.round_number)) AS rodada_label, venue.name AS venue_name, venue.city AS venue_city, ht.name AS home_team_name, at.name AS away_team_name, mo.id AS operation_id, mo.status AS operation_status, mo.review_status, mo.administrative_home_score, mo.administrative_away_score FROM matches m INNER JOIN championships c ON c.id = m.championship_id AND c.archived_at IS NULL INNER JOIN competition_phases p ON p.id = m.phase_id INNER JOIN competition_groups g ON g.id = m.group_id INNER JOIN competition_rounds r ON r.id = m.round_id INNER JOIN teams ht ON ht.id = m.home_team_id INNER JOIN teams at ON at.id = m.away_team_id LEFT JOIN venues venue ON venue.id = m.venue_id LEFT JOIN match_operations mo ON mo.match_id = m.id WHERE m.id = ? AND m.championship_id = ? AND m.status = 'homologated' LIMIT 1");
         $statement->execute([$matchId, $championshipId]);
         $match = $statement->fetch();
         if (!$match) return null;
