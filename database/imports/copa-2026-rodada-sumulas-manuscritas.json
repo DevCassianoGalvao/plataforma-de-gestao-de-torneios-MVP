@@ -1,0 +1,55 @@
+{
+    "championship": "Copa Brasil de Talentos 2026",
+    "matches": [
+        {
+            "home": "Retiro Saudoso FC",
+            "away": "Santiago FC",
+            "score": [0, 3],
+            "events": [
+                {"type": "goal", "team": "Santiago FC", "athlete": "Édson Diogo Bom Freiman"},
+                {"type": "goal", "team": "Santiago FC", "athlete": "David Rodrigues da Silva"},
+                {"type": "goal", "team": "Santiago FC", "athlete": "Gustavo Corrêa Cardoso"},
+                {"type": "yellow", "team": "Santiago FC", "athlete": "Iranildo Marcos Ouverney"},
+                {"type": "yellow", "team": "Santiago FC", "athlete": "Bruno de Oliveira Klein"}
+            ]
+        },
+        {
+            "home": "Ousadia e Alegria FC",
+            "away": "Lumiar FC",
+            "score": [0, 2],
+            "events": [
+                {"type": "goal", "team": "Lumiar FC", "athlete": "Vinicius Jandre Alberto"},
+                {"type": "goal", "team": "Lumiar FC", "athlete": "Vinicius Jandre Alberto"},
+                {"type": "yellow", "team": "Ousadia e Alegria FC", "athlete": "Patrick Ary santos"},
+                {"type": "yellow", "team": "Ousadia e Alegria FC", "athlete": "Carlos Eduardo da Silva"},
+                {"type": "yellow", "team": "Lumiar FC", "athlete": "Vinicius Jandre Alberto"},
+                {"type": "yellow", "team": "Lumiar FC", "athlete": "Thomas Blaudt de Lima"}
+            ]
+        },
+        {
+            "home": "Sana FC",
+            "away": "Bragantino FC",
+            "score": [1, 0],
+            "events": [
+                {"type": "goal", "team": "Sana FC", "athlete": "Flavio Luiz Chagas"},
+                {"type": "yellow", "team": "Sana FC", "athlete": "Paulo Rafael Dias Ouverney"},
+                {"type": "yellow", "team": "Sana FC", "athlete": "Nilo Joshua Gomes de Magalhães"},
+                {"type": "yellow", "team": "Sana FC", "athlete": "Adilson da Silva Coelho"},
+                {"type": "yellow", "team": "Bragantino FC", "athlete": "Matheus Joaquim dos santos"}
+            ]
+        },
+        {
+            "home": "Rio Bonito FC",
+            "away": "Viguinha FC",
+            "score": [1, 4],
+            "events": [
+                {"type": "goal", "team": "Rio Bonito FC", "athlete": "PABLO WANDROFSKI KLEIN"},
+                {"type": "yellow", "team": "Rio Bonito FC", "athlete": "PABLO WANDROFSKI KLEIN"},
+                {"type": "goal", "team": "Viguinha FC", "athlete": "Romario Damazio Pinheiros"},
+                {"type": "goal", "team": "Viguinha FC", "athlete": "João Batista Alves da Silva"},
+                {"type": "goal", "team": "Viguinha FC", "athlete": "Carlos Alexandre Sabino Gomes"},
+                {"type": "goal", "team": "Viguinha FC", "athlete": "Andeson Adriano da Silva"}
+            ]
+        }
+    ]
+}
