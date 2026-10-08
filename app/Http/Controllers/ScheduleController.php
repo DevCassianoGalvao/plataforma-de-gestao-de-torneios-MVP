@@ -24,7 +24,8 @@ final class ScheduleController extends Controller
     {
         $guard = $this->guard($request, 'schedule.view');
         if ($guard instanceof Response) return $guard;
-        $filters = ['championship_id' => (string) ($request->query['championship_id'] ?? ''), 'phase_id' => (string) ($request->query['phase_id'] ?? ''), 'group_id' => (string) ($request->query['group_id'] ?? ''), 'round_number' => (string) ($request->query['round_number'] ?? ''), 'team_id' => (string) ($request->query['team_id'] ?? ''), 'from' => (string) ($request->query['from'] ?? ''), 'to' => (string) ($request->query['to'] ?? ''), 'status' => (string) ($request->query['status'] ?? ''), 'upcoming' => (string) ($request->query['upcoming'] ?? '')];
+        $filters = ['championship_id' => (string) ($request->query['championship_id'] ?? ''), 'phase_id' => (string) ($request->query['phase_id'] ?? ''), 'group_id' => (string) ($request->query['group_id'] ?? ''), 'round_number' => (string) ($request->query['round_number'] ?? ''), 'team_id' => (string) ($request->query['team_id'] ?? ''), 'from' => (string) ($request->query['from'] ?? ''), 'to' => (string) ($request->query['to'] ?? ''), 'status' => (string) ($request->query['status'] ?? ''), 'upcoming' => (string) ($request->query['upcoming'] ?? ''), 'show_closed' => (string) ($request->query['show_closed'] ?? '')];
+        $filters['hide_closed'] = $filters['status'] === '' && $filters['show_closed'] === '' ? '1' : '';
         $items = $this->access->listMatches($guard, $filters);
         $teamOptions = $phaseOptions = $groupOptions = [];
         foreach ($items as $item) {

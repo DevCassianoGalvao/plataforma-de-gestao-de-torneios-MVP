@@ -2572,19 +2572,29 @@ body.public-portal .filter-bar button:focus-visible {
     body.app-body .schedule-table { min-width: 0; }
     body.app-body .schedule-table thead { display: none; }
     body.app-body .schedule-table,
-    body.app-body .schedule-table tbody,
-    body.app-body .schedule-table tr,
-    body.app-body .schedule-table td { display: block; width: 100%; }
-    body.app-body .schedule-table tr { margin-bottom: .8rem; padding: .9rem; border: 1px solid var(--ui-border); border-radius: 8px; background: var(--ui-surface-2); }
-    body.app-body .schedule-table td { display: grid; grid-template-columns: 6.1rem minmax(0, 1fr); gap: .6rem; padding: .48rem 0; border-bottom: 1px solid var(--ui-border); }
-    body.app-body .schedule-table td:last-child { padding-bottom: 0; border-bottom: 0; }
-    body.app-body .schedule-table td::before { color: var(--ui-text-soft); font-size: .68rem; font-weight: 750; letter-spacing: .07em; text-transform: uppercase; }
-    body.app-body .schedule-table td:nth-child(1)::before { content: 'Rodada'; }
-    body.app-body .schedule-table td:nth-child(2)::before { content: 'Confronto'; }
-    body.app-body .schedule-table td:nth-child(3)::before { content: 'Data'; }
-    body.app-body .schedule-table td:nth-child(4)::before { content: 'Local'; }
-    body.app-body .schedule-table td:nth-child(5)::before { content: 'Situação'; }
-body.app-body .schedule-table td:nth-child(6)::before { content: 'Ações'; }
+    body.app-body .schedule-table tbody { display: block; width: 100%; }
+    body.app-body .schedule-table tr {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        grid-template-areas: "round status" "teams teams" "when when" "venue venue" "action action";
+        gap: .35rem .75rem;
+        margin-bottom: .8rem;
+        padding: 1rem;
+        border: 1px solid var(--ui-border);
+        border-radius: 12px;
+        background: var(--ui-surface-2);
+    }
+    body.app-body .schedule-table td { display: block; padding: 0; border: 0; min-width: 0; }
+    body.app-body .schedule-table .schedule-round { grid-area: round; align-self: center; color: var(--ui-text-soft); font-size: .72rem; font-weight: 750; letter-spacing: .06em; text-transform: uppercase; white-space: normal; }
+    body.app-body .schedule-table .schedule-status { grid-area: status; justify-self: end; align-self: center; }
+    body.app-body .schedule-table .schedule-teams { grid-area: teams; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: .5rem; margin: .6rem 0 .45rem; padding: .75rem 0; border-top: 1px solid var(--ui-border); border-bottom: 1px solid var(--ui-border); }
+    body.app-body .schedule-table .schedule-teams strong { font-size: 1.02rem; line-height: 1.25; overflow-wrap: anywhere; }
+    body.app-body .schedule-table .schedule-teams strong:last-child { text-align: right; }
+    body.app-body .schedule-table .schedule-teams .schedule-vs { margin: 0; font-size: .8rem; text-transform: uppercase; }
+    body.app-body .schedule-table .schedule-when { grid-area: when; color: var(--ui-text); font-size: .9rem; font-weight: 700; }
+    body.app-body .schedule-table .schedule-venue { grid-area: venue; color: var(--ui-text-muted); font-size: .84rem; }
+    body.app-body .schedule-table .schedule-action { grid-area: action; margin-top: .6rem; }
+    body.app-body .schedule-table .schedule-action a { display: flex; width: 100%; justify-content: center; min-height: 2.6rem; align-items: center; }
 }
 
 .simulation-notice { margin: 1rem 0; padding: .9rem 1rem; border: 1px solid color-mix(in srgb, var(--ui-primary) 42%, var(--ui-border)); border-radius: var(--ui-radius); background: color-mix(in srgb, var(--ui-primary) 10%, var(--ui-surface)); color: var(--ui-text); }
@@ -2785,3 +2795,6 @@ body.public-portal .portal-shell > *,
 body.public-portal .portal-grid,
 body.public-portal .portal-grid > * { min-width: 0; }
 body.public-portal .match-detail-team a span { overflow-wrap: anywhere; }
+
+.schedule-table .schedule-vs { margin: 0 .45rem; color: var(--ui-text-soft); font-weight: 600; }
+.schedule-table .schedule-round, .schedule-table .schedule-when, .schedule-table .schedule-action a { white-space: nowrap; }

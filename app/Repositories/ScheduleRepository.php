@@ -183,6 +183,7 @@ final class ScheduleRepository
         if (!empty($filters['from'])) { $conditions[] = 'm.match_date >= ?'; $params[] = $filters['from']; }
         if (!empty($filters['to'])) { $conditions[] = 'm.match_date <= ?'; $params[] = $filters['to']; }
         if (!empty($filters['upcoming'])) $conditions[] = "m.match_date >= CURDATE() AND m.status IN ('scheduled', 'confirmed', 'postponed')";
+        if (!empty($filters['hide_closed'])) $conditions[] = "m.status NOT IN ('finished', 'homologated', 'cancelled', 'wo')";
         $sql = $this->matchSelect() . ' WHERE ' . implode(' AND ', $conditions) . ' ORDER BY m.match_date IS NULL, m.match_date, m.match_time, m.id';
         $statement = $this->pdo->prepare($sql);
         $statement->execute($params);
