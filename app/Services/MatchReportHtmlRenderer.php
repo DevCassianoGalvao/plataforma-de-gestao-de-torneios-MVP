@@ -35,7 +35,7 @@ final class MatchReportHtmlRenderer
         $eventItems = '';
         foreach ($payload['events'] as $event) {
             if ((int) ($event['valid'] ?? 0) !== 1 || !isset($eventLabels[$event['event_type']]) || (string) ($event['period'] ?? '') === 'penalties') continue;
-            $eventItems .= '<li>' . $e($eventLabels[$event['event_type']]) . ': ' . $e(trim((string) ($event['athlete_full_name'] ?? '')) ?: 'Autor nao informado') . ' (' . $e($event['team_name'] ?? '-') . ')' . ($event['minute'] !== null ? ' - ' . $e($event['minute']) . "'" : '') . '</li>';
+            $eventItems .= '<li>' . $e($eventLabels[$event['event_type']]) . ': ' . $e(trim((string) ($event['athlete_full_name'] ?? '')) ?: 'Autor nao informado') . ' (' . ($event['event_type'] === 'own_goal' ? 'a favor de ' : '') . $e($event['team_name'] ?? '-') . ')' . ($event['minute'] !== null ? ' - ' . $e($event['minute']) . "'" : '') . '</li>';
         }
         $eventsSection = '<section><h3>Gols e cartoes</h3><ul>' . ($eventItems ?: '<li>Nenhum gol ou cartao registrado.</li>') . '</ul></section>';
         $notes = trim((string) ($match['internal_notes'] ?? ''));

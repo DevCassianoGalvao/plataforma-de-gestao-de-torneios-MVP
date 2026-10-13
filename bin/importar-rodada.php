@@ -83,15 +83,18 @@ foreach ($data['matches'] as $i => $spec) {
     foreach ($spec['events'] as $event) {
         $teamId = $teamIds[$event['team']] ?? null;
         if (!$teamId) { $errors[] = "{$label}: time '{$event['team']}' nao e desta partida."; continue; }
-        if (!in_array($event['type'], ['goal', 'yellow', 'second_yellow', 'red'], true)) { $errors[] = "{$label}: tipo '{$event['type']}' nao suportado."; continue; }
+        if (!in_array($event['type'], ['goal', 'own_goal', 'yellow', 'second_yellow', 'red'], true)) { $errors[] = "{$label}: tipo '{$event['type']}' nao suportado."; continue; }
+        // Gol contra: "team" e o time BENEFICIADO; o autor (opcional) e jogador do time adversario.
+        $isGoal = in_array($event['type'], ['goal', 'own_goal'], true);
         if (($event['athlete'] ?? null) === null) {
-            if ($event['type'] !== 'goal') { $errors[] = "{$label}: cartao sem jogador nao e permitido."; continue; }
+            if (!$isGoal) { $errors[] = "{$label}: cartao sem jogador nao e permitido."; continue; }
             $goals[$event['team']] = ($goals[$event['team']] ?? 0) + 1;
-            $events[] = ['type' => 'goal', 'team_id' => $teamId, 'team' => $event['team'], 'athlete_id' => null, 'athlete' => 'Autor nao informado'];
+            $events[] = ['type' => $event['type'], 'team_id' => $teamId, 'team' => $event['team'], 'athlete_id' => null, 'athlete' => 'Autor nao informado'];
             continue;
         }
+        $rosterTeamId = $event['type'] === 'own_goal' ? (int) ($teamIds[$spec['home']] === $teamId ? $teamIds[$spec['away']] : $teamIds[$spec['home']]) : $teamId;
         $roster = $pdo->prepare('SELECT a.id, a.full_name, a.banned_at, ar.status FROM athlete_registrations ar INNER JOIN athletes a ON a.id = ar.athlete_id WHERE ar.championship_id = ? AND ar.team_id = ?');
-        $roster->execute([$championshipId, $teamId]);
+        $roster->execute([$championshipId, $rosterTeamId]);
         $rosterRows = $roster->fetchAll();
         $hits = array_values(array_filter($rosterRows, static fn (array $r): bool => $norm($r['full_name']) === $norm($event['athlete'])));
         $approved = array_values(array_filter($hits, static fn (array $r): bool => $r['status'] === 'approved'));
@@ -110,7 +113,7 @@ foreach ($data['matches'] as $i => $spec) {
             continue;
         }
         if ($approved[0]['banned_at'] !== null) { $errors[] = "{$label}: '{$event['athlete']}' esta banido."; continue; }
-        if ($event['type'] === 'goal') $goals[$event['team']] = ($goals[$event['team']] ?? 0) + 1;
+        if ($isGoal) $goals[$event['team']] = ($goals[$event['team']] ?? 0) + 1;
         $events[] = ['type' => $event['type'], 'team_id' => $teamId, 'team' => $event['team'], 'athlete_id' => (int) $approved[0]['id'], 'athlete' => $approved[0]['full_name']];
     }
     if ([$goals[$spec['home']] ?? 0, $goals[$spec['away']] ?? 0] !== [(int) $spec['score'][0], (int) $spec['score'][1]]) {
@@ -119,12 +122,12 @@ foreach ($data['matches'] as $i => $spec) {
     $plan[] = ['label' => $label, 'match_id' => (int) $match['id'], 'system' => $match['home_name'] . ' (mandante) x ' . $match['away_name'], 'score' => $spec['score'], 'events' => $events, 'notes' => trim((string) ($spec['notes'] ?? ''))];
 }
 
-$names = ['goal' => 'GOL', 'yellow' => 'AMARELO', 'second_yellow' => '2o AMARELO', 'red' => 'VERMELHO'];
+$names = ['goal' => 'GOL', 'own_goal' => 'GOL CONTRA', 'yellow' => 'AMARELO', 'second_yellow' => '2o AMARELO', 'red' => 'VERMELHO'];
 echo ($apply ? "=== APLICANDO ===\n" : "=== SIMULACAO (nada sera gravado) ===\n");
 echo "Campeonato: {$champs[0]['name']} (#{$championshipId}) | Usuario: {$user['name']}\n\n";
 foreach ($plan as $p) {
     echo "{$p['label']}  [partida #{$p['match_id']} — {$p['system']}]  placar {$p['score'][0]}x{$p['score'][1]}\n";
-    foreach ($p['events'] as $e) echo "   - {$names[$e['type']]}: {$e['athlete']} ({$e['team']})\n";
+    foreach ($p['events'] as $e) echo "   - {$names[$e['type']]}: {$e['athlete']} (" . ($e['type'] === 'own_goal' ? 'a favor de ' : '') . "{$e['team']})\n";
     if ($p['notes'] !== '') echo '   - OBSERVACOES: ' . mb_strlen($p['notes']) . " caracteres\n";
 }
 if ($errors !== []) {

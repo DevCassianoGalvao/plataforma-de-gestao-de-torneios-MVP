@@ -38,7 +38,9 @@ $visibleEvents = array_values(array_filter($events, static fn (array $event): bo
                 <input type="hidden" name="period" value="regular">
                 <fieldset class="operator-types">
                     <legend>O que aconteceu?</legend>
+                    <p class="muted operator-hint">Gol contra: escolha o jogador que marcou contra o próprio time. O gol vai para o adversário.</p>
                     <label><input type="radio" name="event_type" value="goal" required> <span class="operator-card is-goal">Gol</span></label>
+                    <label><input type="radio" name="event_type" value="own_goal"> <span class="operator-card is-goal">Gol contra</span></label>
                     <label><input type="radio" name="event_type" value="yellow"> <span class="operator-card is-yellow">Amarelo</span></label>
                     <label><input type="radio" name="event_type" value="red"> <span class="operator-card is-red">Vermelho</span></label>
                 </fieldset>
@@ -67,7 +69,7 @@ $visibleEvents = array_values(array_filter($events, static fn (array $event): bo
                 <?php foreach ($visibleEvents as $event): ?>
                     <li>
                         <span class="operator-event-type is-<?= $e($event['event_type']) ?>"><?= $e($typeLabels[$event['event_type']]) ?></span>
-                        <span class="operator-event-who"><strong><?= $e($event['athlete_name'] ?: 'Autor não informado') ?></strong><small><?= $e($event['team_name'] ?: '') ?><?= $event['minute'] !== null ? ' · ' . (int) $event['minute'] . "'" : '' ?></small></span>
+                        <span class="operator-event-who"><strong><?= $e($event['athlete_name'] ?: 'Autor não informado') ?></strong><small><?= $event['event_type'] === 'own_goal' ? 'a favor de ' : '' ?><?= $e($event['team_name'] ?: '') ?><?= $event['minute'] !== null ? ' · ' . (int) $event['minute'] . "'" : '' ?></small></span>
                         <?php if ($open && $canOperate): ?>
                             <form method="post" action="<?= $e($operationBase . '/evento/remover') ?>"><input type="hidden" name="_csrf" value="<?= $csrf ?>"><input type="hidden" name="event_id" value="<?= (int) $event['id'] ?>"><button type="submit" class="button-danger">Remover</button></form>
                         <?php endif; ?>

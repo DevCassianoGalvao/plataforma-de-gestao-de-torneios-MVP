@@ -74,7 +74,7 @@ final class MatchReportPdf
         foreach ($events as $event) {
             if ((int) ($event['valid'] ?? 0) !== 1 || !isset($labels[$event['event_type']]) || (string) ($event['period'] ?? '') === 'penalties') continue;
             $who = trim((string) ($event['athlete_full_name'] ?? '')) ?: 'Autor nao informado';
-            $lines[] = '- ' . $labels[$event['event_type']] . ': ' . $who . ' (' . ($event['team_name'] ?? '-') . ')' . ($event['minute'] !== null ? ' - ' . $event['minute'] . "'" : '');
+            $lines[] = '- ' . $labels[$event['event_type']] . ': ' . $who . ' (' . ($event['event_type'] === 'own_goal' ? 'a favor de ' : '') . ($event['team_name'] ?? '-') . ')' . ($event['minute'] !== null ? ' - ' . $event['minute'] . "'" : '');
         }
         return $lines;
     }

@@ -57,7 +57,7 @@
             "away": "Sana FC",
             "score": [1, 2],
             "events": [
-                {"type": "goal", "team": "Mury FC", "athlete": null},
+                {"type": "own_goal", "team": "Mury FC", "athlete": null},
                 {"type": "yellow", "team": "Mury FC", "athlete": "Gabriel de Almeida Emiterio"},
                 {"type": "yellow", "team": "Mury FC", "athlete": "João Victor Marcolino da Silva Pereira"},
                 {"type": "goal", "team": "Sana FC", "athlete": "Nilo Joshua Gomes de Magalhães"},

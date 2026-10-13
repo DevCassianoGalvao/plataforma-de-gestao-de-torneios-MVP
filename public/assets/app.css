@@ -2811,7 +2811,7 @@ body.public-portal .match-detail-team a span { overflow-wrap: anywhere; }
 .operator-form label.check { display: flex; align-items: center; gap: .55rem; }
 .operator-form select, .operator-form input[type="number"], .operator-form textarea { width: 100%; min-height: 2.9rem; font-size: 1rem; }
 .operator-form button { width: 100%; min-height: 3rem; font-size: 1rem; }
-.operator-types { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; margin: 0; padding: 0; border: 0; }
+.operator-types { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; margin: 0; padding: 0; border: 0; }
 .operator-types legend { margin-bottom: .45rem; font-weight: 700; }
 .operator-types label { display: block; }
 .operator-types input { position: absolute; opacity: 0; pointer-events: none; }
@@ -2830,3 +2830,4 @@ body.public-portal .match-detail-team a span { overflow-wrap: anywhere; }
 .operator-event-who strong { overflow-wrap: anywhere; }
 .operator-event-who small { color: var(--ui-text-muted); }
 .operator-notes { white-space: normal; }
+.operator-types .operator-hint { grid-column: 1 / -1; margin: 0 0 .2rem; font-size: .8rem; }

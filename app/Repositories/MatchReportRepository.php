@@ -86,7 +86,7 @@ final class MatchReportRepository
             $athleteId = (int) $event['athlete_id'];
             $stats[$athleteId] ??= ['goals' => 0, 'assists' => 0, 'yellow' => 0, 'red' => 0];
             $type = (string) $event['event_type'];
-            if (in_array($type, ['goal', 'own_goal'], true) && (string) $event['period'] !== 'penalties') $stats[$athleteId]['goals']++;
+            if ($type === 'goal' && (string) $event['period'] !== 'penalties') $stats[$athleteId]['goals']++;
             if ($type === 'assist') $stats[$athleteId]['assists']++;
             if (in_array($type, ['yellow', 'second_yellow'], true)) $stats[$athleteId]['yellow']++;
             if (in_array($type, ['red', 'second_yellow'], true)) $stats[$athleteId]['red']++;
