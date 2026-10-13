@@ -174,6 +174,15 @@ final class RegulationRepository
         foreach ($pairings as $pair) $insert->execute([$id, $pair['stage'], (int) $pair['tie_number'], $pair['home_source'], $pair['away_source'], $now, $now]);
     }
 
+    /** Fase de grupos e grupos seguem a quantidade de classificados do regulamento publicado (vale mesmo com o campeonato em andamento). */
+    public function syncGroupQualification(int $championshipId, int $qualified): void
+    {
+        if ($qualified < 1) return;
+        $now = date('Y-m-d H:i:s');
+        $this->pdo->prepare("UPDATE competition_phases SET qualified_per_group = LEAST(?, teams_per_group), updated_at = ? WHERE championship_id = ? AND phase_type = 'groups'")->execute([$qualified, $now, $championshipId]);
+        $this->pdo->prepare("UPDATE competition_groups g INNER JOIN competition_phases p ON p.id = g.phase_id SET g.qualified_limit = LEAST(?, g.teams_limit), g.updated_at = ? WHERE p.championship_id = ? AND p.phase_type = 'groups'")->execute([$qualified, $now, $championshipId]);
+    }
+
     public function saveAdvancedSettings(int $id, array $settings): void
     {
         $columns = ['maximum_staff_members','maximum_teams','allow_registration_after_start','registration_requires_approval','require_complete_documents','require_minor_authorization','roster_change_limit','roster_change_deadline','roster_change_phase_limit','transfers_enabled','transfers_blocked','allow_player_ban','block_athlete_played_other_team','allow_administrative_exception','exception_reason_required','abandoned_match_rule','cancelled_match_rule','postponed_match_rule'];

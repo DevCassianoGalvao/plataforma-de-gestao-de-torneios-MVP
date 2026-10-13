@@ -102,6 +102,7 @@ final class RegulationService
             return ['ok' => false, 'errors' => $errors];
         }
         $this->regulations->publishDraft($championshipId, (int) $draft['id']);
+        $this->regulations->syncGroupQualification($championshipId, (int) ($loaded['format_settings']['qualified_per_group'] ?? 0));
         $this->audit->record('regulations.published', $userId, 'regulation', (int) $draft['id'], ['championship_id' => $championshipId], $request);
         return ['ok' => true, 'id' => (int) $draft['id']];
     }
