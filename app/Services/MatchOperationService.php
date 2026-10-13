@@ -38,6 +38,8 @@ final class MatchOperationService
             'checklist' => $this->checklist($match, $operation),
             'lineups' => $lineups,
             'players' => $this->playersForMatch($match),
+            'rosters' => ['home' => $this->operations->roster((int) $match['championship_id'], (int) $match['home_team_id']), 'away' => $this->operations->roster((int) $match['championship_id'], (int) $match['away_team_id'])],
+            'notes' => $this->operations->notes((int) $match['id']),
             'staff' => $this->staffForMatch($match),
             'discipline' => $this->discipline ? ['home' => $this->discipline->activeForMatch((int) $match['championship_id'], (int) $match['id'], (int) $match['home_team_id']), 'away' => $this->discipline->activeForMatch((int) $match['championship_id'], (int) $match['id'], (int) $match['away_team_id'])] : ['home' => [], 'away' => []],
         ];
@@ -78,6 +80,21 @@ final class MatchOperationService
         $id = $this->operations->createEvent(['match_id' => (int) $match['id'], 'team_id' => $teamId, 'person_type' => $personType, 'athlete_id' => $athleteId, 'team_staff_id' => $staffId, 'related_athlete_id' => $relatedAthleteId, 'event_type' => $type, 'period' => $period, 'minute' => $minute, 'notes' => trim((string) ($data['notes'] ?? '')) ?: null, 'created_by' => (int) $user['id']]);
         $this->audit->record('match_operation.event_created', (int) $user['id'], 'match_operation_event', $id, ['match_id' => $match['id'], 'event_type' => $type], null);
         return ['ok' => true, 'errors' => [], 'id' => $id];
+    }
+
+    /** Observacoes internas: operador enquanto a partida esta aberta; administracao a qualquer momento. */
+    public function saveNotes(array $user, array $match, string $notes, bool $administrative): array
+    {
+        $operation = $this->operations->ensure((int) $match['id'], (int) $user['id']);
+        if (!$administrative && $operation['status'] !== 'open') return $this->fail('A partida ja foi enviada para aprovacao; peca a administracao para alterar as observacoes.');
+        $notes = trim(str_replace("\r\n", "\n", $notes));
+        if (mb_strlen($notes) > 10000) return $this->fail('Observacoes muito longas (maximo de 10.000 caracteres).');
+        $this->operations->saveNotes((int) $match['id'], $notes === '' ? null : $notes, (int) $user['id']);
+        $this->audit->record('match_operation.notes_saved', (int) $user['id'], 'match', (int) $match['id'], ['length' => mb_strlen($notes)], null);
+        if ($operation['status'] === 'homologated' && $this->reports) {
+            $this->reports->generateForHomologatedMatch(array_merge($match, ['id' => (int) $match['id'], 'status' => 'homologated']), (int) $user['id']);
+        }
+        return ['ok' => true, 'errors' => []];
     }
 
     public function addSubstitution(array $user, array $match, array $data): array
@@ -286,7 +303,10 @@ final class MatchOperationService
             if (empty($operation[$field])) { $timesOk = false; break; }
         }
         if (!$timesOk) $errors[] = 'Horarios de inicio e fim dos tempos sao obrigatorios.';
-        return ['ready' => $errors === [], 'errors' => array_values(array_unique($errors)), 'lineups' => $lineupOk, 'score' => true, 'goals' => true, 'cards' => true, 'substitutions' => true, 'officials' => $hasReferee, 'times' => $timesOk, 'occurrences' => true, 'penalties' => true];
+        // Escalacao, arbitragem e horarios nao constam na sumula em papel: viram avisos, nao bloqueiam a aprovacao.
+        $warnings = array_values(array_unique($errors));
+        $errors = [];
+        return ['ready' => true, 'errors' => $errors, 'warnings' => $warnings,'lineups' => $lineupOk, 'score' => true, 'goals' => true, 'cards' => true, 'substitutions' => true, 'officials' => $hasReferee, 'times' => $timesOk, 'occurrences' => true, 'penalties' => true];
     }
 
     private function allowEvidenceGate(array $user, array $match, string $gate, array $data): bool
@@ -339,7 +359,11 @@ final class MatchOperationService
         $teams = $teamId ? [$opponent ? $this->opponentTeam($match, $teamId) : $teamId] : [(int) $match['home_team_id'], (int) $match['away_team_id']];
         foreach ($teams as $candidate) {
             $lineup = $this->lineupForTeam($match, $candidate);
-            if (!$lineup || $lineup['status'] !== 'confirmed') continue;
+            if (!$lineup || $lineup['status'] !== 'confirmed') {
+                // Sem escalacao confirmada, vale o elenco aprovado da equipe (sumula em papel nao traz escalacao).
+                if ($this->operations->inRoster((int) $match['championship_id'], $candidate, $athleteId)) return true;
+                continue;
+            }
             foreach ($lineup['players'] as $player) if ((int) $player['athlete_id'] === $athleteId) return true;
         }
         return false;

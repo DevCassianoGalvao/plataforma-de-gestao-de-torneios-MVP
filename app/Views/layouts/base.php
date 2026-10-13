@@ -49,7 +49,7 @@ $isRegistrationsActive = $isActive('/admin/inscricoes');
 $sidebarGroupActive = [
     'overview' => $isExactActive('/admin') || $isActive('/admin/campeonatos') || $isActive('/admin/notificacoes'),
     'operation' => $isActive('/admin/tabela') || $isActive('/minhas-partidas') || $isActive('/admin/rodadas') || $isActive('/admin/dias-evento') || $isActive('/prestacao'),
-    'sport' => $isActive('/admin/campeonatos') || $isActive('/admin/equipes') || $isActive('/admin/atletas') || $isActive('/admin/inscricoes') || $isActive('/admin/vai-e-vem'),
+    'sport' => $isActive('/admin/campeonatos') || $isActive('/admin/equipes') || $isActive('/admin/atletas') || $isActive('/admin/inscricoes') || $isActive('/admin/vai-e-vem') || $isActive('/admin/banidos'),
     'content' => $isActive('/admin/noticias') || $isActive('/admin/arbitros') || $isActive('/admin/contatos'),
     'access' => $isActive('/admin/usuarios') || $isActive('/admin/auditoria') || $isActive('/admin/backups') || $isActive('/admin/retencao'),
 ];
@@ -100,6 +100,7 @@ $sidebarGroupActive = [
             <?php if ($canMenu('teams.view')): ?><a href="<?= $e(App\Core\Config::url('/admin/equipes')) ?>"<?= $isActive('/admin/equipes') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="team" aria-hidden="true">EQ</span><span class="nav-label">Equipes</span></a><?php endif; ?>
             <?php if ($canMenu('athletes.view')): ?><a href="<?= $e(App\Core\Config::url('/admin/atletas')) ?>"<?= $isActive('/admin/atletas') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="athlete" aria-hidden="true">AT</span><span class="nav-label">Atletas</span></a><?php endif; ?>
             <?php if ($canMenu('registrations.view') || $canMenu('rosters.view')): ?><a href="<?= $e(App\Core\Config::url('/admin/inscricoes')) ?>"<?= $isRegistrationsActive ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="registration" aria-hidden="true">IN</span><span class="nav-label">Inscrições</span></a><?php endif; ?>
+            <?php if ($isAdministrator): ?><a href="<?= $e(App\Core\Config::url('/admin/banidos')) ?>"<?= $isActive('/admin/banidos') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="shield-alert" aria-hidden="true">BN</span><span class="nav-label">Banidos</span></a><?php endif; ?>
             <?php if ($canMenu('athlete_documents.review')): ?><a href="<?= $e(App\Core\Config::url('/admin/documentos')) ?>"<?= $isActive('/admin/documentos') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="file-check-2" aria-hidden="true">DC</span><span class="nav-label">Documentos para análise</span></a><?php endif; ?>
             <?php if ($canMenu('transfers.manage') || $canMenu('transfers.request')): ?><a href="<?= $e(App\Core\Config::url('/admin/vai-e-vem')) ?>"<?= $isActive('/admin/vai-e-vem') ? ' aria-current="page"' : '' ?>><span class="nav-icon" data-icon="transfer" aria-hidden="true">VV</span><span class="nav-label">Vai e Vem</span></a><?php endif; ?>
                 </div>

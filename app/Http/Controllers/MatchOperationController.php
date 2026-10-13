@@ -24,7 +24,27 @@ final class MatchOperationController extends Controller
         if ($guard instanceof Response) return $guard;
         $match = $this->access->matchForUser($guard, (int) ($params[0] ?? 0));
         if (!$match || !$this->access->canView($guard, $match)) return Response::forbidden();
-        return $this->page('Central operacional da partida', 'admin/matches/operation', $this->viewData($guard, $match, []));
+        return $this->page('Central operacional da partida', $this->viewFor($guard, $match), $this->viewData($guard, $match, []));
+    }
+
+    public function notes(Request $request, array $params = []): Response
+    {
+        $guard = $this->guardAny($request, ['match_operation.operate', 'match_operation.homologate']);
+        if ($guard instanceof Response) return $guard;
+        $match = $this->access->matchForUser($guard, (int) ($params[0] ?? 0));
+        if (!$match) return Response::forbidden();
+        $administrative = $this->access->canHomologate($guard, $match);
+        if (!$administrative && !$this->access->canOperate($guard, $match)) return Response::forbidden();
+        if (!$this->validCsrf($request)) return Response::forbidden('A sessao expirou.');
+        $result = $this->service->saveNotes($guard, $match, (string) ($request->body['internal_notes'] ?? ''), $administrative);
+        if (!$result['ok']) return $this->renderErrors($guard, $match, $result['errors']);
+        Session::flash('match_operation_message', 'Observacoes salvas.');
+        return Response::redirect(Config::url('/admin/partidas/' . $match['id'] . '/operacao'));
+    }
+
+    public function removeEvent(Request $request, array $params = []): Response
+    {
+        return $this->mutate($request, $params, 'remocao', fn (array $user, array $match): array => $this->service->cancelEvent($user, $match, (int) ($request->body['event_id'] ?? 0), 'Removido pelo operador na Central operacional.'));
     }
 
     public function event(Request $request, array $params = []): Response
@@ -109,7 +129,8 @@ final class MatchOperationController extends Controller
         if (!$this->validCsrf($request)) return Response::forbidden('A sessao expirou.');
         $result = $callback($guard, $match);
         if (!$result['ok']) return $this->renderErrors($guard, $match, $result['errors']);
-        Session::flash('match_operation_message', 'Registro salvo: ' . $action . '.');
+        $messages = ['event' => 'Lançamento salvo.', 'remocao' => 'Lançamento removido.', 'finish' => 'Partida enviada para aprovação.', 'substitution' => 'Substituição salva.', 'officials' => 'Arbitragem salva.', 'times' => 'Horários salvos.', 'result' => 'Resultado administrativo salvo.'];
+        Session::flash('match_operation_message', $messages[$action] ?? 'Registro salvo.');
         return Response::redirect(Config::url('/admin/partidas/' . $match['id'] . '/operacao'));
     }
 
@@ -128,7 +149,13 @@ final class MatchOperationController extends Controller
 
     private function renderErrors(array $user, array $match, array $errors): Response
     {
-        return $this->errorPage('Central operacional', 'admin/matches/operation', array_merge($this->viewData($user, $match, $errors), ['errors' => $errors]), 422);
+        return $this->errorPage('Central operacional', $this->viewFor($user, $match),array_merge($this->viewData($user, $match, $errors), ['errors' => $errors]), 422);
+    }
+
+    /** Operador (sem poder de aprovar) usa a tela simplificada: gols, cartoes e observacoes. */
+    private function viewFor(array $user, array $match): string
+    {
+        return $this->access->canHomologate($user, $match) ? 'admin/matches/operation' : 'admin/matches/operation-simple';
     }
 
     private function viewData(array $user, array $match, array $errors): array

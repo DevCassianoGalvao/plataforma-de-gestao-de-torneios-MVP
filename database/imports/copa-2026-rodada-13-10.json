@@ -1,0 +1,69 @@
+{
+    "championship": "Copa Brasil de Talentos 2026",
+    "matches": [
+        {
+            "home": "Lumiar FC",
+            "away": "Viguinha FC",
+            "score": [2, 0],
+            "events": [
+                {"type": "goal", "team": "Lumiar FC", "athlete": "Breno Leal Eller"},
+                {"type": "goal", "team": "Lumiar FC", "athlete": "Breno Leal Eller"},
+                {"type": "yellow", "team": "Lumiar FC", "athlete": "Daniel Boy Heiderich"},
+                {"type": "yellow", "team": "Lumiar FC", "athlete": "Vinicius Jandre Alberto"},
+                {"type": "yellow", "team": "Viguinha FC", "athlete": "Andeson Adriano da Silva"},
+                {"type": "yellow", "team": "Viguinha FC", "athlete": "João Batista Alves da Silva"},
+                {"type": "yellow", "team": "Viguinha FC", "athlete": "Pedro Kher da Silva"},
+                {"type": "yellow", "team": "Viguinha FC", "athlete": "Rodrigo Martins de Castro"}
+            ]
+        },
+        {
+            "home": "Bragantino FC",
+            "away": "Santiago FC",
+            "score": [3, 2],
+            "events": [
+                {"type": "goal", "team": "Bragantino FC", "athlete": "Anderson Corrêa Rodrigues"},
+                {"type": "goal", "team": "Bragantino FC", "athlete": "Luiz Fernando Silva Botelho"},
+                {"type": "goal", "team": "Bragantino FC", "athlete": "Pedro De Sá terra Torres"},
+                {"type": "yellow", "team": "Bragantino FC", "athlete": "Anderson Corrêa Rodrigues"},
+                {"type": "red", "team": "Bragantino FC", "athlete": "Matheus Joaquim dos santos"},
+                {"type": "red", "team": "Bragantino FC", "athlete": "Yure Joaquim Da Cunha Gomes"},
+                {"type": "red", "team": "Bragantino FC", "athlete": "Luiz Antonio Ouverney"},
+                {"type": "goal", "team": "Santiago FC", "athlete": "Anderson Piller Ther Dias"},
+                {"type": "goal", "team": "Santiago FC", "athlete": "Édson Diogo Bom Freiman"},
+                {"type": "yellow", "team": "Santiago FC", "athlete": "Leonardo de Oliveira Ther"},
+                {"type": "red", "team": "Santiago FC", "athlete": "Igor Fernandes Ther Klein"}
+            ],
+            "notes": "Nos últimos 2 minutos do 2º tempo, houve troca de agressões entre os atletas relacionados, o que motivou a paralisação da partida.\n\nAtletas relacionados: Yure Joaquim da Cunha Gomes (Bragantino FC), Matheus Joaquim dos Santos (Bragantino FC), Luiz Antônio Ouverney (Bragantino FC) e Igor Fernandes Ther Klein (Santiago FC).\n\nOs atletas citados se desentenderam em campo e partiram para a agressão, com troca de empurrões e socos, sendo necessária a intervenção dos membros das equipes para conter a confusão.\n\nDiante dos fatos, todos os envolvidos foram expulsos com cartão vermelho direto por conduta violenta."
+        },
+        {
+            "home": "Boa Esperança FC",
+            "away": "Ousadia e Alegria FC",
+            "score": [1, 4],
+            "events": [
+                {"type": "goal", "team": "Boa Esperança FC", "athlete": "Cristhian Guimarães Ribeiro"},
+                {"type": "yellow", "team": "Boa Esperança FC", "athlete": "Gustavo Boy"},
+                {"type": "yellow", "team": "Boa Esperança FC", "athlete": "Higor de Aguiar Heiderich"},
+                {"type": "yellow", "team": "Boa Esperança FC", "athlete": "Washington Caldeira de Carvalho"},
+                {"type": "goal", "team": "Ousadia e Alegria FC", "athlete": "Carlos Eduardo da Silva"},
+                {"type": "goal", "team": "Ousadia e Alegria FC", "athlete": "Claudemir Ferreira da Silva"},
+                {"type": "goal", "team": "Ousadia e Alegria FC", "athlete": "Edson da Silva"},
+                {"type": "goal", "team": "Ousadia e Alegria FC", "athlete": "Edson da Silva"},
+                {"type": "yellow", "team": "Ousadia e Alegria FC", "athlete": "Edson da Silva"},
+                {"type": "yellow", "team": "Ousadia e Alegria FC", "athlete": "Robert Maike da Silva"}
+            ]
+        },
+        {
+            "home": "Mury FC",
+            "away": "Sana FC",
+            "score": [1, 2],
+            "events": [
+                {"type": "goal", "team": "Mury FC", "athlete": null},
+                {"type": "yellow", "team": "Mury FC", "athlete": "Gabriel de Almeida Emiterio"},
+                {"type": "yellow", "team": "Mury FC", "athlete": "João Victor Marcolino da Silva Pereira"},
+                {"type": "goal", "team": "Sana FC", "athlete": "Nilo Joshua Gomes de Magalhães"},
+                {"type": "goal", "team": "Sana FC", "athlete": "Nilo Joshua Gomes de Magalhães"},
+                {"type": "yellow", "team": "Sana FC", "athlete": "Daniel Silva de Oliveira"}
+            ]
+        }
+    ]
+}

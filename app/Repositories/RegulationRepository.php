@@ -176,7 +176,7 @@ final class RegulationRepository
 
     public function saveAdvancedSettings(int $id, array $settings): void
     {
-        $columns = ['maximum_staff_members','maximum_teams','allow_registration_after_start','registration_requires_approval','require_complete_documents','require_minor_authorization','roster_change_limit','roster_change_deadline','roster_change_phase_limit','transfers_enabled','transfers_blocked','block_athlete_played_other_team','allow_administrative_exception','exception_reason_required','abandoned_match_rule','cancelled_match_rule','postponed_match_rule'];
+        $columns = ['maximum_staff_members','maximum_teams','allow_registration_after_start','registration_requires_approval','require_complete_documents','require_minor_authorization','roster_change_limit','roster_change_deadline','roster_change_phase_limit','transfers_enabled','transfers_blocked','allow_player_ban','block_athlete_played_other_team','allow_administrative_exception','exception_reason_required','abandoned_match_rule','cancelled_match_rule','postponed_match_rule'];
         $now = date('Y-m-d H:i:s');
         $updates = implode(', ', array_map(static fn (string $column): string => $column . '=VALUES(' . $column . ')', $columns));
         $statement = $this->pdo->prepare('INSERT INTO regulation_advanced_settings (regulation_id,' . implode(',', $columns) . ',created_at,updated_at) VALUES (?,' . implode(',', array_fill(0, count($columns), '?')) . ',?,?) ON DUPLICATE KEY UPDATE ' . $updates . ',updated_at=VALUES(updated_at)');

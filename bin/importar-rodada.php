@@ -83,23 +83,40 @@ foreach ($data['matches'] as $i => $spec) {
     foreach ($spec['events'] as $event) {
         $teamId = $teamIds[$event['team']] ?? null;
         if (!$teamId) { $errors[] = "{$label}: time '{$event['team']}' nao e desta partida."; continue; }
-        $roster = $pdo->prepare('SELECT a.id, a.full_name, ar.status FROM athlete_registrations ar INNER JOIN athletes a ON a.id = ar.athlete_id WHERE ar.championship_id = ? AND ar.team_id = ?');
+        if (!in_array($event['type'], ['goal', 'yellow', 'second_yellow', 'red'], true)) { $errors[] = "{$label}: tipo '{$event['type']}' nao suportado."; continue; }
+        if (($event['athlete'] ?? null) === null) {
+            if ($event['type'] !== 'goal') { $errors[] = "{$label}: cartao sem jogador nao e permitido."; continue; }
+            $goals[$event['team']] = ($goals[$event['team']] ?? 0) + 1;
+            $events[] = ['type' => 'goal', 'team_id' => $teamId, 'team' => $event['team'], 'athlete_id' => null, 'athlete' => 'Autor nao informado'];
+            continue;
+        }
+        $roster = $pdo->prepare('SELECT a.id, a.full_name, a.banned_at, ar.status FROM athlete_registrations ar INNER JOIN athletes a ON a.id = ar.athlete_id WHERE ar.championship_id = ? AND ar.team_id = ?');
         $roster->execute([$championshipId, $teamId]);
-        $hits = array_values(array_filter($roster->fetchAll(), static fn (array $r): bool => $norm($r['full_name']) === $norm($event['athlete'])));
+        $rosterRows = $roster->fetchAll();
+        $hits = array_values(array_filter($rosterRows, static fn (array $r): bool => $norm($r['full_name']) === $norm($event['athlete'])));
         $approved = array_values(array_filter($hits, static fn (array $r): bool => $r['status'] === 'approved'));
         if (count($approved) !== 1) {
             $why = $hits === [] ? 'nao inscrito no time' : 'inscricao com status ' . implode('/', array_column($hits, 'status'));
+            if ($hits === []) {
+                $tokens = array_filter(explode(' ', $norm($event['athlete'])), static fn (string $t): bool => mb_strlen($t) > 2);
+                $similar = array_values(array_filter($rosterRows, static function (array $r) use ($tokens, $norm): bool { $n = $norm($r['full_name']); foreach ($tokens as $t) if (!str_contains($n, $t)) return false; return true; }));
+                if ($similar !== []) $why .= '; parecidos no time: ' . implode(', ', array_column($similar, 'full_name'));
+                $other = (int) ($teamIds[$spec['home']] === $teamId ? $teamIds[$spec['away']] : $teamIds[$spec['home']]);
+                $elsewhere = $pdo->prepare('SELECT a.full_name FROM athlete_registrations ar INNER JOIN athletes a ON a.id = ar.athlete_id WHERE ar.championship_id = ? AND ar.team_id = ?');
+                $elsewhere->execute([$championshipId, $other]);
+                foreach ($elsewhere->fetchAll() as $r) if ($norm($r['full_name']) === $norm($event['athlete'])) $why .= '; ATENCAO: esta inscrito no time adversario';
+            }
             $errors[] = "{$label}: '{$event['athlete']}' ({$event['team']}) — {$why}.";
             continue;
         }
-        if (!in_array($event['type'], ['goal', 'yellow', 'second_yellow', 'red'], true)) { $errors[] = "{$label}: tipo '{$event['type']}' nao suportado."; continue; }
+        if ($approved[0]['banned_at'] !== null) { $errors[] = "{$label}: '{$event['athlete']}' esta banido."; continue; }
         if ($event['type'] === 'goal') $goals[$event['team']] = ($goals[$event['team']] ?? 0) + 1;
         $events[] = ['type' => $event['type'], 'team_id' => $teamId, 'team' => $event['team'], 'athlete_id' => (int) $approved[0]['id'], 'athlete' => $approved[0]['full_name']];
     }
     if ([$goals[$spec['home']] ?? 0, $goals[$spec['away']] ?? 0] !== [(int) $spec['score'][0], (int) $spec['score'][1]]) {
         $errors[] = "{$label}: gols lancados (" . ($goals[$spec['home']] ?? 0) . 'x' . ($goals[$spec['away']] ?? 0) . ") nao batem com o placar {$spec['score'][0]}x{$spec['score'][1]}.";
     }
-    $plan[] = ['label' => $label, 'match_id' => (int) $match['id'], 'system' => $match['home_name'] . ' (mandante) x ' . $match['away_name'], 'score' => $spec['score'], 'events' => $events];
+    $plan[] = ['label' => $label, 'match_id' => (int) $match['id'], 'system' => $match['home_name'] . ' (mandante) x ' . $match['away_name'], 'score' => $spec['score'], 'events' => $events, 'notes' => trim((string) ($spec['notes'] ?? ''))];
 }
 
 $names = ['goal' => 'GOL', 'yellow' => 'AMARELO', 'second_yellow' => '2o AMARELO', 'red' => 'VERMELHO'];
@@ -108,6 +125,7 @@ echo "Campeonato: {$champs[0]['name']} (#{$championshipId}) | Usuario: {$user['n
 foreach ($plan as $p) {
     echo "{$p['label']}  [partida #{$p['match_id']} — {$p['system']}]  placar {$p['score'][0]}x{$p['score'][1]}\n";
     foreach ($p['events'] as $e) echo "   - {$names[$e['type']]}: {$e['athlete']} ({$e['team']})\n";
+    if ($p['notes'] !== '') echo '   - OBSERVACOES: ' . mb_strlen($p['notes']) . " caracteres\n";
 }
 if ($errors !== []) {
     echo "\nPROBLEMAS — nada foi gravado:\n";
@@ -136,6 +154,7 @@ foreach ($plan as $p) {
         foreach ($p['events'] as $e) {
             $operations->createEvent(['match_id' => $matchId, 'team_id' => $e['team_id'], 'person_type' => 'athlete', 'athlete_id' => $e['athlete_id'], 'related_athlete_id' => null, 'event_type' => $e['type'], 'period' => 'regular', 'minute' => null, 'notes' => 'Importado da sumula manuscrita.', 'created_by' => $userId]);
         }
+        if ($p['notes'] !== '') $operations->saveNotes($matchId, $p['notes'], $userId);
         $operations->finish((int) $operation['id'], $matchId, $userId);
         $operations->homologate((int) $operation['id'], $matchId, $userId);
         $pdo->commit();

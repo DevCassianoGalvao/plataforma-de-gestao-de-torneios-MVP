@@ -33,26 +33,76 @@ final class MatchReportPdf
         $this->newPage();
         $this->title('VERSO DA SUMULA', 26, true);
         $this->text('Partida #' . $match['id'] . ' | ' . $match['home_team_name'] . ' x ' . $match['away_team_name'], 16, 44, 10);
-        $this->text('Ocorrencias', 16, 76, 12, true);
+        $page = 2; $y = 76;
+        $section = function (string $title, array $lines, float $size = 8) use (&$y, &$page, $version, $verificationCode): void {
+            $this->ensureSpace($y, 40, $page, $version, $verificationCode);
+            $this->text($title, 16, $y, 12, true); $y += 18;
+            foreach ($lines as $line) {
+                $this->ensureSpace($y, 14, $page, $version, $verificationCode);
+                $this->text($line, 16, $y, $size); $y += $size + 5;
+            }
+            $y += 12;
+        };
         $occurrences = [];
-        foreach ($payload['occurrences'] as $event) $occurrences[] = ($event['minute'] !== null ? $event['minute'] . "' - " : '') . ($event['notes'] ?: 'Ocorrencia registrada');
-        foreach ($payload['decisions'] as $decision) $occurrences[] = 'Decisao administrativa: ' . $decision['notes'];
-        $this->bulletList($occurrences ?: ['Nenhuma ocorrencia registrada.'], 16, 94, 8);
-        $y = 170;
-        $this->text('Substituicoes', 16, $y, 12, true); $y += 20;
+        foreach ($payload['occurrences'] as $event) $occurrences[] = '- ' . ($event['minute'] !== null ? $event['minute'] . "' - " : '') . ($event['notes'] ?: 'Ocorrencia registrada');
+        foreach ($payload['decisions'] as $decision) $occurrences[] = '- Decisao administrativa: ' . $decision['notes'];
+        $section('Ocorrencias', $this->wrap($occurrences ?: ['- Nenhuma ocorrencia registrada.'], 120));
         $subs = [];
-        foreach ($payload['substitutions'] as $sub) $subs[] = $sub['team_name'] . ': ' . $sub['athlete_out_name'] . ' por ' . $sub['athlete_in_name'] . ($sub['minute'] !== null ? ' (' . $sub['minute'] . "')" : '');
-        $this->bulletList($subs ?: ['Nenhuma substituicao registrada.'], 16, $y, 8);
-        $this->text('Confirmacoes', 16, 330, 12, true);
-        $this->text('Tecnico mandante: ______________________________________________', 16, 355, 9);
-        $this->text('Tecnico visitante: ______________________________________________', 16, 380, 9);
-        $this->text('Auxiliar / capitao mandante: ____________________________________', 16, 405, 9);
-        $this->text('Auxiliar / capitao visitante: ____________________________________', 16, 430, 9);
-        $this->text('Mesario: ______________________________________________________', 16, 455, 9);
-        $this->text('Organizacao: __________________________________________________', 16, 480, 9);
-        $this->textBox('Versao imutavel ' . $version . ' | Codigo de verificacao: ' . $verificationCode . ' | Gerado em: ' . $payload['generated_at'], 16, 540, 563, 48, 8);
-        $this->footer($version, $verificationCode, 2);
+        foreach ($payload['substitutions'] as $sub) $subs[] = '- ' . $sub['team_name'] . ': ' . $sub['athlete_out_name'] . ' por ' . $sub['athlete_in_name'] . ($sub['minute'] !== null ? ' (' . $sub['minute'] . "')" : '');
+        $section('Substituicoes', $this->wrap($subs ?: ['- Nenhuma substituicao registrada.'], 120));
+        $section('Gols e cartoes', $this->wrap($this->eventLines($payload['events']) ?: ['- Nenhum gol ou cartao registrado.'], 120));
+        $section('Confirmacoes', [
+            'Tecnico mandante: ______________________________________________',
+            'Tecnico visitante: ______________________________________________',
+            'Auxiliar / capitao mandante: ____________________________________',
+            'Auxiliar / capitao visitante: ____________________________________',
+            'Mesario: ______________________________________________________',
+            'Organizacao: __________________________________________________',
+        ], 9);
+        $notes = trim((string) ($match['internal_notes'] ?? ''));
+        if ($notes !== '') $section('Observacoes', $this->wrap(preg_split('/\R/', $notes) ?: [], 118), 8.5);
+        $this->ensureSpace($y, 30, $page, $version, $verificationCode);
+        $this->textBox('Versao imutavel ' . $version . ' | Codigo de verificacao: ' . $verificationCode . ' | Gerado em: ' . $payload['generated_at'], 16, $y, 563, 30, 8);
+        $this->footer($version, $verificationCode, $page);
         return $this->document();
+    }
+
+    private function eventLines(array $events): array
+    {
+        $labels = ['goal' => 'Gol', 'own_goal' => 'Gol contra', 'yellow' => 'Cartao amarelo', 'second_yellow' => 'Segundo amarelo', 'red' => 'Cartao vermelho'];
+        $lines = [];
+        foreach ($events as $event) {
+            if ((int) ($event['valid'] ?? 0) !== 1 || !isset($labels[$event['event_type']]) || (string) ($event['period'] ?? '') === 'penalties') continue;
+            $who = trim((string) ($event['athlete_full_name'] ?? '')) ?: 'Autor nao informado';
+            $lines[] = '- ' . $labels[$event['event_type']] . ': ' . $who . ' (' . ($event['team_name'] ?? '-') . ')' . ($event['minute'] !== null ? ' - ' . $event['minute'] . "'" : '');
+        }
+        return $lines;
+    }
+
+    /** Quebra cada paragrafo em linhas de ate $max caracteres; paragrafo vazio vira linha em branco. */
+    private function wrap(array $paragraphs, int $max): array
+    {
+        $lines = [];
+        foreach ($paragraphs as $paragraph) {
+            $paragraph = trim((string) $paragraph);
+            if ($paragraph === '') { $lines[] = ''; continue; }
+            $current = '';
+            foreach (preg_split('/\s+/u', $paragraph) ?: [] as $word) {
+                $candidate = $current === '' ? $word : $current . ' ' . $word;
+                if (mb_strlen($candidate) > $max && $current !== '') { $lines[] = $current; $current = $word; } else $current = $candidate;
+            }
+            if ($current !== '') $lines[] = $current;
+        }
+        return $lines;
+    }
+
+    private function ensureSpace(float &$y, float $needed, int &$page, int $version, string $code): void
+    {
+        if ($y + $needed <= 790) return;
+        $this->footer($version, $code, $page);
+        $this->newPage();
+        $page++;
+        $y = 40;
     }
 
     private function drawTeamTable(array $lineup, float $x, float $top, float $width): void

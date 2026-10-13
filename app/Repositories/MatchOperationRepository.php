@@ -112,6 +112,34 @@ final class MatchOperationRepository
         return $statement->fetch() ?: ['substitutions_allowed' => 5, 'substitution_windows' => 3, 'extra_time_enabled' => 0, 'penalty_shootout_enabled' => 1];
     }
 
+    /** Elenco aprovado (sem banidos) de uma equipe, usado quando a partida nao tem escalacao confirmada. */
+    public function roster(int $championshipId, int $teamId): array
+    {
+        $statement = $this->pdo->prepare("SELECT a.id AS athlete_id, a.full_name, a.sporting_name FROM athlete_registrations ar INNER JOIN athletes a ON a.id = ar.athlete_id WHERE ar.championship_id = ? AND ar.team_id = ? AND ar.status = 'approved' AND a.deleted_at IS NULL AND a.banned_at IS NULL ORDER BY a.full_name");
+        $statement->execute([$championshipId, $teamId]);
+        return $statement->fetchAll();
+    }
+
+    public function inRoster(int $championshipId, int $teamId, int $athleteId): bool
+    {
+        $statement = $this->pdo->prepare("SELECT 1 FROM athlete_registrations ar INNER JOIN athletes a ON a.id = ar.athlete_id WHERE ar.championship_id = ? AND ar.team_id = ? AND ar.athlete_id = ? AND ar.status = 'approved' AND a.deleted_at IS NULL AND a.banned_at IS NULL LIMIT 1");
+        $statement->execute([$championshipId, $teamId, $athleteId]);
+        return (bool) $statement->fetchColumn();
+    }
+
+    public function saveNotes(int $matchId, ?string $notes, int $userId): void
+    {
+        $now = date('Y-m-d H:i:s');
+        $this->pdo->prepare('UPDATE matches SET internal_notes = ?, internal_notes_updated_by = ?, internal_notes_updated_at = ?, updated_at = ? WHERE id = ?')->execute([$notes, $userId, $now, $now, $matchId]);
+    }
+
+    public function notes(int $matchId): array
+    {
+        $statement = $this->pdo->prepare('SELECT m.internal_notes, m.internal_notes_updated_at, u.name AS internal_notes_updated_by_name FROM matches m LEFT JOIN users u ON u.id = m.internal_notes_updated_by WHERE m.id = ? LIMIT 1');
+        $statement->execute([$matchId]);
+        return $statement->fetch() ?: ['internal_notes' => null, 'internal_notes_updated_at' => null, 'internal_notes_updated_by_name' => null];
+    }
+
     public function createEvent(array $data): int
     {
         $now = date('Y-m-d H:i:s');

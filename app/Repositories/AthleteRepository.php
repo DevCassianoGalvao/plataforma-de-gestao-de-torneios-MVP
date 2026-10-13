@@ -14,7 +14,7 @@ final class AthleteRepository
     public function listForUser(int $userId, string $scope, array $filters = []): array
     {
         [$scopeSql, $scopeParams] = $this->scopeSql($userId, $scope, false);
-        $conditions = ['a.deleted_at IS NULL', $scopeSql];
+        $conditions = ['a.deleted_at IS NULL', 'a.banned_at IS NULL', $scopeSql];
         $params = $scopeParams;
         if (($filters['search'] ?? '') !== '') {
             $term = '%' . trim((string) $filters['search']) . '%';
