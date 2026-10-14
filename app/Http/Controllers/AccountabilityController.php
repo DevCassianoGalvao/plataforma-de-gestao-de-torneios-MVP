@@ -9,6 +9,7 @@ use App\Core\Response;
 use App\Core\Session;
 use App\Repositories\AccountabilityRepository;
 use App\Services\AccountabilityExportService;
+use App\Services\Slugger;
 use App\Services\StorageService;
 
 final class AccountabilityController extends Controller
@@ -67,6 +68,78 @@ final class AccountabilityController extends Controller
         try { $file = $this->exports->generate($id, $kind, $this->filters($request->query), (int) $user['id']); }
         catch (\Throwable $error) { $this->audit->record('accountability.export_failed', (int) $user['id'], 'championship', $id, ['format' => $kind, 'error' => $error->getMessage()], $request); return $this->errorPage('Prestação de contas', 'errors/500', ['message' => 'Não foi possível gerar este arquivo agora.'], 500); }
         return Response::download($file['body'], $file['mime'], $file['name']);
+    }
+
+    /** Download de um arquivo da partida (sumula, sumula assinada ou evidencia aprovada) pela prestacao de contas. */
+    public function file(Request $request, array $params = []): Response
+    {
+        [$user, $match] = $this->detailAccess($request, $params);
+        if ($user instanceof Response) return $user;
+        if (!$match) return $this->errorPage('Prestação de contas', 'errors/404', ['path' => 'Partida não encontrada.'], 404);
+        $kind = (string) ($params[2] ?? ''); $fileId = (int) ($params[3] ?? 0);
+        $target = null;
+        if ($kind === 'sumula' || $kind === 'assinada') {
+            foreach ($match['versions'] as $version) {
+                if ((int) $version['id'] !== $fileId) continue;
+                $target = $kind === 'sumula'
+                    ? ['path' => $version['storage_path'], 'name' => 'sumula-partida-' . (int) $match['id'] . '-v' . (int) $version['version_number'] . '.pdf']
+                    : (!empty($version['signed_storage_path']) ? ['path' => $version['signed_storage_path'], 'name' => $version['signed_original_name'] ?: 'sumula-assinada-partida-' . (int) $match['id'] . '.pdf'] : null);
+            }
+        } elseif ($kind === 'evidencia') {
+            foreach (array_merge($match['evidencias'], $match['evidencias_dia_evento']) as $media) {
+                if ((int) $media['id'] === $fileId) $target = ['path' => $media['storage_path'], 'name' => $media['original_name']];
+            }
+        }
+        if (!$target) return Response::html('Arquivo não encontrado.', 404);
+        $file = $this->storage->read((string) $target['path']);
+        if (!$file) return Response::html('Arquivo não encontrado no armazenamento.', 404);
+        $this->audit->record('accountability.file_downloaded', (int) $user['id'], 'match', (int) $match['id'], ['kind' => $kind, 'id' => $fileId], $request);
+        return Response::binary($file['body'], $file['mime'], (string) $target['name']);
+    }
+
+    /** ZIP com tudo da partida: sumula atual, assinada, fotos/documentos aprovados e observacoes. */
+    public function matchPackage(Request $request, array $params = []): Response
+    {
+        [$user, $match] = $this->detailAccess($request, $params);
+        if ($user instanceof Response) return $user;
+        if (!$match) return $this->errorPage('Prestação de contas', 'errors/404', ['path' => 'Partida não encontrada.'], 404);
+        $tmp = tempnam(sys_get_temp_dir(), 'partida-');
+        $zip = new \ZipArchive();
+        if ($tmp === false || $zip->open($tmp, \ZipArchive::OVERWRITE) !== true) return $this->errorPage('Prestação de contas', 'errors/500', ['message' => 'Não foi possível gerar o pacote.'], 500);
+        $missing = [];
+        $add = function (string $path, string $name) use ($zip, &$missing): void {
+            $file = $this->storage->read($path);
+            if ($file) $zip->addFromString($name, $file['body']); else $missing[] = $name;
+        };
+        $current = $match['versions'][0] ?? null;
+        if ($current) {
+            $add((string) $current['storage_path'], 'sumula-v' . (int) $current['version_number'] . '.pdf');
+            if (!empty($current['signed_storage_path'])) $add((string) $current['signed_storage_path'], 'sumula-assinada.pdf');
+        }
+        $used = [];
+        foreach (array_merge($match['evidencias'], $match['evidencias_dia_evento']) as $media) {
+            $name = preg_replace('/[^\w.\-]+/u', '_', (string) $media['original_name']) ?: 'arquivo';
+            $name = isset($used[$name]) ? (int) $media['id'] . '-' . $name : $name;
+            $used[$name] = true;
+            $add((string) $media['storage_path'], 'fotos-e-documentos/' . $name);
+        }
+        $notes = trim((string) ($match['internal_notes'] ?? ''));
+        if ($notes !== '') $zip->addFromString('observacoes.txt', $notes . "\n");
+        if ($missing !== []) $zip->addFromString('arquivos-pendentes.txt', "Arquivos não encontrados no armazenamento:\n" . implode("\n", $missing) . "\n");
+        $zip->close();
+        $body = (string) file_get_contents($tmp);
+        @unlink($tmp);
+        $this->audit->record('accountability.match_package_downloaded', (int) $user['id'], 'match', (int) $match['id'], [], $request);
+        return Response::download($body, 'application/zip', 'partida-' . (int) $match['id'] . '-' . Slugger::make((string) $match['home_team_name']) . '-x-' . Slugger::make((string) $match['away_team_name']) . '.zip');
+    }
+
+    private function detailAccess(Request $request, array $params): array
+    {
+        $user = $this->guardAny($request, ['accountability.detail', 'accountability.view']);
+        if ($user instanceof Response) return [$user, null];
+        $championshipId = (int) ($params[0] ?? 0);
+        if (!$this->reports->allowed($championshipId, (int) $user['id'], $this->isAdministrator($user))) return [Response::forbidden(), null];
+        return [$user, $this->reports->matchDetail($championshipId, (int) ($params[1] ?? 0))];
     }
 
     public function uploadSigned(Request $request, array $params = []): Response

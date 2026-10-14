@@ -35,6 +35,7 @@ final class MatchMediaController extends Controller
         try { foreach($files as $file){ $created[]=$this->store($file,$match,$item,$user,$request,(int)($request->body['replace_media_id']??0)); } }
         catch(\Throwable $e){ foreach($created as $media)$this->storage->delete($media['path']); return Response::html('Não foi possível enviar a evidência: '.$e->getMessage(),422); }
         if(($old=(int)($request->body['replace_media_id']??0))>0 && count($created)===1){$oldMedia=$this->media->find($old);if($oldMedia&&(int)$oldMedia['match_id']===(int)$match['id']){$this->media->replace($old,(int)$created[0]['id']);$this->media->remove($old,(int)$user['id'],'Substituída por nova evidência.');$this->media->log((int)$match['id'],$old,$itemId,'substituicao','Arquivo substituído.',(int)$user['id']);}}
+        if(($request->body['return_to']??'')==='operacao'){Session::flash('match_operation_message',count($created).' foto(s) enviada(s).');return Response::redirect(Config::url('/admin/partidas/'.$match['id'].'/operacao'));}
         Session::flash('media_message',count($created).' evidência(s) enviada(s) para revisão.'); return Response::redirect(Config::url('/admin/partidas/'.$match['id'].'/evidencias'));
     }
     public function updateNotes(Request $request,array $params=[]): Response

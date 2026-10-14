@@ -93,6 +93,32 @@ $visibleEvents = array_values(array_filter($events, static fn (array $event): bo
         <?php endif; ?>
     </article>
 
+    <?php $photos = array_values(array_filter($media ?? [], static fn (array $item): bool => ($item['review_status'] ?? '') !== 'rejected')); ?>
+    <article class="panel">
+        <h2>Fotos da partida (<?= count($photos) ?>)</h2>
+        <p class="muted">Súmula assinada, fotos dos times, do campo, da arbitragem. Vão para a prestação de contas.</p>
+        <?php if ($photos !== []): ?>
+            <div class="operator-photos">
+                <?php foreach ($photos as $photo): ?>
+                    <a href="<?= $e(App\Core\Config::url('/admin/partidas/' . (int) $match['id'] . '/evidencias/' . (int) $photo['id'])) ?>" target="_blank" rel="noopener" title="<?= $e($photo['original_name']) ?>">
+                        <?php if (str_starts_with((string) ($photo['mime_type'] ?? ''), 'image/')): ?><img src="<?= $e(App\Core\Config::url('/admin/partidas/' . (int) $match['id'] . '/evidencias/' . (int) $photo['id'])) ?>" alt="<?= $e($photo['title'] ?: 'Foto da partida') ?>" loading="lazy"><?php else: ?><span><?= $e($photo['original_name']) ?></span><?php endif; ?>
+                    </a>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
+        <?php if ($open && $canOperate): ?>
+            <form method="post" action="<?= $e(App\Core\Config::url('/admin/partidas/' . (int) $match['id'] . '/evidencias')) ?>" enctype="multipart/form-data" class="operator-form">
+                <input type="hidden" name="_csrf" value="<?= $csrf ?>">
+                <input type="hidden" name="return_to" value="operacao">
+                <input type="hidden" name="title" value="Foto da partida">
+                <input type="hidden" name="visibility" value="accountability">
+                <label>Escolher fotos <input type="file" name="files[]" accept="image/jpeg,image/png,image/webp" multiple required></label>
+                <button type="submit">Enviar fotos</button>
+            </form>
+        <?php endif; ?>
+        <p><a href="<?= $e(App\Core\Config::url('/admin/partidas/' . (int) $match['id'] . '/evidencias')) ?>">Ver todos os arquivos da partida</a></p>
+    </article>
+
     <?php if ($open && $canOperate): ?>
         <article class="panel critical-panel">
             <h2>Terminou a partida?</h2>

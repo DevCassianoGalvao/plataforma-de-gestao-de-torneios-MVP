@@ -243,6 +243,8 @@ $router->get('/prestacao/campeonatos/{id}', [$accountability, 'show']);
 $router->get('/prestacao/campeonatos/{id}/exportar/{kind}', [$accountability, 'export']);
 $router->get('/prestacao/campeonatos/{id}/partidas/{matchId}', [$accountability, 'detail']);
 $router->post('/prestacao/campeonatos/{id}/partidas/{matchId}/sumula-assinada', [$accountability, 'uploadSigned']);
+$router->get('/prestacao/campeonatos/{id}/partidas/{matchId}/pacote', [$accountability, 'matchPackage']);
+$router->get('/prestacao/campeonatos/{id}/partidas/{matchId}/arquivos/{kind}/{fileId}', [$accountability, 'file']);
 $retention = new RetentionController($users, $authorization, $audit, $retentionRepository, $retentionService, $permanentDeletion);
 $router->get('/admin/retencao', [$retention, 'index']);
 $router->post('/admin/retencao/excluir-definitivamente', [$retention, 'purge']);

@@ -40,6 +40,7 @@ final class MatchOperationService
             'players' => $this->playersForMatch($match),
             'rosters' => ['home' => $this->operations->roster((int) $match['championship_id'], (int) $match['home_team_id']), 'away' => $this->operations->roster((int) $match['championship_id'], (int) $match['away_team_id'])],
             'notes' => $this->operations->notes((int) $match['id']),
+            'media' => $this->evidence ? array_values(array_filter($this->evidence->list((int) $match['id']), static fn (array $item): bool => empty($item['deleted_at']))) : [],
             'staff' => $this->staffForMatch($match),
             'discipline' => $this->discipline ? ['home' => $this->discipline->activeForMatch((int) $match['championship_id'], (int) $match['id'], (int) $match['home_team_id']), 'away' => $this->discipline->activeForMatch((int) $match['championship_id'], (int) $match['id'], (int) $match['away_team_id'])] : ['home' => [], 'away' => []],
         ];
