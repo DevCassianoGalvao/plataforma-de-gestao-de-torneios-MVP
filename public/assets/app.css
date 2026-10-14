@@ -2831,3 +2831,23 @@ body.public-portal .match-detail-team a span { overflow-wrap: anywhere; }
 .operator-event-who small { color: var(--ui-text-muted); }
 .operator-notes { white-space: normal; }
 .operator-types .operator-hint { grid-column: 1 / -1; margin: 0 0 .2rem; font-size: .8rem; }
+
+/* Zona de classificacao na tabela do portal (por posicao, acompanha o simulador) */
+body.public-portal .standings-table[data-qualified="1"] tbody tr:nth-child(-n+1) td { background: color-mix(in srgb, var(--portal-green) 12%, transparent); }
+body.public-portal .standings-table[data-qualified="1"] tbody tr:nth-child(-n+1) td:first-child { box-shadow: inset 4px 0 0 var(--portal-green); }
+body.public-portal .standings-table[data-qualified="2"] tbody tr:nth-child(-n+2) td { background: color-mix(in srgb, var(--portal-green) 12%, transparent); }
+body.public-portal .standings-table[data-qualified="2"] tbody tr:nth-child(-n+2) td:first-child { box-shadow: inset 4px 0 0 var(--portal-green); }
+body.public-portal .standings-table[data-qualified="3"] tbody tr:nth-child(-n+3) td { background: color-mix(in srgb, var(--portal-green) 12%, transparent); }
+body.public-portal .standings-table[data-qualified="3"] tbody tr:nth-child(-n+3) td:first-child { box-shadow: inset 4px 0 0 var(--portal-green); }
+body.public-portal .standings-table[data-qualified="4"] tbody tr:nth-child(-n+4) td { background: color-mix(in srgb, var(--portal-green) 12%, transparent); }
+body.public-portal .standings-table[data-qualified="4"] tbody tr:nth-child(-n+4) td:first-child { box-shadow: inset 4px 0 0 var(--portal-green); }
+body.public-portal .standings-table[data-qualified="5"] tbody tr:nth-child(-n+5) td { background: color-mix(in srgb, var(--portal-green) 12%, transparent); }
+body.public-portal .standings-table[data-qualified="5"] tbody tr:nth-child(-n+5) td:first-child { box-shadow: inset 4px 0 0 var(--portal-green); }
+body.public-portal .standings-table[data-qualified="6"] tbody tr:nth-child(-n+6) td { background: color-mix(in srgb, var(--portal-green) 12%, transparent); }
+body.public-portal .standings-table[data-qualified="6"] tbody tr:nth-child(-n+6) td:first-child { box-shadow: inset 4px 0 0 var(--portal-green); }
+body.public-portal .standings-table[data-qualified="7"] tbody tr:nth-child(-n+7) td { background: color-mix(in srgb, var(--portal-green) 12%, transparent); }
+body.public-portal .standings-table[data-qualified="7"] tbody tr:nth-child(-n+7) td:first-child { box-shadow: inset 4px 0 0 var(--portal-green); }
+body.public-portal .standings-table[data-qualified="8"] tbody tr:nth-child(-n+8) td { background: color-mix(in srgb, var(--portal-green) 12%, transparent); }
+body.public-portal .standings-table[data-qualified="8"] tbody tr:nth-child(-n+8) td:first-child { box-shadow: inset 4px 0 0 var(--portal-green); }
+body.public-portal .standings-legend { display: flex; align-items: center; gap: .5rem; margin: -.35rem 0 .75rem; color: var(--portal-muted); font-size: .8rem; }
+body.public-portal .standings-legend span { width: .9rem; height: .9rem; border-radius: 3px; background: color-mix(in srgb, var(--portal-green) 30%, transparent); box-shadow: inset 3px 0 0 var(--portal-green); }
