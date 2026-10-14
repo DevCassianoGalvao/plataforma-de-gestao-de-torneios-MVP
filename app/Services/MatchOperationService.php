@@ -269,6 +269,7 @@ final class MatchOperationService
         $checklist = $this->checklist($match, $operation);
         if ($checklist['errors'] !== []) return ['ok' => false, 'errors' => $checklist['errors']];
         $this->operations->homologate((int) $operation['id'], (int) $match['id'], (int) $user['id']);
+        $this->operations->publishIfUnset((int) $match['id'], (int) $user['id']);
         if ($this->discipline) {
             $processed = $this->discipline->processHomologatedMatch(array_merge($match, ['id' => (int) $match['id'], 'status' => 'homologated']), (int) $user['id']);
             if (!$processed['ok']) return ['ok' => false, 'errors' => $processed['errors']];

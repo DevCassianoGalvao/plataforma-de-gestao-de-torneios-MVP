@@ -140,6 +140,13 @@ final class MatchOperationRepository
         return $statement->fetch() ?: ['internal_notes' => null, 'internal_notes_updated_at' => null, 'internal_notes_updated_by_name' => null];
     }
 
+    /** Publica no portal a partida aprovada que nunca teve publicacao configurada (retirada manual e respeitada). */
+    public function publishIfUnset(int $matchId, int $userId): void
+    {
+        $now = date('Y-m-d H:i:s');
+        $this->pdo->prepare("INSERT IGNORE INTO match_publications (match_id, status, published_at, published_by, created_at, updated_at) VALUES (?, 'published', ?, ?, ?, ?)")->execute([$matchId, $now, $userId, $now, $now]);
+    }
+
     public function createEvent(array $data): int
     {
         $now = date('Y-m-d H:i:s');
