@@ -74,7 +74,15 @@ final class MatchOperationController extends Controller
 
     public function finish(Request $request, array $params = []): Response
     {
-        return $this->mutate($request, $params, 'finish', fn (array $user, array $match): array => $this->service->finish($user, $match, ($request->body['confirm_checklist'] ?? '') === 'yes', array_merge((array) $request->body, ['evidence_override_authorized' => $this->authorization->can($user, 'evidence.override')])));
+        return $this->mutate($request, $params, 'finish', function (array $user, array $match) use ($request): array {
+            $data = array_merge((array) $request->body, ['evidence_override_authorized' => $this->authorization->can($user, 'evidence.override')]);
+            $finished = $this->service->finish($user, $match, ($request->body['confirm_checklist'] ?? '') === 'yes', $data);
+            if (!$finished['ok']) return $finished;
+            // Aprovacao automatica: encerrar ja publica o resultado e gera a sumula para a prestacao de contas.
+            $approved = $this->service->homologate($user, $match, true, $data);
+            if (!$approved['ok']) return ['ok' => false, 'errors' => array_merge(['A partida foi encerrada, mas a aprovacao automatica falhou; a administracao precisa aprovar.'], $approved['errors'])];
+            return $approved;
+        });
     }
 
     public function homologate(Request $request, array $params = []): Response
@@ -129,7 +137,7 @@ final class MatchOperationController extends Controller
         if (!$this->validCsrf($request)) return Response::forbidden('A sessao expirou.');
         $result = $callback($guard, $match);
         if (!$result['ok']) return $this->renderErrors($guard, $match, $result['errors']);
-        $messages = ['event' => 'Lançamento salvo.', 'remocao' => 'Lançamento removido.', 'finish' => 'Partida enviada para aprovação.', 'substitution' => 'Substituição salva.', 'officials' => 'Arbitragem salva.', 'times' => 'Horários salvos.', 'result' => 'Resultado administrativo salvo.'];
+        $messages = ['event' => 'Lançamento salvo.', 'remocao' => 'Lançamento removido.', 'finish' => 'Partida encerrada e aprovada. Súmula disponível na prestação de contas.', 'substitution' => 'Substituição salva.', 'officials' => 'Arbitragem salva.', 'times' => 'Horários salvos.', 'result' => 'Resultado administrativo salvo.'];
         Session::flash('match_operation_message', $messages[$action] ?? 'Registro salvo.');
         return Response::redirect(Config::url('/admin/partidas/' . $match['id'] . '/operacao'));
     }

@@ -30,7 +30,7 @@ $visibleEvents = array_values(array_filter($events, static fn (array $event): bo
     </article>
 
     <?php if (!$open): ?>
-        <p class="operator-status"><?= $operation['status'] === 'homologated' ? 'Resultado aprovado.' : 'Partida enviada para aprovação.' ?><?= $canHomologate ? '' : ' Para corrigir algo, fale com a administração.' ?></p>
+        <p class="operator-status"><?= $operation['status'] === 'homologated' ? 'Partida encerrada e aprovada.' : 'Partida encerrada, aguardando aprovação.' ?><?= $canHomologate ? '' : ' Para corrigir algo, fale com a administração.' ?></p>
     <?php elseif ($canOperate): ?>
         <article class="panel">
             <h2>Lançar gol ou cartão</h2>
@@ -122,11 +122,11 @@ $visibleEvents = array_values(array_filter($events, static fn (array $event): bo
     <?php if ($open && $canOperate): ?>
         <article class="panel critical-panel">
             <h2>Terminou a partida?</h2>
-            <p class="muted">Confira o placar e os lançamentos. Depois de enviar, só a administração consegue alterar.</p>
+            <p class="muted">Confira o placar e os lançamentos. Ao encerrar, o resultado é aprovado na hora: classificação e artilharia atualizam e a súmula vai para a prestação de contas. Depois disso, só a administração consegue corrigir.</p>
             <form method="post" action="<?= $e($operationBase . '/finalizar') ?>" class="operator-form">
                 <input type="hidden" name="_csrf" value="<?= $csrf ?>">
                 <label class="check"><input type="checkbox" name="confirm_checklist" value="yes" required> Conferi placar, gols e cartões</label>
-                <button type="submit">Enviar para aprovação</button>
+                <button type="submit">Encerrar partida</button>
             </form>
         </article>
     <?php endif; ?>
