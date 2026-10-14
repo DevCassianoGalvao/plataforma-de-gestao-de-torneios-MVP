@@ -7,8 +7,8 @@ $timeValue = static fn (array $operation, string $field): string => empty($opera
 $eventLabels = ['goal' => 'Gol', 'own_goal' => 'Gol contra', 'assist' => 'Assistencia', 'yellow' => 'Cartao amarelo', 'second_yellow' => 'Segundo amarelo', 'red' => 'Vermelho', 'occurrence' => 'Ocorrencia', 'penalty_scored' => 'Penalti convertido', 'penalty_missed' => 'Penalti perdido'];
 $operationStatusLabels = ['open' => 'Em operacao', 'awaiting_homologation' => 'Aguardando revisao', 'homologated' => 'Aprovada'];
 $reviewStatusLabels = ['not_submitted' => 'Em preenchimento', 'awaiting_review' => 'Aguardando revisao', 'returned' => 'Devolvida para correcao', 'rejected' => 'Rejeitada', 'approved' => 'Aprovada'];
-$homeShield = !empty($match['home_team_shield_path']) ? \App\Core\Config::url('/admin/equipes/' . $match['home_team_slug'] . '/assets/shield') : '';
-$awayShield = !empty($match['away_team_shield_path']) ? \App\Core\Config::url('/admin/equipes/' . $match['away_team_slug'] . '/assets/shield') : '';
+$homeShield = !empty($match['home_team_shield_path']) ? \App\Core\Config::url('/admin/partidas/' . $match['id'] . '/operacao/escudo/mandante') : '';
+$awayShield = !empty($match['away_team_shield_path']) ? \App\Core\Config::url('/admin/partidas/' . $match['id'] . '/operacao/escudo/visitante') : '';
 $fieldAsset = \App\Core\Config::url('/assets/football-field.svg');
 $playerInitials = static fn (array $player): string => strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '', (string) ($player['sporting_name'] ?: $player['full_name'])) ?: 'AT', 0, 2));
 ?>

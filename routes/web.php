@@ -398,7 +398,7 @@ $router->post('/admin/partidas/{id}/escalacao/{teamId}/automatico', [$lineup, 'a
 $router->post('/admin/partidas/{id}/escalacao/{teamId}/reutilizar-anterior', [$lineup, 'reusePrevious']);
 $router->post('/admin/partidas/{id}/escalacao/{teamId}/reabrir', [$lineup, 'reopen']);
 
-$operation = new MatchOperationController($users, $authorization, $audit, $operationAccess, $operationService, $operations);
+$operation = new MatchOperationController($users, $authorization, $audit, $operationAccess, $operationService, $operations, $storage);
 $operator = new MatchOperatorController($users, $authorization, $audit, $operations, $operationAccess, $scheduleAccess);
 $media = new MatchMediaController($users, $authorization, $audit, $matchMedia, $operationAccess, $storage);
 $evidence = new EvidenceChecklistController($users, $authorization, $audit, $evidenceChecklist);
@@ -427,6 +427,7 @@ $router->post('/admin/partidas/{id}/operacao/evento', [$operation, 'event']);
 $router->post('/admin/partidas/{id}/operacao/evento/anular', [$operation, 'cancelEvent']);
 $router->post('/admin/partidas/{id}/operacao/evento/remover', [$operation, 'removeEvent']);
 $router->post('/admin/partidas/{id}/operacao/observacoes', [$operation, 'notes']);
+$router->get('/admin/partidas/{id}/operacao/escudo/{side}', [$operation, 'shield']);
 $router->post('/admin/partidas/{id}/operacao/substituicao', [$operation, 'substitution']);
 $router->post('/admin/partidas/{id}/operacao/arbitragem', [$operation, 'officials']);
 $router->post('/admin/partidas/{id}/operacao/horarios', [$operation, 'times']);

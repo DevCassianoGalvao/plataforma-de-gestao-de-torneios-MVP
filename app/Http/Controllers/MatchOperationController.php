@@ -13,7 +13,7 @@ use App\Services\MatchOperationService;
 
 final class MatchOperationController extends Controller
 {
-    public function __construct($users, \App\Services\AuthorizationService $authorization, \App\Services\AuditService $audit, private readonly MatchOperationAccessService $access, private readonly MatchOperationService $service, private readonly MatchOperationRepository $operations)
+    public function __construct($users, \App\Services\AuthorizationService $authorization, \App\Services\AuditService $audit, private readonly MatchOperationAccessService $access, private readonly MatchOperationService $service, private readonly MatchOperationRepository $operations, private readonly \App\Services\StorageService $storage)
     {
         parent::__construct($users, $authorization, $audit);
     }
@@ -24,7 +24,7 @@ final class MatchOperationController extends Controller
         if ($guard instanceof Response) return $guard;
         $match = $this->access->matchForUser($guard, (int) ($params[0] ?? 0));
         if (!$match || !$this->access->canView($guard, $match)) return Response::forbidden();
-        return $this->page('Central operacional da partida', $this->viewFor($guard, $match), $this->viewData($guard, $match, []));
+        return $this->page('Central operacional da partida', $this->viewFor($guard, $match, ($request->query['completo'] ?? '') === '1'), $this->viewData($guard, $match, []));
     }
 
     public function notes(Request $request, array $params = []): Response
@@ -152,10 +152,27 @@ final class MatchOperationController extends Controller
         return $this->errorPage('Central operacional', $this->viewFor($user, $match),array_merge($this->viewData($user, $match, $errors), ['errors' => $errors]), 422);
     }
 
-    /** Operador (sem poder de aprovar) usa a tela simplificada: gols, cartoes e observacoes. */
-    private function viewFor(array $user, array $match): string
+    /** Escudo de uma das equipes da partida, para quem pode ver a Central (operador nao tem teams.view). */
+    public function shield(Request $request, array $params = []): Response
     {
-        return $this->access->canHomologate($user, $match) ? 'admin/matches/operation' : 'admin/matches/operation-simple';
+        $guard = $this->guard($request, 'match_operation.view');
+        if ($guard instanceof Response) return $guard;
+        $match = $this->access->matchForUser($guard, (int) ($params[0] ?? 0));
+        if (!$match || !$this->access->canView($guard, $match)) return Response::forbidden();
+        $side = (string) ($params[1] ?? '');
+        $path = $side === 'mandante' ? ($match['home_team_shield_path'] ?? '') : ($side === 'visitante' ? ($match['away_team_shield_path'] ?? '') : '');
+        $file = $path ? $this->storage->read((string) $path) : null;
+        if (!$file) return Response::html('Escudo nao encontrado.', 404);
+        return Response::binary($file['body'], $file['mime']);
+    }
+
+    /**
+     * Tela simplificada (gols, cartoes, observacoes, fotos) para todos, seguindo a sumula em papel.
+     * A Central completa continua disponivel para quem aprova, em ?completo=1.
+     */
+    private function viewFor(array $user, array $match, bool $full = false): string
+    {
+        return $full && $this->access->canHomologate($user, $match) ? 'admin/matches/operation' : 'admin/matches/operation-simple';
     }
 
     private function viewData(array $user, array $match, array $errors): array

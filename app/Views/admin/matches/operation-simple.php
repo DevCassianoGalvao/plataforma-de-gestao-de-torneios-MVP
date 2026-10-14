@@ -19,17 +19,18 @@ $visibleEvents = array_values(array_filter($events, static fn (array $event): bo
 <section class="operator-simple">
     <p class="eyebrow"><?= $e($match['championship_name'] ?? '') ?> · Rodada <?= (int) ($match['round_number'] ?? 0) ?></p>
     <h1>Súmula da partida</h1>
+    <p class="muted operator-when"><?= $e(!empty($match['match_date']) ? date('d/m/Y', strtotime((string) $match['match_date'])) : 'Data a definir') ?><?= !empty($match['match_time']) ? ' · ' . $e(substr((string) $match['match_time'], 0, 5)) : '' ?><?= !empty($match['venue_name']) ? ' · ' . $e($match['venue_name']) : '' ?></p>
     <?php if (!empty($message)): ?><p class="success" role="status"><?= $e($message) ?></p><?php endif; ?>
     <?php if (!empty($errors)): ?><div class="error" role="alert"><?php foreach ($errors as $error): ?><p><?= $e($error) ?></p><?php endforeach; ?></div><?php endif; ?>
 
     <article class="operator-score">
-        <strong><?= $e($match['home_team_name']) ?></strong>
+        <span class="operator-team"><?php if (!empty($match['home_team_shield_path'])): ?><img src="<?= $e($operationBase . '/escudo/mandante') ?>" alt="" loading="lazy"><?php endif; ?><strong><?= $e($match['home_team_name']) ?></strong></span>
         <b><?= (int) $score['home_score'] ?> x <?= (int) $score['away_score'] ?></b>
-        <strong><?= $e($match['away_team_name']) ?></strong>
+        <span class="operator-team"><?php if (!empty($match['away_team_shield_path'])): ?><img src="<?= $e($operationBase . '/escudo/visitante') ?>" alt="" loading="lazy"><?php endif; ?><strong><?= $e($match['away_team_name']) ?></strong></span>
     </article>
 
     <?php if (!$open): ?>
-        <p class="operator-status">Partida enviada para aprovação. Para corrigir algo, fale com a administração.</p>
+        <p class="operator-status"><?= $operation['status'] === 'homologated' ? 'Resultado aprovado.' : 'Partida enviada para aprovação.' ?><?= $canHomologate ? '' : ' Para corrigir algo, fale com a administração.' ?></p>
     <?php elseif ($canOperate): ?>
         <article class="panel">
             <h2>Lançar gol ou cartão</h2>
@@ -54,7 +55,6 @@ $visibleEvents = array_values(array_filter($events, static fn (array $event): bo
                         <?php endforeach; ?>
                     </select>
                 </label>
-                <label>Minuto (opcional) <input type="number" name="minute" min="0" max="130" inputmode="numeric"></label>
                 <button type="submit">Lançar</button>
             </form>
         </article>
@@ -69,7 +69,7 @@ $visibleEvents = array_values(array_filter($events, static fn (array $event): bo
                 <?php foreach ($visibleEvents as $event): ?>
                     <li>
                         <span class="operator-event-type is-<?= $e($event['event_type']) ?>"><?= $e($typeLabels[$event['event_type']]) ?></span>
-                        <span class="operator-event-who"><strong><?= $e($event['athlete_name'] ?: 'Autor não informado') ?></strong><small><?= $event['event_type'] === 'own_goal' ? 'a favor de ' : '' ?><?= $e($event['team_name'] ?: '') ?><?= $event['minute'] !== null ? ' · ' . (int) $event['minute'] . "'" : '' ?></small></span>
+                        <span class="operator-event-who"><strong><?= $e($event['athlete_name'] ?: 'Autor não informado') ?></strong><small><?= $event['event_type'] === 'own_goal' ? 'a favor de ' : '' ?><?= $e($event['team_name'] ?: '') ?></small></span>
                         <?php if ($open && $canOperate): ?>
                             <form method="post" action="<?= $e($operationBase . '/evento/remover') ?>"><input type="hidden" name="_csrf" value="<?= $csrf ?>"><input type="hidden" name="event_id" value="<?= (int) $event['id'] ?>"><button type="submit" class="button-danger">Remover</button></form>
                         <?php endif; ?>
@@ -82,7 +82,7 @@ $visibleEvents = array_values(array_filter($events, static fn (array $event): bo
     <article class="panel">
         <h2>Observações da partida</h2>
         <p class="muted">Ocorrências, brigas, paralisações, relatório do árbitro. Uso interno: não aparece no site.</p>
-        <?php if ($open && $canOperate): ?>
+        <?php if (($open && $canOperate) || $canHomologate): ?>
             <form method="post" action="<?= $e($operationBase . '/observacoes') ?>" class="operator-form">
                 <input type="hidden" name="_csrf" value="<?= $csrf ?>">
                 <textarea name="internal_notes" rows="7" maxlength="10000"><?= $e($notes['internal_notes'] ?? '') ?></textarea>
@@ -130,4 +130,16 @@ $visibleEvents = array_values(array_filter($events, static fn (array $event): bo
             </form>
         </article>
     <?php endif; ?>
+    <?php if ($canHomologate && $operation['status'] === 'awaiting_homologation'): ?>
+        <article class="panel critical-panel">
+            <h2>Aprovar resultado</h2>
+            <p class="muted">Ao aprovar, classificação, artilharia, cartões e súmula são atualizados.</p>
+            <form method="post" action="<?= $e($operationBase . '/homologar') ?>" class="operator-form">
+                <input type="hidden" name="_csrf" value="<?= $csrf ?>">
+                <label class="check"><input type="checkbox" name="confirm_homologation" value="yes" required> Conferi placar, gols e cartões</label>
+                <button type="submit">Aprovar resultado</button>
+            </form>
+        </article>
+    <?php endif; ?>
+    <?php if ($canHomologate): ?><p class="operator-full-link"><a href="<?= $e($operationBase . '?completo=1') ?>">Abrir Central completa (escalação, arbitragem, horários, substituições)</a></p><?php endif; ?>
 </section>
