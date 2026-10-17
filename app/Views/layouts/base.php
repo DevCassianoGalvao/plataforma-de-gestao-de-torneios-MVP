@@ -4,7 +4,8 @@ $e = static fn (mixed $value): string => App\Core\View::e($value);
 $currentUser = App\Core\Auth::user();
 $menuAuth = $currentUser ? new App\Services\AuthorizationService(new App\Repositories\UserRepository(App\Core\Database::connection())) : null;
 $isAdministrator = $currentUser && $menuAuth && in_array('administrator', $menuAuth->roleKeys($currentUser), true);
-$isAccountabilityOnly = $currentUser && $menuAuth && !$isAdministrator && in_array('accountability', $menuAuth->roleKeys($currentUser), true);
+$isAccountabilityOnly = $currentUser && $menuAuth && !$isAdministrator && in_array('accountability', $menuAuth->roleKeys($currentUser), true)
+    && array_diff($menuAuth->roleKeys($currentUser), ['accountability']) === [];
 $primaryRole = $currentUser && $menuAuth ? $menuAuth->primaryRole($currentUser) : null;
 $homePathByRole = [
     'administrator' => '/admin',
