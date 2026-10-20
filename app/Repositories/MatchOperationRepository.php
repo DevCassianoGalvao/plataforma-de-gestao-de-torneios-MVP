@@ -348,6 +348,15 @@ final class MatchOperationRepository
         return $statement->fetchAll();
     }
 
+    /** Partidas abertas dos campeonatos em que o usuario e organizador. */
+    public function organizerOpenMatches(int $userId): array
+    {
+        $statement = $this->pdo->prepare("SELECT championship_id FROM championship_user_assignments WHERE user_id = ? AND assignment_type = 'organizer'");
+        $statement->execute([$userId]);
+        $championshipIds = array_map('intval', $statement->fetchAll(\PDO::FETCH_COLUMN));
+        return array_values(array_filter($this->allOpenMatches(), static fn (array $match): bool => in_array((int) $match['championship_id'], $championshipIds, true)));
+    }
+
     public function allOpenMatches(): array
     {
         $statement = $this->pdo->query("SELECT m.*, c.name AS championship_name, p.name AS phase_name, g.name AS group_name, r.round_number, ht.name AS home_team_name, at.name AS away_team_name, v.name AS venue_name, mo.status AS operation_status FROM matches m INNER JOIN championships c ON c.id = m.championship_id AND c.archived_at IS NULL INNER JOIN competition_phases p ON p.id = m.phase_id INNER JOIN competition_groups g ON g.id = m.group_id INNER JOIN competition_rounds r ON r.id = m.round_id INNER JOIN teams ht ON ht.id = m.home_team_id INNER JOIN teams at ON at.id = m.away_team_id LEFT JOIN venues v ON v.id = m.venue_id LEFT JOIN match_operations mo ON mo.match_id = m.id WHERE m.status NOT IN ('cancelled', 'homologated') ORDER BY m.match_date IS NULL, m.match_date, m.match_time, m.id");

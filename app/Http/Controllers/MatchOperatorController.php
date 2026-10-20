@@ -21,9 +21,13 @@ final class MatchOperatorController extends Controller
     {
         $user = $this->guard($request, 'matches.operate'); if ($user instanceof Response) return $user;
         $scope = $this->operationAccess->scope($user);
-        if (!in_array($scope, ['operator', 'administrator'], true)) return Response::forbidden();
-        $items = $scope === 'administrator' ? $this->operations->allOpenMatches() : $this->operations->assignedMatches((int) $user['id']);
-        return $this->page($scope === 'administrator' ? 'Partidas para operar' : 'Minhas partidas', 'operator/matches', ['user' => $user, 'items' => $items, 'isAdministrator' => $scope === 'administrator']);
+        if (!in_array($scope, ['operator', 'administrator', 'championship'], true)) return Response::forbidden();
+        $items = match ($scope) {
+            'administrator' => $this->operations->allOpenMatches(),
+            'championship' => $this->operations->organizerOpenMatches((int) $user['id']),
+            default => $this->operations->assignedMatches((int) $user['id']),
+        };
+        return $this->page($scope === 'operator' ? 'Minhas partidas' : 'Partidas para operar', 'operator/matches', ['user' => $user, 'items' => $items, 'isAdministrator' => $scope !== 'operator']);
     }
 
     public function assignments(Request $request, array $params = []): Response
