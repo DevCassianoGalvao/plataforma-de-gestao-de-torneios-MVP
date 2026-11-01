@@ -108,6 +108,14 @@ echo 'Partidas em ' . $opt['de1'] . ': ' . count($day1) . ' | em ' . $opt['de2']
 foreach ($plan as [$m, $newDate, $restore]) {
     echo ($restore ? '  RESTAURAR + ' : '  ') . $label($m) . ": {$m['match_date']} -> {$newDate}" . ($restore ? " (de CANCELADA para AGENDADA)\n" : "\n");
 }
+foreach ($plan as [$m, $newDate, $restore]) {
+    if (!$restore) continue;
+    $played = $pdo->prepare("SELECT m2.id, m2.match_date FROM matches m2 WHERE m2.championship_id = ? AND m2.id <> ? AND m2.status IN ('finished', 'homologated') AND ((m2.home_team_id = ? AND m2.away_team_id = ?) OR (m2.home_team_id = ? AND m2.away_team_id = ?))");
+    $played->execute([$championshipId, $m['id'], $m['home_team_id'], $m['away_team_id'], $m['away_team_id'], $m['home_team_id']]);
+    $already = $played->fetchAll();
+    echo "\n  CONFERENCIA da restaurada: {$m['home']} x {$m['away']} ({$m['grupo']}, rodada {$m['round_number']}) - " . ($already ? 'ATENCAO: esses times JA jogaram entre si (partida #' . $already[0]['id'] . ' em ' . $already[0]['match_date'] . "), pode ser a partida errada!\n" : "os dois times ainda NAO se enfrentaram (consistente com ser a partida que faltava).\n");
+    if ($already) $errors[] = 'A cancelada achada ja tem confronto jogado entre os mesmos times; confirme comigo antes de gravar.';
+}
 foreach ($skipped as [$m, $date]) echo "  NAO MEXE ({$m['status']}): " . $label($m) . " em {$date}\n";
 $rounds = $pdo->prepare("SELECT g.name AS grupo, r.round_number, r.period_start, r.period_end FROM competition_rounds r INNER JOIN competition_groups g ON g.id = r.group_id INNER JOIN competition_phases p ON p.id = r.phase_id WHERE p.championship_id = ? AND (r.period_start IN (?, ?) OR r.period_end IN (?, ?))");
 $rounds->execute([$championshipId, $opt['de1'], $opt['de2'], $opt['de1'], $opt['de2']]);
