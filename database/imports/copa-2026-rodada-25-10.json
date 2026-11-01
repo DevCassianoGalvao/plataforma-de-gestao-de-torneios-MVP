@@ -1,0 +1,79 @@
+{
+    "championship": "Copa Brasil de Talentos 2026",
+    "matches": [
+        {
+            "home": "Sana FC",
+            "away": "Santiago FC",
+            "score": [4, 3],
+            "events": [
+                {"type": "goal", "team": "Sana FC", "athlete": "Diego da Silva Pereira"},
+                {"type": "goal", "team": "Sana FC", "athlete": "Rodrigo Nolasco Mendonça"},
+                {"type": "goal", "team": "Sana FC", "athlete": "Rodrigo Nolasco Mendonça"},
+                {"type": "goal", "team": "Sana FC", "athlete": "Uemerson Dias Viana"},
+                {"type": "yellow", "team": "Sana FC", "athlete": "Iago Dias Sanches"},
+                {"type": "goal", "team": "Santiago FC", "athlete": "Édson Diogo Bom Freiman"},
+                {"type": "goal", "team": "Santiago FC", "athlete": "Jhonatan Kher Caldeira"},
+                {"type": "goal", "team": "Santiago FC", "athlete": "Maycon Pacheco Faltz"},
+                {"type": "yellow", "team": "Santiago FC", "athlete": "Anderson Piller Ther Dias"},
+                {"type": "yellow", "team": "Santiago FC", "athlete": "José braz Klein"}
+            ]
+        },
+        {
+            "home": "Mury FC",
+            "away": "Retiro Saudoso FC",
+            "score": [4, 2],
+            "events": [
+                {"type": "goal", "team": "Mury FC", "athlete": "Airton Freitas Sanches"},
+                {"type": "goal", "team": "Mury FC", "athlete": "Cristiano Junior Azevedo Da Silva"},
+                {"type": "goal", "team": "Mury FC", "athlete": "Cristiano Junior Azevedo Da Silva"},
+                {"type": "goal", "team": "Mury FC", "athlete": "Marcus Vinicius Costa Satyro"},
+                {"type": "yellow", "team": "Mury FC", "athlete": "André Luís Cardoso Nogueira Bauer"},
+                {"type": "yellow", "team": "Mury FC", "athlete": "joao pedro ribeiro pacheco"},
+                {"type": "yellow", "team": "Mury FC", "athlete": "João Victor marcolino da Silva Pereira"},
+                {"type": "yellow", "team": "Mury FC", "athlete": "Kaio da Silva Gomes"},
+                {"type": "goal", "team": "Retiro Saudoso FC", "athlete": "Carlos Alexandre Freiman Tardem"},
+                {"type": "goal", "team": "Retiro Saudoso FC", "athlete": "Leandro Gomes Oliveira"},
+                {"type": "yellow", "team": "Retiro Saudoso FC", "athlete": "Carlos Alexandre Freiman Tardem"},
+                {"type": "yellow", "team": "Retiro Saudoso FC", "athlete": "Fernando marcos tuler"},
+                {"type": "yellow", "team": "Retiro Saudoso FC", "athlete": "Luiz Carlos Silva"},
+                {"type": "yellow", "team": "Retiro Saudoso FC", "athlete": "Roberto rosa da Silva"}
+            ]
+        },
+        {
+            "home": "Boa Esperança FC",
+            "away": "Rio Bonito FC",
+            "score": [5, 2],
+            "events": [
+                {"type": "goal", "team": "Boa Esperança FC", "athlete": "Gustavo Boy"},
+                {"type": "goal", "team": "Boa Esperança FC", "athlete": "Higor de Aguiar heiderich"},
+                {"type": "goal", "team": "Boa Esperança FC", "athlete": "Higor de Aguiar heiderich"},
+                {"type": "goal", "team": "Boa Esperança FC", "athlete": "Weslei jesus de Araújo"},
+                {"type": "goal", "team": "Boa Esperança FC", "athlete": "Weslei jesus de Araújo"},
+                {"type": "yellow", "team": "Boa Esperança FC", "athlete": "Gustavo Boy"},
+                {"type": "goal", "team": "Rio Bonito FC", "athlete": "FABRICIO GUIMARAES PEREIRA"},
+                {"type": "goal", "team": "Rio Bonito FC", "athlete": "PABLO WANDROFSKI KLEIN"},
+                {"type": "yellow", "team": "Rio Bonito FC", "athlete": "LUCIANO GAMA JORDAO"},
+                {"type": "yellow", "team": "Rio Bonito FC", "athlete": "RAFAEL THER"}
+            ]
+        },
+        {
+            "home": "Ousadia e Alegria FC",
+            "away": "Viguinha FC",
+            "score": [6, 1],
+            "events": [
+                {"type": "goal", "team": "Ousadia e Alegria FC", "athlete": "André Almeida de Souza"},
+                {"type": "goal", "team": "Ousadia e Alegria FC", "athlete": "André de Oliveira da silva"},
+                {"type": "goal", "team": "Ousadia e Alegria FC", "athlete": "Claudemir Ferreira da Silva"},
+                {"type": "goal", "team": "Ousadia e Alegria FC", "athlete": "Edson da Silva"},
+                {"type": "goal", "team": "Ousadia e Alegria FC", "athlete": "Lucas Costa ponte"},
+                {"type": "goal", "team": "Ousadia e Alegria FC", "athlete": "Robert Maike da Silva"},
+                {"type": "yellow", "team": "Ousadia e Alegria FC", "athlete": "André Almeida de Souza"},
+                {"type": "yellow", "team": "Ousadia e Alegria FC", "athlete": "Pedro Lucas de oliveira"},
+                {"type": "yellow", "team": "Ousadia e Alegria FC", "athlete": "Rodrigo Xavier dos Santos"},
+                {"type": "goal", "team": "Viguinha FC", "athlete": "Romario Damazio Pinheiros"},
+                {"type": "yellow", "team": "Viguinha FC", "athlete": "Cauãn Rangel Soares da Silva"},
+                {"type": "yellow", "team": "Viguinha FC", "athlete": "Rodrigo Martins de Castro"}
+            ]
+        }
+    ]
+}
