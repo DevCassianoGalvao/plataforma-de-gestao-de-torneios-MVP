@@ -116,10 +116,12 @@ foreach ($data['matches'] as $i => $spec) {
         if ($isGoal) $goals[$event['team']] = ($goals[$event['team']] ?? 0) + 1;
         $events[] = ['type' => $event['type'], 'team_id' => $teamId, 'team' => $event['team'], 'athlete_id' => (int) $approved[0]['id'], 'athlete' => $approved[0]['full_name']];
     }
-    if ([$goals[$spec['home']] ?? 0, $goals[$spec['away']] ?? 0] !== [(int) $spec['score'][0], (int) $spec['score'][1]]) {
+    $wo = trim((string) ($spec['wo'] ?? ''));
+    if ($wo !== '' && $events !== []) $errors[] = "{$label}: W.O. nao pode ter gols/cartoes.";
+    if ($wo === '' && [$goals[$spec['home']] ?? 0, $goals[$spec['away']] ?? 0] !== [(int) $spec['score'][0], (int) $spec['score'][1]]) {
         $errors[] = "{$label}: gols lancados (" . ($goals[$spec['home']] ?? 0) . 'x' . ($goals[$spec['away']] ?? 0) . ") nao batem com o placar {$spec['score'][0]}x{$spec['score'][1]}.";
     }
-    $plan[] = ['label' => $label, 'match_id' => (int) $match['id'], 'system' => $match['home_name'] . ' (mandante) x ' . $match['away_name'], 'score' => $spec['score'], 'events' => $events, 'notes' => trim((string) ($spec['notes'] ?? ''))];
+    $plan[] = ['label' => $label, 'match_id' => (int) $match['id'], 'system' => $match['home_name'] . ' (mandante) x ' . $match['away_name'], 'score' => $spec['score'], 'events' => $events, 'wo' => $wo, 'wo_home' => (int) ($teamIds[$spec['home']] === (int) $match['home_team_id'] ? $spec['score'][0] : $spec['score'][1]), 'wo_away' => (int) ($teamIds[$spec['home']] === (int) $match['home_team_id'] ? $spec['score'][1] : $spec['score'][0]), 'notes' => trim((string) ($spec['notes'] ?? ''))];
 }
 
 $names = ['goal' => 'GOL', 'own_goal' => 'GOL CONTRA', 'yellow' => 'AMARELO', 'second_yellow' => '2o AMARELO', 'red' => 'VERMELHO'];
@@ -128,6 +130,8 @@ echo "Campeonato: {$champs[0]['name']} (#{$championshipId}) | Usuario: {$user['n
 foreach ($plan as $p) {
     echo "{$p['label']}  [partida #{$p['match_id']} — {$p['system']}]  placar {$p['score'][0]}x{$p['score'][1]}\n";
     foreach ($p['events'] as $e) echo "   - {$names[$e['type']]}: {$e['athlete']} (" . ($e['type'] === 'own_goal' ? 'a favor de ' : '') . "{$e['team']})\n";
+    if ($p['wo'] !== '') echo "   - W.O. (resultado administrativo): {$p['wo']}
+";
     if ($p['notes'] !== '') echo '   - OBSERVACOES: ' . mb_strlen($p['notes']) . " caracteres\n";
 }
 if ($errors !== []) {
@@ -158,6 +162,7 @@ foreach ($plan as $p) {
             $operations->createEvent(['match_id' => $matchId, 'team_id' => $e['team_id'], 'person_type' => 'athlete', 'athlete_id' => $e['athlete_id'], 'related_athlete_id' => null, 'event_type' => $e['type'], 'period' => 'regular', 'minute' => null, 'notes' => 'Importado da sumula manuscrita.', 'created_by' => $userId]);
         }
         if ($p['notes'] !== '') $operations->saveNotes($matchId, $p['notes'], $userId);
+        if ($p['wo'] !== '') $operations->setAdministrativeResult((int) $operation['id'], $p['wo_home'], $p['wo_away'], $p['wo'], $userId);
         $operations->finish((int) $operation['id'], $matchId, $userId);
         $operations->homologate((int) $operation['id'], $matchId, $userId);
         $pdo->commit();

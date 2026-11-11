@@ -1,0 +1,62 @@
+{
+    "championship": "Copa Brasil de Talentos 2026",
+    "matches": [
+        {
+            "home": "Mury FC",
+            "away": "Santiago FC",
+            "score": [2, 2],
+            "events": [
+                {"type": "goal", "team": "Mury FC", "athlete": "André Luís Cardoso Nogueira Bauer"},
+                {"type": "goal", "team": "Mury FC", "athlete": "Bruno Lopes Nicolau"},
+                {"type": "yellow", "team": "Mury FC", "athlete": "Ivens Raphael da Silva Martins"},
+                {"type": "yellow", "team": "Mury FC", "athlete": "Kaio da Silva Gomes"},
+                {"type": "yellow", "team": "Mury FC", "athlete": "Lucas Moraes Dias"},
+                {"type": "goal", "team": "Santiago FC", "athlete": "Édson Diogo Bom Freiman"},
+                {"type": "goal", "team": "Santiago FC", "athlete": "Gustavo Corrêa Cardoso"},
+                {"type": "yellow", "team": "Santiago FC", "athlete": "Gustavo Corrêa Cardoso"},
+                {"type": "yellow", "team": "Santiago FC", "athlete": "Leonardo de Oliveira Ther"},
+                {"type": "yellow", "team": "Santiago FC", "athlete": "Maycon Pacheco Faltz"}
+            ]
+        },
+        {
+            "home": "Boa Esperança FC",
+            "away": "Viguinha FC",
+            "score": [2, 4],
+            "events": [
+                {"type": "goal", "team": "Boa Esperança FC", "athlete": "Higor de Aguiar Heiderich"},
+                {"type": "goal", "team": "Boa Esperança FC", "athlete": "Kelvin Eller Faltz"},
+                {"type": "yellow", "team": "Boa Esperança FC", "athlete": "Ederson Eller"},
+                {"type": "yellow", "team": "Boa Esperança FC", "athlete": "Wellerson Belinger Maia"},
+                {"type": "yellow", "team": "Boa Esperança FC", "athlete": "Caio Faltz"},
+                {"type": "goal", "team": "Viguinha FC", "athlete": "Maicon Ramos de Oliveira Camargo"},
+                {"type": "goal", "team": "Viguinha FC", "athlete": "Michel Bonfim Eler"},
+                {"type": "goal", "team": "Viguinha FC", "athlete": "Michel Bonfim Eler"},
+                {"type": "goal", "team": "Viguinha FC", "athlete": "Rodrigo Martins de Castro"},
+                {"type": "yellow", "team": "Viguinha FC", "athlete": "Pedro Kher da Silva"}
+            ]
+        },
+        {
+            "home": "Retiro Saudoso FC",
+            "away": "Bragantino FC",
+            "score": [3, 0],
+            "events": [],
+            "wo": "Vitória por W.O.: Bragantino sem meião (informado por Gabriel Lyrio).",
+            "notes": "Vitória por W.O. do Retiro Saudoso FC: Bragantino FC sem meião (informado por Gabriel Lyrio). Sem gols nem cartões na súmula."
+        },
+        {
+            "home": "Rio Bonito FC",
+            "away": "Lumiar FC",
+            "score": [1, 7],
+            "events": [
+                {"type": "goal", "team": "Rio Bonito FC", "athlete": "Marcelo Ferraz"},
+                {"type": "goal", "team": "Lumiar FC", "athlete": "Igor Eller Tardem"},
+                {"type": "goal", "team": "Lumiar FC", "athlete": "Murillo Souza Barroso"},
+                {"type": "goal", "team": "Lumiar FC", "athlete": "Murillo Souza Barroso"},
+                {"type": "goal", "team": "Lumiar FC", "athlete": "Murillo Souza Barroso"},
+                {"type": "goal", "team": "Lumiar FC", "athlete": "Thiago Baptista Grassini"},
+                {"type": "goal", "team": "Lumiar FC", "athlete": "Thiago Baptista Grassini"},
+                {"type": "goal", "team": "Lumiar FC", "athlete": "Thiago Baptista Grassini"}
+            ]
+        }
+    ]
+}
